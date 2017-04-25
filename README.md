@@ -5,7 +5,7 @@
 * Python 3.5+
 * Soporte para SQLite3
 * pip
-	* aiohttp==1.0.5 
+	* aiohttp
 	* appdirs
 	* async-timeout
 	* charde
@@ -23,7 +23,7 @@
 
 1. Clonar el repositorio.
 2. cd alexis-bot
-2. Configurar config.yml.
+2. Renombrar config.yml.example a config.yml y configurar.
 3. virtualenv .
 4. source bin/activate
 5. pip install -r requirements.txt

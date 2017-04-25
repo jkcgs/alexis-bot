@@ -9,9 +9,13 @@ import logging
 import datetime
 import peewee
 import yaml
+import sys
+import platform
+import sqlite3
 
 __author__ = 'Nicolás Santisteban'
-__version__ = '0.0.1'
+__license__ = 'MIT'
+__version__ = '0.0.2'
 
 client = discord.Client()
 db = peewee.SqliteDatabase('database.db')
@@ -72,7 +76,7 @@ if __name__ == '__main__':
 		await client.wait_until_ready()
 		while not client.is_closed:
 			try:
-				r = requests.get('https://www.reddit.com/r/chile/new/.json', headers = {'User-agent': 'Alexis'})
+				r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit']), headers = {'User-agent': 'Alexis'})
 				if r.status_code == 200:
 					try:
 						exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
@@ -93,12 +97,27 @@ if __name__ == '__main__':
 
 	@client.event
 	async def on_ready():
-		logger.info('Logged in as')
-		logger.info(client.user.name)
-		logger.info(client.user.id)
-		logger.info('------')
-		await client.change_presence(game=discord.Game(name='/r/chile'))
+		try:
+			logger.info('Logged in as:')
+			logger.info(client.user.name)
+			logger.info(client.user.id)
+			logger.info('------')
+			await client.change_presence(game=discord.Game(name=config['playing']))
+		except Exception as e:
+			logger.exception(e)
+			raise
 
 
-	client.loop.create_task(get_reddit_new())
-	client.run(config['token'])
+	logger.info('"Alexis Bot" version {}.'.format(__version__))
+	logger.info('Python {} on {}.'.format(sys.version, sys.platform))
+	logger.info(platform.uname())
+	logger.info('SQLite3 support for version {}.'.format(sqlite3.sqlite_version))
+	logger.info('------')
+
+
+	try:
+		client.loop.create_task(get_reddit_new())
+		client.run(config['token'])
+	except Exception as e:
+		logger.exception(e)
+		raise

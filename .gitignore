@@ -1,5 +1,6 @@
 # Application
 
+config.yml
 database.db
 logs/
 
