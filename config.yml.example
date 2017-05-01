@@ -1,5 +1,6 @@
-token: "aaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbb.cccccccc-dddddddddddddddddd"
-channel_id: ['zzzzzzzzzzzzzzzzzzzzzzzz','aaaaaaaaaaaaaaaaaaaaa']
+token: "zzzzzzzzzzzzzzzzzzzzzzz.C-hLKA.xxxxxxxxxxxxx-vvvvvvvvvvvvvv"
+channel_id: ['xxxxxxxxxxxxxxxxxxxxxx','xxxxxxxxxxxxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxxx']
 subreddit: ['PUBATTLEGROUNDS','WWII']
-playing: "look at Reddit"
-
+playing: "Espiar Reddit"
+git_user: "Frankity"
+git_repo: "alexis-bot"

@@ -12,10 +12,13 @@ import yaml
 import sys
 import platform
 import sqlite3
+import json
 
 __author__ = 'Nicolás Santisteban'
 __license__ = 'MIT'
 __version__ = '0.0.3'
+
+GOOGLE_URL_SHORTEN_API = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 client = discord.Client()
 db = peewee.SqliteDatabase('database.db')
@@ -49,6 +52,13 @@ class Post(peewee.Model):
 	class Meta:
 		database = db
 
+class Commit(peewee.Model):
+	id = peewee.CharField()
+	sha = peewee.CharField()
+	url = peewee.CharField()
+
+	class Meta:
+		database = db
 
 try:
 	db.connect()
@@ -57,7 +67,7 @@ except Exception as e:
 	raise
 
 try:
-	db.create_tables([Post])
+	db.create_tables([Post, Commit])
 except:
 	pass
 
@@ -70,11 +80,30 @@ except Exception as e:
 	raise
 
 
+
+
 if __name__ == '__main__':
 	async def get_reddit_new():
 		post_id = ''
+		commit_id = ''
 		await client.wait_until_ready()
 		while not client.is_closed:
+
+			commit_id = ''
+			response = requests.get('https://api.github.com/repos/'+config['git_user']+'/'+config['git_repo']+'/commits')
+			data = json.loads(response.text)
+
+			try:
+				c_exists = Commit.select().where(Commit.sha == data[0]['sha']).get()
+			except:
+				c_exists = False
+
+			if c_exists:
+				pass
+			if not c_exists:
+				await client.send_message(discord.Object(id=config['channel_id'][2]), 'Nuevo commit, '+data[0]['html_url'])
+				Commit.create(id=commit_id, sha=data[0]['sha'], url=data[0]['html_url'])
+
 			for ll in range(0,1):
 				try:
 					r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit'][ll]), headers = {'User-agent': 'Alexis2'})
@@ -87,7 +116,7 @@ if __name__ == '__main__':
 						while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
 							j = r.json()['data']['children'][0]['data']
 							post_id = j['id']
-							await client.send_message(discord.Object(id=config['channel_id'][ll]), 'https://www.reddit.com{}'.format(j['permalink']))
+							await client.send_message(discord.Object(id=config['channel_id'][ll]), google_url_shorten('https://www.reddit.com{}'.format(j['permalink'])) + ' Post: #' + post_id + ' ' + j['title'] )
 							if not exists:
 								Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
 								logger.info('Nuevo post: {}'.format(j['permalink']))
@@ -95,6 +124,13 @@ if __name__ == '__main__':
 					logger.warning(e)
 				await asyncio.sleep(60)
 
+	def google_url_shorten(url):
+		req_url = 'https://www.googleapis.com/urlshortener/v1/url?key=' + GOOGLE_URL_SHORTEN_API
+		payload = {'longUrl': url}
+		headers = {'content-type': 'application/json'}
+		r = requests.post(req_url, data=json.dumps(payload), headers=headers)
+		resp = json.loads(r.text)
+		return resp['id']
 
 	@client.event
 	async def on_ready():
