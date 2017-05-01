@@ -15,12 +15,12 @@ import sqlite3
 
 __author__ = 'Nicolás Santisteban'
 __license__ = 'MIT'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 client = discord.Client()
 db = peewee.SqliteDatabase('database.db')
 
-logger = logging.getLogger('Alexis')
+logger = logging.getLogger('Vector')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(message)s', '%d-%m-%Y %H:%M:%S')
 stdout_logger = logging.StreamHandler()
@@ -75,24 +75,25 @@ if __name__ == '__main__':
 		post_id = ''
 		await client.wait_until_ready()
 		while not client.is_closed:
-			try:
-				r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit']), headers = {'User-agent': 'Alexis'})
-				if r.status_code == 200:
-					try:
-						exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
-					except:
-						exists = False
+			for ll in range(0,1):
+				try:
+					r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit'][ll]), headers = {'User-agent': 'Alexis2'})
+					if r.status_code == 200:
+						try:
+							exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
+						except:
+							exists = False
 
-					while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
-						j = r.json()['data']['children'][0]['data']
-						post_id = j['id']
-						await client.send_message(discord.Object(id=config['channel_id']), 'https://www.reddit.com{}'.format(j['permalink']))
-						if not exists:
-							Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
-							logger.info('Nuevo post: {}'.format(j['permalink']))
-			except Exception as e:
-				logger.warning(e)
-			await asyncio.sleep(60)
+						while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
+							j = r.json()['data']['children'][0]['data']
+							post_id = j['id']
+							await client.send_message(discord.Object(id=config['channel_id'][ll]), 'https://www.reddit.com{}'.format(j['permalink']))
+							if not exists:
+								Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
+								logger.info('Nuevo post: {}'.format(j['permalink']))
+				except Exception as e:
+					logger.warning(e)
+				await asyncio.sleep(60)
 
 
 	@client.event
@@ -107,8 +108,13 @@ if __name__ == '__main__':
 			logger.exception(e)
 			raise
 
-
-	logger.info('"Alexis Bot" version {}.'.format(__version__))
+	# aqui inician los comandos para el cliente 
+	@client.event
+	async def on_message(message):
+		if message.content.startswith('!link'):
+			msg = await client.send_message(message.channel, 'Este discord https://discord.gg/jwUcm')
+		
+	logger.info('"Vector Bot" version {}.'.format(__version__))
 	logger.info('Python {} on {}.'.format(sys.version, sys.platform))
 	logger.info(platform.uname())
 	logger.info('SQLite3 support for version {}.'.format(sqlite3.sqlite_version))

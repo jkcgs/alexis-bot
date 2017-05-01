@@ -1,4 +1,5 @@
-token: "token"
-channel_id: "123"
-subreddit: "chile"
-playing: "/r/chile"
+token: "aaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbb.cccccccc-dddddddddddddddddd"
+channel_id: ['zzzzzzzzzzzzzzzzzzzzzzzz','aaaaaaaaaaaaaaaaaaaaa']
+subreddit: ['PUBATTLEGROUNDS','WWII']
+playing: "look at Reddit"
+
