@@ -12,15 +12,18 @@ import yaml
 import sys
 import platform
 import sqlite3
+import json
 
 __author__ = 'Nicolás Santisteban'
 __license__ = 'MIT'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
+
+GOOGLE_URL_SHORTEN_API = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 client = discord.Client()
 db = peewee.SqliteDatabase('database.db')
 
-logger = logging.getLogger('Alexis')
+logger = logging.getLogger('Vector')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(message)s', '%d-%m-%Y %H:%M:%S')
 stdout_logger = logging.StreamHandler()
@@ -49,6 +52,13 @@ class Post(peewee.Model):
 	class Meta:
 		database = db
 
+class Commit(peewee.Model):
+	id = peewee.CharField()
+	sha = peewee.CharField()
+	url = peewee.CharField()
+
+	class Meta:
+		database = db
 
 try:
 	db.connect()
@@ -57,7 +67,7 @@ except Exception as e:
 	raise
 
 try:
-	db.create_tables([Post])
+	db.create_tables([Post, Commit])
 except:
 	pass
 
@@ -70,30 +80,57 @@ except Exception as e:
 	raise
 
 
+
+
 if __name__ == '__main__':
 	async def get_reddit_new():
 		post_id = ''
+		commit_id = ''
 		await client.wait_until_ready()
 		while not client.is_closed:
+
+			commit_id = ''
+			response = requests.get('https://api.github.com/repos/'+config['git_user']+'/'+config['git_repo']+'/commits')
+			data = json.loads(response.text)
+
 			try:
-				r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit']), headers = {'User-agent': 'Alexis'})
-				if r.status_code == 200:
-					try:
-						exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
-					except:
-						exists = False
+				c_exists = Commit.select().where(Commit.sha == data[0]['sha']).get()
+			except:
+				c_exists = False
 
-					while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
-						j = r.json()['data']['children'][0]['data']
-						post_id = j['id']
-						await client.send_message(discord.Object(id=config['channel_id']), 'https://www.reddit.com{}'.format(j['permalink']))
-						if not exists:
-							Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
-							logger.info('Nuevo post: {}'.format(j['permalink']))
-			except Exception as e:
-				logger.warning(e)
-			await asyncio.sleep(60)
+			if c_exists:
+				pass
+			if not c_exists:
+				await client.send_message(discord.Object(id=config['channel_id'][2]), 'Nuevo commit, '+data[0]['html_url'])
+				Commit.create(id=commit_id, sha=data[0]['sha'], url=data[0]['html_url'])
 
+			for ll in range(0,1):
+				try:
+					r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit'][ll]), headers = {'User-agent': 'Alexis2'})
+					if r.status_code == 200:
+						try:
+							exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
+						except:
+							exists = False
+
+						while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
+							j = r.json()['data']['children'][0]['data']
+							post_id = j['id']
+							await client.send_message(discord.Object(id=config['channel_id'][ll]), google_url_shorten('https://www.reddit.com{}'.format(j['permalink'])) + ' Post: #' + post_id + ' ' + j['title'] )
+							if not exists:
+								Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
+								logger.info('Nuevo post: {}'.format(j['permalink']))
+				except Exception as e:
+					logger.warning(e)
+				await asyncio.sleep(60)
+
+	def google_url_shorten(url):
+		req_url = 'https://www.googleapis.com/urlshortener/v1/url?key=' + GOOGLE_URL_SHORTEN_API
+		payload = {'longUrl': url}
+		headers = {'content-type': 'application/json'}
+		r = requests.post(req_url, data=json.dumps(payload), headers=headers)
+		resp = json.loads(r.text)
+		return resp['id']
 
 	@client.event
 	async def on_ready():
@@ -107,8 +144,13 @@ if __name__ == '__main__':
 			logger.exception(e)
 			raise
 
-
-	logger.info('"Alexis Bot" version {}.'.format(__version__))
+	# aqui inician los comandos para el cliente 
+	@client.event
+	async def on_message(message):
+		if message.content.startswith('!link'):
+			msg = await client.send_message(message.channel, 'Este discord https://discord.gg/jwUcm')
+		
+	logger.info('"Vector Bot" version {}.'.format(__version__))
 	logger.info('Python {} on {}.'.format(sys.version, sys.platform))
 	logger.info(platform.uname())
 	logger.info('SQLite3 support for version {}.'.format(sqlite3.sqlite_version))
