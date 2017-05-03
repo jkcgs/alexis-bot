@@ -102,7 +102,7 @@ if __name__ == '__main__':
 								channels = config['channel_id']
 
 							for channel in channels:
-								await client.send_message(discord.Object(id=channel), 'Nuevo post en **/r/{subreddit}** por **{autor}**: https://www.reddit.com{permalink}'.format(subreddit=j['subreddit'], autor=j['author'], permalink=j['permalink']))
+								await client.send_message(discord.Object(id=channel), 'Nuevo post en **/r/{subreddit}** por **/u/{autor}**: https://www.reddit.com{permalink}'.format(subreddit=j['subreddit'], autor=j['author'], permalink=j['permalink']))
 
 							if not exists:
 								Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
@@ -117,11 +117,12 @@ if __name__ == '__main__':
 		if message.content == '!ping':
 			await client.send_message(message.channel, 'pong!')
 		elif message.content.startswith('!ban'):
-			if re.match('^[<>@0-9]+$', message.content[5:37]):
-				user, created = Ban.get_or_create(user=message.content[5:37])
-				up = Ban.update(bans=Ban.bans + 1).where(Ban.user == message.content[5:37])
+			mentions = message.mentions
+			for mention in mentions:
+				user, created = Ban.get_or_create(user=mention)
+				up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention)
 				up.execute()
-				await client.send_message(message.channel, 'El usuario **{}** ha sido baneado {} veces.'.format(message.content[5:37], user.bans + 1))
+				await client.send_message(message.channel, 'El usuario **{}** ha sido baneado {} veces.'.format(mention.name, user.bans + 1))
 
 
 	@client.event
