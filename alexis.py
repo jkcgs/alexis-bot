@@ -15,7 +15,7 @@ import sqlite3
 
 __author__ = 'Nicolás Santisteban'
 __license__ = 'MIT'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 client = discord.Client()
 db = peewee.SqliteDatabase('database.db')
@@ -76,20 +76,29 @@ if __name__ == '__main__':
 		await client.wait_until_ready()
 		while not client.is_closed:
 			try:
-				r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(config['subreddit']), headers = {'User-agent': 'Alexis'})
-				if r.status_code == 200:
-					try:
-						exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
-					except:
-						exists = False
+				for subreddit in config['subreddit']:
+					r = requests.get('https://www.reddit.com/r/{}/new/.json'.format(subreddit), headers = {'User-agent': 'Alexis'})
+					if r.status_code == 200:
+						try:
+							exists = Post.select().where(Post.id == r.json()['data']['children'][0]['data']['id']).get()
+						except:
+							exists = False
 
-					while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
-						j = r.json()['data']['children'][0]['data']
-						post_id = j['id']
-						await client.send_message(discord.Object(id=config['channel_id']), 'https://www.reddit.com{}'.format(j['permalink']))
-						if not exists:
-							Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
-							logger.info('Nuevo post: {}'.format(j['permalink']))
+						while r.json()['data']['children'][0]['data']['id'] != post_id and not exists:
+							j = r.json()['data']['children'][0]['data']
+							post_id = j['id']
+
+							if j['over_18']:
+								channels = config['channel_nsfw']
+							else:
+								channels = config['channel_id']
+
+							for channel in channels:
+								await client.send_message(discord.Object(id=channel), 'Nuevo post en /r/{subreddit} por {autor}: https://www.reddit.com{permalink}'.format(subreddit=j['subreddit'], autor=j['author'], permalink=j['permalink']))
+
+							if not exists:
+								Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
+								logger.info('Nuevo post en /r/{}: {}'.format(j['subreddit'], j['permalink']))
 			except Exception as e:
 				logger.warning(e)
 			await asyncio.sleep(60)

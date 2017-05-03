@@ -3,6 +3,7 @@
 config.yml
 database.db
 logs/
+data.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

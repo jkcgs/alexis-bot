@@ -1,6 +1,6 @@
 # Alexis Bot
 
-### Requisitos
+## Requisitos
 
 * Python 3.5+
 * Soporte para SQLite3
@@ -19,7 +19,9 @@
 	* six
 	* websockets
 
-### Instalación
+## Instalación
+
+### Linux
 
 1. Clonar el repositorio.
 2. cd alexis-bot
@@ -28,7 +30,17 @@
 4. source bin/activate
 5. pip install -r requirements.txt
 
-### Como usar
+## Windows
+
+Usa Linux.
+
+## Como usar
+
+### Linux
 
 1. source bin/activate
 2. python alexis.py
+
+### Windows
+
+Referirse a la intalación en Windows.
