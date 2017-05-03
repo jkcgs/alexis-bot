@@ -12,6 +12,7 @@ import yaml
 import sys
 import platform
 import sqlite3
+import re
 
 __author__ = 'Nicolás Santisteban'
 __license__ = 'MIT'
@@ -49,6 +50,13 @@ class Post(peewee.Model):
 	class Meta:
 		database = db
 
+class Ban(peewee.Model):
+	user = peewee.TextField()
+	bans = peewee.IntegerField(default=0)
+
+	class Meta:
+		database = db
+
 
 try:
 	db.connect()
@@ -57,7 +65,7 @@ except Exception as e:
 	raise
 
 try:
-	db.create_tables([Post])
+	db.create_tables([Post, Ban])
 except:
 	pass
 
@@ -94,7 +102,7 @@ if __name__ == '__main__':
 								channels = config['channel_id']
 
 							for channel in channels:
-								await client.send_message(discord.Object(id=channel), 'Nuevo post en /r/{subreddit} por {autor}: https://www.reddit.com{permalink}'.format(subreddit=j['subreddit'], autor=j['author'], permalink=j['permalink']))
+								await client.send_message(discord.Object(id=channel), 'Nuevo post en **/r/{subreddit}** por **{autor}**: https://www.reddit.com{permalink}'.format(subreddit=j['subreddit'], autor=j['author'], permalink=j['permalink']))
 
 							if not exists:
 								Post.create(id=post_id, permalink=j['permalink'], over_18=j['over_18'])
@@ -102,6 +110,18 @@ if __name__ == '__main__':
 			except Exception as e:
 				logger.warning(e)
 			await asyncio.sleep(60)
+
+
+	@client.event
+	async def on_message(message):
+		if message.content == '!ping':
+			await client.send_message(message.channel, 'pong!')
+		elif message.content.startswith('!ban'):
+			if re.match('^[<>@0-9]+$', message.content[5:37]):
+				user, created = Ban.get_or_create(user=message.content[5:37])
+				up = Ban.update(bans=Ban.bans + 1).where(Ban.user == message.content[5:37])
+				up.execute()
+				await client.send_message(message.channel, 'El usuario **{}** ha sido baneado {} veces.'.format(message.content[5:37], user.bans + 1))
 
 
 	@client.event
