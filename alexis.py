@@ -53,6 +53,7 @@ class Post(peewee.Model):
 class Ban(peewee.Model):
 	user = peewee.TextField()
 	bans = peewee.IntegerField(default=0)
+	server = peewee.TextField(null=True)
 
 	class Meta:
 		database = db
@@ -119,10 +120,10 @@ if __name__ == '__main__':
 		elif message.content.startswith('!ban'):
 			mentions = message.mentions
 			for mention in mentions:
-				user, created = Ban.get_or_create(user=mention)
-				up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention)
+				user, created = Ban.get_or_create(user=mention, server=message.server)
+				up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention, Ban.server == message.server)
 				up.execute()
-				await client.send_message(message.channel, 'El usuario **{}** ha sido baneado {} veces.'.format(mention.name, user.bans + 1))
+				await client.send_message(message.channel, 'El usuario **{}** ha sido baneado {} veces en este server.'.format(mention.name, user.bans + 1))
 
 
 	@client.event
