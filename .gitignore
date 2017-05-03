@@ -92,7 +92,6 @@ venv/
 ENV/
 bin/
 include/
-lib/
 pip-selfcheck.json
 
 # Spyder project settings
@@ -100,3 +99,6 @@ pip-selfcheck.json
 
 # Rope project settings
 .ropeproject
+
+# PyCharm and IDEA based IDEs
+.idea/
