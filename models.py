@@ -16,3 +16,4 @@ class Post(BaseModel):
 class Ban(BaseModel):
     user = peewee.TextField()
     bans = peewee.IntegerField(default=0)
+    server = peewee.TextField(null=True)
