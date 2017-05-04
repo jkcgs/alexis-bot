@@ -28,7 +28,7 @@ class Alexis(discord.Client):
         try:
             with open('config.yml', 'r') as f:
                 self.config = yaml.safe_load(f)
-        except OSError as e:
+        except Exception as e:
             self.log.exception(e)
             raise
 
