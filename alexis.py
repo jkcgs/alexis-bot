@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import asyncio
 import platform
 import sqlite3
-import requests
 import sys
 import yaml
-import discord
 
 import logger
 from models import *
-from subreddit import get_posts
+from tasks import *
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
@@ -42,7 +39,7 @@ class Alexis(discord.Client):
         self.log.info('Connecting...')
 
         try:
-            self.loop.create_task(self.get_reddit_new())
+            self.loop.create_task(posts_loop(self))
             self.run(self.config['token'])
         except Exception as e:
             self.log.exception(e)
@@ -71,43 +68,6 @@ class Alexis(discord.Client):
                 text = 'El usuario **{}** ha sido baneado {} {}.'.format(mention.name, user.bans + 1, ban_txt)
                 await self.send_message(message.channel, text)
 
-    async def get_reddit_new(self):
-        post_id = ''
-        await self.wait_until_ready()
-        try:
-            for subreddit in self.config['subreddit']:
-                posts = get_posts(subreddit)
-                if len(posts) == 0:
-                    continue
-
-                data = posts[0]
-
-                try:
-                    exists = Post.get(Post.id == data['id'])
-                except Post.DoesNotExist:
-                    exists = False
-
-                while data['id'] != post_id and not exists:
-                    post_id = data['id']
-                    channels = self.config['channel_nsfw'] if data['over_18'] else self.config['channel_id']
-
-                    for channel in channels:
-                        d = 'Nuevo post en **/r/{subreddit}** por **/u/{autor}**: https://www.reddit.com{permalink}'
-                        text = d.format(subreddit=data['subreddit'],
-                                        autor=data['author'],
-                                        permalink=data['permalink'])
-                        await self.send_message(discord.Object(id=channel), text)
-
-                    if not exists:
-                        Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
-                        self.log.info('Nuevo post en /r/{}: {}'.format(data['subreddit'], data['permalink']))
-
-        except Exception as e:
-            self.log.error(e)
-        await asyncio.sleep(60)
-
-        if not self.is_closed:
-            self.loop.create_task(self.get_reddit_new())
 
 if __name__ == '__main__':
     bot = Alexis()
