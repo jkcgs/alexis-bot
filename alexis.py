@@ -10,6 +10,7 @@ import discord
 
 import logger
 from models import *
+from subreddit import get_posts
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
@@ -73,41 +74,40 @@ class Alexis(discord.Client):
     async def get_reddit_new(self):
         post_id = ''
         await self.wait_until_ready()
-        while not self.is_closed:
-            try:
-                for subreddit in self.config['subreddit']:
-                    url = 'https://www.reddit.com/r/{}/new/.json'.format(subreddit)
-                    agent = 'Alexis/{}'.format(__version__)
-                    r = requests.get(url, headers={'User-agent': agent})
+        try:
+            for subreddit in self.config['subreddit']:
+                posts = get_posts(subreddit)
+                if len(posts) == 0:
+                    continue
 
-                    if not r.status_code == 200:
-                        continue
+                data = posts[0]
 
-                    data = r.json()['data']['children'][0]['data']
+                try:
+                    exists = Post.get(Post.id == data['id'])
+                except Post.DoesNotExist:
+                    exists = False
 
-                    try:
-                        exists = Post.get(Post.id == data['id'])
-                    except Post.DoesNotExist:
-                        exists = False
+                while data['id'] != post_id and not exists:
+                    post_id = data['id']
+                    channels = self.config['channel_nsfw'] if data['over_18'] else self.config['channel_id']
 
-                    while data['id'] != post_id and not exists:
-                        post_id = data['id']
-                        channels = self.config['channel_nsfw'] if data['over_18'] else self.config['channel_id']
+                    for channel in channels:
+                        d = 'Nuevo post en **/r/{subreddit}** por **/u/{autor}**: https://www.reddit.com{permalink}'
+                        text = d.format(subreddit=data['subreddit'],
+                                        autor=data['author'],
+                                        permalink=data['permalink'])
+                        await self.send_message(discord.Object(id=channel), text)
 
-                        for channel in channels:
-                            d = 'Nuevo post en **/r/{subreddit}** por **/u/{autor}**: https://www.reddit.com{permalink}'
-                            text = d.format(subreddit=data['subreddit'],
-                                            autor=data['author'],
-                                            permalink=data['permalink'])
-                            await self.send_message(discord.Object(id=channel), text)
+                    if not exists:
+                        Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
+                        self.log.info('Nuevo post en /r/{}: {}'.format(data['subreddit'], data['permalink']))
 
-                        if not exists:
-                            Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
-                            self.log.info('Nuevo post en /r/{}: {}'.format(data['subreddit'], data['permalink']))
+        except Exception as e:
+            self.log.error(e)
+        await asyncio.sleep(60)
 
-            except Exception as e:
-                self.log.warning(e)
-            await asyncio.sleep(60)
+        if not self.is_closed:
+            self.loop.create_task(self.get_reddit_new())
 
 if __name__ == '__main__':
     bot = Alexis()
