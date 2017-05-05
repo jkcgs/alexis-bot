@@ -4,7 +4,7 @@ import platform
 import sqlite3
 import sys
 import yaml
-
+import random
 import logger
 from models import *
 from tasks import *
@@ -63,14 +63,21 @@ class Alexis(discord.Client):
 
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
+            rand = random.randint(0,1)
             for mention in message.mentions:
-                user, created = Ban.get_or_create(user=mention, server=message.server)
-                up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention, Ban.server == message.server)
-                up.execute()
+                if rand:
+                    user, created = Ban.get_or_create(user=mention, server=message.server)
+                    up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention, Ban.server == message.server)
+                    up.execute()
 
-                ban_txt = 'vez' if user.bans + 1 == 1 else 'veces'
-                text = 'El usuario **{}** ha sido baneado {} {}.'.format(mention.name, user.bans + 1, ban_txt)
-                await self.send_message(message.channel, text)
+                    if user.bans + 1 == 1:
+                        text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(mention.name)
+                    else:
+                        text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'.format(mention.name, user.bans + 1)
+                    await self.send_message(message.channel, text)
+                else:
+                    text = '¡**{}** se salvo del ban de milagro!'.format(mention.name)
+                    await self.send_message(message.channel, text)
 
 
 if __name__ == '__main__':
