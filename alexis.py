@@ -59,7 +59,7 @@ class Alexis(discord.Client):
 
         # !version
         if message.content == '!version':
-            await self.send_message(message.channel, 'Alexis, versión ' + __version__)
+            await self.send_message(message.channel, '```{}```'.format(__version__))
 
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
