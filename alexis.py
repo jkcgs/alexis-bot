@@ -11,7 +11,7 @@ from tasks import *
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.0'
+__version__ = '0.1.0-refractor'
 
 
 class Alexis(discord.Client):
@@ -56,6 +56,10 @@ class Alexis(discord.Client):
         # !ping
         if message.content == '!ping':
             await self.send_message(message.channel, 'pong!')
+
+        # !version
+        if message.content == '!version':
+            await self.send_message(message.channel, 'Alexis, versión ' + __version__)
 
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
