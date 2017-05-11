@@ -63,9 +63,8 @@ class Alexis(discord.Client):
 
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
-            rand = random.randint(0,1)
             for mention in message.mentions:
-                if rand:
+                if random.randint(0,1):
                     user, created = Ban.get_or_create(user=mention, server=message.server)
                     up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention, Ban.server == message.server)
                     up.execute()
