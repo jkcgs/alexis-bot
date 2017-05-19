@@ -64,7 +64,10 @@ class Alexis(discord.Client):
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
             for mention in message.mentions:
-                if random.randint(0,1):
+                if mention.id == "130324995984326656":
+                    text = 'nopo hno eso no se puede hacer'
+                    await self.send_message(message.channel, text)
+                elif random.randint(0,1):
                     user, created = Ban.get_or_create(user=mention, server=message.server)
                     up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention, Ban.server == message.server)
                     up.execute()
