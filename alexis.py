@@ -11,7 +11,7 @@ from tasks import *
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.0-dev'
+__version__ = '0.1.0-dev.1'
 
 
 class Alexis(discord.Client):
