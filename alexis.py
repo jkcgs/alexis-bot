@@ -11,7 +11,7 @@ from tasks import *
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.0-dev.1'
+__version__ = '0.1.1-dev.0'
 
 
 class Alexis(discord.Client):
@@ -60,12 +60,16 @@ class Alexis(discord.Client):
         # !version
         if message.content == '!version':
             await self.send_message(message.channel, '```{}```'.format(__version__))
+        
+        # !callate
+        if message.content == '!callate':
+            await self.send_message(message.channel, 'http://i.imgur.com/nZ72crJ.jpg')
 
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
             for mention in message.mentions:
                 if mention.id == "130324995984326656":
-                    text = 'nopo hno eso no se puede hacer'
+                    text = 'nopo wn no hagai esa wea'
                     await self.send_message(message.channel, text)
                 elif random.randint(0,1):
                     user, created = Ban.get_or_create(user=mention, server=message.server)
