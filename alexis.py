@@ -81,11 +81,11 @@ class Alexis(discord.Client):
         # !f
         if text.startswith('!f'):
             if text.strip() == '!f':
-                text = "**{}** ha pedido respetos :hearts:".format(message.author.name)
+                text = "**{}** ha pedido pero con respeto :hearts:".format(message.author.name)
                 await self.send_message(message.channel, text)
             elif text.startswith('!f ') and len(message.content) >= 4:
                 respects = text[3:]
-                text = "**{}** ha pedido respetos por **{}** :hearts:".format(message.author.name, respects)
+                text = "**{}** ha pedido por **{}** pero con respeto :hearts:".format(message.author.name, respects)
                 await self.send_message(message.channel, text)
 
         # !ban (no PM)
