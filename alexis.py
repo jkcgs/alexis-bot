@@ -65,6 +65,13 @@ class Alexis(discord.Client):
         if message.content == '!callate':
             await self.send_message(message.channel, 'http://i.imgur.com/nZ72crJ.jpg')
 
+        # !choose
+        if message.content.startswith('!choose'):
+            choose = message.content[8:].split("|")
+            choice = random.randint(0, len(choose) - 1)
+            text = 'Yo elijo **{}**'.format(choose[choice])
+            await self.send_message(message.channel, text)
+
         # !ban (no PM)
         elif message.content.startswith('!ban') and message.server is not None:
             for mention in message.mentions:
