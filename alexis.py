@@ -73,6 +73,16 @@ class Alexis(discord.Client):
                 text = 'Yo elijo **{}**'.format(choose[choice])
                 await self.send_message(message.channel, text)
 
+        # !f
+        if message.content.startswith('!f'):
+            if message.content == '!f':
+                text = "**{}** ha pedido respetos. :hearts:".format(message.author)
+                await self.send_message(message.channel, text)
+            elif message.content.startswith('!f ') and len(message.content) >= 4:
+                respects = message.content[3:]
+                text = "**{}** ha pedido respetos por **{}**. :hearts:".format(message.author, respects)
+                await self.send_message(message.channel, text)
+
         # !ban (no PM)
         elif message.content.startswith('!ban ') and message.server is not None:
             for mention in message.mentions:
