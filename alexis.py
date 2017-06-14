@@ -11,7 +11,7 @@ from tasks import *
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.1-dev.0'
+__version__ = '0.1.2-dev.0'
 
 
 class Alexis(discord.Client):
@@ -66,14 +66,15 @@ class Alexis(discord.Client):
             await self.send_message(message.channel, 'http://i.imgur.com/nZ72crJ.jpg')
 
         # !choose
-        if message.content.startswith('!choose'):
-            choose = message.content[8:].split("|")
-            choice = random.randint(0, len(choose) - 1)
-            text = 'Yo elijo **{}**'.format(choose[choice])
-            await self.send_message(message.channel, text)
+        if message.content.startswith('!choose '):
+            if len(message.content) >= 9:
+                choose = message.content[8:].split("|")
+                choice = random.randint(0, len(choose) - 1)
+                text = 'Yo elijo **{}**'.format(choose[choice])
+                await self.send_message(message.channel, text)
 
         # !ban (no PM)
-        elif message.content.startswith('!ban') and message.server is not None:
+        elif message.content.startswith('!ban ') and message.server is not None:
             for mention in message.mentions:
                 if mention.id == "130324995984326656":
                     text = 'nopo wn no hagai esa wea'
