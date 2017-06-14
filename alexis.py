@@ -53,38 +53,43 @@ class Alexis(discord.Client):
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
     async def on_message(self, message):
+        text = message.content
+        
         # !ping
-        if message.content == '!ping':
+        if text == '!ping':
             await self.send_message(message.channel, 'pong!')
 
         # !version
-        if message.content == '!version':
+        if text == '!version':
             await self.send_message(message.channel, '```{}```'.format(__version__))
         
         # !callate
-        if message.content == '!callate':
+        if text == '!callate':
             await self.send_message(message.channel, 'http://i.imgur.com/nZ72crJ.jpg')
 
         # !choose
-        if message.content.startswith('!choose '):
-            if len(message.content) >= 9:
-                choose = message.content[8:].split("|")
-                choice = random.randint(0, len(choose) - 1)
-                text = 'Yo elijo **{}**'.format(choose[choice])
+        if text.startswith('!choose '):
+            options = text[8:].split("|")
+            if len(options) > 1:
+                # Validar opciones
+                for option in options:
+                    if option.strip() == '': return
+
+                text = 'Yo elijo **{}**'.format(random.choice(options))
                 await self.send_message(message.channel, text)
 
         # !f
-        if message.content.startswith('!f'):
-            if message.content == '!f':
+        if text.startswith('!f'):
+            if text.strip() == '!f':
                 text = "**{}** ha pedido respetos. :hearts:".format(message.author)
                 await self.send_message(message.channel, text)
-            elif message.content.startswith('!f ') and len(message.content) >= 4:
-                respects = message.content[3:]
+            elif text.startswith('!f ') and len(message.content) >= 4:
+                respects = text[3:]
                 text = "**{}** ha pedido respetos por **{}**. :hearts:".format(message.author, respects)
                 await self.send_message(message.channel, text)
 
         # !ban (no PM)
-        elif message.content.startswith('!ban ') and message.server is not None:
+        elif text.startswith('!ban ') and message.server is not None:
             for mention in message.mentions:
                 if mention.id == "130324995984326656":
                     text = 'nopo wn no hagai esa wea'
