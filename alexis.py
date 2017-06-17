@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Este módulo contiene al bot y lo ejecuta si se corre el script."""
+
 import platform
 import sqlite3
 import sys
-import yaml
 import random
+import yaml
 import logger
-from models import *
-from tasks import *
+import discord
+from models import db, Post, Ban
+from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.2-dev.1'
-
+__version__ = '0.1.2-dev.2'
 
 class Alexis(discord.Client):
+    """Contiene al bot e inicializa su funcionamiento."""
     def __init__(self, **options):
         super().__init__(**options)
 
@@ -24,28 +27,30 @@ class Alexis(discord.Client):
         db.create_tables([Post, Ban], True)
 
         try:
-            with open('config.yml', 'r') as f:
-                self.config = yaml.safe_load(f)
-        except Exception as e:
-            self.log.exception(e)
+            with open('config.yml', 'r') as file:
+                self.config = yaml.safe_load(file)
+        except Exception as ex:
+            self.log.exception(ex)
             raise
 
-    def go(self):
-        self.log.info('"Alexis Bot" version {}.'.format(__version__))
-        self.log.info('Python {} on {}.'.format(sys.version, sys.platform))
+    def init(self):
+        """Inicializa al bot"""
+        self.log.info('"Alexis Bot" version %s', __version__)
+        self.log.info('Python %s on %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
-        self.log.info('SQLite3 support for version {}.'.format(sqlite3.sqlite_version))
+        self.log.info('SQLite3 support for version %s.', sqlite3.sqlite_version)
         self.log.info('------')
         self.log.info('Connecting...')
 
         try:
             self.loop.create_task(posts_loop(self))
             self.run(self.config['token'])
-        except Exception as e:
-            self.log.exception(e)
+        except Exception as ex:
+            self.log.exception(ex)
             raise
 
     async def on_ready(self):
+        """Esto se ejecuta cuando el bot está conectado y listo"""
         self.log.info('Logged in as:')
         self.log.info(self.user.name)
         self.log.info(self.user.id)
@@ -53,62 +58,75 @@ class Alexis(discord.Client):
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
     async def on_message(self, message):
+        """Método ejecutado cada vez que se recibe un mensaje"""
         text = message.content
-        
+        author = message.author.name
+        chan = message.channel
+        is_pm = message.server is None
+
         # !ping
         if text == '!ping':
-            await self.send_message(message.channel, 'pong!')
+            await self.send_message(chan, 'pong!')
 
         # !version
-        if text == '!version':
-            await self.send_message(message.channel, '```{}```'.format(__version__))
-        
+        elif text == '!version':
+            await self.send_message(chan, '```{}```'.format(__version__))
+
         # !callate
-        if text == '!callate':
-            await self.send_message(message.channel, 'http://i.imgur.com/nZ72crJ.jpg')
+        elif text == '!callate':
+            await self.send_message(chan, 'http://i.imgur.com/nZ72crJ.jpg')
 
         # !choose
-        if text.startswith('!choose '):
+        elif text.startswith('!choose '):
             options = text[8:].split("|")
-            if len(options) > 1:
-                # Validar opciones
-                for option in options:
-                    if option.strip() == '': return
+            if len(options) < 2:
+                return
 
-                text = 'Yo elijo **{}**'.format(random.choice(options))
-                await self.send_message(message.channel, text)
+            # Validar que no hayan opciones vacías
+            for option in options:
+                if option.strip() == '':
+                    return
+
+            answer = random.choice(options).strip()
+            text = 'Yo elijo **{}**'.format(answer)
+            await self.send_message(chan, text)
 
         # !f
-        if text.startswith('!f'):
+        elif text.startswith('!f'):
             if text.strip() == '!f':
-                text = "**{}** ha pedido respetos :hearts:".format(message.author.name)
-                await self.send_message(message.channel, text)
-            elif text.startswith('!f ') and len(message.content) >= 4:
+                text = "**{}** ha pedido respetos :hearts:".format(author)
+                await self.send_message(chan, text)
+            elif text.startswith('!f ') and len(text) >= 4:
                 respects = text[3:]
-                text = "**{}** ha pedido respetos por **{}** :hearts:".format(message.author.name, respects)
-                await self.send_message(message.channel, text)
+                text = "**{}** ha pedido respetos por **{}** :hearts:".format(author, respects)
+                await self.send_message(chan, text)
 
         # !ban (no PM)
-        elif text.startswith('!ban ') and message.server is not None:
+        elif text.startswith('!ban '):
+            if is_pm:
+                await self.send_message(chan, 'me estai weando?')
+                return
+
             for mention in message.mentions:
                 if mention.id == "130324995984326656":
                     text = 'nopo wn no hagai esa wea'
-                    await self.send_message(message.channel, text)
-                elif random.randint(0,1):
-                    user, created = Ban.get_or_create(user=mention, server=message.server)
-                    up = Ban.update(bans=Ban.bans + 1).where(Ban.user == mention, Ban.server == message.server)
-                    up.execute()
+                    await self.send_message(chan, text)
+                elif random.randint(0, 1):
+                    user, _ = Ban.get_or_create(user=mention, server=message.server)
+                    update = Ban.update(bans=Ban.bans + 1)
+                    update = update.where(Ban.user == mention, Ban.server == message.server)
+                    update.execute()
 
                     if user.bans + 1 == 1:
                         text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(mention.name)
                     else:
-                        text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'.format(mention.name, user.bans + 1)
-                    await self.send_message(message.channel, text)
+                        text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'
+                        text = text.format(mention.name, user.bans + 1)
+                    await self.send_message(chan, text)
                 else:
                     text = '¡**{}** se salvo del ban de milagro!'.format(mention.name)
-                    await self.send_message(message.channel, text)
+                    await self.send_message(chan, text)
 
 
 if __name__ == '__main__':
-    bot = Alexis()
-    bot.go()
+    Alexis().init()
