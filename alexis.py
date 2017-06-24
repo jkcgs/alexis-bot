@@ -7,10 +7,10 @@ import platform
 import sqlite3
 import sys
 import random
+import re
 import yaml
 import logger
 import discord
-import re
 from models import db, Post, Ban, Redditor
 from tasks import posts_loop
 
@@ -39,10 +39,10 @@ class Alexis(discord.Client):
 
     def init(self):
         """Inicializa al bot"""
-        self.log.info('"Alexis Bot" versión {} de {}.'.format(__version__, __status__))
-        self.log.info('Python {} en {}.'.format(sys.version, sys.platform))
+        self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__)
+        self.log.info('Python %s en %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
-        self.log.info('Soporte SQLite3 para versión {}.'.format(sqlite3.sqlite_version))
+        self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
         self.log.info('------')
         self.log.info('Conectando...')
 
@@ -132,8 +132,8 @@ class Alexis(discord.Client):
                     text = '¡**{}** se salvo del ban de milagro!'.format(mention.name)
                     await self.send_message(chan, text)
 
-        # !posts
-        elif text.startswith('!posts '):
+        # !redditor
+        elif text.startswith('!redditor '):
             user = text[7:].split(' ')[0].lower()
 
             if not re.match('^[a-zA-Z0-9_]*$', user):
