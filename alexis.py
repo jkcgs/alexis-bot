@@ -74,11 +74,8 @@ class Alexis(discord.Client):
 
         # !version
         if text == '!version' or text == '!info':
-            await self.send_message(chan, """```
-Autores: {}\n
-Versión: {}\n
-Estado: {}
-```""".format(__author__, __version__, __status__))
+            info_msg = "```\nAutores: {}\n\nVersión: {}\n\nEstado: {}```"
+            await self.send_message(chan, info_msg.format(__author__, __version__, __status__))
 
         # !callate
         elif text == '!callate':
