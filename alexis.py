@@ -139,15 +139,15 @@ class Alexis(discord.Client):
             if not re.match('^[a-zA-Z0-9_]*$', user):
                 return
 
-            _, created = Redditor.get_or_create(name=user)
+            redditor, _ = Redditor.get_or_create(name=user)
 
-            if not created:
-                redditor = Redditor.get(Redditor.name == user)
-                text = 'El redditor **/u/{name}** ha creado **{num}** posts.'
-                text = text.format(name=user, num=redditor.posts)
+            if redditor.posts > 0:
+                suffix = 'post' if redditor.posts == 1 else 'posts'
+                text = '**/u/{name}** ha creado **{num}** {suffix}.'
+                text = text.format(name=user, num=redditor.posts, suffix=suffix)
                 await self.send_message(chan, text)
             else:
-                text = 'El redditor **/u/{name}** no ha creado ningun post.'
+                text = '**/u/{name}** no ha creado ningún post.'
                 text = text.format(name=user)
                 await self.send_message(chan, text)
 
