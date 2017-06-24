@@ -1,8 +1,7 @@
 import asyncio
 import discord
 from subreddit import get_posts
-from models import Post
-
+from models import Post, Redditor
 
 async def posts_loop(bot):
     post_id = ''
@@ -20,6 +19,8 @@ async def posts_loop(bot):
             except Post.DoesNotExist:
                 exists = False
 
+            redditor, _ = Redditor.get_or_create(name=data['author'])
+
             while data['id'] != post_id and not exists:
                 post_id = data['id']
                 channels = bot.config['channel_nsfw'] if data['over_18'] else bot.config['channel_id']
@@ -33,7 +34,13 @@ async def posts_loop(bot):
 
                 if not exists:
                     Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
-                    bot.log.info('Nuevo post en /r/{}: {}'.format(data['subreddit'], data['permalink']))
+                    bot.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(subreddit=data['subreddit'],
+                                                                                    permalink=data['permalink']))
+
+                    Redditor.update(posts=Redditor.posts + 1).where(Redditor.name == data['author']).execute()
+                    bot.log.info('/u/{author} ha sumado un nuevo post, quedando en {num}.'.format(author=data['author'],
+                                                                                                  num=redditor.posts + 1))
+
 
     except Exception as e:
         bot.log.error(e)

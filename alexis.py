@@ -10,7 +10,8 @@ import random
 import yaml
 import logger
 import discord
-from models import db, Post, Ban
+import re
+from models import db, Post, Ban, Redditor
 from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
@@ -27,7 +28,7 @@ class Alexis(discord.Client):
         self.log = logger.get_logger('Alexis')
 
         db.connect()
-        db.create_tables([Post, Ban], True)
+        db.create_tables([Post, Ban, Redditor], True)
 
         try:
             with open('config.yml', 'r') as file:
@@ -133,6 +134,25 @@ Estado: {}
                 else:
                     text = '¡**{}** se salvo del ban de milagro!'.format(mention.name)
                     await self.send_message(chan, text)
+
+        # !posts
+        elif text.startswith('!posts '):
+            user = text[7:].split(' ')[0].lower()
+
+            if not re.match('^[a-zA-Z0-9_]*$', user):
+                return
+
+            _, created = Redditor.get_or_create(name=user)
+
+            if not created:
+                redditor = Redditor.get(Redditor.name == user)
+                text = 'El redditor **/u/{name}** ha creado **{num}** posts.'
+                text = text.format(name=user, num=redditor.posts)
+                await self.send_message(chan, text)
+            else:
+                text = 'El redditor **/u/{name}** no ha creado ningun post.'
+                text = text.format(name=user)
+                await self.send_message(chan, text)
 
 
 if __name__ == '__main__':
