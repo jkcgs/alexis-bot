@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """Este módulo contiene al bot y lo ejecuta si se corre el script."""
 
 import platform
@@ -14,7 +15,9 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.2-dev.2'
+__version__ = '0.1.2-3'
+__status__ = "Desarrollo"
+
 
 class Alexis(discord.Client):
     """Contiene al bot e inicializa su funcionamiento."""
@@ -35,12 +38,12 @@ class Alexis(discord.Client):
 
     def init(self):
         """Inicializa al bot"""
-        self.log.info('"Alexis Bot" version %s', __version__)
-        self.log.info('Python %s on %s.', sys.version, sys.platform)
+        self.log.info('"Alexis Bot" versión {} de {}.'.format(__version__, __status__))
+        self.log.info('Python {} en {}.'.format(sys.version, sys.platform))
         self.log.info(platform.uname())
-        self.log.info('SQLite3 support for version %s.', sqlite3.sqlite_version)
+        self.log.info('Soporte SQLite3 para versión {}.'.format(sqlite3.sqlite_version))
         self.log.info('------')
-        self.log.info('Connecting...')
+        self.log.info('Conectando...')
 
         try:
             self.loop.create_task(posts_loop(self))
@@ -51,7 +54,7 @@ class Alexis(discord.Client):
 
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""
-        self.log.info('Logged in as:')
+        self.log.info('Conectado como:')
         self.log.info(self.user.name)
         self.log.info(self.user.id)
         self.log.info('------')
@@ -65,12 +68,16 @@ class Alexis(discord.Client):
         is_pm = message.server is None
 
         # !ping
-        if text == '!ping':
-            await self.send_message(chan, 'pong!')
+        #if text == '!ping':
+        #    await self.send_message(chan, 'pong!')
 
         # !version
-        elif text == '!version':
-            await self.send_message(chan, '```{}```'.format(__version__))
+        if text == '!version' or text == '!info':
+            await self.send_message(chan, """```
+Autores: {}\n
+Versión: {}\n
+Estado: {}
+```""".format(__author__, __version__, __status__))
 
         # !callate
         elif text == '!callate':
