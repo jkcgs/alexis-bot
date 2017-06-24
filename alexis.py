@@ -136,6 +136,8 @@ class Alexis(discord.Client):
         elif text.startswith('!redditor '):
             user = text[10:].split(' ')[0].lower().strip()
 
+            if user.startswith('/u/'):
+                user = user[3:]
             if not re.match('^[a-zA-Z0-9_]*$', user):
                 return
 
