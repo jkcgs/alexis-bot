@@ -138,7 +138,7 @@ class Alexis(discord.Client):
 
             if user.startswith('/u/'):
                 user = user[3:]
-            if not re.match('^[a-zA-Z0-9_]*$', user):
+            if not re.match('^[a-zA-Z0-9_-]*$', user):
                 return
 
             redditor, _ = Redditor.get_or_create(name=user)
