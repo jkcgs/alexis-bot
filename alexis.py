@@ -138,6 +138,23 @@ class Alexis(discord.Client):
                     text = '¡**{}** se salvo del ban de milagro!'.format(mention.name)
                     await self.send_message(chan, text)
 
+        # !resetban
+        elif text.startswith("!resetban "):
+            if not 'owners' in self.config or not message.author.id in self.config['owners']:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            if len(text.split(' ')) > 2 or len(message.mentions) < 1:
+                await self.send_message(chan, 'Formato: !resetban <mención>')
+                return
+
+            mention = message.mentions[0]
+            user, _ = Ban.get_or_create(user=mention, server=message.server)
+            user.bans = 0
+            user.save()
+
+            await self.send_message(chan, 'Bans reiniciados xd')
+
         # !redditor
         elif text.startswith('!redditor '):
             user = text[10:].split(' ')[0].lower().strip()
