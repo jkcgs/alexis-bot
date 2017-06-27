@@ -11,12 +11,12 @@ import re
 import yaml
 import logger
 import discord
-from models import db, Post, Ban, Redditor
+from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.2-4'
+__version__ = '0.1.3-memes.1'
 __status__ = "Desarrollo"
 
 
@@ -28,7 +28,7 @@ class Alexis(discord.Client):
         self.log = logger.get_logger('Alexis')
 
         db.connect()
-        db.create_tables([Post, Ban, Redditor], True)
+        db.create_tables([Post, Ban, Redditor, Meme], True)
 
         try:
             with open('config.yml', 'r') as file:
@@ -44,6 +44,12 @@ class Alexis(discord.Client):
         self.log.info(platform.uname())
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
         self.log.info('------')
+
+        if 'default_memes' in self.config and len(self.config['default_memes']) > 0:
+            self.log.info('Inicializando base de datos...')
+            for meme_name, meme_cont in self.config['default_memes'].items():
+                Meme.get_or_create(name=meme_name, content=meme_cont)
+
         self.log.info('Conectando...')
 
         try:
@@ -153,6 +159,61 @@ class Alexis(discord.Client):
                 text = text.format(name=user)
                 await self.send_message(chan, text)
 
+        # ! <meme>
+        elif text.startswith('! '):
+            meme_query = text[2:]
+
+            try:
+                meme = Meme.get(Meme.name == meme_query)
+                await self.send_message(chan, meme.content)
+            except Meme.DoesNotExist:
+                pass
+
+        elif text.startswith('!set '):
+            meme_query = text[5:].strip().split(':')
+
+            if not 'owners' in self.config or not message.author.id in self.config['owners']:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            if len(meme_query) != 2:
+                await self.send_message(chan, 'Formato: !set <nombre>:<contenido>')
+                return
+
+            meme_name = meme_query[0].strip()
+            meme_cont = meme_query[1].strip()
+            meme, created = Meme.get_or_create(name=meme_name, content=meme_cont)
+            meme.save()
+
+            if created:
+                msg = 'Valor **{name}** creado'.format(name=meme_name)
+                self.log.info('Meme %s creado con valor: "%s"', meme_name, meme_cont)
+            else:
+                msg = 'Valor **{name}** actualizado'.format(name=meme_name)
+                self.log.info('Meme %s actualizado a: "%s"', meme_name, meme_cont)
+
+            await self.send_message(chan, msg)
+
+        elif text.startswith('!unset '):
+            meme_name = text[7:].strip()
+
+            if not 'owners' in self.config or not message.author.id in self.config['owners']:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            if meme_name == "":
+                await self.send_message(chan, 'Formato: !unset <nombre>')
+                return
+
+            try:
+                meme = Meme.get(name=meme_name)
+                meme.delete_instance()
+                msg = 'Valor **{name}** eliminado'.format(name=meme_name)
+                await self.send_message(chan, msg)
+                self.log.info('Meme %s eliminado', meme_name)
+            except Meme.DoesNotExist:
+                msg = 'El valor con nombre {name} no existe'.format(name=meme_name)
+                await self.send_message(chan, msg)
 
 if __name__ == '__main__':
     Alexis().init()
