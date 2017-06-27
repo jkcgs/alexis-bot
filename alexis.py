@@ -119,7 +119,7 @@ class Alexis(discord.Client):
                 return
 
             for mention in message.mentions:
-                if mention.id == "130324995984326656":
+                if 'owners' in self.config and mention.id in self.config['owners']:
                     text = 'nopo wn no hagai esa wea'
                     await self.send_message(chan, text)
                 elif random.randint(0, 1):
