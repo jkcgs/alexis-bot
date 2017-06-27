@@ -23,6 +23,7 @@ class Redditor(BaseModel):
 	name = peewee.TextField()
 	posts = peewee.IntegerField(default=0)
 
+
 class Meme(BaseModel):
-    name = peewee.TextField()
-    content = peewee.TextField()
+    name = peewee.TextField(primary_key = True)
+    content = peewee.TextField(null = True)

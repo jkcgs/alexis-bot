@@ -187,19 +187,20 @@ class Alexis(discord.Client):
                 pass
 
         elif text.startswith('!set '):
-            meme_query = text[5:].strip().split(':')
+            meme_query = text[5:].strip().split(' ')
 
             if not 'owners' in self.config or not message.author.id in self.config['owners']:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
 
-            if len(meme_query) != 2:
-                await self.send_message(chan, 'Formato: !set <nombre>:<contenido>')
+            if len(meme_query) < 2:
+                await self.send_message(chan, 'Formato: !set <nombre> <contenido>')
                 return
 
             meme_name = meme_query[0].strip()
-            meme_cont = meme_query[1].strip()
-            meme, created = Meme.get_or_create(name=meme_name, content=meme_cont)
+            meme_cont = ' '.join(meme_query[1:]).strip()
+            meme, created = Meme.get_or_create(name=meme_name)
+            meme.content = meme_cont
             meme.save()
 
             if created:
