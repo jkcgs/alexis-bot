@@ -16,7 +16,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.3-memes.3'
+__version__ = '0.1.3-memes.5'
 __status__ = "Desarrollo"
 
 
@@ -73,6 +73,7 @@ class Alexis(discord.Client):
         author = message.author.name
         chan = message.channel
         is_pm = message.server is None
+        is_owner = 'owners' in self.config and message.author.id in self.config['owners']
 
         # !ping
         #if text == '!ping':
@@ -140,7 +141,7 @@ class Alexis(discord.Client):
 
         # !resetban
         elif text.startswith("!resetban "):
-            if not 'owners' in self.config or not message.author.id in self.config['owners']:
+            if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
 
@@ -193,7 +194,7 @@ class Alexis(discord.Client):
         elif text.startswith('!set '):
             meme_query = text[5:].strip().split(' ')
 
-            if not 'owners' in self.config or not message.author.id in self.config['owners']:
+            if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
 
@@ -219,7 +220,7 @@ class Alexis(discord.Client):
         elif text.startswith('!unset '):
             meme_name = text[7:].strip()
 
-            if not 'owners' in self.config or not message.author.id in self.config['owners']:
+            if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
 
@@ -236,6 +237,19 @@ class Alexis(discord.Client):
             except Meme.DoesNotExist:
                 msg = 'El valor con nombre {name} no existe'.format(name=meme_name)
                 await self.send_message(chan, msg)
+        
+        elif text == '!list':
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+            
+            namelist = []
+            for item in Meme.select().iterator():
+                namelist.append(item.name)
+
+            word = 'valor' if len(namelist) == 1 else 'valores'
+            resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
+            await self.send_message(chan, resp)
 
 if __name__ == '__main__':
     Alexis().init()
