@@ -1,4 +1,8 @@
 token: "token"
-channel_id: "123"
-subreddit: "chile"
+channel_id: ["123", "456"]
+channel_nsfw: ["789"]
+subreddit: ["chile", "gonewild"]
 playing: "/r/chile"
+owners: []
+default_memes:
+  callate: "http://i.imgur.com/nZ72crJ.jpg"

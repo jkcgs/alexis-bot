@@ -3,6 +3,7 @@
 config.yml
 database.db
 logs/
+data.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -91,7 +92,6 @@ venv/
 ENV/
 bin/
 include/
-lib/
 pip-selfcheck.json
 
 # Spyder project settings
@@ -99,3 +99,6 @@ pip-selfcheck.json
 
 # Rope project settings
 .ropeproject
+
+# PyCharm and IDEA based IDEs
+.idea/
