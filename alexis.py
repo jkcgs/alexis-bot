@@ -176,9 +176,13 @@ class Alexis(discord.Client):
                 text = text.format(name=user)
                 await self.send_message(chan, text)
 
-        # ! <meme>
-        elif text.startswith('! '):
-            meme_query = text[2:]
+        # ! <meme> | ¡<meme>
+        elif text.startswith('! ') or text.startswith('¡'):
+            meme_query = ''
+            if text.startswith('! '):
+                meme_query = text[2:]
+            else:
+                meme_query = text[1:]
 
             try:
                 meme = Meme.get(Meme.name == meme_query)
