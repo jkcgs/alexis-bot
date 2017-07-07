@@ -19,7 +19,7 @@ async def posts_loop(bot):
             except Post.DoesNotExist:
                 exists = False
 
-            redditor, _ = Redditor.get_or_create(name=data['author'])
+            redditor, _ = Redditor.get_or_create(name=data['author'].lower())
 
             while data['id'] != post_id and not exists:
                 post_id = data['id']
@@ -37,7 +37,7 @@ async def posts_loop(bot):
                     bot.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(subreddit=data['subreddit'],
                                                                                     permalink=data['permalink']))
 
-                    Redditor.update(posts=Redditor.posts + 1).where(Redditor.name == data['author']).execute()
+                    Redditor.update(posts=Redditor.posts + 1).where(Redditor.name == data['author'].lower()).execute()
                     bot.log.info('/u/{author} ha sumado un nuevo post, quedando en {num}.'.format(author=data['author'],
                                                                                                   num=redditor.posts + 1))
 
