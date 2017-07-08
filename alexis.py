@@ -124,9 +124,9 @@ class Alexis(discord.Client):
                     text = 'nopo wn no hagai esa wea'
                     await self.send_message(chan, text)
                 elif random.randint(0, 1):
-                    user, _ = Ban.get_or_create(user=mention, server=message.server)
+                    user, _ = Ban.get_or_create(user=mention, server=message.server.id)
                     update = Ban.update(bans=Ban.bans + 1)
-                    update = update.where(Ban.user == mention, Ban.server == message.server)
+                    update = update.where(Ban.user == mention, Ban.server == message.server.id)
                     update.execute()
 
                     if user.bans + 1 == 1:
@@ -191,6 +191,7 @@ class Alexis(discord.Client):
             except Meme.DoesNotExist:
                 pass
 
+        # !set
         elif text.startswith('!set '):
             meme_query = text[5:].strip().split(' ')
 
@@ -217,6 +218,7 @@ class Alexis(discord.Client):
 
             await self.send_message(chan, msg)
 
+        # !unset
         elif text.startswith('!unset '):
             meme_name = text[7:].strip()
 
