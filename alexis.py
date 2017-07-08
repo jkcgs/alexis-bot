@@ -177,6 +177,10 @@ class Alexis(discord.Client):
 
         # !setbans
         elif text.startswith('!setbans '):
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+            
             args = text.split(' ')
             is_valid = not (len(args) < 3 or len(message.mentions) < 1)
             num_bans = 0
