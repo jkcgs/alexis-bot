@@ -166,7 +166,7 @@ class Alexis(discord.Client):
 
             mention = message.mentions[0]
             if 'owners' in self.config and mention.id in self.config['owners']:
-                mesg = 'Te voy a decir la cifra exacta: *Cuatro mil trescientos cuarenta y '
+                mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
                 mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor'
                 await self.send_message(chan, mesg)
                 return
