@@ -140,7 +140,7 @@ class Alexis(discord.Client):
                     await self.send_message(chan, text)
 
         # !resetban
-        elif text.startswith("!resetban "):
+        elif text.startswith('!resetban '):
             if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
@@ -150,11 +150,28 @@ class Alexis(discord.Client):
                 return
 
             mention = message.mentions[0]
-            user, _ = Ban.get_or_create(user=mention, server=message.server)
+            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
             user.bans = 0
             user.save()
 
             await self.send_message(chan, 'Bans reiniciados xd')
+
+        # !bans
+        elif text.startswith('!bans '):
+            if len(text.split(' ')) > 2 or len(message.mentions) < 1:
+                await self.send_message(chan, 'Formato: !bans <mención>')
+                return
+
+            mention = message.mentions[0]
+            name = mention.nick if mention.nick is not None else mention.name
+            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
+
+            word = 'ban' if user.bans == 1 else 'bans'
+            if user.bans == 2:
+                word = 'papás'
+
+            mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
+            await self.send_message(chan, mesg)
 
         # !redditor
         elif text.startswith('!redditor '):
@@ -240,6 +257,7 @@ class Alexis(discord.Client):
                 msg = 'El valor con nombre {name} no existe'.format(name=meme_name)
                 await self.send_message(chan, msg)
         
+        # !list (lista los memes)
         elif text == '!list':
             if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
