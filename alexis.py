@@ -165,6 +165,12 @@ class Alexis(discord.Client):
                 return
 
             mention = message.mentions[0]
+            if 'owners' in self.config and mention.id in self.config['owners']:
+                mesg = 'Te voy a decir la cifra exacta: *Cuatro mil trescientos cuarenta y '
+                mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor'
+                await self.send_message(chan, mesg)
+                return
+
             name = mention.nick if mention.nick is not None else mention.name
             user, _ = Ban.get_or_create(user=mention, server=message.server.id)
 
@@ -180,7 +186,7 @@ class Alexis(discord.Client):
             if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
-            
+
             args = text.split(' ')
             is_valid = not (len(args) < 3 or len(message.mentions) < 1)
             num_bans = 0
