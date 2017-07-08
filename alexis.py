@@ -16,7 +16,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 __status__ = "Desarrollo"
 
 
@@ -81,7 +81,7 @@ class Alexis(discord.Client):
 
         # !version
         if text == '!version' or text == '!info':
-            info_msg = "```\nAutores: {}\n\nVersión: {}\n\nEstado: {}```"
+            info_msg = "```\nAutores: {}\nVersión: {}\nEstado: {}```"
             await self.send_message(chan, info_msg.format(__author__, __version__, __status__))
 
         # !callate
@@ -120,6 +120,8 @@ class Alexis(discord.Client):
                 return
 
             for mention in message.mentions:
+                name = mention.nick if mention.nick is not None else mention.name
+
                 if 'owners' in self.config and mention.id in self.config['owners']:
                     text = 'nopo wn no hagai esa wea'
                     await self.send_message(chan, text)
@@ -130,13 +132,13 @@ class Alexis(discord.Client):
                     update.execute()
 
                     if user.bans + 1 == 1:
-                        text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(mention.name)
+                        text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(name)
                     else:
                         text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'
-                        text = text.format(mention.name, user.bans + 1)
+                        text = text.format(name, user.bans + 1)
                     await self.send_message(chan, text)
                 else:
-                    text = '¡**{}** se salvo del ban de milagro!'.format(mention.name)
+                    text = '¡**{}** se salvo del ban de milagro!'.format(name)
                     await self.send_message(chan, text)
 
         # !resetban
@@ -168,9 +170,34 @@ class Alexis(discord.Client):
 
             word = 'ban' if user.bans == 1 else 'bans'
             if user.bans == 2:
-                word = 'papás'
+                word = '~~papás~~ bans'
 
             mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
+            await self.send_message(chan, mesg)
+
+        # !setbans
+        elif text.startswith('!setbans '):
+            args = text.split(' ')
+            is_valid = not (len(args) < 3 or len(message.mentions) < 1)
+            num_bans = 0
+
+            try:
+                num_bans = int(args[2])
+            except (IndexError, ValueError):
+                is_valid = False
+
+            if not is_valid:
+                await self.send_message(chan, 'Formato: !setbans <mención> <cantidad>')
+                return
+
+            mention = message.mentions[0]
+            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
+            user.bans = num_bans
+            user.save()
+
+            name = mention.nick if mention.nick is not None else mention.name
+            word = 'ban' if user.bans == 1 else 'bans'
+            mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
             await self.send_message(chan, mesg)
 
         # !redditor
