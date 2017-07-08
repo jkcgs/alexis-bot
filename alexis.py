@@ -16,8 +16,8 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.4'
-__status__ = "Producción"
+__version__ = '0.1.5'
+__status__ = "Desarrollo"
 
 
 class Alexis(discord.Client):
@@ -39,7 +39,7 @@ class Alexis(discord.Client):
 
     def init(self):
         """Inicializa al bot"""
-        self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__)
+        self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__.lower())
         self.log.info('Python %s en %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
@@ -158,14 +158,14 @@ class Alexis(discord.Client):
 
         # !redditor
         elif text.startswith('!redditor '):
-            user = text[10:].split(' ')[0].lower().strip()
+            user = text[10:].split(' ')[0].strip()
 
             if user.startswith('/u/'):
                 user = user[3:]
             if not re.match('^[a-zA-Z0-9_-]*$', user):
                 return
 
-            redditor, _ = Redditor.get_or_create(name=user)
+            redditor, _ = Redditor.get_or_create(name=user.lower())
 
             if redditor.posts > 0:
                 suffix = 'post' if redditor.posts == 1 else 'posts'
