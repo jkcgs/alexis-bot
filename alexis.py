@@ -16,7 +16,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.6'
+__version__ = '0.1.7'
 __status__ = "Desarrollo"
 
 
@@ -313,6 +313,25 @@ class Alexis(discord.Client):
             word = 'valor' if len(namelist) == 1 else 'valores'
             resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
             await self.send_message(chan, resp)
+
+        # !!list (lista completa)
+        elif text == '!!list':
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            memelist = []
+            for item in Meme.select().iterator():
+                namelist.append("- {}: {}".format(item.name, item.content))
+
+            if len(memelist) == 0:
+                await self.send_message(chan, 'No hay valores disponibles')
+                return
+
+            word = 'valor' if len(namelist) == 1 else 'valores'
+            resp = 'Hay {} {}:\n```\n{}\n```'.format(len(namelist), word, '\n'.join(namelist))
+            await self.send_message(chan, resp)
+
 
 if __name__ == '__main__':
     Alexis().init()
