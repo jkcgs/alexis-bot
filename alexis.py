@@ -243,7 +243,24 @@ class Alexis(discord.Client):
 
         # !setbans
         elif text == '!banrank':
-            await self.send_message(chan, 'WIP')
+            bans = Ban.select().where(Ban.server == chan.server.id).order_by(Ban.bans)
+            banlist = []
+
+            i = 1
+            for item in bans.iterator():
+                banlist.append('{}. {}: {}'.format(i, item.user, item.bans))
+
+                i += 1
+                if i > 5:
+                    break
+
+            if len(banlist) == 0:
+                await self.send_message(chan, 'No hay bans registrados')
+                return
+
+            mesg = 'Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist))
+            await self.send_message(chan, mesg)
+
 
         """
         MEMEEEEES
