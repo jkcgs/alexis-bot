@@ -174,11 +174,17 @@ class Alexis(discord.Client):
             name = mention.nick if mention.nick is not None else mention.name
             user, _ = Ban.get_or_create(user=mention, server=message.server.id)
 
-            word = 'ban' if user.bans == 1 else 'bans'
-            if user.bans == 2:
-                word = '~~papás~~ bans'
+            mesg = ''
+            if user.bans == 0:
+                mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
+                mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```\nbans"
+            else:
+                word = 'ban' if user.bans == 1 else 'bans'
+                if user.bans == 2:
+                    word = '~~papás~~ bans'
 
-            mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
+                mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
+
             await self.send_message(chan, mesg)
 
         # !setbans
