@@ -113,6 +113,31 @@ class Alexis(discord.Client):
                 text = "**{}** ha pedido respetos por **{}** :hearts:".format(author, respects)
                 await self.send_message(chan, text)
 
+        # !redditor
+        elif text.startswith('!redditor '):
+            user = text[10:].split(' ')[0].strip()
+
+            if user.startswith('/u/'):
+                user = user[3:]
+            if not re.match('^[a-zA-Z0-9_-]*$', user):
+                return
+
+            redditor, _ = Redditor.get_or_create(name=user.lower())
+
+            if redditor.posts > 0:
+                suffix = 'post' if redditor.posts == 1 else 'posts'
+                text = '**/u/{name}** ha creado **{num}** {suffix}.'
+                text = text.format(name=user, num=redditor.posts, suffix=suffix)
+                await self.send_message(chan, text)
+            else:
+                text = '**/u/{name}** no ha creado ningún post.'
+                text = text.format(name=user)
+                await self.send_message(chan, text)
+
+        """
+        BAAAAANS
+        """
+
         # !ban (no PM)
         elif text.startswith('!ban '):
             if is_pm:
@@ -216,26 +241,9 @@ class Alexis(discord.Client):
             mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
             await self.send_message(chan, mesg)
 
-        # !redditor
-        elif text.startswith('!redditor '):
-            user = text[10:].split(' ')[0].strip()
-
-            if user.startswith('/u/'):
-                user = user[3:]
-            if not re.match('^[a-zA-Z0-9_-]*$', user):
-                return
-
-            redditor, _ = Redditor.get_or_create(name=user.lower())
-
-            if redditor.posts > 0:
-                suffix = 'post' if redditor.posts == 1 else 'posts'
-                text = '**/u/{name}** ha creado **{num}** {suffix}.'
-                text = text.format(name=user, num=redditor.posts, suffix=suffix)
-                await self.send_message(chan, text)
-            else:
-                text = '**/u/{name}** no ha creado ningún post.'
-                text = text.format(name=user)
-                await self.send_message(chan, text)
+        """
+        MEMEEEEES
+        """
 
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):
@@ -314,7 +322,7 @@ class Alexis(discord.Client):
             resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
             await self.send_message(chan, resp)
 
-        # !!list (lista completa)
+        # !!list (lista completa de memes)
         elif text == '!!list':
             if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
