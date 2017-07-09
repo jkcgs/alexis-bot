@@ -134,10 +134,6 @@ class Alexis(discord.Client):
                 text = text.format(name=user)
                 await self.send_message(chan, text)
 
-        """
-        BAAAAANS
-        """
-
         # !ban (no PM)
         elif text.startswith('!ban '):
             if is_pm:
@@ -260,11 +256,6 @@ class Alexis(discord.Client):
 
             mesg = 'Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist))
             await self.send_message(chan, mesg)
-
-
-        """
-        MEMEEEEES
-        """
 
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):
