@@ -241,6 +241,10 @@ class Alexis(discord.Client):
             mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
             await self.send_message(chan, mesg)
 
+        # !setbans
+        elif text == '!banrank':
+            await self.send_message(chan, 'WIP')
+
         """
         MEMEEEEES
         """
