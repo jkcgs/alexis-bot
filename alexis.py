@@ -322,14 +322,15 @@ class Alexis(discord.Client):
 
             memelist = []
             for item in Meme.select().iterator():
-                namelist.append("- {}: {}".format(item.name, item.content))
+                memelist.append("- {}: {}".format(item.name, item.content))
 
-            if len(memelist) == 0:
+            num_memes = len(memelist)
+            if num_memes == 0:
                 await self.send_message(chan, 'No hay valores disponibles')
                 return
 
-            word = 'valor' if len(namelist) == 1 else 'valores'
-            resp = 'Hay {} {}:\n```\n{}\n```'.format(len(namelist), word, '\n'.join(namelist))
+            word = 'valor' if num_memes == 1 else 'valores'
+            resp = 'Hay {} {}:\n```\n{}\n```'.format(num_memes, word, '\n'.join(memelist))
             await self.send_message(chan, resp)
 
 
