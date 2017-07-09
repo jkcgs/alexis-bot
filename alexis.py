@@ -177,7 +177,7 @@ class Alexis(discord.Client):
             mesg = ''
             if user.bans == 0:
                 mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
-                mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```\nbans"
+                mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
             else:
                 word = 'ban' if user.bans == 1 else 'bans'
                 if user.bans == 2:
