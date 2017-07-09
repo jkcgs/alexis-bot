@@ -239,7 +239,7 @@ class Alexis(discord.Client):
 
         # !setbans
         elif text == '!banrank':
-            bans = Ban.select().where(Ban.server == chan.server.id).order_by(Ban.bans)
+            bans = Ban.select().where(Ban.server == chan.server.id).order_by(Ban.bans.desc())
             banlist = []
 
             i = 1
