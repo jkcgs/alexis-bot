@@ -182,7 +182,7 @@ class Alexis(discord.Client):
 
         # !bans
         elif text.startswith('!bans '):
-            if len(text.split(' ')) > 2 or len(message.mentions) < 1:
+            if len(text.split(' ')) > 3 or len(message.mentions) < 1:
                 await self.send_message(chan, 'Formato: !bans <mención>')
                 return
 
