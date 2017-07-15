@@ -140,27 +140,28 @@ class Alexis(discord.Client):
                 await self.send_message(chan, 'me estai weando?')
                 return
 
-            for mention in message.mentions:
-                name = mention.nick if mention.nick is not None else mention.name
+            mention = message.mentions[0]
 
-                if 'owners' in self.config and mention.id in self.config['owners']:
-                    text = 'nopo wn no hagai esa wea'
-                    await self.send_message(chan, text)
-                elif random.randint(0, 1):
-                    user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-                    update = Ban.update(bans=Ban.bans + 1)
-                    update = update.where(Ban.user == mention, Ban.server == message.server.id)
-                    update.execute()
+            name = mention.nick if mention.nick is not None else mention.name
 
-                    if user.bans + 1 == 1:
-                        text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(name)
-                    else:
-                        text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'
-                        text = text.format(name, user.bans + 1)
-                    await self.send_message(chan, text)
+            if 'owners' in self.config and mention.id in self.config['owners']:
+                text = 'nopo wn no hagai esa wea'
+                await self.send_message(chan, text)
+            elif random.randint(0, 1):
+                user, _ = Ban.get_or_create(user=mention, server=message.server.id)
+                update = Ban.update(bans=Ban.bans + 1)
+                update = update.where(Ban.user == mention, Ban.server == message.server.id)
+                update.execute()
+
+                if user.bans + 1 == 1:
+                    text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(name)
                 else:
-                    text = '¡**{}** se salvo del ban de milagro!'.format(name)
-                    await self.send_message(chan, text)
+                    text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'
+                    text = text.format(name, user.bans + 1)
+                await self.send_message(chan, text)
+            else:
+                text = '¡**{}** se salvo del ban de milagro!'.format(name)
+                await self.send_message(chan, text)
 
         # !resetban
         elif text.startswith('!resetban '):
@@ -181,32 +182,33 @@ class Alexis(discord.Client):
 
         # !bans
         elif text.startswith('!bans '):
-            if len(text.split(' ')) > 2 or len(message.mentions) < 1:
+            if len(text.split(' ')) > 3 or len(message.mentions) < 1:
                 await self.send_message(chan, 'Formato: !bans <mención>')
                 return
 
-            mention = message.mentions[0]
-            if 'owners' in self.config and mention.id in self.config['owners']:
-                mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
-                mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor'
-                await self.send_message(chan, mesg)
-                return
+            if message.mentions:
+	            mention = message.mentions[0]
+	            if 'owners' in self.config and mention.id in self.config['owners']:
+	                mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
+	                mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor'
+	                await self.send_message(chan, mesg)
+	                return
 
-            name = mention.nick if mention.nick is not None else mention.name
-            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
+	            name = mention.nick if mention.nick is not None else mention.name
+	            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
 
-            mesg = ''
-            if user.bans == 0:
-                mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
-                mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
-            else:
-                word = 'ban' if user.bans == 1 else 'bans'
-                if user.bans == 2:
-                    word = '~~papás~~ bans'
+	            mesg = ''
+	            if user.bans == 0:
+	                mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
+	                mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
+	            else:
+	                word = 'ban' if user.bans == 1 else 'bans'
+	                if user.bans == 2:
+	                    word = '~~papás~~ bans'
 
-                mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
+	                mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
 
-            await self.send_message(chan, mesg)
+	            await self.send_message(chan, mesg)
 
         # !setbans
         elif text.startswith('!setbans '):
