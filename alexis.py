@@ -11,7 +11,6 @@ import re
 import yaml
 import logger
 import discord
-import requests
 from cleverwrap import CleverWrap
 from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
