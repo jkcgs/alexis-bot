@@ -359,20 +359,19 @@ class Alexis(discord.Client):
             resp = 'Hay {} {}:\n```\n{}\n```'.format(num_memes, word, '\n'.join(memelist))
             await self.send_message(chan, resp)
 
-        #!cleverbot
-        elif text.startswith('!cleverbot'):
+        #cleverbot (@bot <mensaje>)
+        elif text.startswith('<@{}>'.format(self.user.id)):
             url = 'https://www.cleverbot.com/getreply?key={}'.format(self.config['cleverbot_key'])
             r = requests.get(url)
-            print (r.status_code)
             if r.status_code == 401:
                 resp = 'El valor "cleverbot_key" no se ha definido o es inválido.'
                 await self.send_message(chan,resp)
-            elif text.strip() == '!cleverbot':
-                resp = 'Formato: !cleverbot <texto>'
+            elif text.strip() == '<@{}>'.format(self.user.id):
+                resp = 'Formato: @bot <texto>'
                 await self.send_message(chan, resp)
-            elif text.startswith('!cleverbot ') and len(text) >= 12:
-                pregunta = str(text[11:])
-                respuesta = 'Cleverbot: {}'.format(cbot.say(pregunta))
+            elif len(text) >= 2:
+                pregunta = text.strip('<@'+self.user.id+'>')
+                respuesta = cbot.say(pregunta)
                 await self.send_message(chan, respuesta)
 
 
