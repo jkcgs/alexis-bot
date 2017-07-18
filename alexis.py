@@ -361,7 +361,8 @@ class Alexis(discord.Client):
         #cleverbot (@bot <mensaje>)
         elif text.startswith('<@{}>'.format(self.user.id)):
             if text.strip() == '<@{}>'.format(self.user.id):
-                resp = 'Formato: @bot <texto>'
+                frase = random.choice(self.config['frases'])
+                resp = '{}\n \n*Si querías decirme algo, dílo de la siguiente forma: @bot <texto>*'.format(frase)
                 await self.send_message(chan, resp)
             elif len(text) >= 2:
                 pregunta = text.strip('<@{}> '.format(self.user.id))
