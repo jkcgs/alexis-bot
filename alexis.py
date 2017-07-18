@@ -364,7 +364,7 @@ class Alexis(discord.Client):
                 resp = 'Formato: @bot <texto>'
                 await self.send_message(chan, resp)
             elif len(text) >= 2:
-                pregunta = text.strip('<@'+self.user.id+'>')
+                pregunta = text.strip('<@{}> '.format(self.user.id))
                 respuesta = cbot.say(pregunta)
                 if respuesta == None:
                     resp = 'El valor "cleverbot_key" no se ha definido o es inválido.'
