@@ -11,6 +11,8 @@ import re
 import yaml
 import logger
 import discord
+import requests
+from cleverwrap import CleverWrap
 from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
 
@@ -74,6 +76,7 @@ class Alexis(discord.Client):
         chan = message.channel
         is_pm = message.server is None
         is_owner = 'owners' in self.config and message.author.id in self.config['owners']
+        cbot = CleverWrap(self.config['cleverbot_key'])
 
         # !ping
         #if text == '!ping':
@@ -355,6 +358,22 @@ class Alexis(discord.Client):
             word = 'valor' if num_memes == 1 else 'valores'
             resp = 'Hay {} {}:\n```\n{}\n```'.format(num_memes, word, '\n'.join(memelist))
             await self.send_message(chan, resp)
+
+        #!cleverbot
+        elif text.startswith('!cleverbot'):
+            url = 'https://www.cleverbot.com/getreply?key={}'.format(self.config['cleverbot_key'])
+            r = requests.get(url)
+            print (r.status_code)
+            if r.status_code == 401:
+                resp = 'El valor "cleverbot_key" no se ha definido o es inválido.'
+                await self.send_message(chan,resp)
+            elif text.strip() == '!cleverbot':
+                resp = 'Formato: !cleverbot <texto>'
+                await self.send_message(chan, resp)
+            elif text.startswith('!cleverbot ') and len(text) >= 12:
+                pregunta = str(text[11:])
+                respuesta = 'Cleverbot: {}'.format(cbot.say(pregunta))
+                await self.send_message(chan, respuesta)
 
 
 if __name__ == '__main__':
