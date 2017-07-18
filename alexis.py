@@ -361,18 +361,17 @@ class Alexis(discord.Client):
 
         #cleverbot (@bot <mensaje>)
         elif text.startswith('<@{}>'.format(self.user.id)):
-            url = 'https://www.cleverbot.com/getreply?key={}'.format(self.config['cleverbot_key'])
-            r = requests.get(url)
-            if r.status_code == 401:
-                resp = 'El valor "cleverbot_key" no se ha definido o es inválido.'
-                await self.send_message(chan,resp)
-            elif text.strip() == '<@{}>'.format(self.user.id):
+            if text.strip() == '<@{}>'.format(self.user.id):
                 resp = 'Formato: @bot <texto>'
                 await self.send_message(chan, resp)
             elif len(text) >= 2:
                 pregunta = text.strip('<@'+self.user.id+'>')
                 respuesta = cbot.say(pregunta)
-                await self.send_message(chan, respuesta)
+                if respuesta == None:
+                    resp = 'El valor "cleverbot_key" no se ha definido o es inválido.'
+                    await self.send_message(chan, resp)
+                else:
+                    await self.send_message(chan, respuesta)
 
 
 if __name__ == '__main__':
