@@ -38,6 +38,8 @@ class Alexis(discord.Client):
             self.log.exception(ex)
             raise
 
+        self.cbot = CleverWrap(self.config['cleverbot_key'])
+
     def init(self):
         """Inicializa al bot"""
         self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__.lower())
@@ -50,6 +52,12 @@ class Alexis(discord.Client):
             self.log.info('Inicializando base de datos...')
             for meme_name, meme_cont in self.config['default_memes'].items():
                 Meme.get_or_create(name=meme_name, content=meme_cont)
+
+        cbotcheck = self.cbot.say('test')
+        if cbotcheck == None:
+            self.log.info('CUIDADO: El valor "cleverbot_key" ("%s") es inválido.',self.config['cleverbot_key'])
+        else:
+            self.log.info('CleverWrap iniciado correctamente.')
 
         self.log.info('Conectando...')
 
@@ -75,7 +83,6 @@ class Alexis(discord.Client):
         chan = message.channel
         is_pm = message.server is None
         is_owner = 'owners' in self.config and message.author.id in self.config['owners']
-        cbot = CleverWrap(self.config['cleverbot_key'])
 
         # !ping
         #if text == '!ping':
@@ -365,13 +372,12 @@ class Alexis(discord.Client):
                 resp = '{}\n \n*Si querías decirme algo, dílo de la siguiente forma: @bot <texto>*'.format(frase)
                 await self.send_message(chan, resp)
             elif len(text) >= 2:
-                pregunta = text.strip('<@{}> '.format(self.user.id))
-                respuesta = cbot.say(pregunta)
-                if respuesta == None:
-                    resp = 'El valor "cleverbot_key" no se ha definido o es inválido.'
-                    await self.send_message(chan, resp)
-                else:
-                    await self.send_message(chan, respuesta)
+                    pregunta = text.strip('<@{}> '.format(self.user.id))
+                    respuesta = self.cbot.say(pregunta)
+                    if respuesta == None:
+                        await self.send_message(chan ,'No ando con ganas de hablar.')
+                    else:
+                        await self.send_message(chan, respuesta)
 
 
 if __name__ == '__main__':
