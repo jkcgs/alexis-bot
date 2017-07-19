@@ -55,7 +55,7 @@ class Alexis(discord.Client):
 
         cbotcheck = self.cbot.say('test')
         if cbotcheck == None:
-            self.log.info('CUIDADO: El valor "cleverbot_key" ("%s") es inválido.',self.config['cleverbot_key'])
+            self.log.warn('El valor "cleverbot_key" ("%s") es inválido.',self.config['cleverbot_key'])
         else:
             self.log.info('CleverWrap iniciado correctamente.')
 
