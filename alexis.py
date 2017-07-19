@@ -11,12 +11,13 @@ import re
 import yaml
 import logger
 import discord
+from cleverwrap import CleverWrap
 from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 __status__ = "Desarrollo"
 
 
@@ -37,6 +38,8 @@ class Alexis(discord.Client):
             self.log.exception(ex)
             raise
 
+        self.cbot = CleverWrap(self.config['cleverbot_key'])
+
     def init(self):
         """Inicializa al bot"""
         self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__.lower())
@@ -45,10 +48,18 @@ class Alexis(discord.Client):
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
         self.log.info('------')
 
+        self.cbotcheck = self.cbot.say('test')
+        if self.cbotcheck != None:
+            self.log.info('CleverWrap iniciado correctamente.')
+        else:
+            self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
+
+
         if 'default_memes' in self.config and len(self.config['default_memes']) > 0:
             self.log.info('Inicializando base de datos...')
             for meme_name, meme_cont in self.config['default_memes'].items():
                 Meme.get_or_create(name=meme_name, content=meme_cont)
+
 
         self.log.info('Conectando...')
 
@@ -74,6 +85,7 @@ class Alexis(discord.Client):
         chan = message.channel
         is_pm = message.server is None
         is_owner = 'owners' in self.config and message.author.id in self.config['owners']
+        frase = random.choice(self.config['frases'])
 
         # !ping
         #if text == '!ping':
@@ -356,6 +368,17 @@ class Alexis(discord.Client):
             resp = 'Hay {} {}:\n```\n{}\n```'.format(num_memes, word, '\n'.join(memelist))
             await self.send_message(chan, resp)
 
+        #cleverbot (@bot <mensaje>)
+        elif text.startswith('<@{}>'.format(self.user.id)) and self.cbotcheck is not None:
+            if is_pm:
+                await self.send_message(chan, 'me estai weando?')
+                return
+            elif text.strip() == '<@{}>'.format(self.user.id):
+                await self.send_message(chan, '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase))
+            else:
+                pregunta = text.strip('<@{}> '.format(self.user.id))
+                respuesta = self.cbot.say(pregunta)
+                await self.send_message(chan, respuesta)
 
 if __name__ == '__main__':
     Alexis().init()
