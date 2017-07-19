@@ -48,16 +48,20 @@ class Alexis(discord.Client):
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
         self.log.info('------')
 
+        self.cbotcheck = self.cbot.say('test')
+        if self.cbotcheck != None:
+            self.log.info('CleverWrap iniciado correctamente.')
+        else:
+            self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
+
+
+
         if 'default_memes' in self.config and len(self.config['default_memes']) > 0:
             self.log.info('Inicializando base de datos...')
             for meme_name, meme_cont in self.config['default_memes'].items():
                 Meme.get_or_create(name=meme_name, content=meme_cont)
 
-        cbotcheck = self.cbot.say('test')
-        if cbotcheck == None:
-            self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
-        else:
-            self.log.info('CleverWrap iniciado correctamente.')
+
 
         self.log.info('Conectando...')
 
@@ -83,6 +87,7 @@ class Alexis(discord.Client):
         chan = message.channel
         is_pm = message.server is None
         is_owner = 'owners' in self.config and message.author.id in self.config['owners']
+        frase = random.choice(self.config['frases'])
 
         # !ping
         #if text == '!ping':
@@ -366,18 +371,18 @@ class Alexis(discord.Client):
             await self.send_message(chan, resp)
 
         #cleverbot (@bot <mensaje>)
-        elif text.startswith('<@{}>'.format(self.user.id)):
+        elif text.startswith('<@{}>'.format(self.user.id)) and self.cbotcheck is not None:
             if text.strip() == '<@{}>'.format(self.user.id):
-                frase = random.choice(self.config['frases'])
                 resp = '{}\n \n*Si querías decirme algo, dílo de la siguiente forma: @bot <texto>*'.format(frase)
                 await self.send_message(chan, resp)
-            elif len(text) >= 2:
-                    pregunta = text.strip('<@{}> '.format(self.user.id))
-                    respuesta = self.cbot.say(pregunta)
-                    if respuesta == None:
-                        await self.send_message(chan, 'No ando con ganas de hablar.')
-                    else:
-                        await self.send_message(chan, respuesta)
+            else:
+                pregunta = text.strip('<@{}> '.format(self.user.id))
+                respuesta = self.cbot.say(pregunta)
+                await self.send_message(chan, respuesta)
+
+        #frases (si es que cleverbot no está disponible)
+        elif text.startswith('<@{}>'.format(self.user.id)) and self.cbotcheck == None:
+            await self.send_message(chan, frase)
 
 
 if __name__ == '__main__':
