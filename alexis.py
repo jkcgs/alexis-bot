@@ -370,18 +370,15 @@ class Alexis(discord.Client):
 
         #cleverbot (@bot <mensaje>)
         elif text.startswith('<@{}>'.format(self.user.id)) and self.cbotcheck is not None:
-            if text.strip() == '<@{}>'.format(self.user.id):
-                resp = '{}\n \n*Si querías decirme algo, dílo de la siguiente forma: @bot <texto>*'.format(frase)
-                await self.send_message(chan, resp)
+            if is_pm:
+                await self.send_message(chan, 'me estai weando?')
+                return
+            elif text.strip() == '<@{}>'.format(self.user.id):
+                await self.send_message(chan, '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase))
             else:
                 pregunta = text.strip('<@{}> '.format(self.user.id))
                 respuesta = self.cbot.say(pregunta)
                 await self.send_message(chan, respuesta)
-
-        #frases (si es que cleverbot no está disponible)
-        elif text.startswith('<@{}>'.format(self.user.id)) and self.cbotcheck == None:
-            await self.send_message(chan, frase)
-
 
 if __name__ == '__main__':
     Alexis().init()
