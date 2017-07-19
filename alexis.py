@@ -55,7 +55,7 @@ class Alexis(discord.Client):
 
         cbotcheck = self.cbot.say('test')
         if cbotcheck == None:
-            self.log.warn('El valor "cleverbot_key" ("%s") es inválido.',self.config['cleverbot_key'])
+            self.log.warning('El valor "cleverbot_key" ("%s") es inválido.',self.config['cleverbot_key'])
         else:
             self.log.info('CleverWrap iniciado correctamente.')
 
@@ -375,7 +375,7 @@ class Alexis(discord.Client):
                     pregunta = text.strip('<@{}> '.format(self.user.id))
                     respuesta = self.cbot.say(pregunta)
                     if respuesta == None:
-                        await self.send_message(chan ,'No ando con ganas de hablar.')
+                        await self.send_message(chan, 'No ando con ganas de hablar.')
                     else:
                         await self.send_message(chan, respuesta)
 
