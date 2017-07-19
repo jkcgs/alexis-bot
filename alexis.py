@@ -55,12 +55,10 @@ class Alexis(discord.Client):
             self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
 
 
-
         if 'default_memes' in self.config and len(self.config['default_memes']) > 0:
             self.log.info('Inicializando base de datos...')
             for meme_name, meme_cont in self.config['default_memes'].items():
                 Meme.get_or_create(name=meme_name, content=meme_cont)
-
 
 
         self.log.info('Conectando...')
