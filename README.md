@@ -9,6 +9,7 @@
 	* appdirs
 	* async-timeout
 	* charde
+	* cleverwrap
 	* discord.py
 	* multidict
 	* packaging
