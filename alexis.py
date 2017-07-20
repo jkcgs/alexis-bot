@@ -23,6 +23,7 @@ __status__ = "Desarrollo"
 
 class Alexis(discord.Client):
     """Contiene al bot e inicializa su funcionamiento."""
+
     def __init__(self, **options):
         super().__init__(**options)
 
@@ -39,6 +40,8 @@ class Alexis(discord.Client):
             raise
 
         self.cbot = CleverWrap(self.config['cleverbot_key'])
+        self.cbotcheck = False
+        self.conversation = True
 
     def init(self):
         """Inicializa al bot"""
@@ -48,18 +51,17 @@ class Alexis(discord.Client):
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
         self.log.info('------')
 
-        self.cbotcheck = self.cbot.say('test')
-        if self.cbotcheck != None:
+        self.log.info('Conectando con Cleverbot API...')
+        self.cbotcheck = self.cbot.say('test') is not None
+        if self.cbotcheck:
             self.log.info('CleverWrap iniciado correctamente.')
         else:
             self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
-
 
         if 'default_memes' in self.config and len(self.config['default_memes']) > 0:
             self.log.info('Inicializando base de datos...')
             for meme_name, meme_cont in self.config['default_memes'].items():
                 Meme.get_or_create(name=meme_name, content=meme_cont)
-
 
         self.log.info('Conectando...')
 
@@ -88,7 +90,7 @@ class Alexis(discord.Client):
         frase = random.choice(self.config['frases'])
 
         # !ping
-        #if text == '!ping':
+        # if text == '!ping':
         #    await self.send_message(chan, 'pong!')
 
         # !version
@@ -117,13 +119,13 @@ class Alexis(discord.Client):
 
         # !f
         elif text.startswith('!f'):
-            hearts = ['heart','hearts','yellow_heart','green_heart','blue_heart','purple_heart']
+            hearts = ['heart', 'hearts', 'yellow_heart', 'green_heart', 'blue_heart', 'purple_heart']
             if text.strip() == '!f':
                 text = "**{}** ha pedido respetos :{}:".format(author, random.choice(hearts))
                 await self.send_message(chan, text)
             elif text.startswith('!f ') and len(text) >= 4:
                 respects = text[3:]
-                text = "**{}** ha pedido respetos por **{}** :{}:".format(author, respects,random.choice(hearts))
+                text = "**{}** ha pedido respetos por **{}** :{}:".format(author, respects, random.choice(hearts))
                 await self.send_message(chan, text)
 
         # !redditor
@@ -200,28 +202,28 @@ class Alexis(discord.Client):
                 return
 
             if message.mentions:
-	            mention = message.mentions[0]
-	            if 'owners' in self.config and mention.id in self.config['owners']:
-	                mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
-	                mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor'
-	                await self.send_message(chan, mesg)
-	                return
+                mention = message.mentions[0]
+                if 'owners' in self.config and mention.id in self.config['owners']:
+                    mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
+                    mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
+                    await self.send_message(chan, mesg)
+                    return
 
-	            name = mention.nick if mention.nick is not None else mention.name
-	            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
+                name = mention.nick if mention.nick is not None else mention.name
+                user, _ = Ban.get_or_create(user=mention, server=message.server.id)
 
-	            mesg = ''
-	            if user.bans == 0:
-	                mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
-	                mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
-	            else:
-	                word = 'ban' if user.bans == 1 else 'bans'
-	                if user.bans == 2:
-	                    word = '~~papás~~ bans'
+                mesg = ''
+                if user.bans == 0:
+                    mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
+                    mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
+                else:
+                    word = 'ban' if user.bans == 1 else 'bans'
+                    if user.bans == 2:
+                        word = '~~papás~~ bans'
 
-	                mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
+                    mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
 
-	            await self.send_message(chan, mesg)
+                await self.send_message(chan, mesg)
 
         # !setbans
         elif text.startswith('!setbans '):
@@ -274,11 +276,7 @@ class Alexis(discord.Client):
 
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):
-            meme_query = ''
-            if text.startswith('! '):
-                meme_query = text[2:]
-            else:
-                meme_query = text[1:]
+            meme_query = text[2:] if text.startswith('! ') else text[1:]
 
             try:
                 meme = Meme.get(Meme.name == meme_query)
@@ -334,13 +332,13 @@ class Alexis(discord.Client):
             except Meme.DoesNotExist:
                 msg = 'El valor con nombre {name} no existe'.format(name=meme_name)
                 await self.send_message(chan, msg)
-        
+
         # !list (lista los memes)
         elif text == '!list':
             if not is_owner:
                 await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
-            
+
             namelist = []
             for item in Meme.select().iterator():
                 namelist.append(item.name)
@@ -368,20 +366,29 @@ class Alexis(discord.Client):
             resp = 'Hay {} {}:\n```\n{}\n```'.format(num_memes, word, '\n'.join(memelist))
             await self.send_message(chan, resp)
 
-        #cleverbot (@bot <mensaje>)
-        elif text.startswith('<@{}>'.format(self.user.id)) or text.startswith('<@!{}>'.format(self.user.id)) and self.cbotcheck is not None:
-            if is_pm:
-                await self.send_message(chan, 'me estai weando?')
+        # !toggleconversation
+        elif text == '!toggleconversation':
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
                 return
-            elif text.strip() == '<@{}>'.format(self.user.id) or text.strip() == '<@!{}>'.format(self.user.id):
-                await self.send_message(chan, '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase))
+
+            self.conversation = not self.conversation
+            resp = 'activada' if self.conversation else 'desactivada'
+            await self.send_message(chan, 'Conversación {}'.format(resp))
+
+        # cleverbot (@bot <mensaje>)
+        elif re.match('^<@!?{}>'.format(self.user.id), text) and self.conversation and self.cbotcheck is not None:
+            if is_pm:
+                return
+
+            msg = re.sub('<@!?{}>'.format(self.user.id), '', text).strip()
+            if msg == '':
+                reply = '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase)
             else:
-                if text.startswith('<@'):
-                    pregunta = text.strip('<@{}> '.format(self.user.id))
-                else:
-                    pregunta = text.strip('<@!{}> '.format(self.user.id))
-                respuesta = self.cbot.say(pregunta)
-                await self.send_message(chan, respuesta)
+                reply = self.cbot.say(msg)
+
+            await self.send_message(chan, reply)
+
 
 if __name__ == '__main__':
     Alexis().init()
