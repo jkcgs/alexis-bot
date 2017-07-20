@@ -102,7 +102,7 @@ class Alexis(discord.Client):
         own_message = message.author.id == self.user.id
 
         if is_pm:
-            self.log.info('{} me dijo: {}'.format(author, text))
+            self.log.info('[PM] {}: {}'.format(author, text))
 
         # !ping
         # if text == '!ping':
