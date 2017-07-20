@@ -371,6 +371,7 @@ class Alexis(discord.Client):
             for meme in memelist:
                 if len('```{}\n{}```'.format(resp_list, meme)) > 2000:
                     await self.send_message(chan, '```{}```'.format(resp_list))
+                    resp_list = ''
                 else:
                     resp_list = '{}\n{}'.format(resp_list, meme)
 
