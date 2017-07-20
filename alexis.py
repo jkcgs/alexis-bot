@@ -28,6 +28,7 @@ class Alexis(discord.Client):
         super().__init__(**options)
 
         self.log = logger.get_logger('Alexis')
+        self.initialized = False
 
         db.connect()
         db.create_tables([Post, Ban, Redditor, Meme], True)
@@ -85,9 +86,13 @@ class Alexis(discord.Client):
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
         self.rx_mention = re.compile('^<@!?{}>'.format(self.user.id))
+        self.initialized = True
 
     async def on_message(self, message):
         """Método ejecutado cada vez que se recibe un mensaje"""
+        if not self.initialized:
+            return
+
         text = message.content
         author = message.author.name
         chan = message.channel
