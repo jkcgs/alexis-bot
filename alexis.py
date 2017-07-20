@@ -363,8 +363,20 @@ class Alexis(discord.Client):
                 return
 
             word = 'valor' if num_memes == 1 else 'valores'
-            resp = 'Hay {} {}:\n```\n{}\n```'.format(num_memes, word, '\n'.join(memelist))
+            resp = 'Hay {} {}:'.format(num_memes, word)
             await self.send_message(chan, resp)
+
+            # Separar lista de memes en mensajes con menos de 2000 carácteres
+            resp_list = ''
+            for meme in memelist:
+                if len('```{}\n{}```'.format(resp_list, meme)) > 2000:
+                    await self.send_message(chan, '```{}```'.format(resp_list))
+                else:
+                    resp_list = '{}\n{}'.format(resp_list, meme)
+
+            # Enviar lista restante
+            if resp_list != '':
+                await self.send_message(chan, '```{}```'.format(resp_list))
 
         # !toggleconversation
         elif text == '!toggleconversation':
