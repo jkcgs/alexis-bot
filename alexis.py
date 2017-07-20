@@ -101,6 +101,9 @@ class Alexis(discord.Client):
         frase = random.choice(self.config['frases'])
         own_message = message.author.id == self.user.id
 
+        if is_pm:
+            self.log.info('{} me dijo: {}'.format(author, text))
+
         # !ping
         # if text == '!ping':
         #    await self.send_message(chan, 'pong!')
