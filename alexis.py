@@ -42,6 +42,7 @@ class Alexis(discord.Client):
         self.cbot = CleverWrap(self.config['cleverbot_key'])
         self.cbotcheck = False
         self.conversation = True
+        self.rx_mention = None
 
         # El ID del último en enviar un mensaje (omite PM)
         self.last_author = None
@@ -82,6 +83,8 @@ class Alexis(discord.Client):
         self.log.info(self.user.id)
         self.log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
+
+        self.rx_mention = re.compile('^<@!?{}>'.format(self.user.id))
 
     async def on_message(self, message):
         """Método ejecutado cada vez que se recibe un mensaje"""
@@ -408,11 +411,11 @@ class Alexis(discord.Client):
             await self.send_message(chan, 'Conversación {}'.format(resp))
 
         # cleverbot (@bot <mensaje>)
-        elif re.match('^<@!?{}>'.format(self.user.id), text) and self.conversation and self.cbotcheck is not None:
+        elif self.rx_mention.match(text) and self.conversation and self.cbotcheck is not None:
             if is_pm:
                 return
 
-            msg = re.sub('<@!?{}>'.format(self.user.id), '', text).strip()
+            msg = self.rx_mention.sub('', text).strip()
             if msg == '':
                 reply = '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase)
             else:
