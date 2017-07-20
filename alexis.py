@@ -43,6 +43,9 @@ class Alexis(discord.Client):
         self.cbotcheck = False
         self.conversation = True
 
+        # El ID del último en enviar un mensaje (omite PM)
+        self.last_author = None
+
     def init(self):
         """Inicializa al bot"""
         self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__.lower())
@@ -88,6 +91,7 @@ class Alexis(discord.Client):
         is_pm = message.server is None
         is_owner = 'owners' in self.config and message.author.id in self.config['owners']
         frase = random.choice(self.config['frases'])
+        own_message = message.author.id == self.user.id
 
         # !ping
         # if text == '!ping':
@@ -156,13 +160,25 @@ class Alexis(discord.Client):
                 return
 
             mention = message.mentions[0]
-
             name = mention.nick if mention.nick is not None else mention.name
 
             if 'owners' in self.config and mention.id in self.config['owners']:
-                text = 'nopo wn no hagai esa wea'
-                await self.send_message(chan, text)
-            elif random.randint(0, 1):
+                await self.send_message(chan, 'nopo wn no hagai esa wea')
+            else:
+                # Actualizar id del último que usó un comando (omitir al mismo bot)
+                if self.last_author is None or not own_message:
+                    self.last_author = message.author.id
+
+                # Evitar que alguien se banee a si mismo
+                if self.last_author == mention.id:
+                    await self.send_message(chan, 'no hagai trampa po wn xd')
+                    return
+
+                if not random.randint(0, 1):
+                    text = '¡**{}** se salvo del ban de milagro!'.format(name)
+                    await self.send_message(chan, text)
+                    return
+
                 user, _ = Ban.get_or_create(user=mention, server=message.server.id)
                 update = Ban.update(bans=Ban.bans + 1)
                 update = update.where(Ban.user == mention, Ban.server == message.server.id)
@@ -174,9 +190,7 @@ class Alexis(discord.Client):
                     text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'
                     text = text.format(name, user.bans + 1)
                 await self.send_message(chan, text)
-            else:
-                text = '¡**{}** se salvo del ban de milagro!'.format(name)
-                await self.send_message(chan, text)
+
 
         # !resetban
         elif text.startswith('!resetban '):
@@ -276,6 +290,10 @@ class Alexis(discord.Client):
 
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):
+            # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
+            if self.last_author is None or not own_message:
+                self.last_author = message.author.id
+
             meme_query = text[2:] if text.startswith('! ') else text[1:]
 
             try:
