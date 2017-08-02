@@ -17,7 +17,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.8-dev.1'
+__version__ = '0.1.9'
 __status__ = "Desarrollo"
 
 
