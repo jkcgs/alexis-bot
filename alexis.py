@@ -17,7 +17,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.9'
+__version__ = '0.1.9-dev.1'
 __status__ = "Desarrollo"
 
 
@@ -188,7 +188,7 @@ class Alexis(discord.Client):
             mention = message.mentions[0]
             name = self.final_name(mention)
 
-            if self.is_owner(mention, message.server):
+            if not is_owner and self.is_owner(mention, message.server):
                 await self.send_message(chan, 'nopo wn no hagai esa wea')
             else:
                 # Actualizar id del último que usó un comando (omitir al mismo bot)
