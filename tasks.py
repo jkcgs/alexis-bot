@@ -34,7 +34,7 @@ async def posts_loop(bot):
                 embed = discord.Embed()
                 embed.title = data['title']
                 embed.set_author(name='/u/' + data['author'], url='https://www.reddit.com/user/' + data['author'])
-                embed.url = 'https://reddit.com' + data['permalink']
+                embed.url = 'https://www.reddit.com' + data['permalink']
 
                 if data['is_self']:
                     embed.description = data['selftext']
