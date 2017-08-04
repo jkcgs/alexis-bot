@@ -7,8 +7,15 @@ async def posts_loop(bot):
     post_id = ''
     await bot.wait_until_ready()
     try:
-        for subreddit in bot.config['subreddit']:
-            posts = get_posts(subreddit)
+        for subconfig in bot.config['subreddit']:
+            subconfig = subconfig.split('@')
+            if len(subconfig) < 2:
+                continue
+
+            subname = subconfig[0]
+            subchannels = subconfig[1].split(',')
+            posts = get_posts(subname)
+
             if len(posts) == 0:
                 continue
 
@@ -23,9 +30,8 @@ async def posts_loop(bot):
 
             while data['id'] != post_id and not exists:
                 post_id = data['id']
-                channels = bot.config['channel_nsfw'] if data['over_18'] else bot.config['channel_id']
 
-                for channel in channels:
+                for channel in subchannels:
                     d = 'Nuevo post en **/r/{subreddit}** por **/u/{autor}**: https://www.reddit.com{permalink}'
                     text = d.format(subreddit=data['subreddit'],
                                     autor=data['author'],
@@ -40,7 +46,6 @@ async def posts_loop(bot):
                     Redditor.update(posts=Redditor.posts + 1).where(Redditor.name == data['author'].lower()).execute()
                     bot.log.info('/u/{author} ha sumado un nuevo post, quedando en {num}.'.format(author=data['author'],
                                                                                                   num=redditor.posts + 1))
-
 
     except Exception as e:
         bot.log.error(e)
