@@ -17,7 +17,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.9-dev.1'
+__version__ = '0.1.10-dev.0+subsconfig.1'
 __status__ = "Desarrollo"
 
 
@@ -50,6 +50,7 @@ class Alexis(discord.Client):
         self.log.info('Python %s en %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
+        self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
         # Cleverbot
