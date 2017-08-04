@@ -11,7 +11,10 @@ async def posts_loop(bot):
         for subconfig in bot.config['subreddit']:
             subconfig = subconfig.split('@')
             if len(subconfig) < 2:
-                continue
+                if 'default_channel' in bot.config and bot.config['default_channel'] != '':
+                    subconfig.append(bot.config['default_channel'])
+                else:
+                    continue
 
             subname = subconfig[0]
             subchannels = subconfig[1].split(',')
