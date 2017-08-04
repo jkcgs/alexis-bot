@@ -38,9 +38,13 @@ async def posts_loop(bot):
 
                 if data['is_self']:
                     embed.description = data['selftext']
-                elif 'preview' in data and len(data['preview']['images']) > 0:
+                elif data['media']:
+                    embed.video.url = data['url']
+                    embed.set_thumbnail(url=html.unescape(data['thumbnail']))
+                    embed.description = "Link del video: " + data['url']
+                elif 'preview' in data:
                     embed.set_image(url=html.unescape(data['preview']['images'][0]['source']['url']))
-                else:
+                elif data['thumbnail'] != '':
                     embed.set_thumbnail(url=html.unescape(data['thumbnail']))
 
                 for channel in subchannels:
