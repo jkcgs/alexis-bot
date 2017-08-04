@@ -39,9 +39,11 @@ async def posts_loop(bot):
                 if data['is_self']:
                     embed.description = data['selftext']
                 elif data['media']:
-                    embed.video.url = data['url']
-                    embed.set_thumbnail(url=html.unescape(data['thumbnail']))
-                    embed.description = "Link del video: " + data['url']
+                    if 'preview' in data:
+                        embed.set_image(url=html.unescape(data['preview']['images'][0]['source']['url']))
+                    else:
+                        embed.set_thumbnail(url=html.unescape(data['thumbnail']))
+                    embed.description = "Link del multimedia: " + data['url']
                 elif 'preview' in data:
                     embed.set_image(url=html.unescape(data['preview']['images'][0]['source']['url']))
                 elif data['thumbnail'] != '':
