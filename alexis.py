@@ -173,6 +173,10 @@ class Alexis(discord.Client):
                 await self.send_message(chan, 'banéame esta xd')
                 return
 
+            if len(text.split(' ')) > 2 or len(message.mentions) != 1:
+                await self.send_message(chan, 'Formato: !ban <mención>')
+                return
+
             mention = message.mentions[0]
             name = self.final_name(mention)
 
