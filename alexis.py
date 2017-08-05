@@ -9,6 +9,7 @@ import sys
 import random
 import re
 import yaml
+import urllib.parse as urlparse
 import logger
 import discord
 from cleverwrap import CleverWrap
@@ -401,6 +402,22 @@ class Alexis(discord.Client):
             # Enviar lista restante
             if resp_list != '':
                 await self.send_message(chan, '```{}```'.format(resp_list))
+
+        elif text.startswith('!altoen '):
+            # temporal
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            altotext = text[8:].strip()
+            if len(altotext) > 25:
+                await self.send_message(chan, 'mucho texto, máximo 25 carácteres plix ty')
+                return
+
+            altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(altotext)
+            emb = discord.Embed()
+            emb.set_image(url=altourl)
+            await self.send_message(chan, embed=emb)
 
         # !toggleconversation
         elif text == '!toggleconversation':
