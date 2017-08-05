@@ -1,7 +1,6 @@
 token: "token"
-channel_id: ["123", "456"]
-channel_nsfw: ["789"]
-subreddit: ["chile", "gonewild"]
+subreddit: ["chile@198944348379938816", "gonewild@248994135317413888,282347946727440394"]
+default_channel: "168469255979925504"
 playing: "/r/chile"
 owners: ["198944348379938816@248581447579860993"]
 default_memes:

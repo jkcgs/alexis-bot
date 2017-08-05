@@ -17,7 +17,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.9-dev.1'
+__version__ = '0.2.0'
 __status__ = "Desarrollo"
 
 
@@ -32,20 +32,7 @@ class Alexis(discord.Client):
         db.connect()
         db.create_tables([Post, Ban, Redditor, Meme], True)
 
-        try:
-            with open('config.yml', 'r') as file:
-                self.config = yaml.safe_load(file)
-
-            # Completar info con defaults
-            if 'owners' not in self.config:
-                self.config['owners'] = []
-            if 'default_memes' not in self.config:
-                self.config['default_memes'] = []
-            if 'frases' not in self.config:
-                self.config['frases'] = []
-        except Exception as ex:
-            self.log.exception(ex)
-            raise
+        self.load_config()
 
         self.cbot = CleverWrap(self.config['cleverbot_key'])
         self.cbotcheck = False
@@ -63,6 +50,7 @@ class Alexis(discord.Client):
         self.log.info('Python %s en %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
+        self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
         # Cleverbot
@@ -183,6 +171,10 @@ class Alexis(discord.Client):
         elif text.startswith('!ban '):
             if is_pm:
                 await self.send_message(chan, 'banéame esta xd')
+                return
+
+            if len(text.split(' ')) > 2 or len(message.mentions) != 1:
+                await self.send_message(chan, 'Formato: !ban <mención>')
                 return
 
             mention = message.mentions[0]
@@ -420,6 +412,18 @@ class Alexis(discord.Client):
             resp = 'activada' if self.conversation else 'desactivada'
             await self.send_message(chan, 'Conversación {}'.format(resp))
 
+        elif text == '!reload':
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            if not self.load_config():
+                msg = 'No se pudo recargar la configuración'
+            else:
+                msg = 'Configuración recargada correctamente'
+
+            await self.send_message(chan, msg)
+
         # Cleverbot (@bot <mensaje>)
         elif self.rx_mention.match(text) and self.conversation and self.cbotcheck is not None:
             if is_pm:
@@ -432,6 +436,25 @@ class Alexis(discord.Client):
                 reply = self.cbot.say(msg)
 
             await self.send_message(chan, reply)
+
+    def load_config(self):
+        try:
+            with open('config.yml', 'r') as file:
+                config = yaml.safe_load(file)
+
+            # Completar info con defaults
+            if 'owners' not in config:
+                config['owners'] = []
+            if 'default_memes' not in config:
+                config['default_memes'] = []
+            if 'frases' not in config:
+                config['frases'] = []
+
+            self.config = config
+            return True
+        except Exception as ex:
+            self.log.exception(ex)
+            return False
 
     def is_owner(self, member, server):
         if server is None:
