@@ -19,7 +19,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.2.0-dev.2'
+__version__ = '0.3.0-dev.0+refractor'
 __status__ = "Desarrollo"
 
 
@@ -30,6 +30,7 @@ class Alexis(discord.Client):
 
         self.log = logger.get_logger('Alexis')
         self.initialized = False
+        self.config = {}
         self.cmds = {}
 
         db.connect()
@@ -150,10 +151,6 @@ class Alexis(discord.Client):
             info_msg = info_msg.format(__author__, __version__, __status__)
             await self.send_message(chan, info_msg)
 
-        # !callate
-        elif text == '!callate':
-            await self.send_message(chan, 'http://i.imgur.com/nZ72crJ.jpg')
-
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):
             # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
@@ -167,134 +164,6 @@ class Alexis(discord.Client):
                 await self.send_message(chan, meme.content)
             except Meme.DoesNotExist:
                 pass
-
-        # !set
-        elif text.startswith('!set '):
-            meme_query = text[5:].strip().split(' ')
-
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            if len(meme_query) < 2:
-                await self.send_message(chan, 'Formato: !set <nombre> <contenido>')
-                return
-
-            meme_name = meme_query[0].strip()
-            meme_cont = ' '.join(meme_query[1:]).strip()
-            meme, created = Meme.get_or_create(name=meme_name)
-            meme.content = meme_cont
-            meme.save()
-
-            if created:
-                msg = 'Valor **{name}** creado'.format(name=meme_name)
-                self.log.info('Meme %s creado con valor: "%s"', meme_name, meme_cont)
-            else:
-                msg = 'Valor **{name}** actualizado'.format(name=meme_name)
-                self.log.info('Meme %s actualizado a: "%s"', meme_name, meme_cont)
-
-            await self.send_message(chan, msg)
-
-        # !unset
-        elif text.startswith('!unset '):
-            meme_name = text[7:].strip()
-
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            if meme_name == "":
-                await self.send_message(chan, 'Formato: !unset <nombre>')
-                return
-
-            try:
-                meme = Meme.get(name=meme_name)
-                meme.delete_instance()
-                msg = 'Valor **{name}** eliminado'.format(name=meme_name)
-                await self.send_message(chan, msg)
-                self.log.info('Meme %s eliminado', meme_name)
-            except Meme.DoesNotExist:
-                msg = 'El valor con nombre {name} no existe'.format(name=meme_name)
-                await self.send_message(chan, msg)
-
-        # !list (lista los memes)
-        elif text == '!list':
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            namelist = []
-            for item in Meme.select().iterator():
-                namelist.append(item.name)
-
-            word = 'valor' if len(namelist) == 1 else 'valores'
-            resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
-            await self.send_message(chan, resp)
-
-        # !!list (lista completa de memes)
-        elif text == '!!list':
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            memelist = []
-            for item in Meme.select().iterator():
-                memelist.append("- {}: {}".format(item.name, item.content))
-
-            num_memes = len(memelist)
-            if num_memes == 0:
-                await self.send_message(chan, 'No hay valores disponibles')
-                return
-
-            word = 'valor' if num_memes == 1 else 'valores'
-            resp = 'Hay {} {}:'.format(num_memes, word)
-            await self.send_message(chan, resp)
-
-            # Separar lista de memes en mensajes con menos de 2000 carácteres
-            resp_list = ''
-            for meme in memelist:
-                if len('```{}\n{}```'.format(resp_list, meme)) > 2000:
-                    await self.send_message(chan, '```{}```'.format(resp_list))
-                    resp_list = ''
-                else:
-                    resp_list = '{}\n{}'.format(resp_list, meme)
-
-            # Enviar lista restante
-            if resp_list != '':
-                await self.send_message(chan, '```{}```'.format(resp_list))
-
-        elif text.startswith('!altoen '):
-            altotext = text[8:].strip()
-            if len(altotext) > 25:
-                await self.send_message(chan, 'mucho texto, máximo 25 carácteres plix ty')
-                return
-
-            altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(altotext)
-            emb = discord.Embed()
-            emb.set_image(url=altourl)
-            await self.send_message(chan, embed=emb)
-
-        # !toggleconversation
-        elif text == '!toggleconversation':
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            self.conversation = not self.conversation
-            resp = 'activada' if self.conversation else 'desactivada'
-            await self.send_message(chan, 'Conversación {}'.format(resp))
-
-        elif text == '!reload':
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            if not self.load_config():
-                msg = 'No se pudo recargar la configuración'
-            else:
-                msg = 'Configuración recargada correctamente'
-
-            await self.send_message(chan, msg)
 
         # Cleverbot (@bot <mensaje>)
         elif self.rx_mention.match(text) and self.conversation and self.cbotcheck is not None:
