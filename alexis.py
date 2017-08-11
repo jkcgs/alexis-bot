@@ -126,7 +126,10 @@ class Alexis(discord.Client):
 
         # Mandar PMs al log
         if is_pm:
-            self.log.info('[PM] %s: %s', author, text)
+            if own_message:
+                self.log.info('[PM] (-> %s): %s', message.channel.user, text)
+            else:
+                self.log.info('[PM] %s: %s', author, text)
 
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
@@ -134,7 +137,12 @@ class Alexis(discord.Client):
             if cmd in self.cmds:
                 self.log.debug('[command] running command !%s', cmd)
                 for i in self.cmds[cmd]:
-                    await i.handle(message)
+                    if i.owner_only and not is_owner:
+                        await self.send_message(chan, 'no puedes usar este comando uwu')
+                    elif not i.allow_pm and is_pm:
+                        await self.send_message(chan, 'wait what')
+                    else:
+                        await i.handle(message)
                 return
 
         # !version
@@ -146,21 +154,6 @@ class Alexis(discord.Client):
         # !callate
         elif text == '!callate':
             await self.send_message(chan, 'http://i.imgur.com/nZ72crJ.jpg')
-
-        # !choose
-        elif text.startswith('!choose '):
-            options = text[8:].split("|")
-            if len(options) < 2:
-                return
-
-            # Validar que no hayan opciones vacías
-            for option in options:
-                if option.strip() == '':
-                    return
-
-            answer = random.choice(options).strip()
-            text = 'Yo elijo **{}**'.format(answer)
-            await self.send_message(chan, text)
 
         # !f
         elif text.startswith('!f'):
@@ -509,8 +502,7 @@ class Alexis(discord.Client):
         return False
 
     def final_name(self, user):
-        nick = user.nick
-        return nick if nick else user.name
+        return user.nick if hasattr(user, 'nick') else user.name
 
 
 if __name__ == '__main__':
