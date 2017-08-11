@@ -56,6 +56,25 @@ class Alexis(discord.Client):
         self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
+        # Cargar comandos
+        self.log.debug('Cargando comandos...')
+        cmd_instances = []
+        for cmd in commands.classes:
+            cmd_instances.append(cmd(self))
+
+        for i in cmd_instances:
+            if isinstance(i.name, list):
+                for name in i.name:
+                    if name not in self.cmds:
+                        self.cmds[name] = []
+                    self.cmds[name].append(i)
+            elif isinstance(i.name, str):
+                if i.name not in self.cmds:
+                    self.cmds[i.name] = []
+                self.cmds[i.name].append(i)
+
+        self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
+
         # Cleverbot
         self.log.info('Conectando con Cleverbot API...')
         self.cbotcheck = self.cbot.say('test') is not None
@@ -79,22 +98,6 @@ class Alexis(discord.Client):
         except Exception as ex:
             self.log.exception(ex)
             raise
-
-        # Cargar comandos
-        cmd_instances = []
-        for cmd in commands.classes:
-            cmd_instances.append(cmd(self))
-
-        for i in cmd_instances:
-            if isinstance(i.name, list):
-                for name in i.name:
-                    if name not in self.cmds:
-                        self.cmds[name] = []
-                    self.cmds[name].append(i)
-            elif isinstance(i.name, str):
-                if name not in self.cmds:
-                    self.cmds[name] = []
-                self.cmds[name].append(i)
 
     """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
@@ -127,9 +130,11 @@ class Alexis(discord.Client):
 
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
+            self.log.debug('[command] message: "%s" command %s', text, cmd)
             if cmd in self.cmds:
+                self.log.debug('[command] running command !%s', cmd)
                 for i in self.cmds[cmd]:
-                    i.handle(message)
+                    await i.handle(message)
                 return
 
         # !version

@@ -7,6 +7,8 @@ class Ping(Command):
         self.name = 'ping'
         self.owner_only = False
 
-    def handle(self, message):
-        cmd = self.parse(message, self.bot)
-        cmd.answer('Pong!')
+    async def handle(self, message):
+        self.bot.log.debug('Handling !ping')
+        cmd = Command.parse(message, self.bot)
+        await cmd.answer('Pong!')
+        self.bot.log.debug('Handled !ping')
