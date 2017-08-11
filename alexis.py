@@ -18,7 +18,7 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.2.0-dev.1'
+__version__ = '0.2.0-dev.2'
 __status__ = "Desarrollo"
 
 
@@ -404,11 +404,6 @@ class Alexis(discord.Client):
                 await self.send_message(chan, '```{}```'.format(resp_list))
 
         elif text.startswith('!altoen '):
-            # temporal
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
             altotext = text[8:].strip()
             if len(altotext) > 25:
                 await self.send_message(chan, 'mucho texto, máximo 25 carácteres plix ty')
