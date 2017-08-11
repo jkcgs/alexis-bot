@@ -3,10 +3,26 @@ class Command:
         self.bot = bot
         self.name = ''
         self.allow_pm = True
+        self.pm_error = 'Este comando no se puede usar via PM'
         self.owner_only = False
+        self.owner_error = 'No puedes usar este comando'
 
     def parse(self, message):
         return Message(message, self.bot)
+
+    def is_owner(self, member, server):
+        if server is None:
+            return False
+
+        if member.id in self.bot.config['owners']:
+            return True
+
+        for role in member.roles:
+            owner_role = server.id + "@" + role.id
+            if owner_role in self.bot.config['owners']:
+                return True
+
+        return False
 
 
 class Message:

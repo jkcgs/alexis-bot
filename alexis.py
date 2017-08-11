@@ -133,14 +133,13 @@ class Alexis(discord.Client):
 
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
-            self.log.debug('[command] message: "%s" command %s', text, cmd)
             if cmd in self.cmds:
-                self.log.debug('[command] running command !%s', cmd)
+                self.log.debug('[command] message: "%s" command %s', text, cmd)
                 for i in self.cmds[cmd]:
                     if i.owner_only and not is_owner:
-                        await self.send_message(chan, 'no puedes usar este comando uwu')
+                        await self.send_message(chan, i.owner_error)
                     elif not i.allow_pm and is_pm:
-                        await self.send_message(chan, 'wait what')
+                        await self.send_message(chan, i.pm_error)
                     else:
                         await i.handle(message)
                 return
@@ -154,153 +153,6 @@ class Alexis(discord.Client):
         # !callate
         elif text == '!callate':
             await self.send_message(chan, 'http://i.imgur.com/nZ72crJ.jpg')
-
-        # !redditor
-        elif text.startswith('!redditor '):
-            user = text[10:].split(' ')[0].strip()
-
-            if user.startswith('/u/'):
-                user = user[3:]
-            if not re.match('^[a-zA-Z0-9_-]*$', user):
-                return
-
-            redditor, _ = Redditor.get_or_create(name=user.lower())
-
-            if redditor.posts > 0:
-                suffix = 'post' if redditor.posts == 1 else 'posts'
-                text = '**/u/{name}** ha creado **{num}** {suffix}.'
-                text = text.format(name=user, num=redditor.posts, suffix=suffix)
-                await self.send_message(chan, text)
-            else:
-                text = '**/u/{name}** no ha creado ningún post.'
-                text = text.format(name=user)
-                await self.send_message(chan, text)
-
-        # !ban (no PM)
-        elif text.startswith('!ban '):
-            if is_pm:
-                await self.send_message(chan, 'banéame esta xd')
-                return
-
-            if len(text.split(' ')) > 2 or len(message.mentions) != 1:
-                await self.send_message(chan, 'Formato: !ban <mención>')
-                return
-
-            mention = message.mentions[0]
-            name = self.final_name(mention)
-
-            if not is_owner and self.is_owner(mention, message.server):
-                await self.send_message(chan, 'nopo wn no hagai esa wea')
-            else:
-                # Actualizar id del último que usó un comando (omitir al mismo bot)
-                if self.last_author is None or not own_message:
-                    self.last_author = message.author.id
-
-                # Evitar que alguien se banee a si mismo
-                if self.last_author == mention.id:
-                    await self.send_message(chan, 'no hagai trampa po wn xd')
-                    return
-
-                if not random.randint(0, 1):
-                    text = '¡**{}** se salvo del ban de milagro!'.format(name)
-                    await self.send_message(chan, text)
-                    return
-
-                user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-                update = Ban.update(bans=Ban.bans + 1)
-                update = update.where(Ban.user == mention, Ban.server == message.server.id)
-                update.execute()
-
-                if user.bans + 1 == 1:
-                    text = 'Uff, ¡**{}** se fue baneado por primera vez!'.format(name)
-                else:
-                    text = '¡**{}** se fue baneado otra vez y registra **{} baneos**!'
-                    text = text.format(name, user.bans + 1)
-                await self.send_message(chan, text)
-
-        # !bans
-        elif text.startswith('!bans '):
-            if len(text.split(' ')) > 3 or len(message.mentions) < 1:
-                await self.send_message(chan, 'Formato: !bans <mención>')
-                return
-
-            if message.mentions:
-                mention = message.mentions[0]
-                if self.is_owner(mention, message.server):
-                    mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
-                    mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
-                    await self.send_message(chan, mesg)
-                    return
-
-                name = mention.nick if mention.nick is not None else mention.name
-                user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-
-                mesg = ''
-                if user.bans == 0:
-                    mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
-                    mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
-                else:
-                    word = 'ban' if user.bans == 1 else 'bans'
-                    if user.bans == 2:
-                        word = '~~papás~~ bans'
-
-                    mesg = '**{}** tiene {} {}'.format(name, user.bans, word)
-
-                await self.send_message(chan, mesg)
-
-        # !setbans
-        elif text.startswith('!setbans '):
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            args = text.split(' ')
-            is_valid = not (len(args) < 3 or len(message.mentions) < 1)
-            num_bans = 0
-
-            try:
-                num_bans = int(args[2])
-            except (IndexError, ValueError):
-                is_valid = False
-
-            if not is_valid:
-                await self.send_message(chan, 'Formato: !setbans <mención> <cantidad>')
-                return
-
-            mention = message.mentions[0]
-            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-            user.bans = num_bans
-            user.save()
-
-            name = self.final_name(mention)
-            if user.bans == 0:
-                mesg = 'Bans de **{}** reiniciados xd'.format(name)
-                await self.send_message(chan, mesg)
-            else:
-                word = 'ban' if user.bans == 1 else 'bans'
-                mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
-                await self.send_message(chan, mesg)
-
-        # !banrank
-        elif text == '!banrank' or text == '!!banrank':
-            bans = Ban.select().where(Ban.server == chan.server.id).order_by(Ban.bans.desc())
-            banlist = []
-            limit = 10 if text == '!!banrank' else 5
-
-            i = 1
-            for item in bans.iterator():
-                banlist.append('{}. {}: {}'.format(i, item.user, item.bans))
-
-                i += 1
-                if i > limit:
-                    break
-
-            if len(banlist) == 0:
-                await self.send_message(chan, 'No hay bans registrados')
-                return
-
-            mesg = 'Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist))
-            await self.send_message(chan, mesg)
 
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):
