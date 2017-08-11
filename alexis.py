@@ -9,6 +9,7 @@ import sys
 import random
 import re
 import yaml
+import urllib.parse as urlparse
 import logger
 import discord
 from cleverwrap import CleverWrap
@@ -17,13 +18,12 @@ from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.1.8-dev.1'
+__version__ = '0.2.0-dev.2'
 __status__ = "Desarrollo"
 
 
 class Alexis(discord.Client):
     """Contiene al bot e inicializa su funcionamiento."""
-
     def __init__(self, **options):
         super().__init__(**options)
 
@@ -33,29 +33,28 @@ class Alexis(discord.Client):
         db.connect()
         db.create_tables([Post, Ban, Redditor, Meme], True)
 
-        try:
-            with open('config.yml', 'r') as file:
-                self.config = yaml.safe_load(file)
-        except Exception as ex:
-            self.log.exception(ex)
-            raise
+        self.load_config()
 
         self.cbot = CleverWrap(self.config['cleverbot_key'])
         self.cbotcheck = False
         self.conversation = True
+
+        # Regex de mención (incluye nicks)
         self.rx_mention = None
 
         # El ID del último en enviar un mensaje (omite PM)
         self.last_author = None
 
+    """Inicializa al bot"""
     def init(self):
-        """Inicializa al bot"""
         self.log.info('"Alexis Bot" versión %s de %s.', __version__, __status__.lower())
         self.log.info('Python %s en %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
+        self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
+        # Cleverbot
         self.log.info('Conectando con Cleverbot API...')
         self.cbotcheck = self.cbot.say('test') is not None
         if self.cbotcheck:
@@ -63,7 +62,9 @@ class Alexis(discord.Client):
         else:
             self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
 
-        if 'default_memes' in self.config and len(self.config['default_memes']) > 0:
+        # Valores ("memes")
+        num_memes = len(self.config['default_memes'])
+        if num_memes > 0:
             self.log.info('Inicializando base de datos...')
             for meme_name, meme_cont in self.config['default_memes'].items():
                 Meme.get_or_create(name=meme_name, content=meme_cont)
@@ -77,8 +78,8 @@ class Alexis(discord.Client):
             self.log.exception(ex)
             raise
 
+    """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
-        """Esto se ejecuta cuando el bot está conectado y listo"""
         self.log.info('Conectado como:')
         self.log.info(self.user.name)
         self.log.info(self.user.id)
@@ -88,21 +89,23 @@ class Alexis(discord.Client):
         self.rx_mention = re.compile('^<@!?{}>'.format(self.user.id))
         self.initialized = True
 
+    """Método ejecutado cada vez que se recibe un mensaje"""
     async def on_message(self, message):
-        """Método ejecutado cada vez que se recibe un mensaje"""
         if not self.initialized:
             return
 
+        # Info sobre el mensaje
         text = message.content
-        author = message.author.name
+        author = self.final_name(message.author)
         chan = message.channel
         is_pm = message.server is None
-        is_owner = 'owners' in self.config and message.author.id in self.config['owners']
+        is_owner = self.is_owner(message.author, message.server)
         frase = random.choice(self.config['frases'])
         own_message = message.author.id == self.user.id
 
+        # Mandar PMs al log
         if is_pm:
-            self.log.info('[PM] {}: {}'.format(author, text))
+            self.log.info('[PM] %s: %s', author, text)
 
         # !ping
         # if text == '!ping':
@@ -111,7 +114,8 @@ class Alexis(discord.Client):
         # !version
         if text == '!version' or text == '!info':
             info_msg = "```\nAutores: {}\nVersión: {}\nEstado: {}```"
-            await self.send_message(chan, info_msg.format(__author__, __version__, __status__))
+            info_msg = info_msg.format(__author__, __version__, __status__)
+            await self.send_message(chan, info_msg)
 
         # !callate
         elif text == '!callate':
@@ -167,13 +171,17 @@ class Alexis(discord.Client):
         # !ban (no PM)
         elif text.startswith('!ban '):
             if is_pm:
-                await self.send_message(chan, 'me estai weando?')
+                await self.send_message(chan, 'banéame esta xd')
+                return
+
+            if len(text.split(' ')) > 2 or len(message.mentions) != 1:
+                await self.send_message(chan, 'Formato: !ban <mención>')
                 return
 
             mention = message.mentions[0]
-            name = mention.nick if mention.nick is not None else mention.name
+            name = self.final_name(mention)
 
-            if 'owners' in self.config and mention.id in self.config['owners']:
+            if not is_owner and self.is_owner(mention, message.server):
                 await self.send_message(chan, 'nopo wn no hagai esa wea')
             else:
                 # Actualizar id del último que usó un comando (omitir al mismo bot)
@@ -202,24 +210,6 @@ class Alexis(discord.Client):
                     text = text.format(name, user.bans + 1)
                 await self.send_message(chan, text)
 
-
-        # !resetban
-        elif text.startswith('!resetban '):
-            if not is_owner:
-                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
-                return
-
-            if len(text.split(' ')) > 2 or len(message.mentions) < 1:
-                await self.send_message(chan, 'Formato: !resetban <mención>')
-                return
-
-            mention = message.mentions[0]
-            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-            user.bans = 0
-            user.save()
-
-            await self.send_message(chan, 'Bans reiniciados xd')
-
         # !bans
         elif text.startswith('!bans '):
             if len(text.split(' ')) > 3 or len(message.mentions) < 1:
@@ -228,7 +218,7 @@ class Alexis(discord.Client):
 
             if message.mentions:
                 mention = message.mentions[0]
-                if 'owners' in self.config and mention.id in self.config['owners']:
+                if self.is_owner(mention, message.server):
                     mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
                     mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
                     await self.send_message(chan, mesg)
@@ -274,22 +264,27 @@ class Alexis(discord.Client):
             user.bans = num_bans
             user.save()
 
-            name = mention.nick if mention.nick is not None else mention.name
-            word = 'ban' if user.bans == 1 else 'bans'
-            mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
-            await self.send_message(chan, mesg)
+            name = self.final_name(mention)
+            if user.bans == 0:
+                mesg = 'Bans de **{}** reiniciados xd'.format(name)
+                await self.send_message(chan, mesg)
+            else:
+                word = 'ban' if user.bans == 1 else 'bans'
+                mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
+                await self.send_message(chan, mesg)
 
-        # !setbans
-        elif text == '!banrank':
+        # !banrank
+        elif text == '!banrank' or text == '!!banrank':
             bans = Ban.select().where(Ban.server == chan.server.id).order_by(Ban.bans.desc())
             banlist = []
+            limit = 10 if text == '!!banrank' else 5
 
             i = 1
             for item in bans.iterator():
                 banlist.append('{}. {}: {}'.format(i, item.user, item.bans))
 
                 i += 1
-                if i > 5:
+                if i > limit:
                     break
 
             if len(banlist) == 0:
@@ -408,6 +403,17 @@ class Alexis(discord.Client):
             if resp_list != '':
                 await self.send_message(chan, '```{}```'.format(resp_list))
 
+        elif text.startswith('!altoen '):
+            altotext = text[8:].strip()
+            if len(altotext) > 25:
+                await self.send_message(chan, 'mucho texto, máximo 25 carácteres plix ty')
+                return
+
+            altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(altotext)
+            emb = discord.Embed()
+            emb.set_image(url=altourl)
+            await self.send_message(chan, embed=emb)
+
         # !toggleconversation
         elif text == '!toggleconversation':
             if not is_owner:
@@ -418,7 +424,19 @@ class Alexis(discord.Client):
             resp = 'activada' if self.conversation else 'desactivada'
             await self.send_message(chan, 'Conversación {}'.format(resp))
 
-        # cleverbot (@bot <mensaje>)
+        elif text == '!reload':
+            if not is_owner:
+                await self.send_message(chan, 'USUARIO NO AUTORIZADO, ACCESO DENEGADO')
+                return
+
+            if not self.load_config():
+                msg = 'No se pudo recargar la configuración'
+            else:
+                msg = 'Configuración recargada correctamente'
+
+            await self.send_message(chan, msg)
+
+        # Cleverbot (@bot <mensaje>)
         elif self.rx_mention.match(text) and self.conversation and self.cbotcheck is not None:
             if is_pm:
                 return
@@ -430,6 +448,43 @@ class Alexis(discord.Client):
                 reply = self.cbot.say(msg)
 
             await self.send_message(chan, reply)
+
+    def load_config(self):
+        try:
+            with open('config.yml', 'r') as file:
+                config = yaml.safe_load(file)
+
+            # Completar info con defaults
+            if 'owners' not in config:
+                config['owners'] = []
+            if 'default_memes' not in config:
+                config['default_memes'] = []
+            if 'frases' not in config:
+                config['frases'] = []
+
+            self.config = config
+            return True
+        except Exception as ex:
+            self.log.exception(ex)
+            return False
+
+    def is_owner(self, member, server):
+        if server is None:
+            return False
+
+        if member.id in self.config['owners']:
+            return True
+
+        for role in member.roles:
+            owner_role = server.id + "@" + role.id
+            if owner_role in self.config['owners']:
+                return True
+
+        return False
+
+    def final_name(self, user):
+        nick = user.nick
+        return nick if nick else user.name
 
 
 if __name__ == '__main__':
