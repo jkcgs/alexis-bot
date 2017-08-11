@@ -12,6 +12,7 @@ import yaml
 import urllib.parse as urlparse
 import logger
 import discord
+import commands
 from cleverwrap import CleverWrap
 from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
@@ -29,6 +30,7 @@ class Alexis(discord.Client):
 
         self.log = logger.get_logger('Alexis')
         self.initialized = False
+        self.cmds = {}
 
         db.connect()
         db.create_tables([Post, Ban, Redditor, Meme], True)
@@ -78,6 +80,22 @@ class Alexis(discord.Client):
             self.log.exception(ex)
             raise
 
+        # Cargar comandos
+        cmd_instances = []
+        for cmd in commands.classes:
+            cmd_instances.append(cmd(self))
+
+        for i in cmd_instances:
+            if isinstance(i.name, list):
+                for name in i.name:
+                    if name not in self.cmds:
+                        self.cmds[name] = []
+                    self.cmds[name].append(i)
+            elif isinstance(i.name, str):
+                if name not in self.cmds:
+                    self.cmds[name] = []
+                self.cmds[name].append(i)
+
     """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
         self.log.info('Conectado como:')
@@ -107,9 +125,12 @@ class Alexis(discord.Client):
         if is_pm:
             self.log.info('[PM] %s: %s', author, text)
 
-        # !ping
-        # if text == '!ping':
-        #    await self.send_message(chan, 'pong!')
+        if text.startswith('!') and len(text) > 1:
+            cmd = text.split(' ')[0][1:]
+            if cmd in self.cmds:
+                for i in self.cmds[cmd]:
+                    i.handle(message)
+                return
 
         # !version
         if text == '!version' or text == '!info':
