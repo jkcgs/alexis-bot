@@ -13,7 +13,7 @@ class Message:
     def __init__(self, message, bot):
         self.bot = bot
         self.message = message
-        self.author = message.author.name
+        self.author_name = Message.final_name(message.author)
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
 
@@ -25,3 +25,7 @@ class Message:
     async def answer(self, content):
         self.bot.log.debug('Sending message "%s" to %s', content, self.message.channel)
         await self.bot.send_message(self.message.channel, content)
+
+    @staticmethod
+    def final_name(user):
+        return user.nick if hasattr(user, 'nick') and user.nick else user.name

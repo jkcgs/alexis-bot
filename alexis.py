@@ -155,17 +155,6 @@ class Alexis(discord.Client):
         elif text == '!callate':
             await self.send_message(chan, 'http://i.imgur.com/nZ72crJ.jpg')
 
-        # !f
-        elif text.startswith('!f'):
-            hearts = ['heart', 'hearts', 'yellow_heart', 'green_heart', 'blue_heart', 'purple_heart']
-            if text.strip() == '!f':
-                text = "**{}** ha pedido respetos :{}:".format(author, random.choice(hearts))
-                await self.send_message(chan, text)
-            elif text.startswith('!f ') and len(text) >= 4:
-                respects = text[3:]
-                text = "**{}** ha pedido respetos por **{}** :{}:".format(author, respects, random.choice(hearts))
-                await self.send_message(chan, text)
-
         # !redditor
         elif text.startswith('!redditor '):
             user = text[10:].split(' ')[0].strip()

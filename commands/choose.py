@@ -6,7 +6,6 @@ class Choose(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'choose'
-        self.allow_pm = False
 
     async def handle(self, message):
         cmd = self.parse(message)
