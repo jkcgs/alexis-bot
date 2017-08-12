@@ -45,3 +45,8 @@ Usa Linux.
 ### Windows
 
 Referirse a la intalación en Windows.
+
+## Cómo crear un comando
+
+Revisar el archivo commands/ping.py a modo de ejemplo.
+Además, ver definiciones base en el archivo commands/base/command.py
