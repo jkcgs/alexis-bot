@@ -10,9 +10,7 @@ class BanCmd(Command):
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
-
+    async def handle(self, message, cmd):
         if len(cmd.args) > 1 or len(message.mentions) != 1:
             await cmd.answer('Formato: !ban <mención>')
             return
@@ -56,9 +54,7 @@ class Bans(Command):
         self.allow_pm = False
         self.pm_error = 'no po wn'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
-
+    async def handle(self, message, cmd):
         if len(cmd.args) > 1 or len(message.mentions) != 1:
             await cmd.answer('Formato: !ban <mención>')
             return
@@ -94,8 +90,7 @@ class SetBans(Command):
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
         self.owner_only = True
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         is_valid = not (len(cmd.args) < 2 or len(message.mentions) != 1)
         num_bans = 0
 
@@ -130,8 +125,7 @@ class BanRank(Command):
         self.allow_pm = False
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         bans = Ban.select().where(Ban.server == message.channel.server.id).order_by(Ban.bans.desc())
         banlist = []
         limit = 10 if message.content == '!!banrank' else 5

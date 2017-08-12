@@ -9,8 +9,7 @@ class Respects(Command):
         super().__init__(bot)
         self.name = 'f'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         msg = '**{}** ha pedido respetos {}'
         heart = random.choice(Respects.hearts)
 

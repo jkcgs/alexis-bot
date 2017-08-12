@@ -8,8 +8,7 @@ class MemesSet(Command):
         self.name = 'set'
         self.owner_only = True
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         if len(cmd.args) < 2:
             await cmd.answer('Formato: !set <nombre> <contenido>')
             return
@@ -37,8 +36,7 @@ class MemesUnset(Command):
         self.name = 'unset'
         self.owner_only = True
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('Formato: !unset <nombre>')
             return
@@ -63,9 +61,7 @@ class MemeList(Command):
         super().__init__(bot)
         self.name = 'list'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
-
+    async def handle(self, message, cmd):
         namelist = []
         for item in Meme.select().iterator():
             namelist.append(item.name)
@@ -81,9 +77,7 @@ class MemeSuperList(Command):
         self.name = '!list'
         self.owner_only = True
 
-    async def handle(self, message):
-        cmd = self.parse(message)
-
+    async def handle(self, message, cmd):
         memelist = []
         for item in Meme.select().iterator():
             memelist.append("- {}: {}".format(item.name, item.content))

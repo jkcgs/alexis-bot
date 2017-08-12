@@ -8,8 +8,7 @@ class RedditorCmd(Command):
         super().__init__(bot)
         self.name = 'redditor'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         user = cmd.args[0]
 
         if user.startswith('/u/'):

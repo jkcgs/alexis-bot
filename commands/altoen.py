@@ -8,8 +8,7 @@ class AltoEn(Command):
         super().__init__(bot)
         self.name = 'altoen'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('Formato: !altoen <str>')
             return

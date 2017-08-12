@@ -7,8 +7,7 @@ class Choose(Command):
         super().__init__(bot)
         self.name = 'choose'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         options = cmd.text.split("|")
         if len(options) < 2:
             return

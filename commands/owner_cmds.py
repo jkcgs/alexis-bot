@@ -7,9 +7,7 @@ class ToggleConversation(Command):
         self.name = 'toggleconversation'
         self.owner_only = True
 
-    async def handle(self, message):
-        cmd = self.parse(message)
-
+    async def handle(self, message, cmd):
         self.bot.conversation = not self.bot.conversation
         resp = 'activada' if self.bot.conversation else 'desactivada'
         await cmd.answer('Conversación {}'.format(resp))
@@ -21,9 +19,7 @@ class ReloadCmd(Command):
         self.name = 'reload'
         self.owner_only = True
 
-    async def handle(self, message):
-        cmd = self.parse(message)
-
+    async def handle(self, message, cmd):
         if not self.bot.load_config():
             msg = 'No se pudo recargar la configuración'
         else:

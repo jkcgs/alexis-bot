@@ -6,6 +6,5 @@ class Ping(Command):
         super().__init__(bot)
         self.name = 'ping'
 
-    async def handle(self, message):
-        cmd = self.parse(message)
+    async def handle(self, message, cmd):
         await cmd.answer('Pong!')

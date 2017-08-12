@@ -9,7 +9,6 @@ import sys
 import random
 import re
 import yaml
-import urllib.parse as urlparse
 import logger
 import discord
 import commands
@@ -142,7 +141,7 @@ class Alexis(discord.Client):
                     elif not i.allow_pm and is_pm:
                         await self.send_message(chan, i.pm_error)
                     else:
-                        await i.handle(message)
+                        await i.handle(message, i.parse(message))
                 return
 
         # !version
