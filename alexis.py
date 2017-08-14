@@ -131,6 +131,7 @@ class Alexis(discord.Client):
             else:
                 self.log.info('[PM] %s: %s', author, text)
 
+        # Command handler
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
             if cmd in self.cmds:
