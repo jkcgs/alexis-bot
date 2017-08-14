@@ -3,19 +3,6 @@ import sys
 import alexis
 
 
-class ToggleConversation(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'toggleconversation'
-        self.help = 'Activa/desactiva la conversación con el bot'
-        self.owner_only = True
-
-    async def handle(self, message, cmd):
-        self.bot.conversation = not self.bot.conversation
-        resp = 'activada' if self.bot.conversation else 'desactivada'
-        await cmd.answer('Conversación {}'.format(resp))
-
-
 class ReloadCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)

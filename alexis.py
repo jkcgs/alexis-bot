@@ -12,7 +12,6 @@ import yaml
 import logger
 import discord
 import commands
-from cleverwrap import CleverWrap
 from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
 
@@ -30,6 +29,7 @@ class Alexis(discord.Client):
         self.log = logger.get_logger('Alexis')
         self.initialized = False
         self.config = {}
+        self.sharedcfg = {}
         self.cmds = {}
         self.swhandlers = {}
         self.mention_handlers = []
@@ -38,10 +38,6 @@ class Alexis(discord.Client):
         db.create_tables([Post, Ban, Redditor, Meme], True)
 
         self.load_config()
-
-        self.cbot = CleverWrap(self.config['cleverbot_key'])
-        self.cbotcheck = False
-        self.conversation = True
 
         # Regex de mención (incluye nicks)
         self.rx_mention = None
@@ -97,14 +93,6 @@ class Alexis(discord.Client):
 
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
-        # Cleverbot
-        self.log.info('Conectando con Cleverbot API...')
-        self.cbotcheck = self.cbot.say('test') is not None
-        if self.cbotcheck:
-            self.log.info('CleverWrap iniciado correctamente.')
-        else:
-            self.log.warning('El valor "cleverbot_key" ("%s") es inválido.', self.config['cleverbot_key'])
-
         # Valores ("memes")
         num_memes = len(self.config['default_memes'])
         if num_memes > 0:
@@ -143,7 +131,6 @@ class Alexis(discord.Client):
         chan = message.channel
         is_pm = message.server is None
         is_owner = self.is_owner(message.author, message.server)
-        frase = random.choice(self.config['frases'])
         own_message = message.author.id == self.user.id
 
         # Mandar PMs al log

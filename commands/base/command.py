@@ -1,6 +1,7 @@
 class Command:
     def __init__(self, bot):
         self.bot = bot
+        self.log = self.bot.log
         self.name = ''
         self.swhandler = None
         self.mention_handler = False
