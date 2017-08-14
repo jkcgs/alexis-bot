@@ -10,9 +10,9 @@ class Help(Command):
     async def handle(self, message, cmd):
         helplist = []
         for i in self.bot.cmds.keys():
-            cmdi = self.bot.cmds[i]
-            cmds = ', '.join(cmdi.name) if isinstance(cmdi.name, list) else cmdi.name
-            helplist.append("- {}: {}".format(cmds, cmdi.help))
+            for j in self.bot.cmds[i]:
+                cmds = ', !'.join(j.name) if isinstance(j.name, list) else j.name
+                helplist.append("- !{}: {}".format(cmds, j.help))
 
         num_memes = len(helplist)
         if num_memes == 0:
@@ -21,7 +21,8 @@ class Help(Command):
 
         if not cmd.is_pm:
             await cmd.answer('{}, te enviaré la info vía PM'.format(message.author.mention))
-            return
+
+        await self.bot.send_message(message.author, 'Estos son mis comandos:')
 
         # Separar lista de ayuda en mensajes con menos de 2000 carácteres
         resp_list = ''
