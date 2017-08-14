@@ -14,8 +14,7 @@ class AltoEn(Command):
             await cmd.answer('Formato: !altoen <str>')
             return
 
-        altotext = ' '.join(cmd.args[1:])
-
+        altotext = ' '.join(cmd.args)
         if len(altotext) > 25:
             await cmd.answer('mucho texto, máximo 25 carácteres plix ty')
             return
