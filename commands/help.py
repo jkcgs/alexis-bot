@@ -11,8 +11,13 @@ class Help(Command):
         helplist = []
         for i in self.bot.cmds.keys():
             for j in self.bot.cmds[i]:
+                if j.owner_only and not cmd.owner:
+                    continue
+
                 cmds = ', !'.join(j.name) if isinstance(j.name, list) else j.name
-                helplist.append("- !{}: {}".format(cmds, j.help))
+                helpline = "- !{}: {}".format(cmds, j.help)
+                if helpline not in helplist:
+                    helplist.append("- !{}: {}".format(cmds, j.help))
 
         num_memes = len(helplist)
         if num_memes == 0:
