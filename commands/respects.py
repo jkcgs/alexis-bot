@@ -8,6 +8,7 @@ class Respects(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'f'
+        self.help = 'Muestra que el usuario que ejecuta el comando ha dado respetos'
 
     async def handle(self, message, cmd):
         msg = '**{}** ha pedido respetos {}'

@@ -131,6 +131,38 @@ class Alexis(discord.Client):
             else:
                 self.log.info('[PM] %s: %s', author, text)
 
+        # Help handler
+        if text == '!help':
+            helplist = []
+            for i in self.cmds.keys():
+                cmdi = self.cmds[i]
+                cmds = ', '.join(cmdi.name) if isinstance(cmdi.name, list) else cmdi.name
+                helplist.append("- {}: {}".format(cmds, cmdi.help))
+
+            num_memes = len(helplist)
+            if num_memes == 0:
+                await self.send_message(chan, 'No hay comandos disponibles')
+                return
+
+            if not is_pm:
+                await self.send_message(chan, '{}, te enviaré la info vía PM'.format(message.author.mention))
+                return
+
+            # Separar lista de ayuda en mensajes con menos de 2000 carácteres
+            resp_list = ''
+            for helpitem in helplist:
+                if len('```{}\n{}```'.format(resp_list, helpitem)) > 2000:
+                    await self.send_message(message.author, '```{}```'.format(resp_list))
+                    resp_list = ''
+                else:
+                    resp_list = '{}\n{}'.format(resp_list, helpitem)
+
+            # Enviar lista restante
+            if resp_list != '':
+                await self.send_message(message.author, '```{}```'.format(resp_list))
+
+            return
+
         # Command handler
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
@@ -144,12 +176,6 @@ class Alexis(discord.Client):
                     else:
                         await i.handle(message, i.parse(message))
                 return
-
-        # !version
-        if text == '!version' or text == '!info':
-            info_msg = "```\nAutores: {}\nVersión: {}\nEstado: {}```"
-            info_msg = info_msg.format(__author__, __version__, __status__)
-            await self.send_message(chan, info_msg)
 
         # ! <meme> | ¡<meme>
         elif text.startswith('! ') or text.startswith('¡'):

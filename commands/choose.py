@@ -6,6 +6,7 @@ class Choose(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'choose'
+        self.help = 'Elige un elemento al azar de una lista separada por el símbolo "|"'
 
     async def handle(self, message, cmd):
         options = cmd.text.split("|")

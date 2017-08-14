@@ -7,6 +7,7 @@ class AltoEn(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'altoen'
+        self.help = 'Muestra una imagen basada en el logo "ALTO EN"'
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:

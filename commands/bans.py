@@ -7,6 +7,7 @@ class BanCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ban'
+        self.help = 'Banea (simbólicamente) a un usuario'
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
 
@@ -51,6 +52,7 @@ class Bans(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'bans'
+        self.help = 'Muestra la cantidad de bans de una persona'
         self.allow_pm = False
         self.pm_error = 'no po wn'
 
@@ -86,6 +88,7 @@ class SetBans(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'setbans'
+        self.help = 'Determina la cantidad de baneos de un usuario'
         self.allow_pm = False
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
         self.owner_only = True
@@ -122,6 +125,7 @@ class BanRank(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = ['banrank', '!banrank']
+        self.help = 'Muestra el ranking de usuarios baneados'
         self.allow_pm = False
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
 

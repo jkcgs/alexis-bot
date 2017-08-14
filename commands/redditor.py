@@ -7,6 +7,7 @@ class RedditorCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'redditor'
+        self.help = 'Muestra la cantidad de posts (registrados por el bot) hechos por un redditor'
 
     async def handle(self, message, cmd):
         user = cmd.args[0]
