@@ -31,7 +31,7 @@ class Alexis(discord.Client):
         self.initialized = False
         self.config = {}
         self.cmds = {}
-        self.swhandlers = []
+        self.swhandlers = {}
         self.mention_handlers = []
 
         db.connect()
@@ -64,30 +64,32 @@ class Alexis(discord.Client):
         for cmd in commands.classes:
             cmd_instances.append(cmd(self))
 
-        # Guardar instancias de comandos
+        # Guardar instancias de módulos de comandos
         for i in cmd_instances:
-            # Según una lista de nombres
-            if isinstance(i.name, list):
-                for name in i.name:
-                    name = name.strip()
-                    if name == '':
-                        continue
+            # Comandos
+            names = [i.name] if isinstance(i.name, str) else list(i.name)
+            for name in names:
+                name = name.strip()
+                if name == '':
+                    continue
 
-                    if name not in self.cmds:
-                        self.cmds[name] = []
-
-                    self.cmds[name].append(i)
-            # Según su nombre
-            elif isinstance(i.name, str) and i.name.strip() != '':
-                name = i.name.strip()
                 if name not in self.cmds:
                     self.cmds[name] = []
 
                 self.cmds[name].append(i)
 
-            # Según un handler de si 'el mensaje comienza con'
-            if isinstance(i.swhandler, str) and i.swhandler != '':
-                self.swhandlers.append(i)
+            # Handlers startswith
+            if isinstance(i.swhandler, str) or isinstance(i.swhandler, list):
+                swh = [i.swhandler] if isinstance(i.swhandler, str) else i.swhandler
+                for swtext in swh:
+                    swtext = swtext.strip()
+                    if swtext == '':
+                        continue
+
+                    if swtext not in self.swhandlers:
+                        self.swhandlers[swtext] = []
+
+                    self.swhandlers[swtext].append(i)
 
             # Comandos que se activan con una mención
             if isinstance(i.mention_handler, bool) and i.mention_handler:
@@ -166,20 +168,15 @@ class Alexis(discord.Client):
                 return
 
         # 'startswith' handlers
-        for cmd in self.swhandlers:
-            valid = False
-            if isinstance(cmd.swhandler, list):
-                valid = message.content.startswith(tuple(cmd.swhandler))
-            elif isinstance(cmd.swhandler, str):
-                valid = message.content.startswith(cmd.swhandler)
-
-            if valid:
-                if cmd.owner_only and not is_owner:
-                    await self.send_message(chan, cmd.owner_error)
-                elif not cmd.allow_pm and is_pm:
-                    await self.send_message(chan, cmd.pm_error)
-                else:
-                    await cmd.handle(message, cmd.parse(message))
+        for swtext in self.swhandlers.keys():
+            if message.content.startswith(swtext):
+                for cmd in self.swhandlers[swtext]:
+                    if cmd.owner_only and not is_owner:
+                        await self.send_message(chan, cmd.owner_error)
+                    elif not cmd.allow_pm and is_pm:
+                        await self.send_message(chan, cmd.pm_error)
+                    else:
+                        await cmd.handle(message, cmd.parse(message))
 
         # Mention handlers
         if self.user.mentioned_in(message):
