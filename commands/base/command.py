@@ -11,7 +11,9 @@ class Command:
         self.owner_error = 'No puedes usar este comando'
 
     def parse(self, message):
-        return Message(message, self.bot)
+        msg = Message(message, self.bot)
+        msg.owner = self.is_owner(message.author, message.server)
+        return msg
 
     def is_owner(self, member, server):
         if server is None:
@@ -35,6 +37,7 @@ class Message:
         self.author_name = Message.final_name(message.author)
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
+        self.owner = False
 
         allargs = message.content.replace('  ', '').split(' ')
         self.args = [] if len(allargs) == 1 else allargs[1:]
