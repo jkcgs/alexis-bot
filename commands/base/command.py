@@ -2,6 +2,8 @@ class Command:
     def __init__(self, bot):
         self.bot = bot
         self.name = ''
+        self.swhandler = None
+        self.mention_handler = False
         self.help = ''
         self.allow_pm = True
         self.pm_error = 'Este comando no se puede usar via PM'

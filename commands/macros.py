@@ -107,3 +107,22 @@ class MacroSuperList(Command):
         # Enviar lista restante
         if resp_list != '':
             await cmd.answer('```{}```'.format(resp_list))
+
+
+class MacroUse(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.swhandler = ['! ', '¡']
+
+    async def handle(self, message, cmd):
+        # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
+        if self.bot.last_author is None or not cmd.own:
+            self.bot.last_author = message.author.id
+
+        meme_query = cmd.args[0] if message.content.startswith('! ') else message.content[1:].split(' ')[0]
+
+        try:
+            meme = Meme.get(Meme.name == meme_query)
+            await cmd.answer(meme.content)
+        except Meme.DoesNotExist:
+            pass

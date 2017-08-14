@@ -31,6 +31,8 @@ class Alexis(discord.Client):
         self.initialized = False
         self.config = {}
         self.cmds = {}
+        self.swhandlers = []
+        self.mention_handlers = []
 
         db.connect()
         db.create_tables([Post, Ban, Redditor, Meme], True)
@@ -56,22 +58,40 @@ class Alexis(discord.Client):
         self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
-        # Cargar comandos
+        # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
         cmd_instances = []
         for cmd in commands.classes:
             cmd_instances.append(cmd(self))
 
+        # Guardar instancias de comandos
         for i in cmd_instances:
+            # Según una lista de nombres
             if isinstance(i.name, list):
                 for name in i.name:
+                    name = name.strip()
+                    if name == '':
+                        continue
+
                     if name not in self.cmds:
                         self.cmds[name] = []
+
                     self.cmds[name].append(i)
-            elif isinstance(i.name, str):
-                if i.name not in self.cmds:
-                    self.cmds[i.name] = []
-                self.cmds[i.name].append(i)
+            # Según su nombre
+            elif isinstance(i.name, str) and i.name.strip() != '':
+                name = i.name.strip()
+                if name not in self.cmds:
+                    self.cmds[name] = []
+
+                self.cmds[name].append(i)
+
+            # Según un handler de si 'el mensaje comienza con'
+            if isinstance(i.swhandler, str) and i.swhandler != '':
+                self.swhandlers.append(i)
+
+            # Comandos que se activan con una mención
+            if isinstance(i.mention_handler, bool) and i.mention_handler:
+                self.mention_handlers.append(i)
 
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
@@ -131,38 +151,6 @@ class Alexis(discord.Client):
             else:
                 self.log.info('[PM] %s: %s', author, text)
 
-        # Help handler
-        if text == '!help':
-            helplist = []
-            for i in self.cmds.keys():
-                cmdi = self.cmds[i]
-                cmds = ', '.join(cmdi.name) if isinstance(cmdi.name, list) else cmdi.name
-                helplist.append("- {}: {}".format(cmds, cmdi.help))
-
-            num_memes = len(helplist)
-            if num_memes == 0:
-                await self.send_message(chan, 'No hay comandos disponibles')
-                return
-
-            if not is_pm:
-                await self.send_message(chan, '{}, te enviaré la info vía PM'.format(message.author.mention))
-                return
-
-            # Separar lista de ayuda en mensajes con menos de 2000 carácteres
-            resp_list = ''
-            for helpitem in helplist:
-                if len('```{}\n{}```'.format(resp_list, helpitem)) > 2000:
-                    await self.send_message(message.author, '```{}```'.format(resp_list))
-                    resp_list = ''
-                else:
-                    resp_list = '{}\n{}'.format(resp_list, helpitem)
-
-            # Enviar lista restante
-            if resp_list != '':
-                await self.send_message(message.author, '```{}```'.format(resp_list))
-
-            return
-
         # Command handler
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
@@ -177,32 +165,31 @@ class Alexis(discord.Client):
                         await i.handle(message, i.parse(message))
                 return
 
-        # ! <meme> | ¡<meme>
-        elif text.startswith('! ') or text.startswith('¡'):
-            # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
-            if self.last_author is None or not own_message:
-                self.last_author = message.author.id
+        # 'startswith' handlers
+        for cmd in self.swhandlers:
+            valid = False
+            if isinstance(cmd.swhandler, list):
+                valid = message.content.startswith(tuple(cmd.swhandler))
+            elif isinstance(cmd.swhandler, str):
+                valid = message.content.startswith(cmd.swhandler)
 
-            meme_query = text[2:] if text.startswith('! ') else text[1:]
+            if valid:
+                if cmd.owner_only and not is_owner:
+                    await self.send_message(chan, cmd.owner_error)
+                elif not cmd.allow_pm and is_pm:
+                    await self.send_message(chan, cmd.pm_error)
+                else:
+                    await cmd.handle(message, cmd.parse(message))
 
-            try:
-                meme = Meme.get(Meme.name == meme_query)
-                await self.send_message(chan, meme.content)
-            except Meme.DoesNotExist:
-                pass
-
-        # Cleverbot (@bot <mensaje>)
-        elif self.rx_mention.match(text) and self.conversation and self.cbotcheck is not None:
-            if is_pm:
-                return
-
-            msg = self.rx_mention.sub('', text).strip()
-            if msg == '':
-                reply = '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase)
-            else:
-                reply = self.cbot.say(msg)
-
-            await self.send_message(chan, reply)
+        # Mention handlers
+        if self.user.mentioned_in(message):
+            for i in self.mention_handlers:
+                if i.owner_only and not is_owner:
+                    await self.send_message(chan, i.owner_error)
+                elif not i.allow_pm and is_pm:
+                    await self.send_message(chan, i.pm_error)
+                else:
+                    await i.handle(message, i.parse(message))
 
     def load_config(self):
         try:
