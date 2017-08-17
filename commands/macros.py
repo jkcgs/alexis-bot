@@ -1,4 +1,6 @@
-from commands.base.command import Command
+import re
+
+from commands.base.command import Command, Message
 from models import Meme
 
 
@@ -63,11 +65,19 @@ class MacroList(Command):
         super().__init__(bot)
         self.name = 'list'
         self.help = 'Muestra una lista de los nombres de los macros guardados'
+        self.rx_mention = re.compile('^<@!?[0-9]+>$')
 
     async def handle(self, message, cmd):
         namelist = []
         for item in Meme.select().iterator():
-            namelist.append(item.name)
+            if re.match(self.rx_mention, item.name):
+                name = item.name.replace('!', '')
+                member_id = name[2:-1]
+                member = cmd.member_by_id(member_id)
+                name = '*\\@{}*'.format(Message.final_name(member))
+            else:
+                name = item.name
+            namelist.append(name)
 
         word = 'macros' if len(namelist) == 1 else 'macros'
         resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
@@ -80,11 +90,22 @@ class MacroSuperList(Command):
         self.name = '!list'
         self.help = 'Muestra una lista completa de los macros con sus valores'
         self.owner_only = True
+        self.rx_mention = re.compile('^<@!?[0-9]+>$')
+        self.rx_blob = re.compile('^<:[a-zA-Z\-_]+:[0-9]+>$')
 
     async def handle(self, message, cmd):
         memelist = []
         for item in Meme.select().iterator():
-            memelist.append("- {}: {}".format(item.name, item.content))
+            if re.match(self.rx_mention, item.name):
+                name = item.name.replace('!', '')
+                member_id = name[2:-1]
+                member = cmd.member_by_id(member_id)
+                name = '@' + Message.final_name(member)
+            elif re.match(self.rx_blob, item.name):
+                name = ':{}:'.format(item.name.split(':')[1])
+            else:
+                name = item.name
+            memelist.append("- {}: {}".format(name, item.content))
 
         num_memes = len(memelist)
         if num_memes == 0:

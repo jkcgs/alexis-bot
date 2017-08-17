@@ -50,6 +50,18 @@ class Message:
         self.bot.log.debug('Sending message "%s" to %s', content, self.message.channel)
         await self.bot.send_message(self.message.channel, content, **kwargs)
 
+    def member_by_id(self, user_id):
+        if self.is_pm:
+            return None
+
+        for member in self.message.server.members:
+            if member.id == user_id:
+                return member
+
+        return None
+
     @staticmethod
     def final_name(user):
+        if user is None:
+            return 'None'
         return user.nick if hasattr(user, 'nick') and user.nick else user.name
