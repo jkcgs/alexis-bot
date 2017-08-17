@@ -1,4 +1,5 @@
 from commands.base.command import Command
+from discord import Game
 import sys
 import alexis
 
@@ -42,3 +43,16 @@ class InfoCmd(Command):
         info_msg = "```\nAutores: {}\nVersión: {}\nEstado: {}```"
         info_msg = info_msg.format(alexis.__author__, alexis.__version__, alexis.__status__)
         await cmd.answer(info_msg)
+
+
+class SetStatus(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'status'
+        self.help = 'Determina el status del bot'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        status = '' if len(cmd.args) < 1 else cmd.text
+        await self.bot.change_presence(game=Game(name=status))
+        await cmd.answer('k')
