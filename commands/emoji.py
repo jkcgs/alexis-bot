@@ -21,7 +21,6 @@ class Emoji(Command):
             await cmd.answer('No envíes el emoji como texto. Sólo se soportan custom emojis.')
             return
 
-        self.log.debug('etext: "{}"'.format(etext))
         if not re.match(self.rx_custom_emoji, etext):
             await cmd.answer('Formato: !emoji <emoji_custom>')
             return
