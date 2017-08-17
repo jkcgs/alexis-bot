@@ -35,6 +35,7 @@ class Message:
     def __init__(self, message, bot):
         self.bot = bot
         self.message = message
+        self.author = message.author
         self.author_name = Message.final_name(message.author)
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
@@ -45,9 +46,9 @@ class Message:
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
 
-    async def answer(self, content):
+    async def answer(self, content, **kwargs):
         self.bot.log.debug('Sending message "%s" to %s', content, self.message.channel)
-        await self.bot.send_message(self.message.channel, content)
+        await self.bot.send_message(self.message.channel, content, **kwargs)
 
     @staticmethod
     def final_name(user):
