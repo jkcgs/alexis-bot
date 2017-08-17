@@ -50,3 +50,17 @@ Referirse a la intalación en Windows.
 
 Revisar el archivo commands/ping.py a modo de ejemplo.
 Además, ver definiciones base en el archivo commands/base/command.py
+
+### Lo que se dijo en el chat sobre el comando
+(TODO: ordenar)
+```
+[3:06 PM] makzk: tienes que crear un módulo en la carpeta commands que contenga una o más clases que hereden la clase Command
+[3:06 PM] makzk: en el __init__ debes declarar el nombre del comando y/o los hooks startswith o mention(edited)
+[3:06 PM] makzk: puedes ver los otros atributos que puedes declarar en commands/base/command.py
+[3:07 PM] makzk: luego, debes crear el método async def handle(self, message, cmd):, tal cual esa misma signature
+[3:07 PM] makzk: donde message es el objeto Message desde on_message, y cmd es la clase Message que viene desde
+commands/base/command.py que interpreta el mensaje con algunos shorthands
+[3:08 PM] makzk: y ahí puedes empezar a jugar
+[3:09 PM] makzk: el hook startswith sirve para cuando quieres triggerear el comando cuando empieza con un string,
+y el hook mention es cuando el mensaje comienza con la mención al bot
+```
