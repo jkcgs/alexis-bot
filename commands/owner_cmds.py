@@ -28,6 +28,7 @@ class ShutdownCmd(Command):
 
     async def handle(self, message, cmd):
         await cmd.answer('chao loh vimo')
+        await self.bot.logout()
         sys.exit(0)
 
 

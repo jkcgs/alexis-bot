@@ -9,19 +9,25 @@ class CleverbotHandler(Command):
         self.mention_handler = True
         self.allow_pm = False
 
-        self.cbot = CleverWrap(self.bot.config['cleverbot_key'])
         self.cbotcheck = False
         self.bot.sharedcfg['conversation'] = True
+        key = self.bot.config['cleverbot_key'].strip()
+        if key == '':
+            self.bot.sharedcfg['cb_enabled'] = False
+            self.log.warning('El valor "cleverbot_key" no se ha definido. La conversación será desactivada.')
+            return
 
+        self.cbot = CleverWrap(key)
         self.log.info('Conectando con Cleverbot API...')
         self.cbotcheck = self.cbot.say('test') is not None
+        self.bot.sharedcfg['cb_enabled'] = self.cbotcheck
         if self.cbotcheck:
             self.log.info('CleverWrap iniciado correctamente.')
         else:
             self.log.warning('El valor "cleverbot_key" es inválido.')
 
     async def handle(self, message, cmd):
-        if not self.bot.rx_mention.match(message.content) or self.cbotcheck is None:
+        if not self.bot.rx_mention.match(message.content) or not self.cbotcheck:
             return
 
         if not self.bot.sharedcfg['conversation']:
@@ -48,6 +54,9 @@ class ToggleConversation(Command):
             self.bot.sharedcfg['conversation'] = True
 
     async def handle(self, message, cmd):
+        if 'cb_enabled' not in self.bot.sharedcfg or not self.bot.sharedcfg['cb_enabled']:
+            return
+
         self.bot.sharedcfg['conversation'] = not self.bot.sharedcfg['conversation']
         resp = 'activada' if self.bot.sharedcfg['conversation'] else 'desactivada'
         await cmd.answer('Conversación {}'.format(resp))
