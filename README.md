@@ -51,7 +51,7 @@ Referirse a la intalación en Windows.
 Revisar el archivo commands/ping.py a modo de ejemplo.
 Además, ver definiciones base en el archivo commands/base/command.py
 
-### Lo que se dijo en el chat sobre el comando
+### Lo que se dijo en el chat sobre los comandos
 (TODO: ordenar)
 ```
 [3:06 PM] makzk: tienes que crear un módulo en la carpeta commands que contenga una o más clases que hereden la clase Command
