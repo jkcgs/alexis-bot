@@ -26,13 +26,13 @@ class Rate(Command):
                 if hid in Rate.special1:
                     await cmd.answer('A {} de un 1 a un 100, le doy :$'.format(text))
                 elif hid in Rate.special2:
-                    await cmd.answer('uff men gr8 i r8 8/8'.format(text))
+                    await cmd.answer('uff men gr8 i r8 8/8')
                 elif m.id == self.bot.user.id:
-                    await cmd.answer('lo mejor del mundo, obvio'.format(text))
+                    await cmd.answer('lo mejor del mundo, obvio')
                 else:
-                    await cmd.answer('no me mandis weas xfa'.format(text))
+                    await cmd.answer('no me mandis weas xfa')
             else:
-                await cmd.answer('penca tu wea po xd'.format(text))
+                await cmd.answer('penca tu wea po xd')
         else:
             rating = '{:.1f}'.format(random.random()*100)
             await cmd.answer('A {} le doy {}/100'.format(text, rating))
