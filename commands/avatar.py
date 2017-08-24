@@ -9,7 +9,7 @@ class Avatar(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) > 0:
-            if message.mentions == 0:
+            if len(message.mentions) == 0:
                 await cmd.answer('Formato: !avatar [@mención]')
                 return
             else:

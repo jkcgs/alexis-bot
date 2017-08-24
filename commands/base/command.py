@@ -64,7 +64,11 @@ class Message:
         self.text = ' '.join(self.args)
 
     async def answer(self, content='', **kwargs):
-        self.bot.log.debug('Sending message "%s" to %s', content, self.message.channel)
+        msg = 'Sending message "%s" to %s'
+        if isinstance(kwargs.get('embed'), Embed):
+            msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
+
+        self.bot.log.debug(msg, content, self.message.channel)
         await self.bot.send_message(self.message.channel, content, **kwargs)
 
     def member_by_id(self, user_id):
