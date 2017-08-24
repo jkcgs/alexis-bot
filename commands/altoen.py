@@ -20,6 +20,4 @@ class AltoEn(Command):
             return
 
         altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(altotext)
-        emb = discord.Embed()
-        emb.set_image(url=altourl)
-        await self.bot.send_message(message.channel, embed=emb)
+        await self.bot.send_message(message.channel, embed=Command.img_embed(altourl))

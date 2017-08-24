@@ -74,7 +74,7 @@ class MacroList(Command):
                 name = item.name.replace('!', '')
                 member_id = name[2:-1]
                 member = cmd.member_by_id(member_id)
-                name = '*\\@{}*'.format(Message.final_name(member))
+                name = '*\\@{}*'.format(Command.final_name(member))
             else:
                 name = item.name
             namelist.append(name)
@@ -100,7 +100,7 @@ class MacroSuperList(Command):
                 name = item.name.replace('!', '')
                 member_id = name[2:-1]
                 member = cmd.member_by_id(member_id)
-                name = '@' + Message.final_name(member)
+                name = '@' + Command.final_name(member)
             elif re.match(self.rx_blob, item.name):
                 name = ':{}:'.format(item.name.split(':')[1])
             else:

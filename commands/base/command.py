@@ -1,3 +1,6 @@
+from discord import Embed
+
+
 class Command:
     def __init__(self, bot):
         self.bot = bot
@@ -30,13 +33,27 @@ class Command:
 
         return False
 
+    @staticmethod
+    def img_embed(url, title=''):
+        embed = Embed()
+        embed.set_image(url=url)
+        if title != '':
+            embed.title = title
+        return embed
+
+    @staticmethod
+    def final_name(user):
+        if user is None:
+            return 'None'
+        return user.nick if hasattr(user, 'nick') and user.nick else user.name
+
 
 class Message:
     def __init__(self, message, bot):
         self.bot = bot
         self.message = message
         self.author = message.author
-        self.author_name = Message.final_name(message.author)
+        self.author_name = Command.final_name(message.author)
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
         self.owner = False
@@ -46,7 +63,7 @@ class Message:
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
 
-    async def answer(self, content, **kwargs):
+    async def answer(self, content='', **kwargs):
         self.bot.log.debug('Sending message "%s" to %s', content, self.message.channel)
         await self.bot.send_message(self.message.channel, content, **kwargs)
 
@@ -59,9 +76,3 @@ class Message:
                 return member
 
         return None
-
-    @staticmethod
-    def final_name(user):
-        if user is None:
-            return 'None'
-        return user.nick if hasattr(user, 'nick') and user.nick else user.name
