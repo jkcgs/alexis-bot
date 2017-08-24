@@ -2,7 +2,7 @@ from commands.base.command import Command
 
 
 class Fullwidth(Command):
-    supported = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~'
+    supported = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&()+,-./:;<=>?@[\\]^`{|}'
 
     def __init__(self, bot):
         super().__init__(bot)
