@@ -8,15 +8,18 @@ import sqlite3
 import sys
 import re
 import yaml
+from discord import Embed
+
 import logger
 import discord
 import commands
+from commands.base.command import Command
 from models import db, Post, Ban, Redditor, Meme
 from tasks import posts_loop
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 __status__ = "Desarrollo"
 
 
@@ -126,7 +129,7 @@ class Alexis(discord.Client):
 
         # Info sobre el mensaje
         text = message.content
-        author = self.final_name(message.author)
+        author = Command.final_name(message.author)
         chan = message.channel
         is_pm = message.server is None
         is_owner = self.is_owner(message.author, message.server)
@@ -143,7 +146,7 @@ class Alexis(discord.Client):
         if text.startswith('!') and len(text) > 1:
             cmd = text.split(' ')[0][1:]
             if cmd in self.cmds:
-                self.log.debug('[command] message: "%s" command %s', text, cmd)
+                self.log.debug('[command] %s sent message: "%s" command %s', message.author, text, cmd)
                 for i in self.cmds[cmd]:
                     if i.owner_only and not is_owner:
                         await self.send_message(chan, i.owner_error)
@@ -207,8 +210,14 @@ class Alexis(discord.Client):
 
         return False
 
-    def final_name(self, user):
-        return user.nick if hasattr(user, 'nick') else user.name
+    async def send_message(self, destination, content=None, **kwargs):
+        svid = destination.server.id if destination.server is not None else 'PM'
+        msg = 'Sending message "{}" to {}#{}'.format(content, destination, svid)
+        if isinstance(kwargs.get('embed'), Embed):
+            msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
+
+        self.log.debug(msg)
+        await super(Alexis, self).send_message(destination, content, **kwargs)
 
 
 if __name__ == '__main__':
