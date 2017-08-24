@@ -10,5 +10,6 @@ class Fullwidth(Command):
         self.help = 'Convierte los carácteres soportados a fullwidth y responde con el texto resultante'
 
     async def handle(self, message, cmd):
-        converted = [chr(0xFEE0 + ord(i)) if i in Fullwidth.supported else i for i in list(cmd.text)]
+        text = cmd.text if cmd.text != '' else 'QUE WEA COXINO KLO'
+        converted = [chr(0xFEE0 + ord(i)) if i in Fullwidth.supported else i for i in list(text)]
         await cmd.answer(''.join(converted))
