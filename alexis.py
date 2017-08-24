@@ -211,7 +211,7 @@ class Alexis(discord.Client):
         return False
 
     async def send_message(self, destination, content=None, **kwargs):
-        svid = destination.server.id if destination.server is not None else 'PM'
+        svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'
         msg = 'Sending message "{}" to {}#{}'.format(content, destination, svid)
         if isinstance(kwargs.get('embed'), Embed):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
