@@ -18,9 +18,7 @@ class Cat(Command):
             with urllib.request.urlopen(Cat.url) as urlresp:
                 data = json.loads(urlresp.read().decode())
                 if 'file' in data:
-                    emb = Embed()
-                    emb.set_image(url=data['file'])
-                    await cmd.answer('aquí está tu gatito :3', embed=emb)
+                    await cmd.answer('aquí está tu gatito :3', embed=Command.img_embed(data['file']))
                     return
         except Exception as e:
             self.log.error(e)

@@ -1,6 +1,5 @@
 from commands.base.command import Command
 import urllib.parse as urlparse
-import discord
 
 
 class AltoEn(Command):
