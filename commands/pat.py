@@ -42,16 +42,22 @@ class Pat(Command):
         'http://i.imgur.com/tVIPzvi.gif',
         'http://gifimage.net/wp-content/uploads/2017/07/head-pat-gif-11.gif',
         'http://i0.kym-cdn.com/photos/images/original/000/915/038/7e9.gif',
-        'https://media.giphy.com/media/13YzqRtgyD4dOw/giphy.gif'
+        'https://media.giphy.com/media/13YzqRtgyD4dOw/giphy.gif',
+        'https://33.media.tumblr.com/cb4da84b16d8e189c5b7a61632a54953/tumblr_nrcwmt2SNG1r4vymlo1_400.gif'
     ]
 
-    self_pat = 'https://media.giphy.com/media/wUArrd4mE3pyU/giphy.gif'
-    bot_pat = 'https://cdn.discordapp.com/attachments/282351024008593408/350365795353755648/kawaiipat.gif'
+    self_pats = [
+        'https://media.giphy.com/media/wUArrd4mE3pyU/giphy.gif',
+        'https://i.imgur.com/fWQ6dqe.gif',
+        'http://pa1.narvii.com/6401/655b40f33530a90101682ee74c5fa12a673df749_hq.gif'
+    ]
+
+    bot_pat = 'http://i.imgur.com/tVzapCY.gif'
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'pat'
-        self.help = 'Te envía una imagen de animé de una caricia en la cabeza'
+        self.help = 'Te envía una imagen de animé de una caricia en la cabeza y algo más'
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1 or len(message.mentions) != 1:
@@ -64,7 +70,7 @@ class Pat(Command):
         )
 
         if mention.id == cmd.author.id:
-            url = Pat.self_pat
+            url = random.choice(Pat.self_pats)
         elif mention.id == self.bot.user.id:
             url = Pat.bot_pat
             text = 'oye nuuuu >_<'
