@@ -9,6 +9,11 @@ class Reverse(Command):
 
     async def handle(self, message, cmd):
         text = cmd.text if cmd.text != '' else 'Formato: !reverse <texto>'
-        text = list(text)
-        text.reverse()
-        await cmd.answer(''.join(text))
+        if text.endswith('!'):
+            text = 'jaja ste men xd'
+        else:
+            text = list(text)
+            text.reverse()
+            text = ''.join(text)
+
+        await cmd.answer(text)
