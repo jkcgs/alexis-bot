@@ -5,6 +5,8 @@ playing: "/r/chile"
 owners: ["198944348379938816@248581447579860993"]
 default_memes:
   callate: "http://i.imgur.com/nZ72crJ.jpg"
+  boom: "https://giphy.com/gifs/computer-gZBYbXHtVcYKs"
+  notwork: "https://cdn.discordapp.com/attachments/198944348379938816/347914295100571648/notwork.png"
 cleverbot_key: "API_KEY"
 frases:
   - "que weá querí?"
