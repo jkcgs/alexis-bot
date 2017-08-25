@@ -1,15 +1,16 @@
+from commands.base.command import Command
 from discord import Embed
-import alexis
 import random
 
 
-class Slots():
+class Slots(Command):
     def __init__(self, bot):
+        super().__init__(bot)
         self.name = ['slot', 'slots']
         self.mention_handler = False
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False
-        self.frutas = alexis.config['frutas']
+        self.frutas = self.bot.config['frutas']
 
     async def handle(self, message, cmd):
         slot1 = random.choice(self.frutas)
@@ -22,8 +23,7 @@ class Slots():
         else:
             text = "Mala cuea. Pa' la otra será."
 
-        embed = Embed(title="Slots by Yara Tech", color=0xf07247)
-        embed.add_field(name="", value="{} tiró la palanca...".format(cmd.author_name))
-        embed.add_field(name="", value="**[ {} {} {} ]**".format(slot1, slot2, slot3))
-        embed.add_field(name="", value=text)
-        await cmd.answer(embed=embed)
+        slots = Embed(color=0xf07247)
+        slots.description = "**{}** tiró la palanca...\n\n**[ {} | {} | {} ]**\n\n{}".format(cmd.author_name, slot1, slot2, slot3, text)
+        await cmd.answer(embed=slots)
+        return
