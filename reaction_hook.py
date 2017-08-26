@@ -12,11 +12,12 @@ async def reaction_hook(bot, reaction, user):
 
     if msg.server.id not in bot.config['starboard_channels'].keys() \
             or bot.config['starboard_channels'][msg.server.id] == msg.id:
+        bot.log.debug('not suitable reaction')
         return
 
     star_item = Starboard.select().where(Starboard.message_id == msg.id)
-    bot.log.debug('select result %s %s', len(star_item), star_item)
     if len(star_item) >= 1:
+        bot.log.debug('already starboard')
         return
 
     max_count = 0
@@ -25,6 +26,7 @@ async def reaction_hook(bot, reaction, user):
             max_count = reaction.count
 
     if max_count < bot.config['starboard_reactions']:
+        bot.log.debug('not enough reaction')
         return
 
     timestamp = datetime.now()
