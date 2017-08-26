@@ -22,3 +22,23 @@ class Cat(Command):
                     return
         except Exception as e:
             self.log.error(e)
+
+
+# porque puedo
+class Dog(Command):
+    url = 'https://dog.ceo/api/breeds/image/random'
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = ['dog', 'perro']
+        self.help = 'Entrega un perro'
+
+    async def handle(self, message, cmd):
+        try:
+            with urllib.request.urlopen(Dog.url) as urlresp:
+                data = json.loads(urlresp.read().decode())
+                if 'status' in data and data['status'] == 'success':
+                    await cmd.answer('aquí está tu perrito :3', embed=Command.img_embed(data['message']))
+                    return
+        except Exception as e:
+            self.log.error(e)
