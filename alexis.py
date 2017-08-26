@@ -20,7 +20,7 @@ from reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.4.1'
+__version__ = '0.4.2-dev.0'
 __status__ = "Desarrollo"
 
 
@@ -144,7 +144,7 @@ class Alexis(discord.Client):
                 self.log.info('[PM] %s: %s', author, text)
 
         # Command handler
-        if text.startswith('!') and len(text) > 1:
+        if text.startswith(self.config['command_prefix']) and len(text) > 1:
             cmd = text.split(' ')[0][1:]
             if cmd in self.cmds:
                 self.log.debug('[command] %s sent message: "%s" command %s', message.author, text, cmd)
@@ -196,6 +196,8 @@ class Alexis(discord.Client):
                 config['frases'] = []
             if 'starboard_reactions' not in config or not isinstance(config['starboard_reactions'], int):
                 config['starboard_reactions'] = 5
+            if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
+                config['command_prefix'] = '!'
 
             self.config = config
             return True

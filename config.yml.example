@@ -1,4 +1,5 @@
 token: "token"
+command_prefix: "!"
 subreddit: ["chile@198944348379938816", "gonewild@248994135317413888,282347946727440394"]
 default_channel: "168469255979925504"
 playing: "/r/chile"
@@ -10,7 +11,8 @@ default_memes:
 cleverbot_key: "API_KEY"
 starboard_channels:
   "198944348379938816": "350833070905229312"
-starboard_reactions: 5
+starboard_trigger_reactions: []
+starboard_trigger_count: 2
 frases:
   - "que weá querí?"
   - "qué weá?"
