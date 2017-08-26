@@ -24,6 +24,8 @@ class Slots(Command):
             text = "Mala cuea. Pa' la otra será."
 
         slots = Embed(color=0xf07247)
-        slots.description = "**{}** tiró la palanca...\n\n**[ {} | {} | {} ]**\n\n{}".format(cmd.author_name, slot1, slot2, slot3, text)
+        desc = "**{}** tiró la palanca...\n\n**[ {} | {} | {} ]**\n\n{}"
+        desc = desc.format(cmd.author_name, slot1, slot2, slot3, text)
+        slots.description = desc
         await cmd.answer(embed=slots)
         return
