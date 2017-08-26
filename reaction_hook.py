@@ -5,19 +5,17 @@ from commands.base.command import Command
 
 
 async def reaction_hook(bot, reaction, user):
-    bot.log.debug('reaction to: "%s"', reaction.message.content)
     msg = reaction.message
     if msg.server is None:
         return
 
     if msg.server.id not in bot.config['starboard_channels'].keys() \
-            or bot.config['starboard_channels'][msg.server.id] == msg.id:
-        bot.log.debug('not suitable reaction')
+            or bot.config['starboard_channels'][msg.server.id] == msg.channel.id \
+            or 'nsfw' in msg.channel.name.lower():
         return
 
     star_item = Starboard.select().where(Starboard.message_id == msg.id)
     if len(star_item) >= 1:
-        bot.log.debug('already starboard')
         return
 
     max_count = 0
@@ -26,7 +24,6 @@ async def reaction_hook(bot, reaction, user):
             max_count = reaction.count
 
     if max_count < bot.config['starboard_reactions']:
-        bot.log.debug('not enough reaction')
         return
 
     timestamp = datetime.now()
