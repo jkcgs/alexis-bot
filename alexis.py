@@ -14,12 +14,13 @@ import logger
 import discord
 import commands
 from commands.base.command import Command
-from models import db, Post, Ban, Redditor, Meme
+from models import db, Post, Ban, Redditor, Meme, Starboard
 from tasks import posts_loop
+from reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.3.4'
+__version__ = '0.4.0'
 __status__ = "Desarrollo"
 
 
@@ -37,7 +38,7 @@ class Alexis(discord.Client):
         self.mention_handlers = []
 
         db.connect()
-        db.create_tables([Post, Ban, Redditor, Meme], True)
+        db.create_tables([Post, Ban, Redditor, Meme, Starboard], True)
 
         self.load_config()
 
@@ -177,6 +178,10 @@ class Alexis(discord.Client):
                 else:
                     await i.handle(message, i.parse(message))
 
+    """Esta función es llamada cuando un mensaje recibe una reacción"""
+    async def on_reaction_add(self, reaction, user):
+        await reaction_hook(self, reaction, user)
+
     def load_config(self):
         try:
             with open('config.yml', 'r') as file:
@@ -189,6 +194,8 @@ class Alexis(discord.Client):
                 config['default_memes'] = []
             if 'frases' not in config:
                 config['frases'] = []
+            if 'starboard_reactions' not in config or not isinstance(config['starboard_reactions'], int):
+                config['starboard_reactions'] = 5
 
             self.config = config
             return True

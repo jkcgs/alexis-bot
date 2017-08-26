@@ -20,10 +20,15 @@ class Ban(BaseModel):
 
 
 class Redditor(BaseModel):
-	name = peewee.TextField()
-	posts = peewee.IntegerField(default=0)
+    name = peewee.TextField()
+    posts = peewee.IntegerField(default=0)
 
 
 class Meme(BaseModel):
-    name = peewee.TextField(primary_key = True)
-    content = peewee.TextField(null = True)
+    name = peewee.TextField(primary_key=True)
+    content = peewee.TextField(null=True)
+
+
+class Starboard(BaseModel):
+    message_id = peewee.TextField(primary_key=True)
+    timestamp = peewee.DateTimeField(null=False)
