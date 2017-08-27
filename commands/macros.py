@@ -57,8 +57,6 @@ class MacroUnset(Command):
             msg = 'El macro **{name}** no existe'.format(name=meme_name)
             await cmd.answer(msg)
 
-        await cmd.answer(msg)
-
 
 class MacroList(Command):
     def __init__(self, bot):

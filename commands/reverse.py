@@ -9,7 +9,7 @@ class Reverse(Command):
 
     async def handle(self, message, cmd):
         text = cmd.text if cmd.text != '' else 'Formato: !reverse <texto>'
-        if text.endswith('!'):
+        if text.endswith(self.bot.config['command_prefix']):
             text = 'jaja ste men xd'
         else:
             text = list(text)
