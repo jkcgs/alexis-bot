@@ -7,6 +7,8 @@ import platform
 import sqlite3
 import sys
 import re
+
+import aiohttp
 import yaml
 from discord import Embed
 
@@ -28,6 +30,7 @@ class Alexis(discord.Client):
     """Contiene al bot e inicializa su funcionamiento."""
     def __init__(self, **options):
         super().__init__(**options)
+        self.http_session = aiohttp.ClientSession(loop=self.loop)
 
         self.log = logger.get_logger('Alexis')
         self.initialized = False
@@ -230,4 +233,6 @@ class Alexis(discord.Client):
 
 
 if __name__ == '__main__':
-    Alexis().init()
+    ale = Alexis()
+    ale.init()
+    ale.http_session.close()

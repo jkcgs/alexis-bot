@@ -15,7 +15,7 @@ class Command:
         self.owner_only = False
         self.owner_error = 'No puedes usar este comando'
 
-        self.http = aiohttp.ClientSession(loop=bot.loop)
+        self.http = bot.http_session
 
     def parse(self, message):
         msg = Message(message, self.bot)
