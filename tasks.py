@@ -1,7 +1,6 @@
 import asyncio
 import discord
 import html
-from subreddit import get_posts
 from models import Post, Redditor
 
 async def posts_loop(bot):
@@ -18,7 +17,7 @@ async def posts_loop(bot):
 
             subname = subconfig[0]
             subchannels = subconfig[1].split(',')
-            posts = get_posts(subname)
+            posts = await get_posts(bot, subname)
 
             if len(posts) == 0:
                 continue
@@ -66,9 +65,25 @@ async def posts_loop(bot):
                                                                                                   num=redditor.posts + 1))
 
     except Exception as e:
+        if isinstance(e, RuntimeError):
+            pass
         bot.log.exception(e)
     finally:
         await asyncio.sleep(60)
 
     if not bot.is_closed:
         bot.loop.create_task(posts_loop(bot))
+
+async def get_posts(bot, sub, since=0):
+    url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
+    async with bot.http_session.get(url, headers={'User-agent': 'Alexis'}) as r:
+        if not r.status == 200:
+            return []
+
+        posts = []
+        data = await r.json()
+        for post in data['data']['children']:
+            if since < post['data']['created']:
+                posts.append(post['data'])
+
+        return posts
