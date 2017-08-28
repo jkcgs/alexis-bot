@@ -1,3 +1,4 @@
+import aiohttp
 from discord import Embed
 
 
@@ -13,6 +14,8 @@ class Command:
         self.pm_error = 'Este comando no se puede usar via PM'
         self.owner_only = False
         self.owner_error = 'No puedes usar este comando'
+
+        self.http = aiohttp.ClientSession(loop=bot.loop)
 
     def parse(self, message):
         msg = Message(message, self.bot)
@@ -65,6 +68,9 @@ class Message:
 
     async def answer(self, content='', **kwargs):
         await self.bot.send_message(self.message.channel, content, **kwargs)
+
+    async def typing(self):
+        await self.bot.send_typing(self.message.channel)
 
     def member_by_id(self, user_id):
         if self.is_pm:

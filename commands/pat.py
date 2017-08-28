@@ -8,9 +8,6 @@ class Pat(Command):
         super().__init__(bot)
         self.name = 'pat'
         self.help = 'Te envía una imagen de animé de una caricia en la cabeza y algo más'
-        pats = self.bot.config['pats']
-        self_pats = self.bot.config['self_pats']
-        bot_pat = self.bot.config['bot_pat']
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1 or len(message.mentions) != 1:

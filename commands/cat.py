@@ -15,9 +15,10 @@ class Cat(Command):
 
     async def handle(self, message, cmd):
         try:
-            with urllib.request.urlopen(Cat.url) as urlresp:
-                data = json.loads(urlresp.read().decode())
-                if 'file' in data:
+            await cmd.typing()
+            async with self.http.get(Cat.url) as r:
+                if r.status == 200:
+                    data = await r.json()
                     await cmd.answer('aquí está tu gatito :3', embed=Command.img_embed(data['file']))
                     return
         except Exception as e:
@@ -35,9 +36,10 @@ class Dog(Command):
 
     async def handle(self, message, cmd):
         try:
-            with urllib.request.urlopen(Dog.url) as urlresp:
-                data = json.loads(urlresp.read().decode())
-                if 'status' in data and data['status'] == 'success':
+            await cmd.typing()
+            async with self.http.get(Dog.url) as r:
+                if r.status == 200:
+                    data = await r.json()
                     await cmd.answer('aquí está tu perrito :3', embed=Command.img_embed(data['message']))
                     return
         except Exception as e:
