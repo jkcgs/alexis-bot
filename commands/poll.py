@@ -29,8 +29,6 @@ class Ping(Command):
             await cmd.answer('¡Máximo 6 opciones!')
         else:
             poll_response = requests.post('https://strawpoll.me/api/v2/polls', json={'title': args[0], 'options': args[1:]}).json()
-            print(args[1:])
-            print(poll_response)
             option_list = ''
 
             for options in poll_response['options']:
