@@ -28,7 +28,7 @@ class BanCmd(Command):
 
             # Evitar que alguien se banee a si mismo
             if self.bot.last_author == mention.id:
-                await cmd.anwer('no hagai trampa po wn xd')
+                await cmd.answer('no hagai trampa po wn xd')
                 return
 
             if not random.randint(0, 1):
