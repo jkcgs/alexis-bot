@@ -1,3 +1,5 @@
+import json
+
 from commands.base.command import Command
 from cleverwrap import CleverWrap
 import random
@@ -39,7 +41,10 @@ class CleverbotHandler(Command):
             reply = '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase)
         else:
             await cmd.typing()
-            reply = self.cbot.say(msg)
+            try:
+                reply = self.cbot.say(msg)
+            except json.decoder.JSONDecodeError:
+                reply = 'sorry, no puedo responderte ahora'
 
         await cmd.answer(reply)
 
