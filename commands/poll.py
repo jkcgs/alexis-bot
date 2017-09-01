@@ -1,7 +1,7 @@
 from commands.base.command import Command
 from discord import Embed
 
-import requests
+import json
 
 
 class Ping(Command):
@@ -27,15 +27,15 @@ class Ping(Command):
             return
         elif len(args) > max_opciones+1:
             await cmd.answer('¡Máximo 6 opciones!')
-        else:
-            poll_response = requests.post('https://strawpoll.me/api/v2/polls', json={'title': args[0], 'options': args[1:]}).json()
+            return
+        async with self.http.post(url='https://strawpoll.me/api/v2/polls',data=json.dumps({'title': args[0], 'options': args[1:]})) as poll_response:
+            x = await poll_response.json()
             option_list = ''
-
-            for options in poll_response['options']:
+            for options in x['options']:
                 option_list += '- {}\n'.format(options)
-            embed = Embed(title='StrawPoll: {}'.format(poll_response['title']), color=0xFFD756)
+            embed = Embed(title='StrawPoll: {}'.format(x['title']), color=0xFFD756)
             embed.set_thumbnail(url='https://pbs.twimg.com/profile_images/737742455643070465/yNKcnrSA_400x400.jpg')
-            embed.url = 'https://strawpoll.me/{}'.format(poll_response['id'])
+            embed.url = 'https://strawpoll.me/{}'.format(x['id'])
             embed.description = 'Opciones:\n{}'.format(option_list)
             await cmd.answer(embed=embed)
             return
