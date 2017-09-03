@@ -26,6 +26,8 @@ class Weather(Command):
         place = urlparse.quote(cmd.text)
         url = '{}{}&units=metric&lang=es&APPID={}'.format(self.urlbase, place, self.bot.config['weatherapi_key'])
         self.log.debug('cargando ' + url)
+
+        await cmd.typing()
         async with self.http.get(url) as r:
             if r.status != 200:
                 if r.status == 404:
