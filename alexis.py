@@ -148,6 +148,7 @@ class Alexis(discord.Client):
 
         # Command handler
         if text.startswith(self.config['command_prefix']) and len(text) > 1:
+            self.log.debug('test')
             cmd = text.split(' ')[0][1:]
             if cmd in self.cmds:
                 self.log.debug('[command] %s sent message: "%s" command %s', message.author, text, cmd)

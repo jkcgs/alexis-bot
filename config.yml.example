@@ -9,6 +9,7 @@ default_memes:
   boom: "https://giphy.com/gifs/computer-gZBYbXHtVcYKs"
   notwork: "https://cdn.discordapp.com/attachments/198944348379938816/347914295100571648/notwork.png"
 cleverbot_key: "API_KEY"
+weatherapi_key: ""
 starboard_channels:
   "198944348379938816": "350833070905229312"
 starboard_trigger_reactions: []
