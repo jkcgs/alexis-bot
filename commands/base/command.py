@@ -63,6 +63,7 @@ class Message:
 
         allargs = message.content.replace('  ', '').split(' ')
         self.args = [] if len(allargs) == 1 else allargs[1:]
+        self.argc = len(self.args)
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
 
