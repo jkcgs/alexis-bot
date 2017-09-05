@@ -10,7 +10,7 @@ class Cat(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['cat', 'gato', 'gatito']
+        self.name = ['cat', 'gato', 'gatito', 'neko']
         self.help = 'Entrega un gato'
 
     async def handle(self, message, cmd):
