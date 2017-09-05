@@ -2,8 +2,8 @@ from datetime import datetime
 
 import peewee
 from discord import Object, Embed, Emoji
-from commands.base.command import Command
-from alexis import BaseModel
+from modules.base.command import Command
+from modules.base.database import BaseModel
 
 
 async def reaction_hook(bot, reaction, user):

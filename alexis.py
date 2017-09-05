@@ -4,25 +4,23 @@
 """Este módulo contiene al bot y lo ejecuta si se corre el script."""
 
 import platform
+import re
 import sqlite3
 import sys
-import re
 
 import aiohttp
-import yaml
-import peewee
-from discord import Embed
-
-import logger
 import discord
-import commands
-from commands.base.command import Command
-from tasks import posts_loop
-from reaction_hook import reaction_hook
+import peewee
+import yaml
+
+import modules.commands
+from modules import logger
+from modules.base.command import Command
+from modules.reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.4.3'
+__version__ = '0.5.0-dev.0'
 __status__ = "Desarrollo"
 
 
@@ -63,11 +61,15 @@ class Alexis(discord.Client):
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
         cmd_instances = []
-        for cmd in commands.classes:
+        db_models = []
+
+        for cmd in modules.commands.classes:
             cmd_instances.append(cmd(self))
 
         # Guardar instancias de módulos de comandos
         for i in cmd_instances:
+            db_models += i.db_models
+
             # Comandos
             names = [i.name] if isinstance(i.name, str) else list(i.name)
             for name in names:
@@ -97,11 +99,17 @@ class Alexis(discord.Client):
             if isinstance(i.mention_handler, bool) and i.mention_handler:
                 self.mention_handlers.append(i)
 
+            # Tasks
+            if i.run_task:
+                self.loop.create_task(i.task())
+
+        self.log.info('Inicializando base de datos...')
+        self.db.create_tables(db_models, True)
+
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
         self.log.info('Conectando...')
 
         try:
-            self.loop.create_task(posts_loop(self))
             self.run(self.config['token'])
         except Exception as ex:
             self.log.exception(ex)
@@ -217,16 +225,12 @@ class Alexis(discord.Client):
     async def send_message(self, destination, content=None, **kwargs):
         svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'
         msg = 'Sending message "{}" to {}#{}'.format(content, svid, destination)
-        if isinstance(kwargs.get('embed'), Embed):
+        if isinstance(kwargs.get('embed'), discord.Embed):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
 
         self.log.debug(msg)
         await super(Alexis, self).send_message(destination, content, **kwargs)
 
-
-class BaseModel(peewee.Model):
-    class Meta:
-        database = db
 
 if __name__ == '__main__':
     ale = Alexis()
