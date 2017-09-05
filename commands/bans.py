@@ -1,5 +1,7 @@
+import peewee
+
 from commands.base.command import Command, Message
-from models import Ban
+from alexis import BaseModel
 import random
 
 
@@ -146,3 +148,9 @@ class BanRank(Command):
             await cmd.answer('No hay bans registrados')
         else:
             await cmd.answer('Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
+
+
+class Ban(BaseModel):
+    user = peewee.TextField()
+    bans = peewee.IntegerField(default=0)
+    server = peewee.TextField(null=True)

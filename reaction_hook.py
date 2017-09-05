@@ -1,7 +1,9 @@
-from models import Starboard
 from datetime import datetime
-from discord import Object, Embed, Message, Emoji
+
+import peewee
+from discord import Object, Embed, Emoji
 from commands.base.command import Command
+from alexis import BaseModel
 
 
 async def reaction_hook(bot, reaction, user):
@@ -59,3 +61,8 @@ async def reaction_hook(bot, reaction, user):
     embed.add_field(name='Reacciones', value=reactions)
 
     await bot.send_message(channel, embed=embed)
+
+
+class Starboard(BaseModel):
+    message_id = peewee.TextField(primary_key=True)
+    timestamp = peewee.DateTimeField(null=False)

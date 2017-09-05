@@ -1,7 +1,9 @@
 import asyncio
 import discord
 import html
-from models import Post, Redditor
+
+from commands.redditor import Redditor, Post
+
 
 async def posts_loop(bot):
     post_id = ''

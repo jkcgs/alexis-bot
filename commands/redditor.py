@@ -1,6 +1,8 @@
+import peewee
+
 from commands.base.command import Command
 import re
-from models import Redditor
+from alexis import BaseModel
 
 
 class RedditorCmd(Command):
@@ -28,3 +30,14 @@ class RedditorCmd(Command):
             text = '**/u/{name}** no ha creado ningún post.'
             text = text.format(name=user)
             await cmd.answer(text)
+
+
+class Post(BaseModel):
+    id = peewee.CharField()
+    permalink = peewee.CharField(null=True)
+    over_18 = peewee.BooleanField(default=False)
+
+
+class Redditor(BaseModel):
+    name = peewee.TextField()
+    posts = peewee.IntegerField(default=0)

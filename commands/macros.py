@@ -1,7 +1,9 @@
 import re
 
+import peewee
+
 from commands.base.command import Command, Message
-from models import Meme
+from alexis import BaseModel
 
 
 class MacroSet(Command):
@@ -133,6 +135,13 @@ class MacroUse(Command):
         super().__init__(bot)
         self.swhandler = ['! ', '¡']
 
+        # Inicializar macros por defecto
+        num_memes = len(self.bot.config['default_memes'])
+        if num_memes > 0:
+            self.log.info('Inicializando base de datos...')
+            for meme_name, meme_cont in self.bot.config['default_memes'].items():
+                Meme.get_or_create(name=meme_name, content=meme_cont)
+
     async def handle(self, message, cmd):
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
         if self.bot.last_author is None or not cmd.own:
@@ -145,3 +154,8 @@ class MacroUse(Command):
             await cmd.answer(meme.content)
         except Meme.DoesNotExist:
             pass
+
+
+class Meme(BaseModel):
+    name = peewee.TextField(primary_key=True)
+    content = peewee.TextField(null=True)

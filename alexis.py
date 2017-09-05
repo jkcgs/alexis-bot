@@ -10,13 +10,13 @@ import re
 
 import aiohttp
 import yaml
+import peewee
 from discord import Embed
 
 import logger
 import discord
 import commands
 from commands.base.command import Command
-from models import db, Post, Ban, Redditor, Meme, Starboard
 from tasks import posts_loop
 from reaction_hook import reaction_hook
 
@@ -40,8 +40,8 @@ class Alexis(discord.Client):
         self.swhandlers = {}
         self.mention_handlers = []
 
-        db.connect()
-        db.create_tables([Post, Ban, Redditor, Meme, Starboard], True)
+        self.db = peewee.SqliteDatabase('database.db')
+        self.db.connect()
 
         self.load_config()
 
@@ -98,14 +98,6 @@ class Alexis(discord.Client):
                 self.mention_handlers.append(i)
 
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-
-        # Valores ("memes")
-        num_memes = len(self.config['default_memes'])
-        if num_memes > 0:
-            self.log.info('Inicializando base de datos...')
-            for meme_name, meme_cont in self.config['default_memes'].items():
-                Meme.get_or_create(name=meme_name, content=meme_cont)
-
         self.log.info('Conectando...')
 
         try:
@@ -231,6 +223,10 @@ class Alexis(discord.Client):
         self.log.debug(msg)
         await super(Alexis, self).send_message(destination, content, **kwargs)
 
+
+class BaseModel(peewee.Model):
+    class Meta:
+        database = db
 
 if __name__ == '__main__':
     ale = Alexis()
