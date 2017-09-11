@@ -8,7 +8,7 @@ import random
 class BanCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = 'ban'
+        self.name = ['ban', 'golpe']
         self.help = 'Banea (simbólicamente) a un usuario'
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
