@@ -74,7 +74,7 @@ class Bans(Command):
             return
 
         name = mention.nick if mention.nick is not None else mention.name
-        user, _ = Ban.get_or_create(userid=mention.id, server=message.server.id)
+        user, created = Ban.get_or_create(userid=mention.id, server=message.server.id, user=str(mention))
 
         if user.bans == 0:
             mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
@@ -112,7 +112,7 @@ class SetBans(Command):
             return
 
         mention = message.mentions[0]
-        user, _ = Ban.get_or_create(id=mention.id, server=message.server.id)
+        user, _ = Ban.get_or_create(id=mention.id, server=message.server.id, user=str(mention))
         update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
         update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
         update.execute()

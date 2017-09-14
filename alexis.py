@@ -148,17 +148,21 @@ class Alexis(discord.Client):
 
         # Command handler
         if text.startswith(self.config['command_prefix']) and len(text) > 1:
-            cmd = text.split(' ')[0][1:]
-            if cmd in self.cmds:
-                self.log.debug('[command] %s sent message: "%s" command %s', message.author, text, cmd)
-                for i in self.cmds[cmd]:
-                    if i.owner_only and not is_owner:
-                        await self.send_message(chan, i.owner_error)
-                    elif not i.allow_pm and is_pm:
-                        await self.send_message(chan, i.pm_error)
-                    else:
-                        await i.handle(message, i.parse(message))
-                return
+            try:
+                cmd = text.split(' ')[0][1:]
+                if cmd in self.cmds:
+                    self.log.debug('[command] %s sent message: "%s" command %s', message.author, text, cmd)
+                    for i in self.cmds[cmd]:
+                        if i.owner_only and not is_owner:
+                            await self.send_message(chan, i.owner_error)
+                        elif not i.allow_pm and is_pm:
+                            await self.send_message(chan, i.pm_error)
+                        else:
+                            await i.handle(message, i.parse(message))
+                    return
+            except Exception as e:
+                await self.send_message(chan, 'Ocurrió un error al ejecutar este comando')
+                self.log.exception(e)
 
         # 'startswith' handlers
         for swtext in self.swhandlers.keys():
