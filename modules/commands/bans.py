@@ -37,7 +37,7 @@ class BanCmd(Command):
                 return
 
             if not random.randint(0, 1):
-                await cmd.answer('¡**{}** se salvo del golpe de milagro!'.format(mention_name))
+                await cmd.answer('¡**{}** se salvo del ban de milagro!'.format(mention_name))
                 return
 
             user, _ = Ban.get_or_create(id=mention.id, server=message.server.id)
