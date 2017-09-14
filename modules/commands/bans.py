@@ -1,6 +1,6 @@
 from datetime import datetime
 import peewee
-from playhouse.migrate import *
+# from playhouse.migrate import *
 
 from modules.base.command import Command
 from modules.base.database import BaseModel
