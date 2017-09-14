@@ -20,7 +20,7 @@ from modules.reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.5.0-dev.0'
+__version__ = '0.5.1'
 __status__ = "Desarrollo"
 
 
