@@ -42,7 +42,7 @@ class CleverbotHandler(Command):
         else:
             await cmd.typing()
             try:
-                self.log.debug('Cleverbot <- "%s"', msg)
+                self.log.debug('Cleverbot <- "%s" (%s, %s)', msg, str(cmd.author), str(message.channel))
                 reply = self.cbot.say(msg)
             except json.decoder.JSONDecodeError:
                 reply = 'sorry, no puedo responderte ahora'
