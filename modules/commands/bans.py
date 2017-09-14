@@ -1,6 +1,8 @@
+from datetime import datetime
 import peewee
+from playhouse.migrate import *
 
-from modules.base.command import Command, Message
+from modules.base.command import Command
 from modules.base.database import BaseModel
 import random
 
@@ -13,6 +15,7 @@ class BanCmd(Command):
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
         self.db_models = [Ban]
+        self.owner_only = True  # TEMPORAL
 
     async def handle(self, message, cmd):
         if len(cmd.args) > 1 or len(message.mentions) != 1:
@@ -38,15 +41,15 @@ class BanCmd(Command):
                 await cmd.answer('¡**{}** se salvo del golpe de milagro!'.format(mention_name))
                 return
 
-            user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-            update = Ban.update(bans=Ban.bans + 1)
-            update = update.where(Ban.user == mention, Ban.server == message.server.id)
+            user, _ = Ban.get_or_create(id=mention.id, server=message.server.id)
+            update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(mention))
+            update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
             update.execute()
 
             if user.bans + 1 == 1:
-                text = 'Uff, ¡**{}** se de golpe por primera vez!'.format(mention_name)
+                text = 'Uff, ¡**{}** se banead@ por primera vez!'.format(mention_name)
             else:
-                text = '¡**{}** se fue de golpe otra vez y registra **{} baneos**!'
+                text = '¡**{}** se banead@ otra vez y registra **{} baneos**!'
                 text = text.format(mention_name, user.bans + 1)
             await cmd.answer(text)
 
@@ -57,7 +60,7 @@ class Bans(Command):
         self.name = 'bans'
         self.help = 'Muestra la cantidad de bans de una persona'
         self.allow_pm = False
-        self.pm_error = 'no po wn'
+        self.pm_error = 'no po wn que te crei'
 
     async def handle(self, message, cmd):
         if len(cmd.args) > 1 or len(message.mentions) != 1:
@@ -72,7 +75,7 @@ class Bans(Command):
             return
 
         name = mention.nick if mention.nick is not None else mention.name
-        user, _ = Ban.get_or_create(user=mention, server=message.server.id)
+        user, _ = Ban.get_or_create(userid=mention.id, server=message.server.id, user=str(mention))
 
         if user.bans == 0:
             mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
@@ -110,17 +113,18 @@ class SetBans(Command):
             return
 
         mention = message.mentions[0]
-        user, _ = Ban.get_or_create(user=mention, server=message.server.id)
-        user.bans = num_bans
-        user.save()
+        user, _ = Ban.get_or_create(id=mention.id, server=message.server.id)
+        update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
+        update = update.where(userid=mention.id, server=message.server.id)
+        update.execute()
 
         name = Command.final_name(mention)
-        if user.bans == 0:
+        if num_bans == 0:
             mesg = 'Bans de **{}** reiniciados xd'.format(name)
             await cmd.answer(mesg)
         else:
             word = 'ban' if user.bans == 1 else 'bans'
-            mesg = '**{}** ahora tiene {} {}'.format(name, user.bans, word)
+            mesg = '**{}** ahora tiene {} {}'.format(name, num_bans, word)
             await cmd.answer(mesg)
 
 
@@ -151,7 +155,47 @@ class BanRank(Command):
             await cmd.answer('Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
 
 
+class BanMigrate(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = ['banmigrate']
+        self.help = 'Migra los bans antiguos al nuevo formato'
+        self.allow_pm = False
+        self.pm_error = 'a quien vai a banear por pm, como tan wn'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        try:
+            migrator = SqliteMigrator(self.bot.db)
+            with self.bot.db.transaction():
+                migrate(
+                    migrator.add_column('ban', 'userid', peewee.TextField(default="")),
+                    migrator.add_column('ban', 'lastban', peewee.DateTimeField(null=True))
+                )
+        except Exception as e:
+            self.log.debug(e)
+
+        users = list(self.bot.get_all_members())
+        bans = Ban.select().where(Ban.userid == '', Ban.server == message.server.id)
+
+        for ban in bans.iterator():
+            sel_user = None
+            for user in users:
+                if str(user) == ban.user:
+                    sel_user = user
+                    break
+
+            if sel_user is None:
+                continue
+
+            update = Ban.update(id=sel_user.id)
+            update = update.where(Ban.user == ban.user, Ban.server == message.server.id)
+            update.execute()
+
+
 class Ban(BaseModel):
     user = peewee.TextField()
+    userid = peewee.TextField(default="")
     bans = peewee.IntegerField(default=0)
-    server = peewee.TextField(null=True)
+    server = peewee.TextField()
+    lastban = peewee.DateTimeField(null=True)
