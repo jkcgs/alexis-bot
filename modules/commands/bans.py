@@ -74,7 +74,7 @@ class Bans(Command):
             return
 
         name = mention.nick if mention.nick is not None else mention.name
-        user, _ = Ban.get_or_create(userid=mention.id, server=message.server.id, user=str(mention))
+        user, _ = Ban.get_or_create(userid=mention.id, server=message.server.id)
 
         if user.bans == 0:
             mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
@@ -114,7 +114,7 @@ class SetBans(Command):
         mention = message.mentions[0]
         user, _ = Ban.get_or_create(id=mention.id, server=message.server.id)
         update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
-        update = update.where(userid=mention.id, server=message.server.id)
+        update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
         update.execute()
 
         name = Command.final_name(mention)
@@ -122,7 +122,7 @@ class SetBans(Command):
             mesg = 'Bans de **{}** reiniciados xd'.format(name)
             await cmd.answer(mesg)
         else:
-            word = 'ban' if user.bans == 1 else 'bans'
+            word = 'ban' if num_bans == 1 else 'bans'
             mesg = '**{}** ahora tiene {} {}'.format(name, num_bans, word)
             await cmd.answer(mesg)
 
