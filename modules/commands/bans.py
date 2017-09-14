@@ -15,7 +15,6 @@ class BanCmd(Command):
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
         self.db_models = [Ban]
-        self.owner_only = True  # TEMPORAL
 
     async def handle(self, message, cmd):
         if len(cmd.args) > 1 or len(message.mentions) != 1:
@@ -155,6 +154,7 @@ class BanRank(Command):
             await cmd.answer('Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
 
 
+"""
 class BanMigrate(Command):
     def __init__(self, bot):
         super().__init__(bot)
@@ -191,6 +191,7 @@ class BanMigrate(Command):
             update = Ban.update(id=sel_user.id)
             update = update.where(Ban.user == ban.user, Ban.server == message.server.id)
             update.execute()
+"""
 
 
 class Ban(BaseModel):
