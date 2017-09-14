@@ -135,15 +135,18 @@ class MacroUse(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.swhandler = ['! ', '¡']
-
-        # Inicializar macros por defecto
-        num_memes = len(self.bot.config['default_memes'])
-        if num_memes > 0:
-            self.log.info('Inicializando base de datos...')
-            for meme_name, meme_cont in self.bot.config['default_memes'].items():
-                Meme.get_or_create(name=meme_name, content=meme_cont)
+        self.first_use = True
 
     async def handle(self, message, cmd):
+        # Inicializar macros por defecto
+        if self.first_use:
+            num_memes = len(self.bot.config['default_memes'])
+            if num_memes > 0:
+                self.log.info('Inicializando base de datos...')
+                for meme_name, meme_cont in self.bot.config['default_memes'].items():
+                    Meme.get_or_create(name=meme_name, content=meme_cont)
+            self.first_use = False
+
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
         if self.bot.last_author is None or not cmd.own:
             self.bot.last_author = message.author.id
