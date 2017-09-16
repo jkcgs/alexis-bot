@@ -27,7 +27,7 @@ class Slots(Command):
         if slot1 == slot2 == slot3:
             text = 'Ganaste wn!  :confetti_ball:'
         elif slot1 == slot2 or slot1 == slot3 or slot2 == slot3:
-            text = 'asi wn, casi. [2/3]'
+            text = 'Casi wn, casi. [2/3]'
         else:
             text = 'Mala cuea. Pa\' la otra será.'
 
