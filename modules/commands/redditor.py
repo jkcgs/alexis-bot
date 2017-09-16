@@ -18,6 +18,9 @@ class RedditorCmd(Command):
         self.run_task = True
         self.db_models = [Redditor, Post]
 
+        if 'subreddit' not in self.bot.config:
+            self.bot.config['subreddit'] = []
+
     async def handle(self, message, cmd):
         user = cmd.args[0]
 

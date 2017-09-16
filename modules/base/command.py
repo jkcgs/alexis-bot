@@ -37,7 +37,7 @@ class Command:
 
         return False
 
-    def task(self, bot):
+    def task(self):
         pass
 
     @staticmethod
