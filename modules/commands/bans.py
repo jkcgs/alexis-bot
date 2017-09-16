@@ -1,6 +1,5 @@
 from datetime import datetime
 import peewee
-# from playhouse.migrate import *
 
 from modules.base.command import Command
 from modules.base.database import BaseModel
@@ -40,13 +39,14 @@ class BanCmd(Command):
                 await cmd.answer('¡**{}** se salvó del ban de milagro!'.format(mention_name))
                 return
 
-            user, _ = Ban.get_or_create(id=mention.id, server=message.server.id,
-                                        defaults={'user': str(mention)})
+            user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
+                                              defaults={'user': str(mention)})
+            self.log.debug(user)
             update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(mention))
             update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
             update.execute()
 
-            if user.bans + 1 == 1:
+            if created:
                 text = 'Uff, ¡**{}** se banead@ por primera vez!'.format(mention_name)
             else:
                 text = '¡**{}** se banead@ otra vez y registra **{} baneos**!'
@@ -157,7 +157,6 @@ class BanRank(Command):
             await cmd.answer('Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
 
 
-"""
 class BanMigrate(Command):
     def __init__(self, bot):
         super().__init__(bot)
@@ -169,19 +168,39 @@ class BanMigrate(Command):
 
     async def handle(self, message, cmd):
         try:
-            migrator = SqliteMigrator(self.bot.db)
-            with self.bot.db.transaction():
-                migrate(
-                    migrator.add_column('ban', 'userid', peewee.TextField(default="")),
-                    migrator.add_column('ban', 'lastban', peewee.DateTimeField(null=True))
-                )
+            # Revisar columnas actuales para ver si es necesario actualizar el modelo
+            cols = self.bot.db.get_columns('ban')
+            has_lastban = False
+            has_userid = False
+            for col in cols:
+                if col.name == 'lastban':
+                    has_lastban = True
+                if col.name == 'userid':
+                    has_userid = True
+
+            # Actualizar si es necesario
+            if not has_lastban or not has_userid:
+                from playhouse.migrate import SqliteMigrator
+                from playhouse.migrate import migrate
+                migrator = SqliteMigrator(self.bot.db)
+                with self.bot.db.transaction():
+                    if not has_lastban:
+                        migrate(migrator.add_column('ban', 'lastban', peewee.DateTimeField(null=True)))
+                    if not has_userid:
+                        migrate(migrator.add_column('ban', 'userid', peewee.TextField(default='')))
+                    self.log.debug('Modelo de base de datos actualizado')
+            else:
+                self.log.debug('El modelo de la base de datos ya está actualizado')
         except Exception as e:
-            self.log.debug(e)
+            self.log.exception(e)
 
         users = list(self.bot.get_all_members())
         bans = Ban.select().where(Ban.userid == '', Ban.server == message.server.id)
+        num_users = 0
 
+        # Agregar userid a usuarios que no lo tengan registrado
         for ban in bans.iterator():
+            num_users += 1
             sel_user = None
             for user in users:
                 if str(user) == ban.user:
@@ -194,7 +213,9 @@ class BanMigrate(Command):
             update = Ban.update(userid=sel_user.id)
             update = update.where(Ban.user == ban.user, Ban.server == message.server.id)
             update.execute()
-"""
+
+        self.log.debug('%i usuarios actualizados', num_users)
+        await cmd.answer('{} usuarios actualizados'.format(num_users))
 
 
 class Ban(BaseModel):
