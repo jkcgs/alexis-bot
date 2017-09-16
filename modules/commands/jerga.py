@@ -15,10 +15,10 @@ class Jerga(Command):
 
     async def handle(self, message, cmd):
         text = cmd.text if cmd.text != '' else 'weon'
-        text = urlparse.quote(text)
+        text_url = urlparse.quote(text)
 
         try:
-            urlresp = requests.get(Jerga.url + text)
+            urlresp = requests.get(Jerga.url + text_url)
             soup = BeautifulSoup(urlresp.content, 'html.parser')
             div_definition = soup.find_all('div', class_='definition')
             resultado = ""
@@ -31,7 +31,7 @@ class Jerga(Command):
                 resultado = resultado + "**" + str(i+1) + ".- " + str(pgraph[0]).strip('<p>\n\t\t').strip('\t</p>').replace('<br/>\r\n','\n') + "**\n*\"" + str(pgraph[1]).strip('<p>\n<i>').strip('</i>\n</p>').replace('<br/>\r\n','\n') + "\"*\n\n"
             embed = Embed()
             embed.title = text
-            embed.url = Jerga.url + text
+            embed.url = Jerga.url + text_url
             embed.description = resultado
 
             await cmd.answer(embed=embed)
