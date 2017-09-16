@@ -1,7 +1,10 @@
 aiohttp==1.0.5
 appdirs==1.4.3
 async-timeout==1.2.0
+beautifulsoup4==4.6.0
+bs4==0.0.1
 chardet==3.0.2
+cleverwrap==0.2.3.6
 discord.py==0.16.7
 multidict==2.1.4
 packaging==16.8
@@ -11,4 +14,3 @@ PyYAML==3.12
 requests==2.13.0
 six==1.10.0
 websockets==3.3
-cleverwrap==0.2.3.6
