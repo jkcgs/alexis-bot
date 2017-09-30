@@ -36,7 +36,8 @@ class BanCmd(Command):
                 return
 
             if not random.randint(0, 1):
-                await cmd.answer('¡**{}** se salvó del ban de milagro!'.format(mention_name))
+                await cmd.answer('¡**{}** intentó banear a **{}**, quien se salvó de milagro!'
+                                 .format(cmd.author.mention(), mention_name))
                 return
 
             user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
@@ -47,10 +48,10 @@ class BanCmd(Command):
             update.execute()
 
             if created:
-                text = 'Uff, ¡**{}** se banead@ por primera vez!'.format(mention_name)
+                text = 'Uff, ¡**{}** le ha dado a **{}** su primer ban!'.format(cmd.author.mention(), mention_name)
             else:
-                text = '¡**{}** se banead@ otra vez y registra **{} baneos**!'
-                text = text.format(mention_name, user.bans + 1)
+                text = '¡**{}** ha baneado a **{}** sumando **{} baneos**!'
+                text = text.format(cmd.author.mention(), mention_name, user.bans + 1)
             await cmd.answer(text)
 
 
