@@ -246,6 +246,30 @@ class EmbedMacroSet(Command):
             await cmd.answer('Macro **{}** actualizado'.format(name))
 
 
+class EmbedMacroUnset(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'iunset'
+        self.help = 'Elimina un embed macro'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if len(cmd.args) < 1:
+            await cmd.answer('Formato: !iset <nombre>')
+            return
+
+        name = cmd.args[0]
+        server_id = 'global' if cmd.is_pm else message.server.id
+        try:
+            EmbedMacro.get(name=name, server=server_id)
+            q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
+            q.execute()
+            await cmd.answer('Macro **{}** eliminado'.format(name))
+        except EmbedMacro.DoesNotExist:
+            await cmd.answer('El macro **{}** no existe'.format(name))
+            pass
+
+
 class Meme(BaseModel):
     name = peewee.TextField(primary_key=True)
     content = peewee.TextField(null=True)
