@@ -1,6 +1,9 @@
 import re
+from datetime import datetime
+from urllib import parse
 
 import peewee
+from discord import Embed, Colour
 
 from modules.base.command import Command, Message
 from modules.base.database import BaseModel
@@ -88,7 +91,7 @@ class MacroList(Command):
 class MacroSuperList(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = '!list'
+        self.name = bot.config['command_prefix'] + 'list'
         self.help = 'Muestra una lista completa de los macros con sus valores'
         self.owner_only = True
         self.rx_mention = re.compile('^<@!?[0-9]+>$')
@@ -134,7 +137,7 @@ class MacroSuperList(Command):
 class MacroUse(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.swhandler = ['! ', '¡']
+        self.swhandler = [bot.config['command_prefix'] + ' ', '¡']
         self.first_use = True
 
     async def handle(self, message, cmd):
@@ -145,6 +148,7 @@ class MacroUse(Command):
                 self.log.info('Inicializando base de datos...')
                 for meme_name, meme_cont in self.bot.config['default_memes'].items():
                     Meme.get_or_create(name=meme_name, content=meme_cont)
+                self.log.info('Base de datos inicializada')
             self.first_use = False
 
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
@@ -154,12 +158,104 @@ class MacroUse(Command):
         meme_query = cmd.args[0] if message.content.startswith('! ') else message.content[1:].split(' ')[0]
 
         try:
+            server_id = 'global' if cmd.is_pm else message.server.id
+            macro = EmbedMacro.get(EmbedMacro.name == meme_query, EmbedMacro.server == server_id)
+            embed = Embed()
+            if macro.image_url != '':
+                embed.set_image(url=macro.image_url)
+            if macro.title != '':
+                embed.title = macro.title
+            if macro.description != '':
+                embed.description = macro.description
+            await cmd.answer(embed=embed)
+            return
+        except EmbedMacro.DoesNotExist:
+            pass
+
+        try:
             meme = Meme.get(Meme.name == meme_query)
             await cmd.answer(meme.content)
+            return
         except Meme.DoesNotExist:
             pass
+
+
+class EmbedMacroSet(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'iset'
+        self.help = 'Define un embed macro'
+        self.owner_only = True
+        self.db_models = [EmbedMacro]
+        self.rx_colour = re.compile('#?[0-9a-fA-F]{6}')
+        self.colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
+                            'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
+                            'lighter_grey', 'dark_grey', 'light_grey', 'darker_grey']
+
+    async def handle(self, message, cmd):
+        if len(cmd.args) < 2:
+            await cmd.answer('Formato: !iset <nombre> [url_imagen]|[título]|[descripción]|[color_embed]')
+            return
+
+        name = cmd.args[0]
+        subargs = ' '.join(cmd.args[1:]).split('|')
+        self.log.info('subargs: ' + str(subargs))
+        image_url = ''
+        title = ''
+        description = ''
+        embed_color = Colour.default()
+
+        if subargs[0].strip() != '':
+            image_url = subargs[0].strip()
+
+        if len(subargs) > 1 and subargs[1].strip() != '':
+            title = subargs[1].strip()
+
+        if len(subargs) > 2 and subargs[2].strip() != '':
+            description = subargs[2].strip()
+
+        if len(subargs) > 3 and subargs[3].strip() != '':
+            embed_color = subargs[3].strip()
+            if re.match(self.rx_colour, embed_color):
+                if embed_color.startswith("#"):
+                    embed_color = embed_color[1:]
+                embed_color = Colour(int(embed_color, 16))
+            else:
+                embed_color = embed_color.lower().replace(' ', '_')
+                if embed_color in self.colour_list:
+                    embed_color = getattr(Colour, embed_color)()
+                else:
+                    await cmd.answer('Color inválido')
+                    return
+
+        if image_url == '' and title == '' and description == '':
+            await cmd.answer('Al menos la imagen, el titulo o la descripción deben ser ingresados')
+            return
+
+        server_id = 'global' if cmd.is_pm else message.server.id
+        macro, created = EmbedMacro.get_or_create(name=name, server=server_id)
+        macro.image_url = image_url
+        macro.title = title
+        macro.description = description
+        macro.embed_color = embed_color.value
+        macro.save()
+
+        if created:
+            await cmd.answer('Macro **{}** creado'.format(name))
+        else:
+            await cmd.answer('Macro **{}** actualizado'.format(name))
 
 
 class Meme(BaseModel):
     name = peewee.TextField(primary_key=True)
     content = peewee.TextField(null=True)
+
+
+class EmbedMacro(BaseModel):
+    name = peewee.TextField()
+    server = peewee.TextField()
+    image_url = peewee.TextField(null=True)
+    title = peewee.TextField(null=True)
+    description = peewee.TextField(null=True)
+    embed_color = peewee.IntegerField(default=Colour.default().value)
+    created = peewee.DateTimeField(default=datetime.now)
