@@ -1,16 +1,7 @@
-import tempfile
 import io
 from os import path
 from PIL import Image
-import urllib.request
 from modules.base.command import Command
-
-
-class AppURLopener(urllib.request.FancyURLopener):
-    version = "AlexisBot/0.6.0"
-
-
-urllib._urlopener = AppURLopener()
 
 
 class AltoEn(Command):
