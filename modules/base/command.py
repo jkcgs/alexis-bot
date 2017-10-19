@@ -15,6 +15,10 @@ class Command:
         self.owner_only = False
         self.owner_error = 'No puedes usar este comando'
 
+        self.user_delay = 0
+        self.users_delay = {}
+        self.user_delay_error = 'Aún no puedes usar este comando'
+
         self.db_models = []
         self.http = bot.http_session
 

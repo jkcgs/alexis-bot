@@ -13,6 +13,9 @@ import discord
 import peewee
 import yaml
 
+from datetime import datetime as dt
+from datetime import timedelta
+
 import modules.commands
 from modules import logger
 from modules.base.command import Command
@@ -137,7 +140,8 @@ class Alexis(discord.Client):
         chan = message.channel
         is_pm = message.server is None
         is_owner = self.is_owner(message.author, message.server)
-        own_message = message.author.id == self.user.id
+        author_id = message.author.id
+        own_message = author_id == self.user.id
 
         # Mandar PMs al log
         if is_pm:
@@ -157,7 +161,13 @@ class Alexis(discord.Client):
                             await self.send_message(chan, i.owner_error)
                         elif not i.allow_pm and is_pm:
                             await self.send_message(chan, i.pm_error)
+                        elif i.user_delay > 0 and author_id in i.users_delay \
+                                and i.users_delay[author_id] + timedelta(0, i.user_delay) > dt.now() \
+                                and not is_owner:
+                            await self.send_message(chan, i.user_delay_error)
                         else:
+                            i.users_delay[author_id] = dt.now()
+                            self.log.debug('dt: %s %s', i.users_delay[author_id], i.users_delay[author_id] + timedelta(0, i.user_delay))
                             await i.handle(message, i.parse(message))
                     return
             except Exception as e:

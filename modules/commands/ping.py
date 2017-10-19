@@ -6,6 +6,7 @@ class Ping(Command):
         super().__init__(bot)
         self.name = 'ping'
         self.help = 'Responde al comando *ping*'
+        self.user_delay = 5
 
     async def handle(self, message, cmd):
         await cmd.answer('Pong!')
