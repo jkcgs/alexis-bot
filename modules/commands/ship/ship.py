@@ -1,4 +1,16 @@
+import tempfile
+import io
+from os import path
+from PIL import Image
+import urllib.request
 from modules.base.command import Command
+
+
+class AppURLopener(urllib.request.FancyURLopener):
+    version = "AlexisBot/0.6.0"
+
+
+urllib._urlopener = AppURLopener()
 
 
 class AltoEn(Command):
@@ -19,5 +31,34 @@ class AltoEn(Command):
             await cmd.answer('Sólo hago parejas con personas distintas, bueno? :3')
             return
 
-        ship_name = user1[0:int(len(user1)/2)] + user2[int(len(user2)/2):]
-        await cmd.answer('Formando la pareja: **{}**'.format(ship_name))
+        # Enviar estado "escribiendo..."
+        await cmd.typing()
+
+        # Descargar avatares
+        avatar1_url = message.mentions[0].avatar_url.replace('.webp', '.png')
+        avatar2_url = message.mentions[1].avatar_url.replace('.webp', '.png')
+        async with self.http.get(avatar1_url) as resp:
+            user1_avatar = await resp.read()
+        async with self.http.get(avatar2_url) as resp:
+            user2_avatar = await resp.read()
+
+        # Abrir avatares y cambiar su tamaño
+        user1_img = Image.open(io.BytesIO(user1_avatar))
+        user2_img = Image.open(io.BytesIO(user2_avatar))
+        user1_img.thumbnail((512, 512), Image.ANTIALIAS)
+        user2_img.thumbnail((512, 512), Image.ANTIALIAS)
+
+        # Abrir el corazón
+        heart_img = Image.open(path.join(path.dirname(path.realpath(__file__)), 'heart.png'))
+
+        # Crear imagen resultante
+        result = Image.new('RGBA', (512, 1536))
+        result.paste(user1_img, (0, 0))
+        result.paste(heart_img, (512, 0))
+        result.paste(user2_img, (1024, 0))
+
+        temp = io.BytesIO()
+        result.save(temp, format='PNG')
+
+        ship_name = user1[0:int(len(user1) / 2)] + user2[int(len(user2) / 2):]
+        await self.bot.send_file(message.channel, temp, filename='ship.png', content='Formando la pareja: **{}**'.format(ship_name))
