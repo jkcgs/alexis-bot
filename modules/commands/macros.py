@@ -157,9 +157,13 @@ class MacroUse(Command):
 
         meme_query = cmd.args[0] if message.content.startswith('! ') else message.content[1:].split(' ')[0]
 
+        # Usar un macro embed si existe
         try:
             server_id = 'global' if cmd.is_pm else message.server.id
             macro = EmbedMacro.get(EmbedMacro.name == meme_query, EmbedMacro.server == server_id)
+            macro.used_count += 1
+            macro.save()
+
             embed = Embed()
             if macro.image_url != '':
                 embed.set_image(url=macro.image_url)
@@ -172,6 +176,7 @@ class MacroUse(Command):
         except EmbedMacro.DoesNotExist:
             pass
 
+        # Si no hay macro embed, usar un macro "legacy"
         try:
             meme = Meme.get(Meme.name == meme_query)
             await cmd.answer(meme.content)
@@ -283,3 +288,4 @@ class EmbedMacro(BaseModel):
     description = peewee.TextField(null=True)
     embed_color = peewee.IntegerField(default=Colour.default().value)
     created = peewee.DateTimeField(default=datetime.now)
+    used_count = peewee.IntegerField(default=0, null=False)
