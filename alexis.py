@@ -167,7 +167,6 @@ class Alexis(discord.Client):
                             await self.send_message(chan, i.user_delay_error)
                         else:
                             i.users_delay[author_id] = dt.now()
-                            self.log.debug('dt: %s %s', i.users_delay[author_id], i.users_delay[author_id] + timedelta(0, i.user_delay))
                             await i.handle(message, i.parse(message))
                     return
             except Exception as e:
