@@ -1,4 +1,4 @@
-import io
+from io import BytesIO
 from os import path
 from PIL import Image
 from modules.base.command import Command
@@ -34,22 +34,23 @@ class AltoEn(Command):
             user2_avatar = await resp.read()
 
         # Abrir avatares y cambiar su tamaño
-        user1_img = Image.open(io.BytesIO(user1_avatar))
-        user2_img = Image.open(io.BytesIO(user2_avatar))
-        user1_img.thumbnail((512, 512), Image.ANTIALIAS)
-        user2_img.thumbnail((512, 512), Image.ANTIALIAS)
+        user1_img = Image.open(BytesIO(user1_avatar)).resize((512, 512), Image.ANTIALIAS)
+        user2_img = Image.open(BytesIO(user2_avatar)).resize((512, 512), Image.ANTIALIAS)
 
         # Abrir el corazón
         heart_img = Image.open(path.join(path.dirname(path.realpath(__file__)), 'heart.png'))
 
         # Crear imagen resultante
-        result = Image.new('RGBA', (512, 1536))
+        result = Image.new('RGBA', (1536, 512))
         result.paste(user1_img, (0, 0))
         result.paste(heart_img, (512, 0))
         result.paste(user2_img, (1024, 0))
 
-        temp = io.BytesIO()
+        # Guardar imagen en un array
+        temp = BytesIO()
         result.save(temp, format='PNG')
+        temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
 
         ship_name = user1[0:int(len(user1) / 2)] + user2[int(len(user2) / 2):]
-        await self.bot.send_file(message.channel, temp, filename='ship.png', content='Formando la pareja: **{}**'.format(ship_name))
+        await self.bot.send_file(message.channel, temp, filename='ship.png',
+                                 content='Formando la pareja: **{}**'.format(ship_name))
