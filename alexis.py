@@ -23,7 +23,7 @@ from modules.reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 __status__ = "Desarrollo"
 
 
@@ -197,6 +197,10 @@ class Alexis(discord.Client):
     """Esta función es llamada cuando un mensaje recibe una reacción"""
     async def on_reaction_add(self, reaction, user):
         await reaction_hook(self, reaction, user)
+
+    async def on_member_join(self, member):
+        for cmd in self.cmds:
+            await cmd.on_member_join(member)
 
     def load_config(self):
         try:

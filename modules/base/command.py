@@ -41,6 +41,9 @@ class Command:
 
         return False
 
+    def on_member_join(self, member):
+        pass
+
     def task(self):
         pass
 
