@@ -22,7 +22,6 @@ class AltoEn(Command):
             await cmd.answer('Sólo hago parejas con personas distintas, bueno? :3')
             return
 
-        # Enviar estado "escribiendo..."
         await cmd.typing()
 
         # Descargar avatares
@@ -51,6 +50,7 @@ class AltoEn(Command):
         result.save(temp, format='PNG')
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
 
+        # Generar nombre del ship y enviar con la imagen
         ship_name = user1[0:int(len(user1) / 2)] + user2[int(len(user2) / 2):]
         await self.bot.send_file(message.channel, temp, filename='ship.png',
                                  content='Formando la pareja: **{}**'.format(ship_name))
