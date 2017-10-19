@@ -15,6 +15,8 @@ class BanCmd(Command):
         self.pm_error = 'banéame esta xd'
         self.db_models = [Ban]
 
+        self.user_delay = 10
+
     async def handle(self, message, cmd):
         if len(cmd.args) > 1 or len(message.mentions) != 1:
             await cmd.answer('Formato: !ban <mención>')
