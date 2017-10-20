@@ -23,7 +23,7 @@ class BanCmd(Command):
             return
 
         mention = message.mentions[0]
-        mention_name = Command.final_name(mention)
+        mention_name = mention.display_name
 
         if not cmd.owner and self.is_owner(mention, message.server):
             await cmd.answer('nopo wn no hagai esa wea xd')
@@ -123,7 +123,7 @@ class SetBans(Command):
         update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
         update.execute()
 
-        name = Command.final_name(mention)
+        name = mention.display_name
         if num_bans == 0:
             mesg = 'Bans de **{}** reiniciados xd'.format(name)
             await cmd.answer(mesg)

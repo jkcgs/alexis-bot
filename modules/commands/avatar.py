@@ -19,7 +19,7 @@ class Avatar(Command):
 
         if user and user.avatar_url != '':
             self.log.debug('enviando avatar: ' + user.avatar_url)
-            title = 'Ávatar de ' + Command.final_name(user)
+            title = 'Ávatar de ' + user.display_name
             await cmd.answer(embed=Command.img_embed(user.avatar_url, title))
         else:
             await cmd.answer('Ávatar no disponible uwu')

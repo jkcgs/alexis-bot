@@ -136,7 +136,7 @@ class Alexis(discord.Client):
 
         # Info sobre el mensaje
         text = message.content
-        author = Command.final_name(message.author)
+        author = message.author.display_name
         chan = message.channel
         is_pm = message.server is None
         is_owner = self.is_owner(message.author, message.server)

@@ -16,7 +16,7 @@ class Pat(Command):
 
         mention = message.mentions[0]
         text = '{}, {} te ha dado una palmadita :3'.format(
-            Command.final_name(mention), cmd.author_name
+            mention.display_name, cmd.author_name
         )
 
         if mention.id == cmd.author.id:

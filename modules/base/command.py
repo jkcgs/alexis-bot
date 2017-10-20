@@ -55,19 +55,13 @@ class Command:
             embed.title = title
         return embed
 
-    @staticmethod
-    def final_name(user):
-        if user is None:
-            return 'None'
-        return user.nick if hasattr(user, 'nick') and user.nick else user.name
-
 
 class Message:
     def __init__(self, message, bot):
         self.bot = bot
         self.message = message
         self.author = message.author
-        self.author_name = Command.final_name(message.author)
+        self.author_name = message.author.display_name
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
         self.owner = False

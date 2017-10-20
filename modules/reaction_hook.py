@@ -49,7 +49,7 @@ async def reaction_hook(bot, reaction, user):
     channel = Object(id=bot.config['starboard_channels'][msg.server.id])
 
     embed = Embed()
-    title = '{} - #{}'.format(Command.final_name(msg.author), msg.channel.name)
+    title = '{} - #{}'.format(msg.author.display_name, msg.channel.name)
     embed.set_author(name=title, icon_url=msg.author.avatar_url)
     embed.description = msg.content
     embed.set_footer(text=str(timestamp))
