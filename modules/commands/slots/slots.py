@@ -1,18 +1,23 @@
+from os import path
+
+import yaml
+
 from modules.base.command import Command
 from discord import Embed
 import random
 
 
 class Slots(Command):
+    def_frutas = [':cookie:', ':apple:', ':tangerine:', ':lemon:', ':cherries:', ':grapes:', ':watermelon:',
+                  ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = ['slot', 'slots']
         self.mention_handler = False
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False
-        self.def_frutas = [':cookie:', ':apple:', ':tangerine:', ':lemon:', ':cherries:', ':grapes:', ':watermelon:',
-                           ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
-        self.frutas = self.def_frutas if 'frutas' not in self.bot.config else self.bot.config['frutas']
+        self.frutas = self.load_config()
         if len(self.frutas) < 3:
             self.frutas = set(list(self.frutas) + self.def_frutas)
 
@@ -37,3 +42,14 @@ class Slots(Command):
         slots.description = desc
         await cmd.answer(embed=slots)
         return
+
+    def load_config(self):
+        try:
+            config_path = path.join(path.dirname(path.realpath(__file__)), 'frutas.yml')
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+
+            return [] if 'frutas' not in config else config['frutas']
+        except Exception as ex:
+            self.log.exception(ex)
+            return []
