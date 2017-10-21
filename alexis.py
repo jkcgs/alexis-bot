@@ -18,12 +18,11 @@ from datetime import timedelta
 
 import modules.commands
 from modules import logger
-from modules.base.command import Command
 from modules.reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.6.2'
+__version__ = '0.6.3'
 __status__ = "Desarrollo"
 
 
