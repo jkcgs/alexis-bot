@@ -55,6 +55,13 @@ class Command:
             embed.title = title
         return embed
 
+    @staticmethod
+    def get_server_role(server, role_name):
+        for role in server.roles:
+            if role.name == role_name:
+                return role
+        return None
+
 
 class Message:
     def __init__(self, message, bot):
