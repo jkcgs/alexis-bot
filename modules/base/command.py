@@ -65,12 +65,16 @@ class Message:
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
         self.owner = False
+        self.server_member = None
 
         allargs = message.content.replace('  ', '').split(' ')
         self.args = [] if len(allargs) == 1 else allargs[1:]
         self.argc = len(self.args)
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
+
+        if not self.is_pm:
+            self.server_member = message.server.get_member(self.bot.id)
 
     async def answer(self, content='', **kwargs):
         await self.bot.send_message(self.message.channel, content, **kwargs)

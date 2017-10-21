@@ -8,7 +8,7 @@ class Emoji(Command):
         super().__init__(bot)
         self.name = 'emoji'
         self.help = 'Envía la imagen en grande de un emoji custom'
-        self.rx_custom_emoji = re.compile('^<:[a-zA-Z\-_]+:[0-9]+>$')
+        self.rx_custom_emoji = re.compile('^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
         self.rx_normal_emoji = re.compile('^:[a-zA-Z\-_]+:$')
 
     async def handle(self, message, cmd):

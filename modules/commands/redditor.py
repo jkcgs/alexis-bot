@@ -114,6 +114,7 @@ class RedditorCmd(Command):
         if not self.bot.is_closed:
             self.bot.loop.create_task(self.task())
 
+
 async def get_posts(bot, sub, since=0):
     url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
     async with bot.http_session.get(url, headers={'User-agent': 'Alexis'}) as r:

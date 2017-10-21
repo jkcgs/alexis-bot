@@ -13,6 +13,7 @@ class Mute(Command):
         self.help = 'Mutea usuarios'
         self.owner_only = True
         self.db_models = [MutedUser]
+        self.run_task = True
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1 or len(message.mentions) != 1:
@@ -22,6 +23,9 @@ class Mute(Command):
         await cmd.answer('Este comando aún no está listo')
 
     async def on_member_join(self, member):
+        pass
+
+    async def task(self):
         pass
 
 

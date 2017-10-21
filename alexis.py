@@ -176,6 +176,7 @@ class Alexis(discord.Client):
         # 'startswith' handlers
         for swtext in self.swhandlers.keys():
             if message.content.startswith(swtext):
+                self.log.debug('[sw] %s sent message: "%s" handler %s', message.author, text, swtext)
                 for cmd in self.swhandlers[swtext]:
                     if cmd.owner_only and not is_owner:
                         await self.send_message(chan, cmd.owner_error)
