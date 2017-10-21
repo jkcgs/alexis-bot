@@ -47,6 +47,10 @@ class Command:
     def task(self):
         pass
 
+    def can_manage_roles(self, server):
+        self_member = server.get_member(self.bot.id)
+        return self_member.server_permissions.manage_roles()
+
     @staticmethod
     def img_embed(url, title=''):
         embed = Embed()

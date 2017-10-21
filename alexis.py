@@ -170,7 +170,7 @@ class Alexis(discord.Client):
                             await i.handle(message, i.parse(message))
                     return
             except Exception as e:
-                await self.send_message(chan, 'Ocurrió un error al ejecutar este comando')
+                await self.send_message(chan, 'ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
                 self.log.exception(e)
 
         # 'startswith' handlers
