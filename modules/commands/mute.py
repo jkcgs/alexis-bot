@@ -102,6 +102,7 @@ class Mute(Command):
             return
 
         try:
+            # TODO: Manejar until correctamente
             muted = MutedUser.get(MutedUser.until > dt.now(), MutedUser.userid == member.id)
             self.bot.add_role(member, role)
             return
@@ -110,6 +111,7 @@ class Mute(Command):
 
     # Elimina los roles de muteado una vez que ha terminado
     async def task(self):
+        # TODO: Manejar until correctamente
         muted = MutedUser.select().where(MutedUser.until <= dt.now())
         for muteduser in muted:
             server = self.bot.get_server(muteduser.serverid)
