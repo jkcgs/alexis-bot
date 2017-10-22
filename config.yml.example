@@ -4,10 +4,6 @@ subreddit: ["chile@198944348379938816", "gonewild@248994135317413888,28234794672
 default_channel: "168469255979925504"
 playing: "/r/chile"
 owners: ["198944348379938816@248581447579860993"]
-default_memes:
-  callate: "http://i.imgur.com/nZ72crJ.jpg"
-  boom: "https://giphy.com/gifs/computer-gZBYbXHtVcYKs"
-  notwork: "https://cdn.discordapp.com/attachments/198944348379938816/347914295100571648/notwork.png"
 cleverbot_key: "API_KEY"
 weatherapi_key: ""
 starboard_channels:

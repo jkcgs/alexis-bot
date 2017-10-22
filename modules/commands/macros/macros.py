@@ -3,7 +3,9 @@ from datetime import datetime
 from urllib import parse
 
 import peewee
+import yaml
 from discord import Embed, Colour
+from os import path
 
 from modules.base.command import Command, Message
 from modules.base.database import BaseModel
@@ -139,14 +141,15 @@ class MacroUse(Command):
         super().__init__(bot)
         self.swhandler = [bot.config['command_prefix'] + ' ', '¡']
         self.first_use = True
+        self.default_macros = self.load_config()
 
     async def handle(self, message, cmd):
         # Inicializar macros por defecto
         if self.first_use:
-            num_memes = len(self.bot.config['default_memes'])
+            num_memes = len(self.default_macros)
             if num_memes > 0:
                 self.log.info('Inicializando base de datos...')
-                for meme_name, meme_cont in self.bot.config['default_memes'].items():
+                for meme_name, meme_cont in self.default_macros.items():
                     Meme.get_or_create(name=meme_name, content=meme_cont)
                 self.log.info('Base de datos inicializada')
             self.first_use = False
@@ -183,6 +186,17 @@ class MacroUse(Command):
             return
         except Meme.DoesNotExist:
             pass
+
+    def load_config(self):
+        try:
+            config_path = path.join(path.dirname(path.realpath(__file__)), 'macros.yml')
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+
+            return {} if 'default_macros' not in config else config['default_macros']
+        except Exception as ex:
+            self.log.exception(ex)
+            return {}
 
 
 class EmbedMacroSet(Command):
