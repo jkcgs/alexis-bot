@@ -200,16 +200,17 @@ class MacroUse(Command):
 
 
 class EmbedMacroSet(Command):
+    rx_colour = re.compile('^#?[0-9a-fA-F]{6}$')
+    colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
+                   'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
+                   'lighter_grey', 'dark_grey', 'light_grey', 'darker_grey']
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'iset'
         self.help = 'Define un embed macro'
         self.owner_only = True
         self.db_models = [EmbedMacro]
-        self.rx_colour = re.compile('#?[0-9a-fA-F]{6}')
-        self.colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
-                            'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
-                            'lighter_grey', 'dark_grey', 'light_grey', 'darker_grey']
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 2:
@@ -235,13 +236,13 @@ class EmbedMacroSet(Command):
 
         if len(subargs) > 3 and subargs[3].strip() != '':
             embed_color = subargs[3].strip()
-            if re.match(self.rx_colour, embed_color):
+            if re.match(EmbedMacroSet.rx_colour, embed_color):
                 if embed_color.startswith("#"):
                     embed_color = embed_color[1:]
                 embed_color = Colour(int(embed_color, 16))
             else:
                 embed_color = embed_color.lower().replace(' ', '_')
-                if embed_color in self.colour_list:
+                if embed_color in EmbedMacroSet.colour_list:
                     embed_color = getattr(Colour, embed_color)()
                 else:
                     await cmd.answer('Color inválido')

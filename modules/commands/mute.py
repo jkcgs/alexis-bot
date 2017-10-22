@@ -164,7 +164,7 @@ class Mute(Command):
 
         for t in times:
             mult = 's' if t[-1] not in 'smhd' else t[-1]
-            ds[mult] += int(t[:-1])
+            ds[mult] += int(0 if t[:-1] == '' else t[:-1])
 
         return datetime.timedelta(seconds=ds['s'], minutes=ds['m'], hours=ds['h'], days=ds['d'])
 
