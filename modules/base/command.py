@@ -48,8 +48,8 @@ class Command:
         pass
 
     def can_manage_roles(self, server):
-        self_member = server.get_member(self.bot.id)
-        return self_member.server_permissions.manage_roles()
+        self_member = server.get_member(self.bot.user.id)
+        return self_member.server_permissions.manage_roles
 
     @staticmethod
     def img_embed(url, title=''):
@@ -79,13 +79,13 @@ class Message:
         self.server_member = None
 
         allargs = message.content.replace('  ', '').split(' ')
-        self.args = [] if len(allargs) == 1 else allargs[1:]
+        self.args = [] if len(allargs) == 1 else [f for f in allargs[1:] if f.strip() != '']
         self.argc = len(self.args)
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
 
         if not self.is_pm:
-            self.server_member = message.server.get_member(self.bot.id)
+            self.server_member = message.server.get_member(self.bot.user.id)
 
     async def answer(self, content='', **kwargs):
         await self.bot.send_message(self.message.channel, content, **kwargs)
