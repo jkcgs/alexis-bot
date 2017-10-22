@@ -37,8 +37,7 @@ class CleverbotHandler(Command):
 
         msg = self.bot.rx_mention.sub('', message.content).strip()
         if msg == '':
-            frase = random.choice(self.bot.config['frases'])
-            reply = '{}\n\n*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'.format(frase)
+            reply = '*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'
         else:
             await cmd.typing()
             try:

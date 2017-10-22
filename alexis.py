@@ -212,8 +212,6 @@ class Alexis(discord.Client):
                 config['owners'] = []
             if 'default_memes' not in config:
                 config['default_memes'] = []
-            if 'frases' not in config:
-                config['frases'] = []
             if 'starboard_reactions' not in config or not isinstance(config['starboard_reactions'], int):
                 config['starboard_reactions'] = 5
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
