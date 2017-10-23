@@ -22,7 +22,7 @@ from modules.reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.6.3'
+__version__ = '0.7.0-dev'
 __status__ = "Desarrollo"
 
 
@@ -37,8 +37,11 @@ class Alexis(discord.Client):
         self.config = {}
         self.sharedcfg = {}
         self.cmds = {}
+        self.cmd_instances = []
         self.swhandlers = {}
         self.mention_handlers = []
+        self.config_handlers = {}
+        self.config_defaults = {}
 
         self.db = peewee.SqliteDatabase('database.db')
         self.db.connect()
@@ -62,14 +65,13 @@ class Alexis(discord.Client):
 
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
-        cmd_instances = []
         db_models = []
 
         for cmd in modules.commands.classes:
-            cmd_instances.append(cmd(self))
+            self.cmd_instances.append(cmd(self))
 
         # Guardar instancias de módulos de comandos
-        for i in cmd_instances:
+        for i in self.cmd_instances:
             db_models += i.db_models
 
             # Comandos
@@ -105,6 +107,11 @@ class Alexis(discord.Client):
             if i.run_task:
                 self.loop.create_task(i.task())
 
+            for conf_name, default_val in i.configurations.items():
+                if conf_name not in self.config_handlers:
+                    self.config_handlers[conf_name] = i.config_handler
+                    self.config_defaults[conf_name] = default_val
+
         self.log.info('Inicializando base de datos...')
         self.db.create_tables(db_models, True)
 
@@ -119,9 +126,7 @@ class Alexis(discord.Client):
 
     """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
-        self.log.info('Conectado como:')
-        self.log.info(self.user.name)
-        self.log.info(self.user.id)
+        self.log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
         self.log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
@@ -199,7 +204,7 @@ class Alexis(discord.Client):
         await reaction_hook(self, reaction, user)
 
     async def on_member_join(self, member):
-        for cmd in self.cmds:
+        for cmd in self.cmd_instances:
             await cmd.on_member_join(member)
 
     def load_config(self):

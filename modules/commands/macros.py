@@ -80,7 +80,7 @@ class MacroList(Command):
                 name = item.name.replace('!', '')
                 member_id = name[2:-1]
                 member = cmd.member_by_id(member_id)
-                name = '*\\@{}*'.format(member.display_name)
+                name = '*\\@{}*'.format('<@{}>'.format(member_id) if member is None else member.display_name)
             else:
                 name = item.name
             namelist.append(name)

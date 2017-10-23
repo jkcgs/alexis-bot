@@ -1,5 +1,7 @@
 from discord import Embed
 
+from modules.base.database import ServerConfig
+
 
 class Command:
     def __init__(self, bot):
@@ -8,6 +10,7 @@ class Command:
         self.name = ''
         self.swhandler = None
         self.mention_handler = False
+        self.configurations = {}
         self.run_task = False
         self.help = ''
         self.allow_pm = True
@@ -41,15 +44,46 @@ class Command:
 
         return False
 
-    def on_member_join(self, member):
+    async def on_member_join(self, member):
         pass
 
     def task(self):
         pass
 
+    async def config_handler(self, config, value, cmd):
+        pass
+
     def can_manage_roles(self, server):
         self_member = server.get_member(self.bot.user.id)
         return self_member.server_permissions.manage_roles
+
+    def get_config(self, name, server):
+        if server is None:
+            raise ConfigError('No se puede obtener configuración sin servidor')
+
+        if name not in self.bot.config_handlers:
+            raise ConfigError('Esa configuración no existe')
+
+        try:
+            conf, created = ServerConfig.get_or_create(name=name, serverid=server.id)
+            if created:
+                conf.value = self.bot.config_defaults[name]
+                conf.save()
+
+            return conf.value
+        except ServerConfig.DoesNotExist:
+            raise ConfigError('Esa configuración no existe')
+
+    def set_config(self, name, value, server):
+        if server is None:
+            raise ConfigError('No se puede obtener configuración sin servidor')
+
+        if name not in self.bot.config_handlers:
+            raise ConfigError('Esa configuración no existe')
+
+        conf, created = ServerConfig.get_or_create(name=name, serverid=server.id)
+        conf.value = value
+        conf.save()
 
     @staticmethod
     def img_embed(url, title=''):
@@ -102,3 +136,7 @@ class Message:
                 return member
 
         return None
+
+
+class ConfigError(BaseException):
+    pass

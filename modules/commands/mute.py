@@ -107,7 +107,7 @@ class Mute(Command):
     # Restaurar el rol de muteado una vez que el usuario ha reingresado
     async def on_member_join(self, member):
         server = member.server
-        if not self.can_manage_roles(member):
+        if not self.can_manage_roles(server):
             self.log.warning(Mute.cant_manage_msg)
             return
 
