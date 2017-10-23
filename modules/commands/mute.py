@@ -64,6 +64,11 @@ class Mute(Command):
             deltatime = Mute.timediff_parse(mute_args[0])
             until = dt.now() + deltatime
 
+        str_deltatime = Mute.deltatime_to_str(deltatime)
+        if str_deltatime == '':
+            await cmd.answer('Si quieres desmutear a alguien, utiliza !unmute <user>')
+            return
+
         # Quitar mute de la db si ya está muteado
         MutedUser.delete().where(MutedUser.userid == member.id).execute()
 
@@ -80,7 +85,7 @@ class Mute(Command):
             # if mutedrole is still None
             if mutedrole is None:
                 self.log.warning('El rol "%s" no existe (server: %s)', Mute.muted_role, server)
-                cmd.answer('El rol "{}" no existe!'.format(Mute.muted_role))
+                await cmd.answer('El rol "{}" no existe!'.format(Mute.muted_role))
                 return
 
             await self.bot.add_roles(member, mutedrole)
@@ -92,7 +97,7 @@ class Mute(Command):
         MutedUser.insert(userid=member.id, serverid=server.id, until=until, reason=reason,
                          author_name=str(cmd.author), author_id=cmd.author.id).execute()
 
-        str_deltatime = ' por **{}**'.format(Mute.deltatime_to_str(deltatime)) if deltatime is not None else ''
+        str_deltatime = ' por **{}**'.format(str_deltatime) if deltatime is not None else ''
 
         # Enviar PM con el aviso del mute
         try:
