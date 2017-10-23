@@ -32,17 +32,24 @@ class UserCmd(Command):
         if channel == '':
             return
 
-        self.log.debug('user info channel id: %s', channel)
         channel = discord.Object(id=channel)
-        await self.bot.send_message(channel, embed=UserCmd.gen_embed(member))
+        await self.bot.send_message(channel, 'Nuevo usuario! ID: **{}**'.format(member.id),
+                                    embed=UserCmd.gen_embed(member))
 
     async def config_handler(self, name, value, cmd):
         if name == UserCmd.chan_config_name:
-            if not UserCmd.rx_channel.match(value):
-                raise ConfigError('Por favor ingresa un canal como valor')
+            if value != 'off' and not UserCmd.rx_channel.match(value):
+                raise ConfigError('Por favor ingresa un canal u "off" como valor')
+
+            if value == 'off':
+                value = ''
 
             self.set_config(UserCmd.chan_config_name, value[2:-1], cmd.message.server)
-            await cmd.answer('Canal actualizado')
+
+            if value == '':
+                await cmd.answer('Información de usuarios desactivada')
+            else:
+                await cmd.answer('Canal de información de usuarios actualizado')
 
     @staticmethod
     def gen_embed(member):
