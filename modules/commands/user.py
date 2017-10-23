@@ -18,10 +18,13 @@ class UserCmd(Command):
         self.configurations = {UserCmd.chan_config_name: ''}
 
     async def handle(self, message, cmd):
-        if len(cmd.args) > 1 and len(message.mentions) == 1:
+        if len(cmd.args) == 1 and len(message.mentions) == 1:
             user = message.mentions[0]
-        else:
+        elif len(cmd.args) == 0:
             user = cmd.author
+        else:
+            cmd.answer('Formato: !user [@usuario]')
+            return
 
         embed = UserCmd.gen_embed(user)
         await cmd.answer('Acerca de **{}**'.format(user.id), embed=embed)
