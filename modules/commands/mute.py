@@ -28,11 +28,12 @@ class Mute(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1 or len(message.mentions) != 1:
-            await cmd.answer('Formato: !mute <@mención> [duración]|[razón]')
+            await cmd.answer('Formato: !mute <@mención> [duración] [razón]')
             return
 
         member = message.mentions[0]
         server = message.server
+        await cmd.typing()
 
         if member.id == self.bot.user.id:
             await cmd.answer('como me vas a mutear a mi! owo')
@@ -48,24 +49,19 @@ class Mute(Command):
             await cmd.answer(Mute.cant_manage_msg)
             return
 
-        # Obtener argumentos del mute
-        mute_args = []
-        if len(cmd.args) > 1:
-            mute_args = ' '.join(cmd.args[1:]).split('|')
-
         # Obtener tiempo del mute
         until = None
         deltatime = None
-        if len(mute_args) > 0:
-            if Mute.rx_timediff_all.match(mute_args[0]) is None:
-                cmd.answer('Tiempo de mute no válido')
+        if len(cmd.args) > 1:
+            if Mute.rx_timediff_all.match(cmd.args[1]) is None:
+                await cmd.answer('Tiempo de mute no válido')
                 return
 
-            deltatime = Mute.timediff_parse(mute_args[0])
+            deltatime = Mute.timediff_parse(cmd.args[1])
             until = dt.now() + deltatime
 
-        str_deltatime = Mute.deltatime_to_str(deltatime)
-        if str_deltatime == '':
+        str_deltatime = '' if deltatime is None else ' por ' + Mute.deltatime_to_str(deltatime)
+        if deltatime is not None and str_deltatime == '':
             await cmd.answer('Si quieres desmutear a alguien, utiliza !unmute <user>')
             return
 
@@ -90,24 +86,20 @@ class Mute(Command):
 
             await self.bot.add_roles(member, mutedrole)
 
-        reason = ''
-        if len(mute_args) > 1:
-            reason = ' '.join(cmd.args[2:])
-
+        reason = ' '.join(cmd.args[2:]).strip()
+        str_reason = ' debido a: **{}**'.format(reason) if reason != '' else ''
         MutedUser.insert(userid=member.id, serverid=server.id, until=until, reason=reason,
                          author_name=str(cmd.author), author_id=cmd.author.id).execute()
 
-        str_deltatime = ' por **{}**'.format(str_deltatime) if deltatime is not None else ''
-
         # Enviar PM con el aviso del mute
         try:
-            await self.bot.send_message(member, 'Hola! Lamentablemente has sido muteado en el servidor **{}**{}.'
-                                        .format(server.name, str_deltatime))
+            await self.bot.send_message(member, 'Hola! Lamentablemente has sido muteado en el servidor **{}**{}{}.'
+                                        .format(server.name, str_deltatime, str_reason))
         except discord.errors.Forbidden as e:
             self.log.exception(e)
 
         # Avisar por el canal donde se envió el comando
-        await cmd.answer('Usuario **{}** muteado{}!'.format(member.display_name, str_deltatime))
+        await cmd.answer('**{}** ha sido mutead@{}{}!'.format(member.display_name, str_deltatime, str_reason))
 
     # Restaurar el rol de muteado una vez que el usuario ha reingresado
     async def on_member_join(self, member):
