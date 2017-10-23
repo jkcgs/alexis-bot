@@ -42,7 +42,7 @@ class Pat(Command):
 
             res_config = {
                 'pats': [] if 'pats' not in config else config['pats'],
-                'self_pats': [] if 'frutas' not in config else config['self_pats'],
+                'self_pats': [] if 'self_pats' not in config else config['self_pats'],
                 'bot_pat': 'http://i.imgur.com/tVzapCY.gif' if 'bot_pat' not in config else config['bot_pat']
             }
             return res_config
