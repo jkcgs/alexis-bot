@@ -116,7 +116,7 @@ class Mute(Command):
         try:
             muted = MutedUser.get((MutedUser.until > dt.now()) | MutedUser.until.is_null(),
                                   MutedUser.userid == member.id)
-            self.bot.add_role(member, role)
+            self.bot.add_roles(member, role)
             self.log.info('Rol de muteado agregado a %s server %s', member.display_name, server)
             return
         except MutedUser.DoesNotExist:
