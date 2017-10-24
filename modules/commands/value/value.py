@@ -8,7 +8,7 @@ import re
 
 class Value(Command):
     rx_div = re.compile('^([A-Z]{3}|UF)$')
-    rx_num = re.compile('^\d+(\.|,\d+)?$')
+    rx_num = re.compile('^\d+([.,]\d+)?$')
     baseurl = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.xchange' \
               '%20where%20pair%20in%20(%22{}{}%22)&format=json' \
               '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='
@@ -78,7 +78,6 @@ class Value(Command):
                 div2 = cmd.args[2].upper()
 
         if not Value.rx_div.match(div1) or not self.rx_div.match(div2):
-            self.log.debug('divisas incorrectas: %s, %s', div1, div2)
             await cmd.answer('Formato de divisas incorrecto')
             return
 
