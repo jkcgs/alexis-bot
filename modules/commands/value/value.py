@@ -90,15 +90,24 @@ class Value(Command):
         await cmd.typing()
 
         try:
+            if div1 == div2:
+                await cmd.answer('Técnicamente, no hay conversión entre dos divisas iguales, '
+                                 'así que no me vengai na con weas')
+                return
+
             if div1 in ['UF', 'UTM']:
                 if self.config is None or self.config['sbif_apikey'] == '':
                     cmd.answer('La información de {} no está disponible'.format(div1))
                 else:
                     value = await self.sbif(div1.lower())
-                    if cant == 1:
-                        await cmd.answer('La {} está a **$ {}**'.format(div1, value))
+                    if div2 == 'CLP':
+                        if cant == 1:
+                            await cmd.answer('La {} está a **$ {}**'.format(div1, value))
+                        else:
+                            await cmd.answer('{} {} son **$ {}**'.format(cant, div1, value*cant))
                     else:
-                        await cmd.answer('{} {} son **$ {}**'.format(cant, div1, value*cant))
+                        value_conv = await self.convert('CLP', div2)
+                        await cmd.answer('{} {} son **{} {}**'.format(cant, div1, cant*value*value_conv, div2))
             else:
                 value = await self.convert(div1, div2)
                 await cmd.answer('**{} {}** son **{} {}**'.format(cant, div1, cant * value, div2))
