@@ -1,7 +1,3 @@
-import json
-import urllib.request
-from discord import Embed
-
 from modules.base.command import Command
 
 
