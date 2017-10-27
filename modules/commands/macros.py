@@ -192,18 +192,24 @@ class EmbedMacroSet(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 2:
-            await cmd.answer('Formato: !iset <nombre> [url_imagen]|[título]|[descripción]|[color_embed]')
+            await cmd.answer('Formato: !iset <nombre> [url_imagen]|[título]|[descripción]|[color_embed]\n'
+                             'El primer parámetro es ignorado si se envía una imagen adjunta al comando.')
             return
 
         name = cmd.args[0]
         subargs = ' '.join(cmd.args[1:]).split('|')
-        self.log.info('subargs: ' + str(subargs))
         image_url = ''
         title = ''
         description = ''
         embed_color = Colour.default()
 
-        if subargs[0].strip() != '':
+        if len(message.attachments) > 0:
+            for atata in message.attachments:
+                if atata['url'].lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                    image_url = atata['url']
+                    break
+
+        if image_url != '' and subargs[0].strip() != '':
             image_url = subargs[0].strip()
 
         if len(subargs) > 1 and subargs[1].strip() != '':
