@@ -171,7 +171,7 @@ class Mute(Command):
     def deltatime_to_str(deltatime):
         result = []
         if deltatime.days > 0:
-            result.append(deltatime.days + ' día{}'.format('' if deltatime.days == 1 else 's'))
+            result.append(str(deltatime.days) + ' día{}'.format('' if deltatime.days == 1 else 's'))
         m, s = divmod(deltatime.seconds, 60)
         h, m = divmod(m, 60)
 
