@@ -7,7 +7,6 @@ class LetMeGoogleThatForYou(Command):
         super().__init__(bot)
         self.name = ['lmgtfy', 'google']
         self.help = 'Te ayuda a buscar algo en google'
-        self.owner_only = True
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
