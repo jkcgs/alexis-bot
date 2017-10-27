@@ -14,6 +14,6 @@ class LetMeGoogleThatForYou(Command):
             return
 
         texto = ' '.join(cmd.args)
-        url = 'https://lmgtfy.com/?' + urlencode({'iie': texto})
+        url = 'https://lmgtfy.com/?' + urlencode({'iie': '1', 'q': texto})
 
         await cmd.answer(url)
