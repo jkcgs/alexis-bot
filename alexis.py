@@ -90,7 +90,7 @@ class Alexis(discord.Client):
             if isinstance(i.swhandler, str) or isinstance(i.swhandler, list):
                 swh = [i.swhandler] if isinstance(i.swhandler, str) else i.swhandler
                 for swtext in swh:
-                    swtext = swtext.strip()
+                    swtext = swtext
                     if swtext == '':
                         continue
 

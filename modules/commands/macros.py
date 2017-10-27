@@ -139,7 +139,7 @@ class MacroSuperList(Command):
 class MacroUse(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.swhandler = [bot.config['command_prefix'] + ' ', '¡']
+        self.swhandler = [bot.config['command_prefix'] + ' ', bot.config['command_prefix'], '¡']
         self.first_use = True
 
     async def handle(self, message, cmd):
