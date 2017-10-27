@@ -1,13 +1,10 @@
 import re
 from datetime import datetime
-from urllib import parse
 
 import peewee
-import yaml
 from discord import Embed, Colour
-from os import path
 
-from modules.base.command import Command, Message
+from modules.base.command import Command
 from modules.base.database import BaseModel
 
 
