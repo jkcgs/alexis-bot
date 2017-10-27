@@ -77,7 +77,10 @@ class RedditorCmd(Command):
                     embed.url = 'https://www.reddit.com' + data['permalink']
 
                     if data['is_self']:
-                        embed.description = data['selftext']
+                        if len(data['selftext']) > 2048:
+                            embed.description = data['selftext'][:2044] + '...'
+                        else:
+                            embed.description = data['selftext']
                     elif data['media']:
                         if 'preview' in data:
                             embed.set_image(url=html.unescape(data['preview']['images'][0]['source']['url']))
