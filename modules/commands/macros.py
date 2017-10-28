@@ -69,9 +69,12 @@ class MacroList(Command):
         self.name = 'list'
         self.help = 'Muestra una lista de los nombres de los macros guardados'
         self.rx_mention = re.compile('^<@!?[0-9]+>$')
+        self.allow_pm = False
 
     async def handle(self, message, cmd):
+        await cmd.typing()
         namelist = []
+
         for item in Meme.select().iterator():
             if re.match(self.rx_mention, item.name):
                 name = item.name.replace('!', '')
@@ -94,9 +97,17 @@ class MacroList(Command):
             if name not in namelist:
                 namelist.append(name)
 
-        word = 'macros' if len(namelist) == 1 else 'macros'
-        resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
-        await cmd.answer(resp)
+        namelist.sort()
+        resp = 'Hay {} macro{}:'.format(len(namelist), '' if len(namelist) == 1 else 's')
+        for i, name in enumerate(namelist):
+            if len(resp + ', ' + name) > 2000:
+                await cmd.answer(resp)
+                resp = name
+            else:
+                resp += (' ' if i == 0 else ', ') + name
+
+        if resp != '':
+            await cmd.answer(resp.strip())
 
 
 class MacroSuperList(Command):
@@ -177,7 +188,6 @@ class MacroUse(Command):
             await cmd.answer(embed=embed)
             return
         except EmbedMacro.DoesNotExist:
-            self.log.debug('macro no existe: %s', macro_name)
             pass
 
         # Si no hay macro embed, usar un macro "legacy"
