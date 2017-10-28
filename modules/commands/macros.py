@@ -137,6 +137,7 @@ class MacroUse(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.swhandler = [bot.config['command_prefix'] + ' ', bot.config['command_prefix'], '¡']
+        self.swhandler_break = True
         self.first_use = True
 
     async def handle(self, message, cmd):
@@ -144,12 +145,13 @@ class MacroUse(Command):
         if self.bot.last_author is None or not cmd.own:
             self.bot.last_author = message.author.id
 
-        meme_query = cmd.args[0] if message.content.startswith('! ') else message.content[1:].split(' ')[0]
+        pfx = self.bot.config['command_prefix']
+        macro_name = cmd.args[0] if message.content.startswith(pfx + ' ') else message.content[1:].split(' ')[0]
 
         # Usar un macro embed si existe
         try:
             server_id = 'global' if cmd.is_pm else message.server.id
-            macro = EmbedMacro.get(EmbedMacro.name == meme_query, EmbedMacro.server == server_id)
+            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server == server_id)
             macro.used_count += 1
             macro.save()
 
@@ -163,11 +165,12 @@ class MacroUse(Command):
             await cmd.answer(embed=embed)
             return
         except EmbedMacro.DoesNotExist:
+            self.log.debug('macro no existe: %s', macro_name)
             pass
 
         # Si no hay macro embed, usar un macro "legacy"
         try:
-            meme = Meme.get(Meme.name == meme_query)
+            meme = Meme.get(Meme.name == macro_name)
             await cmd.answer(meme.content)
             return
         except Meme.DoesNotExist:

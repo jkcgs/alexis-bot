@@ -178,7 +178,11 @@ class Alexis(discord.Client):
                 self.log.exception(e)
 
         # 'startswith' handlers
+        swbreak = False
         for swtext in self.swhandlers.keys():
+            if swbreak:
+                break
+
             if message.content.startswith(swtext):
                 self.log.debug('[sw] %s sent message: "%s" handler "%s"', message.author, text, swtext)
                 for cmd in self.swhandlers[swtext]:
@@ -188,6 +192,10 @@ class Alexis(discord.Client):
                         await self.send_message(chan, cmd.pm_error)
                     else:
                         await cmd.handle(message, cmd.parse(message))
+
+                    if cmd.swhandler_break:
+                        swbreak = True
+                        break
 
         # Mention handlers
         if self.user.mentioned_in(message):

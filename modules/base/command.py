@@ -9,6 +9,7 @@ class Command:
         self.log = self.bot.log
         self.name = ''
         self.swhandler = None
+        self.swhandler_break = False
         self.mention_handler = False
         self.configurations = {}
         self.run_task = False
