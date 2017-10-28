@@ -244,18 +244,10 @@ class EmbedMacroSet(Command):
             description = subargs[2].strip()
 
         if len(subargs) > 3 and subargs[3].strip() != '':
-            embed_colour = subargs[3].strip()
-            if re.match(EmbedMacroSet.rx_colour, embed_colour):
-                if embed_colour.startswith("#"):
-                    embed_colour = embed_colour[1:]
-                embed_colour = Colour(int(embed_colour, 16))
-            else:
-                embed_colour = embed_colour.lower().replace(' ', '_')
-                if embed_colour in EmbedMacroSet.colour_list:
-                    embed_colour = getattr(Colour, embed_colour)()
-                else:
-                    await cmd.answer('Color inválido')
-                    return
+            embed_colour = EmbedMacroSet.get_colour(subargs[3].strip())
+            if embed_colour is None:
+                await cmd.answer('Color inválido')
+                return
 
             self.log.debug('colour: %s %s', embed_colour, embed_colour.value)
         else:
@@ -278,6 +270,19 @@ class EmbedMacroSet(Command):
         else:
             await cmd.answer('Macro **{}** actualizado'.format(name))
 
+    @staticmethod
+    def get_colour(value):
+        if re.match(EmbedMacroSet.rx_colour, value):
+            if value.startswith("#"):
+                value = value[1:]
+            return Colour(int(value, 16))
+        else:
+            embed_colour = value.lower().replace(' ', '_')
+            if embed_colour in EmbedMacroSet.colour_list:
+                return getattr(Colour, embed_colour)()
+            else:
+                return None
+
 
 class EmbedMacroUnset(Command):
     def __init__(self, bot):
@@ -288,7 +293,7 @@ class EmbedMacroUnset(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !iset <nombre>')
+            await cmd.answer('Formato: !iunset <nombre>')
             return
 
         name = cmd.args[0].replace('\\', '')
@@ -298,6 +303,37 @@ class EmbedMacroUnset(Command):
             q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
             q.execute()
             await cmd.answer('Macro **{}** eliminado'.format(name))
+        except EmbedMacro.DoesNotExist:
+            await cmd.answer('El macro **{}** no existe'.format(name))
+            pass
+
+
+class EmbedMacroSetColour(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = ['isetcolour', 'isetcolor']
+        self.help = 'Actualiza el color de un macro embed'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if len(cmd.args) < 1:
+            await cmd.answer('Formato: !isetcolour <nombre> <color=default>')
+            return
+
+        colour = Colour.default()
+        if len(cmd.args) > 1:
+            colour = EmbedMacroSet.get_colour(' '.join(cmd.args[1:]))
+            if colour is None:
+                await cmd.answer('Color inválido')
+                return
+
+        name = cmd.args[0].replace('\\', '')
+        server_id = 'global' if cmd.is_pm else message.server.id
+        try:
+            macro = EmbedMacro.get(name=name, server=server_id)
+            macro.embed_color = colour.value
+            macro.save()
+            await cmd.answer('Color de macro **{}** actualizado'.format(name))
         except EmbedMacro.DoesNotExist:
             await cmd.answer('El macro **{}** no existe'.format(name))
             pass
