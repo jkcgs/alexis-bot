@@ -82,6 +82,18 @@ class MacroList(Command):
                 name = item.name
             namelist.append(name)
 
+        for item in EmbedMacro.select().iterator():
+            if re.match(self.rx_mention, item.name):
+                name = item.name.replace('!', '')
+                member_id = name[2:-1]
+                member = cmd.member_by_id(member_id)
+                name = '*\\@{}*'.format('<@{}>'.format(member_id) if member is None else member.display_name)
+            else:
+                name = item.name
+
+            if name not in namelist:
+                namelist.append(name)
+
         word = 'macros' if len(namelist) == 1 else 'macros'
         resp = 'Hay {} {}: {}'.format(len(namelist), word, ', '.join(namelist))
         await cmd.answer(resp)
