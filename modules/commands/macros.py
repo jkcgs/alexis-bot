@@ -50,16 +50,16 @@ class MacroUnset(Command):
             await cmd.answer('Formato: !unset <nombre>')
             return
 
-        meme_name = cmd.args[0]
+        name = cmd.args[0].replace('\\', '')
 
         try:
-            meme = Meme.get(name=meme_name)
-            meme.delete_instance()
-            msg = 'Macro **{name}** eliminado'.format(name=meme_name)
+            macro = Meme.get(name=name)
+            macro.delete_instance()
+            msg = 'Macro **{name}** eliminado'.format(name=name)
             await cmd.answer(msg)
-            self.bot.log.info('Macro %s eliminado', meme_name)
+            self.bot.log.info('Macro %s eliminado', name)
         except Meme.DoesNotExist:
-            msg = 'El macro **{name}** no existe'.format(name=meme_name)
+            msg = 'El macro **{name}** no existe'.format(name=name)
             await cmd.answer(msg)
 
 
@@ -285,7 +285,7 @@ class EmbedMacroUnset(Command):
             await cmd.answer('Formato: !iset <nombre>')
             return
 
-        name = cmd.args[0]
+        name = cmd.args[0].replace('\\', '')
         server_id = 'global' if cmd.is_pm else message.server.id
         try:
             EmbedMacro.get(name=name, server=server_id)
