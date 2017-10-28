@@ -185,6 +185,8 @@ class MacroUse(Command):
                 embed.title = macro.title
             if macro.description != '':
                 embed.description = macro.description
+
+            embed.colour = macro.embed_color
             await cmd.answer(embed=embed)
             return
         except EmbedMacro.DoesNotExist:
@@ -224,7 +226,7 @@ class EmbedMacroSet(Command):
         image_url = ''
         title = ''
         description = ''
-        embed_color = Colour.default()
+        embed_colour = Colour.default()
 
         if len(message.attachments) > 0:
             for atata in message.attachments:
@@ -242,18 +244,22 @@ class EmbedMacroSet(Command):
             description = subargs[2].strip()
 
         if len(subargs) > 3 and subargs[3].strip() != '':
-            embed_color = subargs[3].strip()
-            if re.match(EmbedMacroSet.rx_colour, embed_color):
-                if embed_color.startswith("#"):
-                    embed_color = embed_color[1:]
-                embed_color = Colour(int(embed_color, 16))
+            embed_colour = subargs[3].strip()
+            if re.match(EmbedMacroSet.rx_colour, embed_colour):
+                if embed_colour.startswith("#"):
+                    embed_colour = embed_colour[1:]
+                embed_colour = Colour(int(embed_colour, 16))
             else:
-                embed_color = embed_color.lower().replace(' ', '_')
-                if embed_color in EmbedMacroSet.colour_list:
-                    embed_color = getattr(Colour, embed_color)()
+                embed_colour = embed_colour.lower().replace(' ', '_')
+                if embed_colour in EmbedMacroSet.colour_list:
+                    embed_colour = getattr(Colour, embed_colour)()
                 else:
                     await cmd.answer('Color inválido')
                     return
+
+            self.log.debug('colour: %s %s', embed_colour, embed_colour.value)
+        else:
+            self.log.debug('no subargs>3, %s %s', len(subargs), str(subargs))
 
         if image_url == '' and title == '' and description == '':
             await cmd.answer('Al menos la imagen, el titulo o la descripción deben ser ingresados')
@@ -264,7 +270,7 @@ class EmbedMacroSet(Command):
         macro.image_url = image_url
         macro.title = title
         macro.description = description
-        macro.embed_color = embed_color.value
+        macro.embed_color = embed_colour.value
         macro.save()
 
         if created:
