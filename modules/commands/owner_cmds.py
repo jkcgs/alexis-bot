@@ -78,6 +78,8 @@ class ClearReactions(Command):
             await cmd.answer('Formato: {}{} [#canal=actual] <id_mensaje1> ... <id_mensajeN>'.format(prefix, cmd.cmdname))
             return
 
+        await cmd.typing()
+
         channel = message.channel
         if ClearReactions.rx_channel.match(cmd.args[0]):
             channel = message.channel_mentions[0]
