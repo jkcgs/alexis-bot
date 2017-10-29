@@ -80,7 +80,7 @@ class ClearReactions(Command):
 
         channel = message.channel
         if ClearReactions.rx_channel.match(cmd.args[0]):
-            channel = message.cha374061207000449024nnel_mentions[0]
+            channel = message.channel_mentions[0]
             cmd.args = cmd.args[1:]
             cmd.argc -= 1
 
