@@ -124,28 +124,31 @@ class Mute(Command):
 
     # Elimina los roles de muteado una vez que ha terminado
     async def task(self):
-        muted = MutedUser.select().where((MutedUser.until <= dt.now()) & MutedUser.until.is_null(False))
-        for muteduser in muted:
-            server = self.bot.get_server(muteduser.serverid)
-            if server is None:
-                continue
+        try:
+            muted = MutedUser.select().where((MutedUser.until <= dt.now()) & MutedUser.until.is_null(False))
+            for muteduser in muted:
+                server = self.bot.get_server(muteduser.serverid)
+                if server is None:
+                    continue
 
-            self_member = server.get_member(self.bot.user.id)
-            if not self_member.server_permissions.manage_roles:
-                self.log.warning(Mute.cant_manage_msg + ' (server: %s)', server)
-                continue
+                self_member = server.get_member(self.bot.user.id)
+                if not self_member.server_permissions.manage_roles:
+                    self.log.warning(Mute.cant_manage_msg + ' (server: %s)', server)
+                    continue
 
-            member = server.get_member(muteduser.userid)
-            role = Command.get_server_role(server, Mute.muted_role)
-            if role is None:
-                self.log.warning('El rol "%s" no existe (server: %s)', Mute.muted_role, server)
-                continue
-            elif member is None:
-                continue
-            else:
-                await self.bot.remove_roles(member, role)
-                MutedUser.delete_instance(muteduser)
-                self.log.info('Rol de muteado eliminado a "%s", server "%s"', member.display_name, server)
+                member = server.get_member(muteduser.userid)
+                role = Command.get_server_role(server, Mute.muted_role)
+                if role is None:
+                    self.log.warning('El rol "%s" no existe (server: %s)', Mute.muted_role, server)
+                    continue
+                elif member is None:
+                    continue
+                else:
+                    await self.bot.remove_roles(member, role)
+                    MutedUser.delete_instance(muteduser)
+                    self.log.info('Rol de muteado eliminado a "%s", server "%s"', member.display_name, server)
+        except Exception as e:
+            self.log.exception(e)
 
         await asyncio.sleep(5)
         if not self.bot.is_closed:
