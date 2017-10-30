@@ -141,7 +141,6 @@ class Mute(Command):
                 self.log.warning('El rol "%s" no existe (server: %s)', Mute.muted_role, server)
                 continue
             elif member is None:
-                self.log.warning('El usuario ID "%s" no está disponible (server: %s)', muteduser.userid, server)
                 continue
             else:
                 await self.bot.remove_roles(member, role)
