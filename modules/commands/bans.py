@@ -135,8 +135,8 @@ class SetBans(Command):
 class BanRank(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['banrank', '!banrank']
-        self.help = 'Muestra el ranking de usuarios baneados'
+        self.name = ['banrank', self.bot.config['command_prefix'] + 'banrank']
+        self.help = 'Muestra el ranking de usuarios baneados. Con dos símbolos muestra una lista más extensa.'
         self.allow_pm = False
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
 

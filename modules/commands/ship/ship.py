@@ -35,8 +35,10 @@ class ShipperUwU(Command):
         avatar1_url = user1.avatar_url[:-4] + '.png'
         avatar2_url = user2.avatar_url[:-4] + '.png'
         async with self.http.get(avatar1_url) as resp:
+            self.log.debug('descargando user1 avatar, url %s', avatar1_url)
             user1_avatar = await resp.read()
         async with self.http.get(avatar2_url) as resp:
+            self.log.debug('descargando user2 avatar, url %s', avatar2_url)
             user2_avatar = await resp.read()
 
         # Abrir avatares y cambiar su tamaño
