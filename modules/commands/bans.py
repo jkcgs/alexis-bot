@@ -44,7 +44,6 @@ class BanCmd(Command):
 
             user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
                                               defaults={'user': str(mention)})
-            self.log.debug(user)
             update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(mention))
             update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
             update.execute()

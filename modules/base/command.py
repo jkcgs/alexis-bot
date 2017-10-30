@@ -113,11 +113,12 @@ class Message:
         self.owner = False
         self.server_member = None
 
-        allargs = message.content.replace('  ', '').split(' ')
+        allargs = message.content.replace('  ', ' ').split(' ')
         self.args = [] if len(allargs) == 1 else [f for f in allargs[1:] if f.strip() != '']
         self.argc = len(self.args)
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
+        self.bot.log.debug('args: %s, argc: %s', self.args, self.argc)
 
         if not self.is_pm:
             self.server_member = message.server.get_member(self.bot.user.id)

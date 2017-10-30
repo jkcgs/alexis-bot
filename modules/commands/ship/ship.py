@@ -4,7 +4,7 @@ from PIL import Image
 from modules.base.command import Command
 
 
-class AltoEn(Command):
+class ShipperUwU(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ship'
