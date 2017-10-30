@@ -118,7 +118,6 @@ class Message:
         self.argc = len(self.args)
         self.cmdname = allargs[0][1:]
         self.text = ' '.join(self.args)
-        self.bot.log.debug('args: %s, argc: %s', self.args, self.argc)
 
         if not self.is_pm:
             self.server_member = message.server.get_member(self.bot.user.id)
