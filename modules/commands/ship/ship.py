@@ -12,21 +12,28 @@ class ShipperUwU(Command):
         self.allow_pm = False
 
     async def handle(self, message, cmd):
-        if len(cmd.args) != 2 or len(message.mentions) != 2:
+        if len(cmd.args) != 2:
             await cmd.answer('Formato: !ship @mención1 @mención2')
             return
 
-        user1 = message.mentions[0].display_name
-        user2 = message.mentions[1].display_name
+        # obtener menciones en el mismo orden en el que se escribieron
+        user1 = user2 = ''
+        for mention in message.mentions:
+            if cmd.args[0] == mention.mention:
+                user1 = mention
+            if cmd.args[1] == mention.mention:
+                user2 = mention
+
+        # verificar que los usuarios no son iguales po jaja
         if user1 == user2:
-            await cmd.answer('Sólo hago parejas con personas distintas, bueno? :3')
+            await cmd.answer('sabías que para formar una pareja necesitas a dos personas? :3')
             return
 
         await cmd.typing()
 
         # Descargar avatares
-        avatar1_url = message.mentions[0].avatar_url.replace('.webp', '.png')
-        avatar2_url = message.mentions[1].avatar_url.replace('.webp', '.png')
+        avatar1_url = user1.avatar_url[:-4] + '.png'
+        avatar2_url = user2.avatar_url[:-4] + '.png'
         async with self.http.get(avatar1_url) as resp:
             user1_avatar = await resp.read()
         async with self.http.get(avatar2_url) as resp:
@@ -51,6 +58,8 @@ class ShipperUwU(Command):
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
 
         # Generar nombre del ship y enviar con la imagen
-        ship_name = user1[0:int(len(user1) / 2)] + user2[int(len(user2) / 2):]
+        u1name = user1.display_name
+        u2name = user2.display_name
+        ship_name = u1name[0:int(len(u1name) / 2)] + u2name[int(len(u2name) / 2):]
         await self.bot.send_file(message.channel, temp, filename='ship.png',
                                  content='Formando la pareja: **{}**'.format(ship_name))
