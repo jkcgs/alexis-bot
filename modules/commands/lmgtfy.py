@@ -13,7 +13,6 @@ class LetMeGoogleThatForYou(Command):
             await cmd.answer('Formato: !lmgtfy <texto>')
             return
 
-        texto = ' '.join(cmd.args)
-        url = 'https://lmgtfy.com/?' + urlencode({'iie': '1', 'q': texto})
+        url = 'https://lmgtfy.com/?' + urlencode({'iie': '1', 'q': cmd.text})
 
         await cmd.answer(url)

@@ -13,10 +13,9 @@ class AltoEn(Command):
             await cmd.answer('Formato: !altoen <str>')
             return
 
-        altotext = ' '.join(cmd.args)
-        if len(altotext) > 25:
+        if len(cmd.text) > 25:
             await cmd.answer('mucho texto, máximo 25 carácteres plix ty')
             return
 
-        altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(altotext)
+        altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(cmd.text)
         await self.bot.send_message(message.channel, embed=Command.img_embed(altourl))
