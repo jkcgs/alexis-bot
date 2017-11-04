@@ -1,6 +1,7 @@
 from os import path
 
 import yaml
+import bs4
 
 from modules.base.command import Command
 import re
@@ -12,7 +13,17 @@ class Value(Command):
     baseurl = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.xchange' \
               '%20where%20pair%20in%20(%22{}{}%22)&format=json' \
               '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='
+    baseurl_alt = 'http://www.xe.com/currencyconverter/convert/?Amount=1&From={}&To={}'
     baseurl_uf = 'http://api.sbif.cl/api-sbifv3/recursos_api/{}?apikey={}&formato=json'
+
+    # Lista de divisas obtenidas desde http://www.xe.com/iso4217.php
+    currencies = 'AED,AFN,ALL,AMD,ANG,AOA,ARS,AUD,AWG,AZN,BAM,BBD,BDT,BGN,BHD,BIF,BMD,BND,BOB,BRL,BSD,BTN,BWP,BYN,' \
+                 'BZD,CAD,CDF,CHF,CLP,CNY,COP,CRC,CUC,CUP,CVE,CZK,DJF,DKK,DOP,DZD,EGP,ERN,ETB,EUR,FJD,FKP,GBP,GEL,' \
+                 'GGP,GHS,GIP,GMD,GNF,GTQ,GYD,HKD,HNL,HRK,HTG,HUF,IDR,ILS,IMP,INR,IQD,IRR,ISK,JEP,JMD,JOD,JPY,KES,' \
+                 'KGS,KHR,KMF,KPW,KRW,KWD,KYD,KZT,LAK,LBP,LKR,LRD,LSL,LYD,MAD,MDL,MGA,MKD,MMK,MNT,MOP,MRO,MUR,MVR,' \
+                 'MWK,MXN,MYR,MZN,NAD,NGN,NIO,NOK,NPR,NZD,OMR,PAB,PEN,PGK,PHP,PKR,PLN,PYG,QAR,RON,RSD,RUB,RWF,SAR,' \
+                 'SBD,SCR,SDG,SEK,SGD,SHP,SLL,SOS,SPL,SRD,STD,SVC,SYP,SZL,THB,TJS,TMT,TND,TOP,TRY,TTD,TVD,TWD,TZS,' \
+                 'UAH,UGX,USD,UYU,UZS,VEF,VND,VUV,WST,XAF,XCD,XDR,XOF,XPF,YER,ZAR,ZMW,ZWD'.split(',')
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -81,6 +92,12 @@ class Value(Command):
             await cmd.answer('Formato de divisas incorrecto')
             return
 
+        if not Value.valid_currency(div1) or not Value.valid_currency(div2):
+            await cmd.answer('Una de las divisas ingresadas es incorrecta. '
+                             'Puedes utilizar UF, UTM, o una de las divisas de la lista de esta página: '
+                             'http://www.xe.com/iso4217.php')
+            return
+
         try:
             cant = float(cant.replace(',', '.'))
         except ValueError:
@@ -102,15 +119,19 @@ class Value(Command):
                     value = await self.sbif(div1.lower())
                     if div2 == 'CLP':
                         if cant == 1:
-                            await cmd.answer('La {} está a **$ {}**'.format(div1, value))
+                            await cmd.answer('La {} está a **$ {:.2f}**'.format(div1, value))
                         else:
-                            await cmd.answer('{} {} son **$ {}**'.format(cant, div1, value*cant))
+                            await cmd.answer('{} {} son **$ {:.2f}**'.format(cant, div1, value*cant))
                     else:
-                        value_conv = await self.convert('CLP', div2)
-                        await cmd.answer('{} {} son **{} {}**'.format(cant, div1, cant*value*value_conv, div2))
+                        value_conv = await self.convert_alt('CLP', div2)
+                        answer = cant*value*value_conv
+                        await cmd.answer('{} {} son **{:.2f} {}**'.format(cant, div1, answer, div2))
             else:
-                value = await self.convert(div1, div2)
-                await cmd.answer('**{} {}** son **{} {}**'.format(cant, div1, cant * value, div2))
+                value = await self.convert_alt(div1, div2)
+                if value < 1:
+                    await cmd.answer('**{} {}** son **{:.6f} {}**'.format(cant, div1, cant * value, div2))
+                else:
+                    await cmd.answer('**{} {}** son **{:.2f} {}**'.format(cant, div1, cant * value, div2))
         except DivRetrievalError as e:
             await cmd.answer('no pude obtener los datos de divisas D:\n```{}```'.format(str(e)))
 
@@ -121,20 +142,43 @@ class Value(Command):
 
     async def convert(self, div1, div2):
         attempts = 0
+        url = Value.baseurl.format(div1, div2)
         while attempts < 10:
             self.log.debug('Cargando datos de divisa, intento ' + str(attempts + 1))
-            async with self.http.get(Value.baseurl.format(div1, div2)) as r:
+            self.log.debug('Cargando url %s', url)
+            async with self.http.get(url) as r:
                 data = await r.json()
                 if r.status != 200:
                     attempts += 1
                     continue
 
                 try:
+                    if data['query']['count'] == 0:
+                        raise DivRetrievalError('No se encontraron los datos solicitados en el servidor de conversión')
                     value = float(data['query']['results']['rate']['Rate'])
-                except (KeyError, ValueError):
-                    raise DivRetrievalError('no pude obtener los datos de divisas D:')
+                except (KeyError, ValueError) as e:
+                    raise DivRetrievalError('El valor de las divisas no está disponible: ' + str(e))
 
                 return value
+
+    async def convert_alt(self, div1, div2):
+        url = Value.baseurl_alt.format(div1, div2)
+        if div1 not in Value.currencies or div2 not in Value.currencies:
+            raise DivRetrievalError('Una de las divisas ingresadas es incorrectas.')
+
+        self.log.debug('Cargando datos de divisa (alt)')
+        self.log.debug('URL: %s', url)
+
+        async with self.http.get(url) as r:
+            if r.status != 200:
+                self.log.debug(await r.text())
+                raise DivRetrievalError('La alternativa para datos de divisas no está disponible (status {})'
+                                        .format(r.status))
+
+            soup = bs4.BeautifulSoup(await r.text(), 'lxml')
+            cont = soup.find('span', {'class': 'uccResultAmount'})
+            value = float(cont.string)
+            return value
 
     async def sbif(self, api):
         attempts = 0
@@ -173,6 +217,10 @@ class Value(Command):
         except Exception as ex:
             self.log.exception(ex)
             return None
+
+    @staticmethod
+    def valid_currency(curr):
+        return curr == 'UF' or curr == 'UTM' or curr in Value.currencies
 
 
 class DivRetrievalError(BaseException):
