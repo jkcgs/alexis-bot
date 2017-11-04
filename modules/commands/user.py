@@ -36,7 +36,7 @@ class UserCmd(Command):
             return
 
         channel = discord.Object(id=channel)
-        await self.bot.send_message(channel, 'Nuevo usuario! ID: **{}**'.format(member.id),
+        await self.bot.send_message(channel, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
                                     embed=UserCmd.gen_embed(member))
 
     async def config_handler(self, name, value, cmd):
