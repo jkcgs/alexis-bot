@@ -159,6 +159,14 @@ class Alexis(discord.Client):
             try:
                 cmd = text.split(' ')[0][1:]
                 if cmd in self.cmds:
+                    # Si es posible, revisar que el canal no ha sido bloqueado
+                    if not is_pm and not is_owner and 'lockbot' in self.cmds:
+                        lbinstance = self.cmds['lockbot'][0]
+                        lbname = lbinstance.name
+                        lbnames = [lbname] if isinstance(lbname, str) else lbname
+                        if cmd not in lbname and lbinstance.is_locked(message.server.id, chan.id):
+                            return
+
                     self.log.debug('[command] %s sent message: "%s" command %s', message.author, text, cmd)
                     for i in self.cmds[cmd]:
                         if i.owner_only and not is_owner:

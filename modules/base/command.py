@@ -138,6 +138,16 @@ class Message:
 
         return None
 
+    def find_channel(self, name_or_id):
+        if self.is_pm:
+            return None
+
+        for channel in self.message.server.channels:
+            if channel.id == name_or_id or channel.name == name_or_id:
+                return channel
+
+        return None
+
 
 class ConfigError(BaseException):
     pass

@@ -6,6 +6,10 @@ from modules.base.command import Command
 from discord import Game
 import sys
 import alexis
+from modules.base.database import ServerConfig
+
+rx_snowflake = re.compile('^\d{10,19}$')
+rx_channel = re.compile('^<#\d{10,19}>$')
 
 
 class ReloadCmd(Command):
@@ -63,8 +67,6 @@ class SetStatus(Command):
 
 
 class ClearReactions(Command):
-    rx_snowflake = re.compile('^\d{10,19}$')
-    rx_channel = re.compile('^<#\d{10,19}>$')
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -81,12 +83,12 @@ class ClearReactions(Command):
         await cmd.typing()
 
         channel = message.channel
-        if ClearReactions.rx_channel.match(cmd.args[0]):
+        if rx_channel.match(cmd.args[0]):
             channel = message.channel_mentions[0]
             cmd.args = cmd.args[1:]
             cmd.argc -= 1
 
-        filtered_len = len([f for f in cmd.args if ClearReactions.rx_snowflake.match(f)])
+        filtered_len = len([f for f in cmd.args if rx_snowflake.match(f)])
         if cmd.argc != filtered_len:
             await cmd.answer('Por favor ingresa formatos de IDs compatibles')
             return
@@ -107,3 +109,47 @@ class ClearReactions(Command):
             await cmd.answer('Se eliminaron las reacciones de algunos mensajes')
         else:
             await cmd.answer('Reacciones eliminadas correctamente')
+
+
+class LockBot(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = ['lockbot', 'lock']
+        self.help = 'Bloquea al bot para que no lo puedan usar los sucios mortales'
+        self.owner_only = True
+        self.allow_pm = False
+
+    async def handle(self, message, cmd):
+        channel = None
+        if cmd.argc == 0:
+            channel = message.channel
+        elif cmd.argc == 1:
+            if len(message.channel_mentions) > 0:
+                channel = message.channel_mentions[0]
+            else:
+                channel = cmd.find_channel(cmd.args[0])
+
+        if channel is None:
+            await cmd.answer('Canal no encontrado')
+            return
+
+        config, _ = ServerConfig.get_or_create(serverid=message.server.id, name='locked_bot_channels')
+        chans = config.value.split(',')
+        if channel.id in chans:
+            chans.remove(channel.id)
+            msg = 'Canal desbloqueado! :D'
+        else:
+            if config.value == '':
+                chans = [channel.id]
+            else:
+                chans.append(channel.id)
+            msg = 'canal bloqueado jajaj ewe'
+
+        config.value = ','.join(chans)
+        config.save()
+
+        await cmd.answer(msg)
+
+    def is_locked(self, serverid, channelid):
+        config, _ = ServerConfig.get_or_create(serverid=serverid, name='locked_bot_channels')
+        return channelid in config.value.split(',')
