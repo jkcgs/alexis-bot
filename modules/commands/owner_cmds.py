@@ -114,8 +114,8 @@ class ClearReactions(Command):
 class LockBot(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['lockbot', 'lock']
-        self.help = 'Bloquea al bot para que no lo puedan usar los sucios mortales'
+        self.name = ['lockbot', 'lock', 'unlockbot', 'unlock']
+        self.help = 'Bloquea o desbloquea al bot para que no lo puedan usar los sucios mortales'
         self.owner_only = True
         self.allow_pm = False
 
@@ -133,20 +133,33 @@ class LockBot(Command):
             await cmd.answer('Canal no encontrado')
             return
 
+        lock = cmd.cmdname in ['lock', 'lockbot']
+
         config, _ = ServerConfig.get_or_create(serverid=message.server.id, name='locked_bot_channels')
         chans = config.value.split(',')
-        if channel.id in chans:
-            chans.remove(channel.id)
-            msg = 'Canal desbloqueado! :D'
-        else:
-            if config.value == '':
-                chans = [channel.id]
-            else:
-                chans.append(channel.id)
-            msg = 'canal bloqueado jajaj ewe'
 
-        config.value = ','.join(chans)
-        config.save()
+        process = True
+        if channel.id in chans:
+            if lock:
+                msg = 'El canal ya está bloqueado, usa !unlockbot para desbloquear.'
+                process = False
+            else:
+                chans.remove(channel.id)
+                msg = 'Canal desbloqueado! :D'
+        else:
+            if not lock:
+                msg = 'El canal no está bloqueado, usa !lockbot para bloquear.'
+                process = False
+            else:
+                if config.value == '':
+                    chans = [channel.id]
+                else:
+                    chans.append(channel.id)
+                msg = 'canal bloqueado jajaj ewe'
+
+        if process:
+            config.value = ','.join(chans)
+            config.save()
 
         await cmd.answer(msg)
 
