@@ -16,11 +16,10 @@ import yaml
 import modules.commands
 from modules import logger
 from modules.base.command import Command
-from modules.reaction_hook import reaction_hook
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.8.0-dev'
+__version__ = '0.8.0-re1'
 __status__ = "Desarrollo"
 
 
@@ -137,20 +136,13 @@ class Alexis(discord.Client):
             return
 
         await Command.message_handler(message, self)
+        await self._call_handlers('on_message', message=message)
 
-    """Esta función es llamada cuando un mensaje recibe una reacción"""
     async def on_reaction_add(self, reaction, user):
-        if not self.initialized:
-            return
-
-        await reaction_hook(self, reaction, user)
+        await self._call_handlers('on_reaction_add', reaction=reaction, user=user)
 
     async def on_member_join(self, member):
-        if not self.initialized:
-            return
-
-        for cmd in self.cmd_instances:
-            await cmd.on_member_join(member)
+        await self._call_handlers('on_member_join', member=member)
 
     async def send_message(self, destination, content=None, **kwargs):
         svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'
@@ -169,8 +161,6 @@ class Alexis(discord.Client):
             # Completar info con defaults
             if 'owners' not in config:
                 config['owners'] = []
-            if 'starboard_reactions' not in config or not isinstance(config['starboard_reactions'], int):
-                config['starboard_reactions'] = 5
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
                 config['command_prefix'] = '!'
 
@@ -179,6 +169,13 @@ class Alexis(discord.Client):
         except Exception as ex:
             self.log.exception(ex)
             return False
+
+    async def _call_handlers(self, name, **kwargs):
+        if not self.initialized:
+            return
+
+        for cmd in [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]:
+            await cmd(**kwargs)
 
 
 if __name__ == '__main__':

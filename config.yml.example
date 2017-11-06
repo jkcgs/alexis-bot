@@ -6,7 +6,3 @@ playing: "/r/chile"
 owners: ["198944348379938816@248581447579860993"]
 cleverbot_key: "API_KEY"
 weatherapi_key: ""
-starboard_channels:
-  "198944348379938816": "350833070905229312"
-starboard_trigger_reactions: []
-starboard_trigger_count: 2

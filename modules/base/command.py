@@ -18,9 +18,12 @@ class Command:
         self.run_task = False
         self.help = ''
         self.allow_pm = True
+        self.allow_nsfw = True  # TODO
+        self.nsfw_only = False  # TODO
         self.pm_error = 'Este comando no se puede usar via PM'
         self.owner_only = False
         self.owner_error = 'No puedes usar este comando'
+        self.format = ''  # TODO
 
         self.user_delay = 0
         self.users_delay = {}
@@ -28,9 +31,6 @@ class Command:
 
         self.db_models = []
         self.http = bot.http_session
-
-    async def on_member_join(self, member):
-        pass
 
     def task(self):
         pass
@@ -90,6 +90,7 @@ class Command:
 
     @staticmethod
     def parse(message, bot):
+        # TODO: setear instancia del comando que llama si es posible
         msg = MessageCmd(message, bot)
         msg.owner = Command.is_owner(bot, message.author, message.server)
         return msg
