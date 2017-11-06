@@ -114,7 +114,7 @@ class ClearReactions(Command):
 class LockBot(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['lockbot', 'lock', 'unlockbot', 'unlock']
+        self.name = ['lockbot', 'lock', 'unlockbot', 'unlock', 'islocked']
         self.help = 'Bloquea o desbloquea al bot para que no lo puedan usar los sucios mortales'
         self.owner_only = True
         self.allow_pm = False
@@ -133,10 +133,14 @@ class LockBot(Command):
             await cmd.answer('Canal no encontrado')
             return
 
-        lock = cmd.cmdname in ['lock', 'lockbot']
-
         config, _ = ServerConfig.get_or_create(serverid=message.server.id, name='locked_bot_channels')
         chans = config.value.split(',')
+
+        if cmd.cmdname == 'islocked':
+            await cmd.answer('si' if channel.id in chans else 'no')
+            return
+
+        lock = cmd.cmdname in ['lock', 'lockbot']
 
         process = True
         if channel.id in chans:
