@@ -1,10 +1,17 @@
+import re
 from datetime import datetime
 
 import peewee
+import emoji
 from discord import Emoji, Object, Embed
 
 from modules.base.command import Command
 from modules.base.database import BaseModel, ServerConfig
+
+cfg_starboard_emojis = 'starboard_emojis'
+cfg_starboard_channel = 'starboard_channel'
+cfg_starboard_tcount = 'starboard_trigger_count'
+pat_emoji = re.compile('^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 
 
 class StarboardHook(Command):
@@ -17,18 +24,30 @@ class StarboardHook(Command):
         if msg.server is None:
             return
 
-        # TODO: stub, implementar y hacer configurable
+        # Cargar reacciones admitidas
+        emojis_cfg, _ = ServerConfig.get_or_create(defaults={'value': ''},
+                                                   serverid=msg.server.id, name=cfg_starboard_emojis)
         reaction_triggers = []
+        if emojis_cfg.value != '':
+            reaction_filtered = emojis_cfg.value.split(' ')
+            for react in reaction_filtered:
+                if pat_emoji.match(react):
+                    idx = react.rfind(':') + 1
+                    reaction_triggers.append(react[idx:-2])
+                else:
+                    reaction_triggers.append(react)
+            reaction_triggers = reaction_filtered
 
+        # Obtener el canal de starboard
         # TODO: optimizar
-        config, _ = ServerConfig.get_or_create(serverid=reaction.message.server.id, name=StarboardChanSet.cfg)
+        config, _ = ServerConfig.get_or_create(serverid=reaction.message.server.id, name=cfg_starboard_channel)
         if config.value == '':
             return
         channelid = config.value
 
         ct_config, _ = ServerConfig.get_or_create(defaults={'value': str(StarboardTriggerCount.default)},
                                                   serverid=reaction.message.server.id,
-                                                  name=StarboardTriggerCount.cfg)
+                                                  name=cfg_starboard_tcount)
         if not ct_config.value.isdigit():
             count_trigger = StarboardTriggerCount.default
             ct_config.value = str(StarboardTriggerCount.default)
@@ -47,16 +66,14 @@ class StarboardHook(Command):
 
         max_count = 0
         for reaction in msg.reactions:
-            emoji = reaction.emoji
+            emoji_react = reaction.emoji
             if len(reaction_triggers) != 0:
-                if isinstance(emoji, str) and emoji not in reaction_triggers:
-                    self.log.debug('reaction str not suitable %s', emoji)
+                if isinstance(emoji_react, str) and emoji_react not in reaction_triggers:
+                    self.log.debug('reaction str not suitable %s', emoji_react)
                     continue
 
-                if isinstance(emoji, Emoji) \
-                        and emoji.id not in reaction_triggers \
-                        and emoji.name not in reaction_triggers:
-                    self.log.debug('reaction emoji not suitable %s', emoji.name)
+                if isinstance(emoji_react, Emoji) and emoji_react.id not in reaction_triggers:
+                    self.log.debug('reaction emoji not suitable %s', emoji_react.name)
                     continue
 
             if reaction.count > max_count:
@@ -85,8 +102,6 @@ class StarboardHook(Command):
 
 
 class StarboardChanSet(Command):
-    cfg = 'starboard_channel'
-
     def __init__(self, bot):
         super().__init__(bot)
         self.name = ['setstarboardchannel', 'ssc']
@@ -107,7 +122,7 @@ class StarboardChanSet(Command):
             await cmd.answer('Canal no encontrado')
             return
 
-        config, _ = ServerConfig.get_or_create(serverid=message.server.id, name=StarboardChanSet.cfg)
+        config, _ = ServerConfig.get_or_create(serverid=message.server.id, name=cfg_starboard_channel)
         config.value = channel.id
         config.save()
 
@@ -122,7 +137,7 @@ class StarboardChanUnset(Command):
         self.allow_pm = False
 
     async def handle(self, message, cmd):
-        config, _ = ServerConfig.get_or_create(serverid=message.server.id, name=StarboardChanSet.cfg)
+        config, _ = ServerConfig.get_or_create(serverid=message.server.id, name=cfg_starboard_channel)
         config.value = ''
         config.save()
 
@@ -130,7 +145,6 @@ class StarboardChanUnset(Command):
 
 
 class StarboardTriggerCount(Command):
-    cfg = 'starboard_trigger_count'
     default = 10
 
     def __init__(self, bot):
@@ -141,21 +155,83 @@ class StarboardTriggerCount(Command):
         self.format = 'Formato: !{} <cuenta (0>N>=1000)>'
 
     async def handle(self, message, cmd):
-        if cmd.argc == 0 or not cmd.args[0].isdigit():
+        config, _ = ServerConfig.get_or_create(defaults={'value': str(StarboardTriggerCount.default)},
+                                               serverid=message.server.id, name=cfg_starboard_tcount)
+        if cmd.argc == 0:
+            await cmd.answer('Cuenta trigger actual: ' + str(config.value))
+            return
+
+        if not cmd.args[0].isdigit():
             await cmd.answer(self.format.format(cmd.cmdname))
             return
 
         count = int(cmd.args[0])
-        if count > 1000:
+        if count < 1 or count > 1000:
             await cmd.answer(self.format.format(cmd.cmdname))
             return
 
-        config, _ = ServerConfig.get_or_create(defaults={'value': str(StarboardTriggerCount.default)},
-                                               serverid=message.server.id, name=StarboardTriggerCount.cfg)
         config.value = str(count)
         config.save()
 
         await cmd.answer('Número de trigger definido en **{}**'.format(count))
+
+
+class StarboardSetEmojis(Command):
+
+    default = 10
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = ['setstarboardemojis', 'sse', 'setemojis']
+        self.owner_only = True
+        self.allow_pm = False
+        self.format = 'Formato: !{} <emoji1 emoji2...emoji10>'
+
+    async def handle(self, message, cmd):
+        config, _ = ServerConfig.get_or_create(defaults={'value': ''},
+                                               serverid=message.server.id, name=cfg_starboard_emojis)
+
+        if cmd.argc == 0:
+            val = 'Ninguno' if config.value == '' else config.value
+            await cmd.answer('Emojis: ' + val)
+            return
+
+        if cmd.argc > 10:
+            await cmd.answer(self.format.format(cmd.cmdname))
+            return
+
+        for arg in cmd.args:
+            if not pat_emoji.match(arg) and arg not in emoji.UNICODE_EMOJI:
+                await cmd.answer(self.format.format(cmd.cmdname))
+                return
+
+        config, _ = ServerConfig.get_or_create(defaults={'value': ''},
+                                               serverid=message.server.id, name=cfg_starboard_emojis)
+        config.value = ' '.join(cmd.text)
+        config.save()
+
+        await cmd.answer('Emojis guardados: ' + cmd.text)
+
+
+class StarboardUnsetEmojis(Command):
+    default = 10
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = ['unsetstarboardemojis', 'unsetemojis']
+        self.owner_only = True
+        self.allow_pm = False
+
+    async def handle(self, message, cmd):
+        config, _ = ServerConfig.get_or_create(defaults={'value': ''},
+                                               serverid=message.server.id, name=cfg_starboard_emojis)
+        if config.value == '':
+            await cmd.answer('No hay emojis definidos para este servidor')
+            return
+
+        config.value = ''
+        config.save()
+        await cmd.answer('Emojis de starboard eliminados (ahora se reacciona con cualquiera).')
 
 
 class Starboard(BaseModel):
