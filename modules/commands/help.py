@@ -9,15 +9,16 @@ class Help(Command):
 
     async def handle(self, message, cmd):
         helplist = []
+        pfx = self.bot.config['command_prefix']
         for i in self.bot.cmds.keys():
             for j in self.bot.cmds[i]:
                 if j.owner_only and not cmd.owner:
                     continue
 
-                cmds = ', !'.join(j.name) if isinstance(j.name, list) else j.name
-                helpline = "- !{}: {}".format(cmds, j.help)
+                cmds = ', {}'.format(pfx).join(j.name) if isinstance(j.name, list) else j.name
+                helpline = "- {}{}: {}".format(pfx, cmds, j.help)
                 if helpline not in helplist:
-                    helplist.append("- !{}: {}".format(cmds, j.help))
+                    helplist.append("- {}{}: {}".format(pfx, cmds, j.help))
 
         num_memes = len(helplist)
         if num_memes == 0:

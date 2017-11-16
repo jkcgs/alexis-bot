@@ -1,6 +1,6 @@
 from discord import Embed
 
-from modules.base.database import ServerConfig
+from modules.base.database import ServerConfig, ServerConfigMgrSingle
 
 from datetime import datetime as dt
 from datetime import timedelta
@@ -69,6 +69,9 @@ class Command:
         conf, created = ServerConfig.get_or_create(name=name, serverid=server.id)
         conf.value = value
         conf.save()
+
+    def config_mgr(self, serverid):
+        return ServerConfigMgrSingle(self.bot.sv_config, serverid)
 
     def is_owner(self, member, server):
         return Command.is_owner(self.bot, member, server)
@@ -195,6 +198,7 @@ class MessageCmd:
         self.server_member = None
         self.is_cmd = False
         self.text = message.content
+        self.config = None
 
         self.cmdname = ''
         self.args = []
@@ -210,6 +214,7 @@ class MessageCmd:
 
         if not self.is_pm:
             self.server_member = message.server.get_member(self.bot.user.id)
+            self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
 
     async def answer(self, content='', **kwargs):
         await self.bot.send_message(self.message.channel, content, **kwargs)
