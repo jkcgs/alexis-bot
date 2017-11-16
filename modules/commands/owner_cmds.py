@@ -114,7 +114,7 @@ class ClearReactions(Command):
 class LockBot(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['lockbot', 'lock', 'unlockbot', 'unlock', 'islocked']
+        self.name = ['lockbot', 'unlockbot', 'islocked']
         self.help = 'Bloquea o desbloquea al bot para que no lo puedan usar los sucios mortales'
         self.owner_only = True
         self.allow_pm = False
