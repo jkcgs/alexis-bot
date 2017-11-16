@@ -24,8 +24,8 @@ class ServerConfigMgr:
                 self.sv[conf.serverid] = {}
             self.sv[conf.serverid][conf.name] = conf.value
 
-    def get(self, svid, name):
-        return '' if name not in self.sv[svid] else self.sv[svid][name]
+    def get(self, svid, name, default=''):
+        return default if name not in self.sv[svid] else self.sv[svid][name]
 
     def set(self, svid, name, value):
         q, _ = ServerConfig.get_or_create(serverid=svid, name=name)

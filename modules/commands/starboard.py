@@ -131,11 +131,9 @@ class StarboardHook(Command):
             reaction_triggers = reaction_filtered
 
         # Obtener el canal de starboard
-        # TODO: optimizar
-        config, _ = ServerConfig.get_or_create(serverid=reaction.message.server.id, name=cfg_starboard_channel)
-        if config.value == '':
+        channelid = self.bot.sv_config.get(reaction.message.server.id, cfg_starboard_channel)
+        if channelid == '':
             return
-        channelid = config.value
 
         ct_config, _ = ServerConfig.get_or_create(defaults={'value': str(default_count)},
                                                   serverid=reaction.message.server.id,
