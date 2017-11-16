@@ -16,6 +16,7 @@ import yaml
 import modules.commands
 from modules import logger
 from modules.base.command import Command
+from modules.base.database import ServerConfigMgr
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
@@ -28,6 +29,7 @@ class Alexis(discord.Client):
     def __init__(self, **options):
         super().__init__(**options)
         self.http_session = aiohttp.ClientSession(loop=self.loop)
+        self.sv_config = ServerConfigMgr()
 
         self.log = logger.get_logger('Alexis')
         self.initialized = False
