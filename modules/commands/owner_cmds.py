@@ -44,7 +44,7 @@ class ShutdownCmd(Command):
 class InfoCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['version', 'info']
+        self.name = 'info'
         self.help = 'Muestra la información del bot'
 
     async def handle(self, message, cmd):
@@ -70,7 +70,8 @@ class ClearReactions(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['clearreactions', 'clr']
+        self.name = 'clearreactions'
+        self.aliases = ['clr']
         self.help = 'Elimina las reacciones de uno o más mensajes'
         self.owner_only = True
 
@@ -114,7 +115,8 @@ class ClearReactions(Command):
 class LockBot(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['lockbot', 'unlockbot', 'islocked']
+        self.name = 'lockbot'
+        self.aliases = ['unlockbot', 'islocked']
         self.help = 'Bloquea o desbloquea al bot para que no lo puedan usar los sucios mortales'
         self.owner_only = True
         self.allow_pm = False
@@ -140,7 +142,7 @@ class LockBot(Command):
             await cmd.answer('si' if channel.id in chans else 'no')
             return
 
-        lock = cmd.cmdname in ['lock', 'lockbot']
+        lock = cmd.cmdname == 'lockbot'
 
         process = True
         if channel.id in chans:

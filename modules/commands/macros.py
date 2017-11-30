@@ -311,7 +311,8 @@ class EmbedMacroUnset(Command):
 class EmbedMacroSetColour(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['isetcolour', 'isetcolor']
+        self.name = 'isetcolour'
+        self.aliases = ['isetcolor']
         self.help = 'Actualiza el color de un macro embed'
         self.owner_only = True
 

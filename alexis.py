@@ -20,7 +20,7 @@ from modules.base.database import ServerConfigMgr
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.8.0-re1'
+__version__ = '1.0.0-dev.1'
 __status__ = "Desarrollo"
 
 
@@ -38,6 +38,7 @@ class Alexis(discord.Client):
         self.cmds = {}
         self.cmd_instances = []
         self.swhandlers = {}
+        self.pre_handlers = []
         self.mention_handlers = []
         self.config_handlers = {}
         self.config_defaults = {}
@@ -64,6 +65,9 @@ class Alexis(discord.Client):
 
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
+
+        # Si mal no me equivoco, aquí no se puede hacer list comprehension
+        self.cmd_instances = [f(self) for f in modules.commands.classes]
         db_models = []
 
         for cmd in modules.commands.classes:
@@ -74,22 +78,14 @@ class Alexis(discord.Client):
             db_models += i.db_models
 
             # Comandos
-            names = [i.name] if isinstance(i.name, str) else list(i.name)
-            for name in names:
-                name = name.strip()
-                if name == '':
-                    continue
-
-                if name not in self.cmds:
-                    self.cmds[name] = []
-
-                self.cmds[name].append(i)
+            for name in [i.name] + i.aliases:
+                if name != '':
+                    self.cmds[name] = i
 
             # Handlers startswith
             if isinstance(i.swhandler, str) or isinstance(i.swhandler, list):
                 swh = [i.swhandler] if isinstance(i.swhandler, str) else i.swhandler
                 for swtext in swh:
-                    swtext = swtext
                     if swtext == '':
                         continue
 
@@ -102,8 +98,8 @@ class Alexis(discord.Client):
             if isinstance(i.mention_handler, bool) and i.mention_handler:
                 self.mention_handlers.append(i)
 
-            # Tasks
-            if i.run_task:
+            # Call task
+            if callable(getattr(i, 'task', None)):
                 self.loop.create_task(i.task())
 
             for conf_name, default_val in i.configurations.items():

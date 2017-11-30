@@ -18,20 +18,18 @@ class UserCmd(Command):
         self.configurations = {UserCmd.chan_config_name: ''}
 
     async def handle(self, message, cmd):
-        if len(cmd.args) == 1 and len(message.mentions) == 1:
-            user = message.mentions[0]
-        elif len(cmd.args) == 0:
-            user = cmd.author
-        else:
-            cmd.answer('Formato: !user [@usuario]')
+        if cmd.argc == 2 and cmd.args[0] == 'channel':
+            await UserCmd._setchannel_handler(cmd, cmd.args[1])
             return
 
+        user = message.mentions[0] if len(message.mentions) == 1 else cmd.author
         embed = UserCmd.gen_embed(user)
         await cmd.answer('Acerca de **{}**'.format(user.id), embed=embed)
 
     # Restaurar el rol de muteado una vez que el usuario ha reingresado
     async def on_member_join(self, member):
-        channel = self.get_config(UserCmd.chan_config_name, member.server)
+        cfg = self.config_mgr(member.server)
+        channel = cfg.get(UserCmd.chan_config_name, '')
         if channel == '':
             return
 
@@ -39,20 +37,20 @@ class UserCmd(Command):
         await self.bot.send_message(channel, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
                                     embed=UserCmd.gen_embed(member))
 
-    async def config_handler(self, name, value, cmd):
-        if name == UserCmd.chan_config_name:
-            if value != 'off' and not UserCmd.rx_channel.match(value):
-                raise ConfigError('Por favor ingresa un canal u "off" como valor')
+    @staticmethod
+    async def _setchannel_handler(cmd, value):
+        if value != 'off' and not UserCmd.rx_channel.match(value):
+            raise ConfigError('Por favor ingresa un canal u "off" como valor')
 
-            if value == 'off':
-                value = ''
+        if value == 'off':
+            value = ''
 
-            self.set_config(UserCmd.chan_config_name, value[2:-1], cmd.message.server)
+        cmd.config.set(UserCmd.chan_config_name, value[2:-1])
 
-            if value == '':
-                await cmd.answer('Información de usuarios desactivada')
-            else:
-                await cmd.answer('Canal de información de usuarios actualizado')
+        if value == '':
+            await cmd.answer('Información de usuarios desactivada')
+        else:
+            await cmd.answer('Canal de información de usuarios actualizado')
 
     @staticmethod
     def gen_embed(member):

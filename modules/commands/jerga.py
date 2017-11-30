@@ -10,7 +10,8 @@ class Jerga(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['jerga', 'dc']
+        self.name = 'jerga'
+        self.aliases = ['dc']
         self.help = 'Obtiene una definición desde Diccionario Chileno'
 
     async def handle(self, message, cmd):

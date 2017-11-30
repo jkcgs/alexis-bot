@@ -1,3 +1,5 @@
+import random
+
 from modules.base.command import Command
 
 
@@ -9,8 +11,8 @@ class Reverse(Command):
 
     async def handle(self, message, cmd):
         text = cmd.text if cmd.text != '' else 'Formato: !reverse <texto>'
-        if text.endswith(self.bot.config['command_prefix']):
-            text = 'jaja ste men xd'
+        if text.endswith(cmd.prefix):
+            text = random.choice(['jaja ste men', 'oye nuuuu', 'jajaj jurai', 'que wea tramposo qlo', 'xd'])
         else:
             text = list(text)
             text.reverse()

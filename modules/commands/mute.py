@@ -27,6 +27,8 @@ class Mute(Command):
         self.allow_pm = False
 
     async def handle(self, message, cmd):
+        # TODO: Mostrar tiempo de mute propio cuando se usa sin argumentos
+        # TODO: Mostrar tiempo de mute de un usuario cuando se pasa sólo el usuario como argumento
         if len(cmd.args) < 1 or len(message.mentions) != 1:
             await cmd.answer('Formato: !mute <@mención> [duración] [razón]')
             return
@@ -218,18 +220,6 @@ class Unmute(Command):
 
         await self.bot.remove_roles(member, mutedrole)
         await cmd.answer('Usuario desmuteado!')
-
-
-class MuteTimeLeft(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = ['muteleft', 'mutetime']
-        self.help = 'Muestra cuanto tiempo queda de mute'
-        self.user_delay = 10
-
-    async def handle(self, message, cmd):
-        # TODO: Implementar este comando
-        await cmd.answer('Este comando aún no está disponible!')
 
 
 class MutedUser(BaseModel):

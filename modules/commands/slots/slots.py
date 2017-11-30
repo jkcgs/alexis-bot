@@ -13,7 +13,7 @@ class Slots(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['slot', 'slots']
+        self.name = 'slots'
         self.mention_handler = False
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False

@@ -5,20 +5,21 @@ class Help(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'help'
+        self.aliases = ['ayuda']
         self.help = 'Muestra la lista de comandos y su ayuda'
 
     async def handle(self, message, cmd):
         helplist = []
         pfx = self.bot.config['command_prefix']
         for i in self.bot.cmds.keys():
-            for j in self.bot.cmds[i]:
-                if j.owner_only and not cmd.owner:
-                    continue
+            ins = self.bot.cmd[i]
+            if ins.owner_only and not cmd.owner:
+                continue
 
-                cmds = ', {}'.format(pfx).join(j.name) if isinstance(j.name, list) else j.name
-                helpline = "- {}{}: {}".format(pfx, cmds, j.help)
-                if helpline not in helplist:
-                    helplist.append("- {}{}: {}".format(pfx, cmds, j.help))
+            cmds = ', {}'.format(pfx).join(ins.name) if isinstance(ins.name, list) else ins.name
+            helpline = "- {}{}: {}".format(pfx, cmds, ins.help)
+            if helpline not in helplist:
+                helplist.append("- {}{}: {}".format(pfx, cmds, ins.help))
 
         num_memes = len(helplist)
         if num_memes == 0:

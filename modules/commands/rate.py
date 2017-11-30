@@ -16,7 +16,7 @@ class Rate(Command):
 
     async def handle(self, message, cmd):
         text = cmd.text if cmd.text != '' else cmd.author_name
-        if random.random() > .95:
+        if random.random() > .90:
             if len(cmd.args) == 1 and len(message.mentions) == 1:
                 m = message.mentions[0]
                 hashi = hashlib.md5()
@@ -32,7 +32,7 @@ class Rate(Command):
                 else:
                     await cmd.answer('no me mandis weas xfa')
             else:
-                await cmd.answer('penca tu wea po xd')
+                await cmd.answer('penca tu weá xd')
         else:
             rating = '{:.1f}'.format(random.random()*100)
             await cmd.answer('A {} le doy {}/100'.format(text, rating))

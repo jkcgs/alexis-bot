@@ -5,8 +5,9 @@ from modules.base.command import Command
 class LetMeGoogleThatForYou(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['lmgtfy', 'google']
-        self.help = 'Te ayuda a buscar algo en google'
+        self.name = 'lmgtfy'
+        self.aliases = ['google', 'comandoqueteayudaraabuscarloquenecesitasdeunaformamuyfacilydivertida']
+        self.help = 'Te ayuda a buscar algo en Google'
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:

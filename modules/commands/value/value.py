@@ -27,7 +27,8 @@ class Value(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['value', 'valor', 'uf', 'utm']
+        self.name = 'value'
+        self.aliases = ['valor', 'uf', 'utm']
         self.help = 'Entrega datos de conversión de divisas'
         self.config = self.load_config()
 

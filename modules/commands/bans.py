@@ -9,7 +9,7 @@ import random
 class BanCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['ban', 'golpe']
+        self.name = 'ban'
         self.help = 'Banea (simbólicamente) a un usuario'
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
@@ -135,7 +135,8 @@ class SetBans(Command):
 class BanRank(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['banrank', self.bot.config['command_prefix'] + 'banrank']
+        self.name = 'banrank'
+        self.aliases = [self.bot.config['command_prefix'] + 'banrank']
         self.help = 'Muestra el ranking de usuarios baneados. Con dos símbolos muestra una lista más extensa.'
         self.allow_pm = False
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
@@ -162,7 +163,7 @@ class BanRank(Command):
 class BanMigrate(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['banmigrate']
+        self.name = 'banmigrate'
         self.help = 'Migra los bans antiguos al nuevo formato'
         self.allow_pm = False
         self.pm_error = 'a quien vai a banear por pm, como tan wn'

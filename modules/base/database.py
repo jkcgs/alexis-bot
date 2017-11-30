@@ -43,7 +43,7 @@ class ServerConfigMgr:
             self.sv[svid] = {}
         if name not in self.sv[svid]:
             q, _ = ServerConfig.get_or_create(serverid=svid, name=name, defaults={'value': str(default)})
-            self.sv[svid] = q.value
+            self.sv[svid][name] = q.value
 
         return self.sv[svid][name]
 

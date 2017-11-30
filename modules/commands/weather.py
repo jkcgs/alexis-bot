@@ -6,7 +6,8 @@ from discord import Embed
 class Weather(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['weather', 'wea', 'clima']
+        self.name = 'weather'
+        self.aliases = ['clima']
         self.help = 'Entrega información del clima'
         self.urlbase = 'http://api.openweathermap.org/data/2.5/weather?q='
 

@@ -9,7 +9,8 @@ class Urban(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['urban', 'ub']
+        self.name = 'urban'
+        self.aliases = ['ub']
         self.help = 'Obtiene una definición desde UrbanDictionary'
 
     async def handle(self, message, cmd):

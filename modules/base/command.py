@@ -2,6 +2,7 @@ from discord import Embed
 
 from modules.base.database import ServerConfig, ServerConfigMgrSingle
 
+import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
@@ -11,11 +12,11 @@ class Command:
         self.bot = bot
         self.log = self.bot.log
         self.name = ''
+        self.aliases = []
         self.swhandler = None
         self.swhandler_break = False
         self.mention_handler = False
         self.configurations = {}
-        self.run_task = False
         self.help = ''
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
@@ -32,32 +33,12 @@ class Command:
         self.db_models = []
         self.http = bot.http_session
 
-    def task(self):
-        pass
-
     async def config_handler(self, config, value, cmd):
         pass
 
     def can_manage_roles(self, server):
         self_member = server.get_member(self.bot.user.id)
         return self_member.server_permissions.manage_roles
-
-    def get_config(self, name, server):
-        if server is None:
-            raise ConfigError('No se puede obtener configuración sin servidor')
-
-        if name not in self.bot.config_handlers:
-            raise ConfigError('Esa configuración no existe')
-
-        try:
-            conf, created = ServerConfig.get_or_create(name=name, serverid=server.id)
-            if created:
-                conf.value = self.bot.config_defaults[name]
-                conf.save()
-
-            return conf.value
-        except ServerConfig.DoesNotExist:
-            raise ConfigError('Esa configuración no existe')
 
     def set_config(self, name, value, server):
         if server is None:
@@ -127,7 +108,7 @@ class Command:
         # Si es posible, revisar que el canal no ha sido bloqueado (no se revisa si es un PM, si es owner, o si es
         # el comando !lock o lockbot)
         if not cmd.is_pm and not cmd.owner and 'lockbot' in bot.cmds:
-            lbinstance = bot.cmds['lockbot'][0]
+            lbinstance = bot.cmds['lockbot']
             lbname = lbinstance.name
             lbnames = [lbname] if isinstance(lbname, str) else lbname
             is_lb_cmd = cmd.is_cmd and cmd.cmdname not in lbnames
@@ -136,23 +117,33 @@ class Command:
 
         # Command handler
         try:
-            if cmd.is_cmd and cmd.cmdname in bot.cmds:
-                bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
-                for i in bot.cmds[cmd.cmdname]:
-                    if i.owner_only and not cmd.owner:
-                        await cmd.answer(i.owner_error)
-                    elif not i.allow_pm and cmd.is_pm:
-                        await cmd.answer(i.pm_error)
-                    elif i.user_delay > 0 and cmd.author.id in i.users_delay \
-                            and i.users_delay[cmd.author.id] + timedelta(0, i.user_delay) > dt.now() \
-                            and not cmd.owner:
-                        await cmd.answer(i.user_delay_error)
-                    else:
-                        i.users_delay[cmd.author.id] = dt.now()
-                        await i.handle(message, cmd)
+            # Comando inválido
+            if not cmd.is_cmd or cmd.cmdname not in bot.cmds:
                 return
+
+            bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
+            cmd_ins = bot.cmds[cmd.cmdname]
+
+            # Sólo owner
+            if cmd_ins.owner_only and not cmd.owner:
+                await cmd.answer(cmd_ins.owner_error)
+            # Comando deshabilitado por PM
+            elif not cmd_ins.allow_pm and cmd.is_pm:
+                await cmd.answer(cmd_ins.pm_error)
+            # Delay para el comando
+            elif cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay \
+                    and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now() \
+                    and not cmd.owner:
+                await cmd.answer(cmd_ins.user_delay_error)
+            # Ejecutar el comando
+            else:
+                cmd_ins.users_delay[cmd.author.id] = dt.now()
+                await cmd_ins.handle(message, cmd)
         except Exception as e:
-            await cmd.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
+            if bot.config['debug']:
+                await cmd.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
+            else:
+                await cmd.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
             bot.log.exception(e)
 
         # 'startswith' handlers
@@ -177,13 +168,13 @@ class Command:
 
         # Mention handlers
         if bot.user.mentioned_in(message):
-            for i in bot.mention_handlers:
-                if i.owner_only and not cmd.owner:
-                    await cmd.answer(i.owner_error)
-                elif not i.allow_pm and cmd.is_pm:
-                    await cmd.answer(i.pm_error)
+            for cmd_ins in bot.mention_handlers:
+                if cmd_ins.owner_only and not cmd.owner:
+                    await cmd.answer(cmd_ins.owner_error)
+                elif not cmd_ins.allow_pm and cmd.is_pm:
+                    await cmd.answer(cmd_ins.pm_error)
                 else:
-                    await i.handle(message, cmd)
+                    await cmd_ins.handle(message, cmd)
 
 
 class MessageCmd:
@@ -201,10 +192,11 @@ class MessageCmd:
         self.config = None
 
         self.cmdname = ''
+        self.prefix = bot.config['command_prefix']
         self.args = []
         self.argc = 0
 
-        if message.content.startswith(bot.config['command_prefix']):
+        if message.content.startswith(self.prefix):
             self.is_cmd = True
             allargs = message.content.replace('  ', ' ').split(' ')
             self.args = [] if len(allargs) == 1 else [f for f in allargs[1:] if f.strip() != '']

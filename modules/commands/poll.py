@@ -7,7 +7,8 @@ import json
 class Ping(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['poll', 'encuesta', 'strawpoll']
+        self.name = 'poll'
+        self.aliases = ['encuesta', 'strawpoll']
         self.help = 'Crea una encuesta en strawpoll.me . Separa el título y las opciones con " | "'
 
     async def handle(self, message, cmd):

@@ -1,4 +1,5 @@
 token: "token"
+debug: false
 command_prefix: "!"
 subreddit: ["chile@198944348379938816", "gonewild@248994135317413888,282347946727440394"]
 default_channel: "168469255979925504"
