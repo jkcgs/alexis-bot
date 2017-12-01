@@ -150,9 +150,6 @@ class Alexis(discord.Client):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
 
         self.log.debug(msg)
-        if content is not None:
-            content = content.replace('$PX', self.config['command_prefix'])
-
         await super(Alexis, self).send_message(destination, content, **kwargs)
 
     def load_config(self):

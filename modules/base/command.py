@@ -209,6 +209,8 @@ class MessageCmd:
             self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
 
     async def answer(self, content='', **kwargs):
+        content = content.replace('$PX', self.bot.config['command_prefix'])
+        content = content.replace('$NM', self.cmdname)
         await self.bot.send_message(self.message.channel, content, **kwargs)
 
     async def typing(self):
