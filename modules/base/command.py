@@ -17,7 +17,7 @@ class Command:
         self.swhandler_break = False
         self.mention_handler = False
         self.configurations = {}
-        self.help = ''
+        self.help = '<el que hizo la weaita no le puso texto de ayuda jij>'
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
         self.nsfw_only = False  # TODO

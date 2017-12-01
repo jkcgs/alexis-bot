@@ -12,7 +12,7 @@ class Help(Command):
         helplist = []
         pfx = self.bot.config['command_prefix']
         for i in self.bot.cmds.keys():
-            ins = self.bot.cmd[i]
+            ins = self.bot.cmds[i]
             if ins.owner_only and not cmd.owner:
                 continue
 

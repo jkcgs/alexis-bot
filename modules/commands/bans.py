@@ -25,7 +25,7 @@ class BanCmd(Command):
         mention = message.mentions[0]
         mention_name = mention.display_name
 
-        if not cmd.owner and self.is_owner(mention, message.server):
+        if not cmd.owner and cmd.is_owner(mention, message.server):
             await cmd.answer('nopo wn no hagai esa wea xd')
         else:
             # Actualizar id del último que usó un comando (omitir al mismo bot)

@@ -23,6 +23,7 @@ class StarboardHook(Command):
         self.allow_pm = False
         self.owner_only = True
         self.name = 'starboard'
+        self.help = 'Administrar el starboard'
 
     async def handle(self, message, cmd):
         args = [] if cmd.argc == 0 else cmd.args[1:]
@@ -103,7 +104,7 @@ class StarboardHook(Command):
                 else:
                     await cmd.answer('Formato: nsfw [on|off]')
         else:
-            await cmd.answer('Formato: !{} <subcomando> <opts>.\n'
+            await cmd.answer('Formato: $PX{} <subcomando> <opts>.\n'
                              'Subcomandos: channel, disable, count, emojis, delemojis, nfsw.'.format(cmd.cmdname))
 
     async def on_reaction_add(self, reaction, user):
