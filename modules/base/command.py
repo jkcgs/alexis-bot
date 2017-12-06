@@ -16,7 +16,6 @@ class Command:
         self.swhandler = None
         self.swhandler_break = False
         self.mention_handler = False
-        self.configurations = {}
         self.help = '<el que hizo la weaita no le puso texto de ayuda jij>'
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
@@ -33,23 +32,9 @@ class Command:
         self.db_models = []
         self.http = bot.http_session
 
-    async def config_handler(self, config, value, cmd):
-        pass
-
     def can_manage_roles(self, server):
         self_member = server.get_member(self.bot.user.id)
         return self_member.server_permissions.manage_roles
-
-    def set_config(self, name, value, server):
-        if server is None:
-            raise ConfigError('No se puede obtener configuración sin servidor')
-
-        if name not in self.bot.config_handlers:
-            raise ConfigError('Esa configuración no existe')
-
-        conf, created = ServerConfig.get_or_create(name=name, serverid=server.id)
-        conf.value = value
-        conf.save()
 
     def config_mgr(self, serverid):
         return ServerConfigMgrSingle(self.bot.sv_config, serverid)

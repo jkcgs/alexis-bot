@@ -15,7 +15,6 @@ class UserCmd(Command):
         self.name = 'user'
         self.help = 'Entrega información sobre un usuario'
         self.allow_pm = False
-        self.configurations = {UserCmd.chan_config_name: ''}
 
     async def handle(self, message, cmd):
         if cmd.argc == 2 and cmd.args[0] == 'channel':

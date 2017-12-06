@@ -40,8 +40,6 @@ class Alexis(discord.Client):
         self.swhandlers = {}
         self.pre_handlers = []
         self.mention_handlers = []
-        self.config_handlers = {}
-        self.config_defaults = {}
 
         self.db = peewee.SqliteDatabase('database.db')
         self.db.connect()
@@ -101,11 +99,6 @@ class Alexis(discord.Client):
             # Call task
             if callable(getattr(i, 'task', None)):
                 self.loop.create_task(i.task())
-
-            for conf_name, default_val in i.configurations.items():
-                if conf_name not in self.config_handlers:
-                    self.config_handlers[conf_name] = i.config_handler
-                    self.config_defaults[conf_name] = default_val
 
         self.log.info('Inicializando base de datos...')
         self.db.create_tables(db_models, True)
