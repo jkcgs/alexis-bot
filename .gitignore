@@ -1,6 +1,7 @@
 # Application
 
 config.yml
+config.py
 database.db
 logs/
 data.json

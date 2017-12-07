@@ -36,7 +36,7 @@ class RandomNum(Command):
 
         if cmd.argc >= 1:
             if not cmd.args[0].isnumeric() or (cmd.argc >= 2 and not cmd.args[1].isnumeric()):
-                await cmd.answer('$AU, por favor ingresa sólo números')
+                await cmd.answer('por favor ingresa sólo números')
                 return
 
             nmin = int(cmd.args[0])
@@ -51,11 +51,11 @@ class RandomNum(Command):
             del ntemp
 
         if nmin == nmax:
-            jaja = '$AU, tu número entre {} y {}, *AUNQUE NO LO PUEDAS CREER*, es el **{}** :open_mouth:'
+            jaja = 'tu número entre {} y {}, *AUNQUE NO LO PUEDAS CREER*, es el **{}** :open_mouth:'
             await cmd.answer(jaja.format(nmin, nmax, nmin))
         else:
             rand = random.randint(nmin, nmax)
-            answ = '$AU, tu número entre {} y {} es el **{}**'.format(nmin, nmax, rand)
+            answ = 'tu número entre {} y {} es el **{}**'.format(nmin, nmax, rand)
 
             if random.random() >= .5:
                 if rand == 5:
