@@ -18,7 +18,7 @@ class MacroSet(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 2:
-            await cmd.answer('Formato: !set <nombre> <contenido>')
+            await cmd.answer('formato: !set <nombre> <contenido>')
             return
 
         meme_name = cmd.args[0]
@@ -29,10 +29,10 @@ class MacroSet(Command):
         meme.save()
 
         if created:
-            msg = 'Macro **{name}** creado'.format(name=meme_name)
+            msg = 'macro **{name}** creado'.format(name=meme_name)
             self.bot.log.info('Macro %s creado con valor: "%s"', meme_name, meme_value)
         else:
-            msg = 'Macro **{name}** actualizado'.format(name=meme_name)
+            msg = 'macro **{name}** actualizado'.format(name=meme_name)
             self.bot.log.info('Macro %s actualizado a: "%s"', meme_name, meme_value)
 
         await cmd.answer(msg)
@@ -47,7 +47,7 @@ class MacroUnset(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !unset <nombre>')
+            await cmd.answer('formato: !unset <nombre>')
             return
 
         name = cmd.args[0].replace('\\', '')
@@ -55,11 +55,11 @@ class MacroUnset(Command):
         try:
             macro = Meme.get(name=name)
             macro.delete_instance()
-            msg = 'Macro **{name}** eliminado'.format(name=name)
+            msg = 'macro **{name}** eliminado'.format(name=name)
             await cmd.answer(msg)
             self.bot.log.info('Macro %s eliminado', name)
         except Meme.DoesNotExist:
-            msg = 'El macro **{name}** no existe'.format(name=name)
+            msg = 'el macro **{name}** no existe'.format(name=name)
             await cmd.answer(msg)
 
 
@@ -98,7 +98,7 @@ class MacroList(Command):
                 namelist.append(name)
 
         namelist.sort()
-        resp = 'Hay {} macro{}:'.format(len(namelist), '' if len(namelist) == 1 else 's')
+        resp = 'hay {} macro{}:'.format(len(namelist), '' if len(namelist) == 1 else 's')
         for i, name in enumerate(namelist):
             if len(resp + ', ' + name) > 2000:
                 await cmd.answer(resp)
@@ -135,11 +135,11 @@ class MacroSuperList(Command):
 
         num_memes = len(memelist)
         if num_memes == 0:
-            await cmd.answer('No hay macros disponibles')
+            await cmd.answer('no hay macros disponibles')
             return
 
         word = 'macro' if num_memes == 1 else 'macros'
-        resp = 'Hay {} {}:'.format(num_memes, word)
+        resp = 'hay {} {}:'.format(num_memes, ['macros', 'macro'][int(num_memes == 1)])
         await cmd.answer(resp)
 
         # Separar lista de memes en mensajes con menos de 2000 carácteres

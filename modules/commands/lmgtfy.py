@@ -11,7 +11,7 @@ class LetMeGoogleThatForYou(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <texto>')
+            await cmd.answer('formato: $PX$NM <texto>')
             return
 
         url = 'https://lmgtfy.com/?' + urlencode({'iie': '1', 'q': cmd.text})

@@ -26,21 +26,21 @@ class Help(Command):
             return
 
         if not cmd.is_pm:
-            await cmd.answer('{}, te enviaré la info vía PM'.format(message.author.mention))
+            await cmd.answer('te enviaré la info vía PM')
 
-        await self.bot.send_message(message.author, 'Estos son mis comandos:')
+        await cmd.answer('estos son mis comandos:', to_author=True)
 
         # Separar lista de ayuda en mensajes con menos de 2000 carácteres
         resp_list = ''
         for helpitem in helplist:
             if len('```{}\n{}```'.format(resp_list, helpitem)) > 2000:
-                await cmd.answer('```{}```'.format(resp_list), author=True)
+                await cmd.answer('```{}```'.format(resp_list), to_author=True, withname=False)
                 resp_list = ''
             else:
                 resp_list = '{}\n{}'.format(resp_list, helpitem)
 
         # Enviar lista restante
         if resp_list != '':
-            await cmd.answer('```{}```'.format(resp_list), author=True)
+            await cmd.answer('```{}```'.format(resp_list), to_author=True, withname=False)
 
         return

@@ -24,7 +24,7 @@ class Jerga(Command):
             div_definition = soup.find_all('div', class_='definition')
             resultado = ""
             if len(div_definition) == 0:
-                await cmd.answer('La palabra no existe en Diccionario Chileno')
+                await cmd.answer('la palabra no existe en Diccionario Chileno')
                 return
 
             for i in range(len(div_definition)):

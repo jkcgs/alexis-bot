@@ -28,25 +28,21 @@ class Alexis(discord.Client):
     """Contiene al bot e inicializa su funcionamiento."""
     def __init__(self, **options):
         super().__init__(**options)
-        self.http_session = aiohttp.ClientSession(loop=self.loop)
         self.sv_config = ServerConfigMgr()
+        self.log = logger.get_logger('Alexis')
+        self.http_session = aiohttp.ClientSession(loop=self.loop)
 
         self.db = None
-        self.log = logger.get_logger('Alexis')
+        self.rx_mention = None  # Regex de mención (incluye nicks)
+        self.last_author = None  # El ID del último en enviar un mensaje (omite PM)
         self.initialized = False
-        self.config = {}
+
         self.cmds = {}
-        self.cmd_instances = []
-        self.swhandlers = {}
-        self.pre_handlers = []
-        self.mention_handlers = []
+        self.config = {}
         self.db_models = []
-
-        # Regex de mención (incluye nicks)
-        self.rx_mention = None
-
-        # El ID del último en enviar un mensaje (omite PM)
-        self.last_author = None
+        self.swhandlers = {}
+        self.cmd_instances = []
+        self.mention_handlers = []
 
     """Inicializa al bot"""
     def init(self):
@@ -68,8 +64,9 @@ class Alexis(discord.Client):
         self.cmd_instances = [self.load_command(c) for c in modules.commands.classes]
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
-        self.log.info('Inicializando modelos de bases de datos de comandos...')
+        self.log.info('Inicializando tablas de bases de datos de comandos...')
         self.db.create_tables(self.db_models, True)
+        self.log.info('Tablas de base de datos inicializadas')
 
         # Conectar con Discord
         try:
@@ -121,22 +118,7 @@ class Alexis(discord.Client):
         self.rx_mention = re.compile('^<@!?{}>'.format(self.user.id))
         self.initialized = True
 
-    """Método ejecutado cada vez que se recibe un mensaje"""
-    async def on_message(self, message):
-        if not self.initialized:
-            return
-
-        await Command.message_handler(message, self)
-        await self._call_handlers('on_message', message=message)
-
-    async def on_reaction_add(self, reaction, user):
-        await self._call_handlers('on_reaction_add', reaction=reaction, user=user)
-
-    async def on_member_join(self, member):
-        await self._call_handlers('on_member_join', member=member)
-
-    async def on_member_remove(self, member):
-        await self._call_handlers('on_member_remove', member=member)
+        await self._call_handlers('on_ready')
 
     async def send_message(self, destination, content=None, **kwargs):
         svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'
@@ -169,8 +151,56 @@ class Alexis(discord.Client):
         if not self.initialized:
             return
 
-        for cmd in [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]:
-            await cmd(**kwargs)
+        if name == 'on_message':
+            await Command.message_handler(kwargs.get('message'), self)
+
+        [getattr(c, name, None)(**kwargs) for c in self.cmd_instances if callable(getattr(c, name, None))]
+
+    """
+    ===== EVENT HANDLERS =====
+    """
+
+    async def on_message(self, message):
+        await self._call_handlers('on_message', message=message)
+
+    async def on_reaction_add(self, reaction, user):
+        await self._call_handlers('on_reaction_add', reaction=reaction, user=user)
+
+    async def on_reaction_remove(self, reaction, user):
+        await self._call_handlers('on_reaction_remove', reaction=reaction, user=user)
+
+    async def on_reaction_clear(self, message, reactions):
+        await self._call_handlers('on_reaction_clear', message=message, reactions=reactions)
+
+    async def on_member_join(self, member):
+        await self._call_handlers('on_member_join', member=member)
+
+    async def on_member_remove(self, member):
+        await self._call_handlers('on_member_remove', member=member)
+
+    async def on_member_update(self, before, after):
+        await self._call_handlers('on_member_update', before=before, after=after)
+
+    async def on_message_delete(self, message):
+        await self._call_handlers('on_message_delete', message=message)
+
+    async def on_message_edit(self, before, after):
+        await self._call_handlers('on_message_edit', before=before, after=after)
+
+    async def on_server_join(self, server):
+        await self._call_handlers('on_server_join', server=server)
+
+    async def on_server_remove(self, server):
+        await self._call_handlers('on_server_remove', server=server)
+
+    async def on_member_ban(self, member):
+        await self._call_handlers('on_member_ban', member=member)
+
+    async def on_member_unban(self, member):
+        await self._call_handlers('on_member_unban', member=member)
+
+    async def on_typing(self, channel, user, when):
+        await self._call_handlers('on_server_remove', channel=channel, user=user, when=when)
 
 
 if __name__ == '__main__':

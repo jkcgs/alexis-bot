@@ -78,6 +78,9 @@ class Command:
 
     @staticmethod
     async def message_handler(message, bot):
+        if not bot.initialized:
+            return
+
         cmd = Command.parse(message, bot)
 
         # Mandar PMs al log
@@ -192,7 +195,7 @@ class MessageCmd:
             self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
 
-    async def answer(self, content='', author=False, withname=True, **kwargs):
+    async def answer(self, content='', to_author=False, withname=True, **kwargs):
         content = content.replace('$PX', self.bot.config['command_prefix'])
         content = content.replace('$NM', self.cmdname)
         content = content.replace('$AU', self.author_name)
@@ -202,7 +205,7 @@ class MessageCmd:
                 content = ', ' + content
             content = self.author_name + content
 
-        if author:
+        if to_author:
             await self.bot.send_message(self.message.author, content, **kwargs)
         else:
             await self.bot.send_message(self.message.channel, content, **kwargs)
