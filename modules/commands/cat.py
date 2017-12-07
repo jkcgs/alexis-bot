@@ -20,6 +20,7 @@ class Cat(Command):
                     return
         except Exception as e:
             self.log.error(e)
+            await cmd.answer('No pude encontrar un gatito uwu')
 
 
 # porque puedo
@@ -29,7 +30,7 @@ class Dog(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'dog'
-        self.aliases = ['perro', 'perrito']
+        self.aliases = ['perro', 'perrito', 'doggo']
         self.help = 'Entrega un perro'
 
     async def handle(self, message, cmd):
@@ -42,3 +43,4 @@ class Dog(Command):
                     return
         except Exception as e:
             self.log.error(e)
+            await cmd.answer('No pude encontrar un doggo :c')

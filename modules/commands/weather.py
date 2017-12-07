@@ -21,7 +21,7 @@ class Weather(Command):
             return
 
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !clima <lugar>')
+            await cmd.answer('Formato: $PX$NM <lugar>')
             return
 
         place = urlparse.quote(cmd.text)

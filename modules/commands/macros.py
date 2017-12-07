@@ -161,7 +161,6 @@ class MacroUse(Command):
         super().__init__(bot)
         self.swhandler = [bot.config['command_prefix'] + ' ', bot.config['command_prefix'], '¡']
         self.swhandler_break = True
-        self.first_use = True
 
     async def handle(self, message, cmd):
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot

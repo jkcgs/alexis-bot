@@ -138,9 +138,11 @@ class StarboardHook(Command):
         else:
             count_trigger = int(ct_config)
 
-        # Ignorar mensaje si es del mismo canal del starboard o si es de un canal NSFW
-        if channelid == msg.channel.id:
+        # Ignorar mensaje si es del mismo canal del starboard o del mismo bot
+        if channelid == msg.channel.id or msg.author.id == self.bot.user.id:
             return
+
+        # Ignorar mensaje si es de un canal NSFW
         if 'nsfw' in msg.channel.name.lower() and config.get(cfg_starboard_nsfw, '0') == '0':
             return
 

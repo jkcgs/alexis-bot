@@ -20,7 +20,7 @@ from modules.base.database import ServerConfigMgr
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '1.0.0-dev.3'
+__version__ = '1.0.0-dev.4'
 __status__ = "Desarrollo"
 
 
@@ -31,20 +31,16 @@ class Alexis(discord.Client):
         self.http_session = aiohttp.ClientSession(loop=self.loop)
         self.sv_config = ServerConfigMgr()
 
+        self.db = None
         self.log = logger.get_logger('Alexis')
         self.initialized = False
         self.config = {}
-        self.sharedcfg = {}
         self.cmds = {}
         self.cmd_instances = []
         self.swhandlers = {}
         self.pre_handlers = []
         self.mention_handlers = []
-
-        self.db = peewee.SqliteDatabase('database.db')
-        self.db.connect()
-
-        self.load_config()
+        self.db_models = []
 
         # Regex de mención (incluye nicks)
         self.rx_mention = None
@@ -61,56 +57,60 @@ class Alexis(discord.Client):
         self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
+        # Cargar configuración
+        self.load_config()
+
+        # Cargar base de datos
+        self.db_connect()
+
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
-
-        # Si mal no me equivoco, aquí no se puede hacer list comprehension
-        self.cmd_instances = [f(self) for f in modules.commands.classes]
-        db_models = []
-
-        for cmd in modules.commands.classes:
-            self.cmd_instances.append(cmd(self))
-
-        # Guardar instancias de módulos de comandos
-        for i in self.cmd_instances:
-            db_models += i.db_models
-
-            # Comandos
-            for name in [i.name] + i.aliases:
-                if name != '':
-                    self.cmds[name] = i
-
-            # Handlers startswith
-            if isinstance(i.swhandler, str) or isinstance(i.swhandler, list):
-                swh = [i.swhandler] if isinstance(i.swhandler, str) else i.swhandler
-                for swtext in swh:
-                    if swtext == '':
-                        continue
-
-                    if swtext not in self.swhandlers:
-                        self.swhandlers[swtext] = []
-
-                    self.swhandlers[swtext].append(i)
-
-            # Comandos que se activan con una mención
-            if isinstance(i.mention_handler, bool) and i.mention_handler:
-                self.mention_handlers.append(i)
-
-            # Call task
-            if callable(getattr(i, 'task', None)):
-                self.loop.create_task(i.task())
-
-        self.log.info('Inicializando base de datos...')
-        self.db.create_tables(db_models, True)
-
+        self.cmd_instances = [self.load_command(c) for c in modules.commands.classes]
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-        self.log.info('Conectando...')
 
+        self.log.info('Inicializando modelos de bases de datos de comandos...')
+        self.db.create_tables(self.db_models, True)
+
+        # Conectar con Discord
         try:
+            self.log.info('Conectando...')
             self.run(self.config['token'])
         except Exception as ex:
             self.log.exception(ex)
             raise
+
+    def load_command(self, cls):
+        instance = cls(self)
+        self.db_models += instance.db_models
+
+        # Comandos
+        for name in [instance.name] + instance.aliases:
+            if name != '':
+                self.cmds[name] = instance
+
+        # Handlers startswith
+        if isinstance(instance.swhandler, str) or isinstance(instance.swhandler, list):
+            swh = [instance.swhandler] if isinstance(instance.swhandler, str) else instance.swhandler
+            for swtext in swh:
+                if swtext != '':
+                    self.log.debug('Registrando sw_handler "%s"', swtext)
+                    self.swhandlers[swtext] = instance
+
+        # Comandos que se activan con una mención
+        if isinstance(instance.mention_handler, bool) and instance.mention_handler:
+            self.mention_handlers.append(instance)
+
+        # Call task
+        if callable(getattr(instance, 'task', None)):
+            self.loop.create_task(instance.task())
+
+        return instance
+
+    def db_connect(self):
+        self.log.info('Conectando a base de datos...')
+        self.db = peewee.SqliteDatabase('database.db')
+        self.db.connect()
+        self.log.info('Conectado correctamente a la base de datos.')
 
     """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
@@ -134,6 +134,9 @@ class Alexis(discord.Client):
 
     async def on_member_join(self, member):
         await self._call_handlers('on_member_join', member=member)
+
+    async def on_member_remove(self, member):
+        await self._call_handlers('on_member_remove', member=member)
 
     async def send_message(self, destination, content=None, **kwargs):
         svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'

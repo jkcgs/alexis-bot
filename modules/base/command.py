@@ -39,9 +39,6 @@ class Command:
     def config_mgr(self, serverid):
         return ServerConfigMgrSingle(self.bot.sv_config, serverid)
 
-    def is_owner(self, member, server):
-        return Command.is_owner(self.bot, member, server)
-
     @staticmethod
     def img_embed(url, title=''):
         embed = Embed()
@@ -103,27 +100,25 @@ class Command:
         # Command handler
         try:
             # Comando inválido
-            if not cmd.is_cmd or cmd.cmdname not in bot.cmds:
-                return
+            if cmd.is_cmd and cmd.cmdname in bot.cmds:
+                bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
+                cmd_ins = bot.cmds[cmd.cmdname]
 
-            bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
-            cmd_ins = bot.cmds[cmd.cmdname]
-
-            # Sólo owner
-            if cmd_ins.owner_only and not cmd.owner:
-                await cmd.answer(cmd_ins.owner_error)
-            # Comando deshabilitado por PM
-            elif not cmd_ins.allow_pm and cmd.is_pm:
-                await cmd.answer(cmd_ins.pm_error)
-            # Delay para el comando
-            elif cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay \
-                    and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now() \
-                    and not cmd.owner:
-                await cmd.answer(cmd_ins.user_delay_error)
-            # Ejecutar el comando
-            else:
-                cmd_ins.users_delay[cmd.author.id] = dt.now()
-                await cmd_ins.handle(message, cmd)
+                # Sólo owner
+                if cmd_ins.owner_only and not cmd.owner:
+                    await cmd.answer(cmd_ins.owner_error)
+                # Comando deshabilitado por PM
+                elif not cmd_ins.allow_pm and cmd.is_pm:
+                    await cmd.answer(cmd_ins.pm_error)
+                # Delay para el comando
+                elif cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay \
+                        and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now() \
+                        and not cmd.owner:
+                    await cmd.answer(cmd_ins.user_delay_error)
+                # Ejecutar el comando
+                else:
+                    cmd_ins.users_delay[cmd.author.id] = dt.now()
+                    await cmd_ins.handle(message, cmd)
         except Exception as e:
             if bot.config['debug']:
                 await cmd.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
@@ -139,17 +134,17 @@ class Command:
 
             if message.content.startswith(swtext):
                 bot.log.debug('[sw] %s sent message: "%s" handler "%s"', message.author, cmd.text, swtext)
-                for swhandler in bot.swhandlers[swtext]:
-                    if swhandler.owner_only and not cmd.owner:
-                        await cmd.answer(swhandler.owner_error)
-                    elif not swhandler.allow_pm and cmd.is_pm:
-                        await cmd.answer(swhandler.pm_error)
-                    else:
-                        await swhandler.handle(message, cmd)
+                swhandler = bot.swhandlers[swtext]
+                if swhandler.owner_only and not cmd.owner:
+                    await cmd.answer(swhandler.owner_error)
+                elif not swhandler.allow_pm and cmd.is_pm:
+                    await cmd.answer(swhandler.pm_error)
+                else:
+                    await swhandler.handle(message, cmd)
 
-                    if swhandler.swhandler_break:
-                        swbreak = True
-                        break
+                if swhandler.swhandler_break:
+                    swbreak = True
+                    break
 
         # Mention handlers
         if bot.user.mentioned_in(message):
@@ -193,10 +188,20 @@ class MessageCmd:
             self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
 
-    async def answer(self, content='', **kwargs):
+    async def answer(self, content='', author=False, withname=True, **kwargs):
         content = content.replace('$PX', self.bot.config['command_prefix'])
         content = content.replace('$NM', self.cmdname)
-        await self.bot.send_message(self.message.channel, content, **kwargs)
+        content = content.replace('$AU', self.author_name)
+
+        if withname:
+            if content != '':
+                content = ', ' + content
+            content = self.author_name + content
+
+        if author:
+            await self.bot.send_message(self.message.author, content, **kwargs)
+        else:
+            await self.bot.send_message(self.message.channel, content, **kwargs)
 
     async def typing(self):
         await self.bot.send_typing(self.message.channel)
@@ -220,6 +225,9 @@ class MessageCmd:
                 return channel
 
         return None
+
+    def is_owner(self, user):
+        return Command.is_owner(self.bot, user, self.message.server)
 
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(

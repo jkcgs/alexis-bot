@@ -43,6 +43,10 @@ class Mute(Command):
             await cmd.answer('como me vas a mutear a mi! owo')
             return
 
+        if member.bot:
+            await cmd.answer('no mutees a un coleguita xfa')
+            return
+
         if member.id == cmd.author.id:
             await cmd.answer('no podi mutearte a ti mismo jaj')
             return

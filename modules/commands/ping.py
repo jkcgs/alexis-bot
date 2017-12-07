@@ -1,3 +1,5 @@
+import random
+
 from modules.base.command import Command
 
 
@@ -9,4 +11,7 @@ class Ping(Command):
         self.user_delay = 5
 
     async def handle(self, message, cmd):
-        await cmd.answer('Pong!')
+        if random.random() >= .5:
+            await cmd.answer('wena xoro')
+        else:
+            await cmd.answer('Pong!')

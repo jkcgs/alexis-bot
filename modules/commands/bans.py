@@ -25,35 +25,44 @@ class BanCmd(Command):
         mention = message.mentions[0]
         mention_name = mention.display_name
 
-        if not cmd.owner and cmd.is_owner(mention, message.server):
+        if not cmd.owner and cmd.is_owner(mention):
             await cmd.answer('nopo wn no hagai esa wea xd')
+            return
+
+        if mention.id == self.bot.user.id:
+            await cmd.answer('OYE NUUUUUUU >w<')
+            return
+
+        if mention.bot:
+            await cmd.answer('con mi colega no, tamo? :angry:')
+            return
+
+        # Actualizar id del último que usó un comando (omitir al mismo bot)
+        if self.bot.last_author is None or not cmd.own:
+            self.bot.last_author = message.author.id
+
+        # Evitar que alguien se banee a si mismo
+        if self.bot.last_author == mention.id:
+            await cmd.answer('no hagai trampa po wn xd')
+            return
+
+        if not random.randint(0, 1):
+            await cmd.answer('¡**{}** intentó banear a **{}**, quien se salvó de milagro!'
+                             .format(cmd.author.mention, mention_name))
+            return
+
+        user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
+                                          defaults={'user': str(mention)})
+        update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(mention))
+        update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
+        update.execute()
+
+        if created:
+            text = 'Uff, ¡**{}** le ha dado a **{}** su primer ban!'.format(cmd.author.mention, mention_name)
         else:
-            # Actualizar id del último que usó un comando (omitir al mismo bot)
-            if self.bot.last_author is None or not cmd.own:
-                self.bot.last_author = message.author.id
-
-            # Evitar que alguien se banee a si mismo
-            if self.bot.last_author == mention.id:
-                await cmd.answer('no hagai trampa po wn xd')
-                return
-
-            if not random.randint(0, 1):
-                await cmd.answer('¡**{}** intentó banear a **{}**, quien se salvó de milagro!'
-                                 .format(cmd.author.mention, mention_name))
-                return
-
-            user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
-                                              defaults={'user': str(mention)})
-            update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(mention))
-            update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
-            update.execute()
-
-            if created:
-                text = 'Uff, ¡**{}** le ha dado a **{}** su primer ban!'.format(cmd.author.mention, mention_name)
-            else:
-                text = '¡**{}** ha baneado a **{}** sumando **{} baneos**!'
-                text = text.format(cmd.author.mention, mention_name, user.bans + 1)
-            await cmd.answer(text)
+            text = '¡**{}** ha baneado a **{}** sumando **{} baneos**!'
+            text = text.format(cmd.author.mention, mention_name, user.bans + 1)
+        await cmd.answer(text)
 
 
 class Bans(Command):
@@ -70,7 +79,7 @@ class Bans(Command):
             return
 
         mention = message.mentions[0]
-        if self.is_owner(mention, message.server):
+        if cmd.is_owner(mention):
             mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
             mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
             await cmd.answer(mesg)

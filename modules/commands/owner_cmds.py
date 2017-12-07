@@ -151,7 +151,7 @@ class LockBot(Command):
                 process = False
             else:
                 chans.remove(channel.id)
-                msg = 'Canal desbloqueado! :D'
+                msg = 'Canal desbloqueado! :smile:'
         else:
             if not lock:
                 msg = 'El canal no está bloqueado, usa !lockbot para bloquear.'
