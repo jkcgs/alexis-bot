@@ -34,10 +34,11 @@ class CleverbotHandler(Command):
             CleverbotHandler.check = False
         else:
             self.log.info('CleverWrap iniciado correctamente.')
+            CleverbotHandler.check = True
 
     def load_config(self):
         try:
-            config_path = path.join(path.dirname(path.realpath(__file__)), 'pats.yml')
+            config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yml')
             with open(config_path, 'r') as file:
                 config = yaml.safe_load(file)
             if config is None:
@@ -57,7 +58,7 @@ class CleverbotHandler(Command):
         if not self.bot.rx_mention.match(message.content):
             return
 
-        if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '0':
+        if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '1':
             await cmd.answer('l-lo siento sempai, no puedo hablar ahora uwu')
             return
 
