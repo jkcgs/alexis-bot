@@ -19,7 +19,7 @@ class Choose(Command):
                 return
 
         answer = random.choice(options).strip()
-        text = 'Yo elijo **{}**'.format(answer)
+        text = 'yo elijo **{}**'.format(answer)
         await cmd.answer(text)
 
 

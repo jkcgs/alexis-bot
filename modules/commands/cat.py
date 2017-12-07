@@ -20,7 +20,7 @@ class Cat(Command):
                     return
         except Exception as e:
             self.log.error(e)
-            await cmd.answer('No pude encontrar un gatito uwu')
+            await cmd.answer('no pude encontrar un gatito uwu')
 
 
 # porque puedo
@@ -39,8 +39,8 @@ class Dog(Command):
             async with self.http.get(Dog.url) as r:
                 if r.status == 200:
                     data = await r.json()
-                    await cmd.answer(embed=Command.img_embed(data['message'], 'aquí está tu perrito :3'))
+                    await cmd.answer(embed=Command.img_embed(data['message'], 'aquí está tu doggo :3'))
                     return
         except Exception as e:
             self.log.error(e)
-            await cmd.answer('No pude encontrar un doggo :c')
+            await cmd.answer('no pude encontrar un doggo :c')

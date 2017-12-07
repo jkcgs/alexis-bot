@@ -1,24 +1,28 @@
 import json
 
+from os import path
+
+import yaml
+
 from modules.base.command import Command
 from cleverwrap import CleverWrap
 import random
 
 
 class CleverbotHandler(Command):
-    enabled = True
     check = False
+    cfg_enabled = 'cbot_enabled'
 
     def __init__(self, bot):
         super().__init__(bot)
         self.mention_handler = True
         self.allow_pm = False
+        self.config = self.load_config()
 
-        key = self.bot.config['cleverbot_key'].strip()
+        key = self.config['api_key']
         if key == '':
-            CleverbotHandler.enabled = False
             CleverbotHandler.check = False
-            self.log.warning('El valor "cleverbot_key" no se ha definido. La conversación será desactivada.')
+            self.log.warning('El valor "api_key" no se ha definido. La conversación será desactivada.')
             return
 
         self.cbot = CleverWrap(key)
@@ -27,16 +31,33 @@ class CleverbotHandler(Command):
 
         if self.cbot.say('test') is None:
             self.log.warning('No se pudo conectar con Cleverbot. La API key podría ser incorrecta.')
-            CleverbotHandler.enabled = False
             CleverbotHandler.check = False
         else:
             self.log.info('CleverWrap iniciado correctamente.')
+
+    def load_config(self):
+        try:
+            config_path = path.join(path.dirname(path.realpath(__file__)), 'pats.yml')
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+            if config is None:
+                raise Exception('La configuración está vacía')
+
+            res_config = {
+                'api_key': config.get('api_key', '')
+            }
+            return res_config
+        except Exception as ex:
+            self.log.exception(ex)
+            return {
+                'api_key': ''
+            }
 
     async def handle(self, message, cmd):
         if not self.bot.rx_mention.match(message.content):
             return
 
-        if not CleverbotHandler.enabled:
+        if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '0':
             await cmd.answer('l-lo siento sempai, no puedo hablar ahora uwu')
             return
 
@@ -68,6 +89,7 @@ class ToggleConversation(Command):
             await cmd.answer('Comando no disponible')
             return
 
-        CleverbotHandler.enabled = not CleverbotHandler.enabled
-        resp = ['desactivada', 'activada'][int(CleverbotHandler.enabled)]
+        new_val = ['0', '1'][int(cmd.config.get(CleverbotHandler.cfg_enabled, '1') == '0')]
+        cmd.config.set(CleverbotHandler.cfg_enabled, new_val)
+        resp = ['desactivada', 'activada'][int(new_val == '1')]
         await cmd.answer('Conversación {}'.format(resp))

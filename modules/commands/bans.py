@@ -37,18 +37,14 @@ class BanCmd(Command):
             await cmd.answer('con mi colega no, tamo? :angry:')
             return
 
-        # Actualizar id del último que usó un comando (omitir al mismo bot)
-        if self.bot.last_author is None or not cmd.own:
-            self.bot.last_author = message.author.id
-
         # Evitar que alguien se banee a si mismo
         if self.bot.last_author == mention.id:
             await cmd.answer('no hagai trampa po wn xd')
             return
 
         if not random.randint(0, 1):
-            await cmd.answer('¡**{}** intentó banear a **{}**, quien se salvó de milagro!'
-                             .format(cmd.author.mention, mention_name))
+            await cmd.answer('¡**$NM** intentó banear a **{}**, quien se salvó de milagro!'
+                             .format(mention_name), withname=False)
             return
 
         user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
@@ -58,11 +54,11 @@ class BanCmd(Command):
         update.execute()
 
         if created:
-            text = 'Uff, ¡**{}** le ha dado a **{}** su primer ban!'.format(cmd.author.mention, mention_name)
+            text = 'Uff, ¡**$NM** le ha dado a **{}** su primer ban!'.format(mention_name)
         else:
-            text = '¡**{}** ha baneado a **{}** sumando **{} baneos**!'
-            text = text.format(cmd.author.mention, mention_name, user.bans + 1)
-        await cmd.answer(text)
+            text = '¡**$NM** ha baneado a **{}** sumando **{} baneos**!'
+            text = text.format(mention_name, user.bans + 1)
+        await cmd.answer(text, withname=False)
 
 
 class Bans(Command):
@@ -80,7 +76,7 @@ class Bans(Command):
 
         mention = message.mentions[0]
         if cmd.is_owner(mention):
-            mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
+            mesg = 'te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
             mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
             await cmd.answer(mesg)
             return
@@ -133,7 +129,7 @@ class SetBans(Command):
 
         name = mention.display_name
         if num_bans == 0:
-            mesg = 'Bans de **{}** reiniciados xd'.format(name)
+            mesg = 'bans de **{}** reiniciados xd'.format(name)
             await cmd.answer(mesg)
         else:
             word = 'ban' if num_bans == 1 else 'bans'
@@ -164,9 +160,9 @@ class BanRank(Command):
                 break
 
         if len(banlist) == 0:
-            await cmd.answer('No hay bans registrados')
+            await cmd.answer('no hay bans registrados')
         else:
-            await cmd.answer('Ranking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
+            await cmd.answer('\nRanking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
 
 
 class BanMigrate(Command):

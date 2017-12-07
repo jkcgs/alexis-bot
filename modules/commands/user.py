@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from modules.base.command import Command, ConfigError
+from modules.base.command import Command
 from discord import Embed
 
 

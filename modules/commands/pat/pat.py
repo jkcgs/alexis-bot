@@ -39,11 +39,13 @@ class Pat(Command):
             config_path = path.join(path.dirname(path.realpath(__file__)), 'pats.yml')
             with open(config_path, 'r') as file:
                 config = yaml.safe_load(file)
+            if config is None:
+                raise Exception('La configuración está vacía')
 
             res_config = {
-                'pats': [] if 'pats' not in config else config['pats'],
-                'self_pats': [] if 'self_pats' not in config else config['self_pats'],
-                'bot_pat': 'http://i.imgur.com/tVzapCY.gif' if 'bot_pat' not in config else config['bot_pat']
+                'pats': config.get('pats', []),
+                'self_pats': config.get('self_pats', []),
+                'bot_pat': config.get('bot_pat', 'http://i.imgur.com/tVzapCY.gif')
             }
             return res_config
         except Exception as ex:

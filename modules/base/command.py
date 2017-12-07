@@ -99,8 +99,12 @@ class Command:
 
         # Command handler
         try:
-            # Comando inválido
+            # Comando válido
             if cmd.is_cmd and cmd.cmdname in bot.cmds:
+                # Actualizar id del último que usó un comando (omitir al mismo bot)
+                if not cmd.own:
+                    bot.last_author = message.author.id
+
                 bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
                 cmd_ins = bot.cmds[cmd.cmdname]
 
@@ -232,7 +236,3 @@ class MessageCmd:
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(
             self.cmdname, self.message.server, self.message.channel, self.text)
-
-
-class ConfigError(BaseException):
-    pass
