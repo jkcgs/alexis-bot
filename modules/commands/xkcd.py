@@ -13,7 +13,7 @@ class xkcd(Command):
         self.xkcd_comic = []
 
     async def handle(self, message, cmd):
-        arg = cmd.text.strip(' ')
+        arg = cmd.text
         if arg.isdigit() and 0 < int(arg) < self.xkcd_current['num']:
             self.xkcd_comic = requests.get('https://xkcd.com/{}/info.0.json'.format(arg)).json()
         elif arg == 'random':
@@ -29,4 +29,3 @@ class xkcd(Command):
         embed.description = self.xkcd_comic['alt']
         embed.set_footer(text='xkcd n° {}'.format(self.xkcd_comic['num']))
         await cmd.answer(embed=embed)
-        return

@@ -14,4 +14,4 @@ class Ping(Command):
         if random.random() >= .5:
             await cmd.answer('wena xoro')
         else:
-            await cmd.answer('Pong!')
+            await cmd.answer('pong!')

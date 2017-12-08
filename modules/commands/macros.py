@@ -138,7 +138,6 @@ class MacroSuperList(Command):
             await cmd.answer('no hay macros disponibles')
             return
 
-        word = 'macro' if num_memes == 1 else 'macros'
         resp = 'hay {} {}:'.format(num_memes, ['macros', 'macro'][int(num_memes == 1)])
         await cmd.answer(resp)
 
@@ -253,7 +252,7 @@ class EmbedMacroSet(Command):
             self.log.debug('no subargs>3, %s %s', len(subargs), str(subargs))
 
         if image_url == '' and title == '' and description == '':
-            await cmd.answer('Al menos la imagen, el titulo o la descripción deben ser ingresados')
+            await cmd.answer('al menos la imagen, el titulo o la descripción deben ser ingresados')
             return
 
         server_id = 'global' if cmd.is_pm else message.server.id
@@ -265,9 +264,9 @@ class EmbedMacroSet(Command):
         macro.save()
 
         if created:
-            await cmd.answer('Macro **{}** creado'.format(name))
+            await cmd.answer('macro **{}** creado'.format(name))
         else:
-            await cmd.answer('Macro **{}** actualizado'.format(name))
+            await cmd.answer('macro **{}** actualizado'.format(name))
 
     @staticmethod
     def get_colour(value):
@@ -301,9 +300,9 @@ class EmbedMacroUnset(Command):
             EmbedMacro.get(name=name, server=server_id)
             q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
             q.execute()
-            await cmd.answer('Macro **{}** eliminado'.format(name))
+            await cmd.answer('macro **{}** eliminado'.format(name))
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('El macro **{}** no existe'.format(name))
+            await cmd.answer('el macro **{}** no existe'.format(name))
             pass
 
 
@@ -333,9 +332,9 @@ class EmbedMacroSetColour(Command):
             macro = EmbedMacro.get(name=name, server=server_id)
             macro.embed_color = colour.value
             macro.save()
-            await cmd.answer('Color de macro **{}** actualizado'.format(name))
+            await cmd.answer('color de macro **{}** actualizado'.format(name))
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('El macro **{}** no existe'.format(name))
+            await cmd.answer('el macro **{}** no existe'.format(name))
             pass
 
 

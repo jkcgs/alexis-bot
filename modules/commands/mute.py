@@ -70,7 +70,7 @@ class Mute(Command):
 
         str_deltatime = '' if deltatime is None else ' por ' + Mute.deltatime_to_str(deltatime)
         if deltatime is not None and str_deltatime == '':
-            await cmd.answer('Si quieres desmutear a alguien, utiliza !unmute <user>')
+            await cmd.answer('si quieres desmutear a alguien, utiliza !unmute <user>')
             return
 
         # Quitar mute de la db si ya está muteado
@@ -89,7 +89,7 @@ class Mute(Command):
             # if mutedrole is still None
             if mutedrole is None:
                 self.log.warning('El rol "%s" no existe (server: %s)', sv_role, server)
-                await cmd.answer('El rol "{}" no existe!'.format(sv_role))
+                await cmd.answer('el rol "{}" no existe!'.format(sv_role))
                 return
 
             await self.bot.add_roles(member, mutedrole)
@@ -213,7 +213,7 @@ class Unmute(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1 or len(message.mentions) != 1:
-            await cmd.answer('Formato: !unmute <@mención>')
+            await cmd.answer('formato: !unmute <@mención>')
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
@@ -221,7 +221,7 @@ class Unmute(Command):
         mutedrole = Command.get_server_role(message.server, sv_role)
 
         if mutedrole is None:
-            await cmd.answer('El usuario no tiene el rol de muteado ({})'.format(sv_role))
+            await cmd.answer('el usuario no tiene el rol de muteado ({})'.format(sv_role))
             return
 
         try:
@@ -231,7 +231,7 @@ class Unmute(Command):
             pass
 
         await self.bot.remove_roles(member, mutedrole)
-        await cmd.answer('Usuario desmuteado!')
+        await cmd.answer('usuario desmuteado!')
 
 
 class SetMutedRole(Command):
@@ -244,16 +244,16 @@ class SetMutedRole(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1:
-            await cmd.answer('Formato: $PX$NM <rol>')
+            await cmd.answer('formato: $PX$NM <rol>')
             return
 
         r = Command.get_server_role(message.server, cmd.args[0])
         if r is None:
-            await cmd.answer('El rol especificado no existe')
+            await cmd.answer('el rol especificado no existe')
             return
 
         cmd.config.set(Mute.cfg_muted_role, cmd.args[0])
-        await cmd.answer('Rol definido en **{}**'.format(cmd.args[0]))
+        await cmd.answer('rol definido en **{}**'.format(cmd.args[0]))
 
 
 class MutedUser(BaseModel):

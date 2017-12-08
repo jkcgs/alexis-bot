@@ -10,7 +10,7 @@ class Reverse(Command):
         self.help = 'Revierte el texto enviado'
 
     async def handle(self, message, cmd):
-        text = cmd.text if cmd.text != '' else 'Formato: !reverse <texto>'
+        text = cmd.text if cmd.text != '' else 'formato: !reverse <texto>'
         if text.endswith(cmd.prefix):
             text = random.choice(['jaja ste men', 'oye nuuuu', 'jajaj jurai', 'que wea tramposo qlo', 'xd'])
         else:

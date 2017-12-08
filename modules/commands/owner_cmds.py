@@ -132,7 +132,7 @@ class LockBot(Command):
                 channel = cmd.find_channel(cmd.args[0])
 
         if channel is None:
-            await cmd.answer('Canal no encontrado')
+            await cmd.answer('canal no encontrado')
             return
 
         config, _ = ServerConfig.get_or_create(serverid=message.server.id, name='locked_bot_channels')
@@ -147,14 +147,14 @@ class LockBot(Command):
         process = True
         if channel.id in chans:
             if lock:
-                msg = 'El canal ya está bloqueado, usa !unlockbot para desbloquear.'
+                msg = 'el canal ya está bloqueado, usa !unlockbot para desbloquear.'
                 process = False
             else:
                 chans.remove(channel.id)
-                msg = 'Canal desbloqueado! :smile:'
+                msg = 'canal desbloqueado! :smile:'
         else:
             if not lock:
-                msg = 'El canal no está bloqueado, usa !lockbot para bloquear.'
+                msg = 'el canal no está bloqueado, usa !lockbot para bloquear.'
                 process = False
             else:
                 if config.value == '':

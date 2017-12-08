@@ -21,7 +21,7 @@ class Weather(Command):
             return
 
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <lugar>')
+            await cmd.answer('formato: $PX$NM <lugar>')
             return
 
         place = urlparse.quote(cmd.text)
@@ -32,13 +32,13 @@ class Weather(Command):
         async with self.http.get(url) as r:
             if r.status != 200:
                 if r.status == 404:
-                    await cmd.answer('Lugar no encontrado')
+                    await cmd.answer('lugar no encontrado')
                     return
                 if r.status == 401:
-                    await cmd.answer('La API key no funciona D:')
+                    await cmd.answer('la API key no funciona D:')
                     return
                 else:
-                    await cmd.answer('Error desconocido uwu')
+                    await cmd.answer('error desconocido uwu ({})'.format(r.status))
                     return
 
             data = await r.json()

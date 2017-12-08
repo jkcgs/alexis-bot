@@ -18,18 +18,20 @@ class Ping(Command):
             x.strip('')
             args.append(x)
         if len(args) == 1:
-            await cmd.answer('Uso: !poll <Título> | <Opción 1> | <Opción 2> [| <Opción ...> | <Opción {}>]'.format(max_opciones))
+            await cmd.answer('uso: !poll <Título> | <Opción 1> | <Opción 2> [| <Opción ...> | <Opción {}>]'.format(max_opciones))
             return
         elif len(args) == 1:
-            await cmd.answer('¡Necesitas ingresar opciones!')
+            await cmd.answer('¡necesitas ingresar opciones!')
             return
         elif len(args) == 2:
-            await cmd.answer('¡Necesitas al menos 2 opciones!')
+            await cmd.answer('¡ncesitas al menos 2 opciones!')
             return
         elif len(args) > max_opciones+1:
-            await cmd.answer('¡Máximo 6 opciones!')
+            await cmd.answer('¡máximo 6 opciones!')
             return
-        async with self.http.post(url='https://strawpoll.me/api/v2/polls',data=json.dumps({'title': args[0], 'options': args[1:]})) as poll_response:
+
+        op = {'title': args[0], 'options': args[1:]}
+        async with self.http.post(url='https://strawpoll.me/api/v2/polls', data=json.dumps(op)) as poll_response:
             x = await poll_response.json()
             option_list = ''
             for options in x['options']:

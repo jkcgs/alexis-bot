@@ -19,4 +19,4 @@ class Respects(Command):
         for x in range(random.randint(1, 3)):
             msg += ':' + random.choice(Respects.hearts) + ':'
 
-        await cmd.answer(msg)
+        await cmd.answer(msg, withname=False)
