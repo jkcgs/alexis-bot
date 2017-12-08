@@ -134,10 +134,13 @@ class Alexis(discord.Client):
         try:
             with open('config.yml', 'r') as file:
                 config = yaml.safe_load(file)
+            if config is None:
+                config = {}
 
             # Completar info con defaults
-            if 'owners' not in config:
-                config['owners'] = []
+            config['owners'] = config.get('owners', [])
+            config['bot_owners'] = config.get('bot_owners', ["130324995984326656"])
+
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
                 config['command_prefix'] = '!'
 

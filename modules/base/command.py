@@ -20,14 +20,15 @@ class Command:
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
         self.nsfw_only = False  # TODO
-        self.pm_error = 'Este comando no se puede usar via PM'
+        self.pm_error = 'este comando no se puede usar via PM'
+        self.bot_owner_only = False
         self.owner_only = False
-        self.owner_error = 'No puedes usar este comando'
+        self.owner_error = 'no puedes usar este comando'
         self.format = ''  # TODO
 
         self.user_delay = 0
         self.users_delay = {}
-        self.user_delay_error = 'Aún no puedes usar este comando'
+        self.user_delay_error = 'aún no puedes usar este comando'
 
         self.db_models = []
         self.http = bot.http_session
@@ -111,17 +112,23 @@ class Command:
                 bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
                 cmd_ins = bot.cmds[cmd.cmdname]
 
+                # Sólo owner del bot
+                if cmd_ins.bot_owner_only and not cmd.bot_owner:
+                    return
                 # Sólo owner
-                if cmd_ins.owner_only and not cmd.owner:
-                    await cmd.answer(cmd_ins.owner_error)
+                if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
+                    # await cmd.answer(cmd_ins.owner_error)
+                    return
                 # Comando deshabilitado por PM
                 elif not cmd_ins.allow_pm and cmd.is_pm:
-                    await cmd.answer(cmd_ins.pm_error)
+                    # await cmd.answer(cmd_ins.pm_error)
+                    return
                 # Delay para el comando
                 elif cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay \
                         and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now() \
                         and not cmd.owner:
-                    await cmd.answer(cmd_ins.user_delay_error)
+                    # await cmd.answer(cmd_ins.user_delay_error)
+                    return
                 # Ejecutar el comando
                 else:
                     cmd_ins.users_delay[cmd.author.id] = dt.now()
@@ -142,10 +149,14 @@ class Command:
             if message.content.startswith(swtext):
                 bot.log.debug('[sw] %s sent message: "%s" handler "%s"', message.author, cmd.text, swtext)
                 swhandler = bot.swhandlers[swtext]
-                if swhandler.owner_only and not cmd.owner:
-                    await cmd.answer(swhandler.owner_error)
+                if swhandler.bot_owner_only and not cmd.bot_owner:
+                    continue
+                if swhandler.owner_only and not (cmd.owner or cmd.bot_owner):
+                    # await cmd.answer(swhandler.owner_error)
+                    continue
                 elif not swhandler.allow_pm and cmd.is_pm:
-                    await cmd.answer(swhandler.pm_error)
+                    # await cmd.answer(swhandler.pm_error)
+                    continue
                 else:
                     await swhandler.handle(message, cmd)
 
@@ -156,10 +167,14 @@ class Command:
         # Mention handlers
         if bot.user.mentioned_in(message):
             for cmd_ins in bot.mention_handlers:
-                if cmd_ins.owner_only and not cmd.owner:
-                    await cmd.answer(cmd_ins.owner_error)
+                if cmd_ins.bot_owner_only and not cmd.bot_owner:
+                    continue
+                if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
+                    # await cmd.answer(cmd_ins.owner_error)
+                    continue
                 elif not cmd_ins.allow_pm and cmd.is_pm:
-                    await cmd.answer(cmd_ins.pm_error)
+                    # await cmd.answer(cmd_ins.pm_error)
+                    continue
                 else:
                     await cmd_ins.handle(message, cmd)
 
@@ -177,6 +192,7 @@ class MessageCmd:
         self.is_cmd = False
         self.text = message.content
         self.config = None
+        self.bot_owner = message.author.id in bot.config['bot_owners']
 
         self.cmdname = ''
         self.prefix = bot.config['command_prefix']
