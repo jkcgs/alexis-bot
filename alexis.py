@@ -20,7 +20,7 @@ from modules.base.database import ServerConfigMgr
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '1.0.0-dev.4'
+__version__ = '1.0.0-dev.6'
 __status__ = "Desarrollo"
 
 

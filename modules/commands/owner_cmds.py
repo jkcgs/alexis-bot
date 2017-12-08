@@ -17,13 +17,17 @@ class ReloadCmd(Command):
         super().__init__(bot)
         self.name = 'reload'
         self.help = 'Recarga la configuración'
-        self.owner_only = True
+        self.bot_owner_only = True
 
     async def handle(self, message, cmd):
         if not self.bot.load_config():
-            msg = 'No se pudo recargar la configuración'
+            msg = 'no se pudo recargar la configuración'
         else:
-            msg = 'Configuración recargada correctamente'
+            msg = 'configuración recargada correctamente'
+
+        nmods = len([i.load_config() for i in self.bot.cmd_instances if callable(getattr(i, 'load_config', None))])
+        if nmods > 0:
+            msg += ', incluyendo {} módulo{}'.format(nmods, ['s', ''][int(nmods == 1)])
 
         await cmd.answer(msg)
 

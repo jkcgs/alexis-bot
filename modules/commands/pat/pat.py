@@ -12,7 +12,8 @@ class Pat(Command):
         super().__init__(bot)
         self.name = 'pat'
         self.help = 'Te envía una imagen de animé de una caricia en la cabeza y algo más'
-        self.config = self.load_config()
+        self.config = {}
+        self.load_config()
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1 or len(message.mentions) != 1:
@@ -35,6 +36,8 @@ class Pat(Command):
         await cmd.answer(embed=Command.img_embed(url, text))
 
     def load_config(self):
+        self.log.debug('[Pat] Cargando pats...')
+
         try:
             config_path = path.join(path.dirname(path.realpath(__file__)), 'pats.yml')
             with open(config_path, 'r') as file:
@@ -42,15 +45,14 @@ class Pat(Command):
             if config is None:
                 raise Exception('La configuración está vacía')
 
-            res_config = {
+            self.config = {
                 'pats': config.get('pats', []),
                 'self_pats': config.get('self_pats', []),
                 'bot_pat': config.get('bot_pat', 'http://i.imgur.com/tVzapCY.gif')
             }
-            return res_config
         except Exception as ex:
             self.log.exception(ex)
-            return {
+            self.config = {
                 'pats': [],
                 'self_pats': [],
                 'bot_pat': 'http://i.imgur.com/tVzapCY.gif'

@@ -52,15 +52,10 @@ class SimSimiCmd(Command):
         self.help = 'Habla con SimSimi'
         self.user_delay = 5
         self.allow_pm = False
-        self.config = self.load_config()
         self.sim = None
         self.enabled = True
-
-        if self.config['api_key'] == '':
-            self.log.warn('API KEY no definida para SimSimi, no será activado.')
-        else:
-            self.sim = SimSimi(conversation_key=self.config['api_key'], http_session=self.http,
-                               is_trial=self.config['is_trial'])
+        self.config = {}
+        self.load_config()
 
     async def handle(self, message, cmd):
         if self.sim is None or cmd.text == '' or not self.enabled:
@@ -79,6 +74,8 @@ class SimSimiCmd(Command):
             await cmd.answer('el coso tiró un error: ' + str(e))
 
     def load_config(self):
+        self.log.debug('[SimSimiCmd] Cargando configuración...')
+
         try:
             config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yml')
             with open(config_path, 'r') as file:
@@ -87,18 +84,24 @@ class SimSimiCmd(Command):
             if config is None:
                 config = {}
 
-            res_config = {
+            self.config = {
                 'api_key': config.get('api_key', ''),
                 'lang_code': config.get('lang_code', 'es'),
                 'is_trial': config.get('is_trial', True)
             }
-            return res_config
+
         except Exception as ex:
             self.log.exception(ex)
-            return {
+            self.config = {
                 'api_key': '',
                 'lang_code': 'es',
                 'is_trial': True
             }
+
+        if self.config['api_key'] == '':
+            self.log.warn('API KEY no definida para SimSimi, no será activado.')
+        else:
+            self.sim = SimSimi(conversation_key=self.config['api_key'], http_session=self.http,
+                               is_trial=self.config['is_trial'])
 
 

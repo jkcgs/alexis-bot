@@ -17,7 +17,28 @@ class CleverbotHandler(Command):
         super().__init__(bot)
         self.mention_handler = True
         self.allow_pm = False
-        self.config = self.load_config()
+        self.cbot = None
+        self.config = {}
+        self.load_config()
+
+    def load_config(self):
+        self.log.debug('[CleverbotHandler] Cargando configuración...')
+
+        try:
+            config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yml')
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+            if config is None:
+                raise Exception('La configuración está vacía')
+
+            self.config = {
+                'api_key': config.get('api_key', '')
+            }
+        except Exception as ex:
+            self.log.exception(ex)
+            self.config = {
+                'api_key': ''
+            }
 
         key = self.config['api_key']
         if key == '':
@@ -26,24 +47,6 @@ class CleverbotHandler(Command):
             return
 
         self.cbot = CleverWrap(key)
-
-    def load_config(self):
-        try:
-            config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yml')
-            with open(config_path, 'r') as file:
-                config = yaml.safe_load(file)
-            if config is None:
-                raise Exception('La configuración está vacía')
-
-            res_config = {
-                'api_key': config.get('api_key', '')
-            }
-            return res_config
-        except Exception as ex:
-            self.log.exception(ex)
-            return {
-                'api_key': ''
-            }
 
     async def handle(self, message, cmd):
         if not self.bot.rx_mention.match(message.content):

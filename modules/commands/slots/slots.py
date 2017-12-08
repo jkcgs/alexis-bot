@@ -17,9 +17,8 @@ class Slots(Command):
         self.mention_handler = False
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False
-        self.frutas = self.load_config()
-        if len(self.frutas) < 3:
-            self.frutas = set(list(self.frutas) + self.def_frutas)
+        self.frutas = {}
+        self.load_config()
 
     async def handle(self, message, cmd):
         if len(self.frutas) < 3:
@@ -44,12 +43,17 @@ class Slots(Command):
         return
 
     def load_config(self):
+        self.log.debug('[Slots] Cargando frutitas...')
+
         try:
             config_path = path.join(path.dirname(path.realpath(__file__)), 'frutas.yml')
             with open(config_path, 'r') as file:
                 config = yaml.safe_load(file)
 
-            return [] if 'frutas' not in config else config['frutas']
+            self.frutas = config.get('frutas', [])
         except Exception as ex:
             self.log.exception(ex)
-            return []
+            self.frutas = []
+
+        if len(self.frutas) < 3:
+            self.frutas = set(list(self.frutas) + self.def_frutas)
