@@ -157,7 +157,8 @@ class Alexis(discord.Client):
         if name == 'on_message':
             await Command.message_handler(kwargs.get('message'), self)
 
-        [getattr(c, name, None)(**kwargs) for c in self.cmd_instances if callable(getattr(c, name, None))]
+        for x in [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]:
+            await x(**kwargs)
 
     """
     ===== EVENT HANDLERS =====
