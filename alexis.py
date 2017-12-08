@@ -61,7 +61,7 @@ class Alexis(discord.Client):
 
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
-        self.cmd_instances = [self.load_command(c) for c in modules.commands.classes]
+        self.cmd_instances = [self.load_command(c) for c in modules.commands.get_mods(self.config['ext_modpath'])]
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
         self.log.info('Inicializando tablas de bases de datos de comandos...')
@@ -140,6 +140,7 @@ class Alexis(discord.Client):
             # Completar info con defaults
             config['owners'] = config.get('owners', [])
             config['bot_owners'] = config.get('bot_owners', ['130324995984326656'])
+            config['ext_modpath'] = config.get('ext_modpath', '')
 
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
                 config['command_prefix'] = '!'
