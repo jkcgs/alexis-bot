@@ -7,3 +7,4 @@ playing: "/r/chile"
 owners: ["198944348379938816@248581447579860993"]
 bot_owners: ["130324995984326656"]
 weatherapi_key: ""
+ext_modpath: ""

@@ -139,7 +139,7 @@ class Alexis(discord.Client):
 
             # Completar info con defaults
             config['owners'] = config.get('owners', [])
-            config['bot_owners'] = config.get('bot_owners', ["130324995984326656"])
+            config['bot_owners'] = config.get('bot_owners', ['130324995984326656'])
 
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
                 config['command_prefix'] = '!'
