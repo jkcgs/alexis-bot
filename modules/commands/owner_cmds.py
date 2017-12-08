@@ -105,11 +105,11 @@ class ClearReactions(Command):
 
         if success_count == 0:
             msg_suffix = 'del mensaje' if cmd.argc == 1 else 'de ningún mensaje'
-            await cmd.answer('No se pudo limpiar las reacciones ' + msg_suffix)
+            await cmd.answer('no se pudo limpiar las reacciones ' + msg_suffix)
         elif success_count < cmd.argc:
-            await cmd.answer('Se eliminaron las reacciones de algunos mensajes')
+            await cmd.answer('se eliminaron las reacciones de algunos mensajes')
         else:
-            await cmd.answer('Reacciones eliminadas correctamente')
+            await cmd.answer('reacciones eliminadas correctamente')
 
 
 class LockBot(Command):

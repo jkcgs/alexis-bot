@@ -10,7 +10,7 @@ import random
 
 
 class CleverbotHandler(Command):
-    check = False
+    check = True
     cfg_enabled = 'cbot_enabled'
 
     def __init__(self, bot):
@@ -26,15 +26,6 @@ class CleverbotHandler(Command):
             return
 
         self.cbot = CleverWrap(key)
-        self.log.info('Conectando con Cleverbot API...')
-        CleverbotHandler.check = self.cbot.say('test') is not None
-
-        if self.cbot.say('test') is None:
-            self.log.warning('No se pudo conectar con Cleverbot. La API key podría ser incorrecta.')
-            CleverbotHandler.check = False
-        else:
-            self.log.info('CleverWrap iniciado correctamente.')
-            CleverbotHandler.check = True
 
     def load_config(self):
         try:
@@ -70,6 +61,11 @@ class CleverbotHandler(Command):
             try:
                 self.log.debug('Cleverbot <- "%s" (%s, %s)', msg, str(cmd.author), str(message.channel))
                 reply = self.cbot.say(msg)
+                if reply is None:
+                    self.log.warning('No se pudo conectar con Cleverbot. La API key podría ser incorrecta.')
+                    CleverbotHandler.check = False
+                    reply = 'noooo que pasa D:'
+
             except json.decoder.JSONDecodeError as e:
                 reply = 'pucha sorry, no puedo responderte ahora'
                 self.log.error('Ocurrió un error con Cleverbot')

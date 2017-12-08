@@ -48,6 +48,7 @@ class SimSimiCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'simsimi'
+        self.aliases = ['s']
         self.help = 'Habla con SimSimi'
         self.user_delay = 5
         self.allow_pm = False
