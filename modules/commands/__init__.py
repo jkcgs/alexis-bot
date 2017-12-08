@@ -30,15 +30,18 @@ def get_mods(ext_path=''):
     :param ext_path: Una carpeta de módulos externos
     :return: Una lista de instancias de los módulos de comandos
     """
-    log.debug('Cargando módulos...')
     classes = []
+
+    # Listar módulos internos
     _all = ['modules.commands.' + f for f in get_mod_files(path.dirname(__file__))]
 
+    # Listar módulos externos
     if ext_path != '' and path.isdir(ext_path):
         ext_mods = get_mod_files(ext_path)
         sys.path.append(ext_path)
         _all += ext_mods
 
+    # Cargar todos los módulos
     for imod in _all:
         try:
             mod = __import__(imod, fromlist=[''])
@@ -47,9 +50,9 @@ def get_mods(ext_path=''):
             log.exception(e)
             continue
 
+        # Instanciar módulos disponibles
         for name, obj in inspect.getmembers(mod):
             if inspect.isclass(obj) and name != 'Command' and issubclass(obj, Command):
                 classes.append(obj)
 
-    log.debug('Se encontraron %i módulos', len(classes))
     return classes

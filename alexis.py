@@ -62,6 +62,7 @@ class Alexis(discord.Client):
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
         self.cmd_instances = [self.load_command(c) for c in modules.commands.get_mods(self.config['ext_modpath'])]
+        self.log.debug('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
         self.log.info('Inicializando tablas de bases de datos de comandos...')
