@@ -68,7 +68,7 @@ class SimSimiCmd(Command):
 
         await cmd.typing()
         try:
-            resp = await self.sim.get_conversation(cmd.text)
+            resp = await self.sim.get_conversation(cmd.no_tags())
             await cmd.answer(resp.get('response', 'no c bro discupa'))
         except SimSimiException as e:
             await cmd.answer('el coso tiró un error: ' + str(e))

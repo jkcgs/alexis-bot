@@ -252,6 +252,13 @@ class MessageCmd:
     def is_owner(self, user):
         return Command.is_owner(self.bot, user, self.message.server)
 
+    def no_tags(self):
+        txt = self.text
+        for mention in self.message.mentions:
+            txt = txt.replace(mention.mention, mention.display_name)
+
+        return txt
+
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(
             self.cmdname, self.message.server, self.message.channel, self.text)
