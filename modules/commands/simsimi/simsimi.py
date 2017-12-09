@@ -103,5 +103,3 @@ class SimSimiCmd(Command):
         else:
             self.sim = SimSimi(conversation_key=self.config['api_key'], http_session=self.http,
                                is_trial=self.config['is_trial'])
-
-
