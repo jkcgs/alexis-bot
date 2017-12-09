@@ -12,24 +12,26 @@ class ShipperUwU(Command):
         self.allow_pm = False
 
     async def handle(self, message, cmd):
-        if len(cmd.args) != 2:
+        if len(cmd.args) != 2 or len(message.mentions) != 2:
             await cmd.answer('Formato: !ship @mención1 @mención2')
             return
 
         # obtener menciones en el mismo orden en el que se escribieron
-        user1 = user2 = ''
+        user1 = ''
+        user2 = ''
         for mention in message.mentions:
             if cmd.args[0] == mention.mention:
                 user1 = mention
-            if cmd.args[1] == mention.mention:
+            elif cmd.args[1] == mention.mention:
                 user2 = mention
 
         # verificar que los usuarios no son iguales po jaja
-        if user1 == user2:
+        if user1.id == user2.id:
             await cmd.answer('sabías que para formar una pareja necesitas a dos personas? :3')
             return
 
         await cmd.typing()
+        self.log.debug('Generando imagen...')
 
         # Descargar avatares
         avatar1_url = user1.avatar_url[:-4] + '.png'
@@ -45,7 +47,7 @@ class ShipperUwU(Command):
         user1_img = Image.open(BytesIO(user1_avatar)).resize((512, 512), Image.ANTIALIAS)
         user2_img = Image.open(BytesIO(user2_avatar)).resize((512, 512), Image.ANTIALIAS)
 
-        # Abrir el corazón
+        # Abrir el corazón <3
         heart_img = Image.open(path.join(path.dirname(path.realpath(__file__)), 'heart.png'))
 
         # Crear imagen resultante
@@ -58,6 +60,7 @@ class ShipperUwU(Command):
         temp = BytesIO()
         result.save(temp, format='PNG')
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
+        self.log.debug('Imagen lista!')
 
         # Generar nombre del ship y enviar con la imagen
         u1name = user1.display_name
