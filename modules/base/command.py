@@ -147,7 +147,6 @@ class Command:
                 break
 
             if message.content.startswith(swtext):
-                bot.log.debug('[sw] %s sent message: "%s" handler "%s"', message.author, cmd.text, swtext)
                 swhandler = bot.swhandlers[swtext]
                 if swhandler.bot_owner_only and not cmd.bot_owner:
                     continue

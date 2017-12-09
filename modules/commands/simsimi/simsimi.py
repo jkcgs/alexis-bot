@@ -39,7 +39,7 @@ class SimSimi:
             response_dict = await r.json()
 
         if response_dict['result'] != 100:
-            raise SimSimiException('Error: {}'.format(response_dict['msg']))
+            raise SimSimiException(response_dict['msg'])
 
         return response_dict
 
@@ -52,13 +52,13 @@ class SimSimiCmd(Command):
         self.help = 'Habla con SimSimi'
         self.user_delay = 5
         self.allow_pm = False
-        self.sim = None
         self.enabled = True
         self.config = {}
+        self.key_index = 0
         self.load_config()
 
     async def handle(self, message, cmd):
-        if self.sim is None or cmd.text == '' or not self.enabled:
+        if cmd.text == '' or not self.enabled:
             return
 
         if cmd.text in ['off', 'on'] and cmd.owner:
@@ -66,12 +66,36 @@ class SimSimiCmd(Command):
             await cmd.answer('ya')
             return
 
+        if len(self.config['api_keys']) == 0:
+            return
+
         await cmd.typing()
-        try:
-            resp = await self.sim.get_conversation(cmd.no_tags())
-            await cmd.answer(resp.get('response', 'no c bro discupa'))
-        except SimSimiException as e:
-            await cmd.answer('el coso tiró un error: ' + str(e))
+        start_index = self.key_index
+
+        while True:
+            try:
+                sim = self.get_bot(self.key_index)
+                if sim is None:
+                    await cmd.answer('no hay api keys disponibles')
+                    break
+
+                resp = await sim.get_conversation(cmd.no_tags())
+                await cmd.answer(resp.get('response', 'no c bro discupa'))
+                break
+            except SimSimiException as e:
+                if str(e) == 'Daily Request Query Limit Exceeded.'\
+                        or str(e) == 'Unauthorized':
+                    if self.key_index + 1 >= len(self.config['api_keys']):
+                        self.key_index = 0
+                    else:
+                        self.key_index += 1
+
+                    if self.key_index == start_index:
+                        await cmd.answer('no quedan api calls disponibles')
+                        break
+                else:
+                    await cmd.answer('el coso tiró un error: ' + str(e))
+                    break
 
     def load_config(self):
         self.log.debug('[SimSimiCmd] Cargando configuración...')
@@ -85,21 +109,27 @@ class SimSimiCmd(Command):
                 config = {}
 
             self.config = {
-                'api_key': config.get('api_key', ''),
-                'lang_code': config.get('lang_code', 'es'),
-                'is_trial': config.get('is_trial', True)
+                'api_keys': config.get('api_keys', []),
+                'lang': config.get('lang', 'es')
             }
 
         except Exception as ex:
             self.log.exception(ex)
             self.config = {
-                'api_key': '',
-                'lang_code': 'es',
-                'is_trial': True
+                'api_keys': [],
+                'lang': 'es'
             }
 
-        if self.config['api_key'] == '':
-            self.log.warn('API KEY no definida para SimSimi, no será activado.')
-        else:
-            self.sim = SimSimi(conversation_key=self.config['api_key'], http_session=self.http,
-                               is_trial=self.config['is_trial'])
+        if len(self.config['api_keys']) == 0:
+            self.log.warn('No se definieron API keys para SimSimi, por lo que no será activado.')
+
+    def get_bot(self, idx):
+        if len(self.config['api_keys']) == 0:
+            return None
+
+        key = self.config['api_keys'][idx].get('key', '')
+        is_trial = self.config['api_keys'][idx].get('is_trial', True)
+        if key == '':
+            return None
+
+        return SimSimi(conversation_key=key, http_session=self.http, is_trial=is_trial)
