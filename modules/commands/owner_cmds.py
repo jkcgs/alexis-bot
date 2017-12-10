@@ -81,8 +81,7 @@ class ClearReactions(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 1:
-            prefix = self.bot.config['command_prefix']
-            await cmd.answer('Formato: {}{} [#canal=actual] <id_mensaje1> ... <id_mensajeN>'.format(prefix, cmd.cmdname))
+            await cmd.answer('Formato:  $PX$NM [#canal=actual] <id_mensaje1> ... <id_mensajeN>')
             return
 
         await cmd.typing()
@@ -114,6 +113,28 @@ class ClearReactions(Command):
             await cmd.answer('se eliminaron las reacciones de algunos mensajes')
         else:
             await cmd.answer('reacciones eliminadas correctamente')
+
+
+class ChangePrefix(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'prefix'
+        self.aliases = ['changeprefix']
+        self.help = 'Cambia el prefijo para los comandos'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if cmd.argc < 1:
+            await cmd.answer('Formato: $PX$NM <prefijo>')
+            return
+
+        txt = cmd.args[0]
+        if len(txt) > 3:
+            await cmd.answer('El prefijo sólo puede tener hasta 3 carácteres')
+            return
+
+        cmd.config.set('command_prefix', txt)
+        await cmd.answer('Prefijo configurado como {}'.format(txt))
 
 
 class LockBot(Command):

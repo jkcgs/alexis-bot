@@ -194,21 +194,23 @@ class MessageCmd:
         self.bot_owner = message.author.id in bot.config['bot_owners']
 
         self.cmdname = ''
-        self.prefix = bot.config['command_prefix']
         self.args = []
         self.argc = 0
+
+        if not self.is_pm:
+            self.server_member = message.server.get_member(self.bot.user.id)
+            self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
+            self.prefix = self.config.get('command_prefix', bot.config['command_prefix'])
+        else:
+            self.prefix = bot.config['command_prefix']
 
         if message.content.startswith(self.prefix):
             self.is_cmd = True
             allargs = message.content.replace('  ', ' ').split(' ')
             self.args = [] if len(allargs) == 1 else [f for f in allargs[1:] if f.strip() != '']
             self.argc = len(self.args)
-            self.cmdname = allargs[0][1:]
+            self.cmdname = allargs[0][len(self.prefix):]
             self.text = ' '.join(self.args)
-
-        if not self.is_pm:
-            self.server_member = message.server.get_member(self.bot.user.id)
-            self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         content = content.replace('$PX', self.bot.config['command_prefix'])
