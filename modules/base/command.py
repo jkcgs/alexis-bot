@@ -213,7 +213,7 @@ class MessageCmd:
             self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
-        content = content.replace('$PX', self.bot.config['command_prefix'])
+        content = content.replace('$PX', self.prefix)
         content = content.replace('$NM', self.cmdname)
         content = content.replace('$AU', self.author_name)
 
