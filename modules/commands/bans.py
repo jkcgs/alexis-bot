@@ -70,7 +70,7 @@ class Bans(Command):
             return
 
         mention = message.mentions[0]
-        if self.is_owner(mention, message.server):
+        if Command.is_owner(self.bot, mention, message.server):
             mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
             mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
             await cmd.answer(mesg)
