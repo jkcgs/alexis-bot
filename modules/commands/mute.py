@@ -8,6 +8,7 @@ import peewee
 
 from modules.base.command import Command
 from modules.base.database import BaseModel
+from modules.base import utils
 
 
 class Mute(Command):
@@ -85,7 +86,7 @@ class Mute(Command):
 
         # Si el usuario ya tiene el rol, no es necesario agregarlo
         if mutedrole is None:
-            mutedrole = Command.get_server_role(server, sv_role)
+            mutedrole = utils.get_server_role(server, sv_role)
             # if mutedrole is still None
             if mutedrole is None:
                 self.log.warning('El rol "%s" no existe (server: %s)', sv_role, server)
@@ -118,7 +119,7 @@ class Mute(Command):
 
         mgr = self.config_mgr(member.server.id)
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        role = Command.get_server_role(server, sv_role)
+        role = utils.get_server_role(server, sv_role)
         if role is None:
             self.log.warning('El rol "%s" no existe (server: %s)', sv_role, server)
             return
@@ -149,7 +150,7 @@ class Mute(Command):
                 mgr = self.config_mgr(muteduser.serverid)
                 sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
                 member = server.get_member(muteduser.userid)
-                role = Command.get_server_role(server, sv_role)
+                role = utils.get_server_role(server, sv_role)
 
                 if role is None:
                     self.log.warning('El rol "%s" no existe (server: %s)', sv_role, server)
@@ -218,7 +219,7 @@ class Unmute(Command):
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
         member = message.mentions[0]
-        mutedrole = Command.get_server_role(message.server, sv_role)
+        mutedrole = utils.get_server_role(message.server, sv_role)
 
         if mutedrole is None:
             await cmd.answer('el usuario no tiene el rol de muteado ({})'.format(sv_role))
@@ -247,7 +248,7 @@ class SetMutedRole(Command):
             await cmd.answer('formato: $PX$NM <rol>')
             return
 
-        r = Command.get_server_role(message.server, cmd.args[0])
+        r = utils.get_server_role(message.server, cmd.args[0])
         if r is None:
             await cmd.answer('el rol especificado no existe')
             return

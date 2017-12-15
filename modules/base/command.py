@@ -6,6 +6,8 @@ import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
+from modules.base.message_cmd import MessageCmd
+
 
 class Command:
     def __init__(self, bot):
@@ -25,6 +27,7 @@ class Command:
         self.owner_only = False
         self.owner_error = 'no puedes usar este comando'
         self.format = ''  # TODO
+        self.default_enabled = True
 
         self.user_delay = 0
         self.users_delay = {}
@@ -41,48 +44,11 @@ class Command:
         return ServerConfigMgrSingle(self.bot.sv_config, serverid)
 
     @staticmethod
-    def img_embed(url, title=''):
-        embed = Embed()
-        embed.set_image(url=url)
-        if title != '':
-            embed.title = title
-        return embed
-
-    @staticmethod
-    def get_server_role(server, role_name):
-        for role in server.roles:
-            if role.name == role_name:
-                return role
-        return None
-
-    @staticmethod
-    def parse(message, bot):
-        # TODO: setear instancia del comando que llama si es posible
-        msg = MessageCmd(message, bot)
-        msg.owner = Command.is_owner(bot, message.author, message.server)
-        return msg
-
-    @staticmethod
-    def is_owner(bot, member, server):
-        if server is None:
-            return False
-
-        if member.id in bot.config['owners']:
-            return True
-
-        for role in member.roles:
-            owner_role = server.id + "@" + role.id
-            if owner_role in bot.config['owners']:
-                return True
-
-        return False
-
-    @staticmethod
     async def message_handler(message, bot):
         if not bot.initialized:
             return
 
-        cmd = Command.parse(message, bot)
+        cmd = MessageCmd(message, bot)
 
         # Mandar PMs al log
         if cmd.is_pm:
@@ -90,16 +56,6 @@ class Command:
                 bot.log.info('[PM] (-> %s): %s', message.channel.user, cmd.text)
             else:
                 bot.log.info('[PM] %s: %s', cmd.author, cmd.text)
-
-        # Si es posible, revisar que el canal no ha sido bloqueado (no se revisa si es un PM, si es owner, o si es
-        # el comando !lock o lockbot)
-        if not cmd.is_pm and not cmd.owner and 'lockbot' in bot.cmds:
-            lbinstance = bot.cmds['lockbot']
-            lbname = lbinstance.name
-            lbnames = [lbname] if isinstance(lbname, str) else lbname
-            is_lb_cmd = cmd.is_cmd and cmd.cmdname not in lbnames
-            if not is_lb_cmd and lbinstance.is_locked(message.server.id, message.channel.id):
-                return
 
         # Command handler
         try:
@@ -116,7 +72,7 @@ class Command:
                 if cmd_ins.bot_owner_only and not cmd.bot_owner:
                     return
                 # Sólo owner
-                if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
+                elif cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
                     # await cmd.answer(cmd_ins.owner_error)
                     return
                 # Comando deshabilitado por PM
@@ -133,133 +89,48 @@ class Command:
                 else:
                     cmd_ins.users_delay[cmd.author.id] = dt.now()
                     await cmd_ins.handle(message, cmd)
+
+            # 'startswith' handlers
+            swbreak = False
+            for swtext in bot.swhandlers.keys():
+                if swbreak:
+                    break
+
+                swtextrep = swtext.replace('$PX', cmd.prefix)
+                if message.content.startswith(swtextrep):
+                    swhandler = bot.swhandlers[swtext]
+                    if swhandler.bot_owner_only and not cmd.bot_owner:
+                        continue
+                    if swhandler.owner_only and not (cmd.owner or cmd.bot_owner):
+                        # await cmd.answer(swhandler.owner_error)
+                        continue
+                    elif not swhandler.allow_pm and cmd.is_pm:
+                        # await cmd.answer(swhandler.pm_error)
+                        continue
+                    else:
+                        await swhandler.handle(message, cmd)
+
+                    if swhandler.swhandler_break:
+                        swbreak = True
+                        break
+
+            # Mention handlers
+            if bot.user.mentioned_in(message):
+                for cmd_ins in bot.mention_handlers:
+                    if cmd_ins.bot_owner_only and not cmd.bot_owner:
+                        continue
+                    if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
+                        # await cmd.answer(cmd_ins.owner_error)
+                        continue
+                    elif not cmd_ins.allow_pm and cmd.is_pm:
+                        # await cmd.answer(cmd_ins.pm_error)
+                        continue
+                    else:
+                        await cmd_ins.handle(message, cmd)
+
         except Exception as e:
             if bot.config['debug']:
                 await cmd.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
             else:
                 await cmd.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
             bot.log.exception(e)
-
-        # 'startswith' handlers
-        swbreak = False
-        for swtext in bot.swhandlers.keys():
-            if swbreak:
-                break
-
-            if message.content.startswith(swtext):
-                swhandler = bot.swhandlers[swtext]
-                if swhandler.bot_owner_only and not cmd.bot_owner:
-                    continue
-                if swhandler.owner_only and not (cmd.owner or cmd.bot_owner):
-                    # await cmd.answer(swhandler.owner_error)
-                    continue
-                elif not swhandler.allow_pm and cmd.is_pm:
-                    # await cmd.answer(swhandler.pm_error)
-                    continue
-                else:
-                    await swhandler.handle(message, cmd)
-
-                if swhandler.swhandler_break:
-                    swbreak = True
-                    break
-
-        # Mention handlers
-        if bot.user.mentioned_in(message):
-            for cmd_ins in bot.mention_handlers:
-                if cmd_ins.bot_owner_only and not cmd.bot_owner:
-                    continue
-                if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
-                    # await cmd.answer(cmd_ins.owner_error)
-                    continue
-                elif not cmd_ins.allow_pm and cmd.is_pm:
-                    # await cmd.answer(cmd_ins.pm_error)
-                    continue
-                else:
-                    await cmd_ins.handle(message, cmd)
-
-
-class MessageCmd:
-    def __init__(self, message, bot):
-        self.bot = bot
-        self.message = message
-        self.author = message.author
-        self.author_name = message.author.display_name
-        self.is_pm = message.server is None
-        self.own = message.author.id == bot.user.id
-        self.owner = False
-        self.server_member = None
-        self.is_cmd = False
-        self.text = message.content
-        self.config = None
-        self.bot_owner = message.author.id in bot.config['bot_owners']
-
-        self.cmdname = ''
-        self.args = []
-        self.argc = 0
-
-        if not self.is_pm:
-            self.server_member = message.server.get_member(self.bot.user.id)
-            self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
-            self.prefix = self.config.get('command_prefix', bot.config['command_prefix'])
-        else:
-            self.prefix = bot.config['command_prefix']
-
-        if message.content.startswith(self.prefix):
-            self.is_cmd = True
-            allargs = message.content.replace('  ', ' ').split(' ')
-            self.args = [] if len(allargs) == 1 else [f for f in allargs[1:] if f.strip() != '']
-            self.argc = len(self.args)
-            self.cmdname = allargs[0][len(self.prefix):]
-            self.text = ' '.join(self.args)
-
-    async def answer(self, content='', to_author=False, withname=True, **kwargs):
-        content = content.replace('$PX', self.prefix)
-        content = content.replace('$NM', self.cmdname)
-        content = content.replace('$AU', self.author_name)
-
-        if withname:
-            if content != '':
-                content = ', ' + content
-            content = self.author_name + content
-
-        if to_author:
-            await self.bot.send_message(self.message.author, content, **kwargs)
-        else:
-            await self.bot.send_message(self.message.channel, content, **kwargs)
-
-    async def typing(self):
-        await self.bot.send_typing(self.message.channel)
-
-    def member_by_id(self, user_id):
-        if self.is_pm:
-            return None
-
-        for member in self.message.server.members:
-            if member.id == user_id:
-                return member
-
-        return None
-
-    def find_channel(self, name_or_id):
-        if self.is_pm:
-            return None
-
-        for channel in self.message.server.channels:
-            if channel.id == name_or_id or channel.name == name_or_id:
-                return channel
-
-        return None
-
-    def is_owner(self, user):
-        return Command.is_owner(self.bot, user, self.message.server)
-
-    def no_tags(self):
-        txt = self.text
-        for mention in self.message.mentions:
-            txt = txt.replace(mention.mention, mention.display_name)
-
-        return txt
-
-    def __str__(self):
-        return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(
-            self.cmdname, self.message.server, self.message.channel, self.text)

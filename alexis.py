@@ -20,7 +20,7 @@ from modules.base.database import ServerConfigMgr
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '1.0.0-dev.6'
+__version__ = '1.0.0-dev.7'
 __status__ = "Desarrollo"
 
 
@@ -156,11 +156,19 @@ class Alexis(discord.Client):
         if not self.initialized:
             return
 
+        for x in self._get_handlers('pre_' + name):
+            y = await x(**kwargs)
+            if y is not None and isinstance(y, bool) and not y:
+                return
+
         if name == 'on_message':
             await Command.message_handler(kwargs.get('message'), self)
 
-        for x in [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]:
-            await x(**kwargs)
+        for z in self._get_handlers(name):
+            await z(**kwargs)
+
+    def _get_handlers(self, name):
+        return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
 
     """
     ===== EVENT HANDLERS =====
