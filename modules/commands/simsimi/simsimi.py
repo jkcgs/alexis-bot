@@ -84,7 +84,8 @@ class SimSimiCmd(Command):
                 break
             except SimSimiException as e:
                 if str(e) == 'Daily Request Query Limit Exceeded.'\
-                        or str(e) == 'Unauthorized':
+                        or str(e) == 'Unauthorized'\
+                        or str(e) == 'Trial app is expired.':
                     if self.key_index + 1 >= len(self.config['api_keys']):
                         self.key_index = 0
                     else:

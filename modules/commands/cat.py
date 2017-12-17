@@ -1,4 +1,5 @@
 from modules.base.command import Command
+from modules.base import utils
 
 
 class Cat(Command):
@@ -16,7 +17,7 @@ class Cat(Command):
             async with self.http.get(Cat.url) as r:
                 if r.status == 200:
                     data = await r.json()
-                    await cmd.answer(embed=Command.img_embed(data['file'], 'aquí está tu gatito :3'))
+                    await cmd.answer(embed=utils.img_embed(data['file'], 'aquí está tu gatito :3'))
                     return
         except Exception as e:
             self.log.error(e)
@@ -39,7 +40,7 @@ class Dog(Command):
             async with self.http.get(Dog.url) as r:
                 if r.status == 200:
                     data = await r.json()
-                    await cmd.answer(embed=Command.img_embed(data['message'], 'aquí está tu doggo :3'))
+                    await cmd.answer(embed=utils.img_embed(data['message'], 'aquí está tu doggo :3'))
                     return
         except Exception as e:
             self.log.error(e)
