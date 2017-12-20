@@ -25,7 +25,7 @@ class BanCmd(Command):
         mention = message.mentions[0]
         mention_name = mention.display_name
 
-        if not cmd.owner and cmd.is_owner(mention):
+        if not cmd.owner and Command.is_owner(self.bot, mention, message.server):
             await cmd.answer('nopo wn no hagai esa wea xd')
             return
 
@@ -75,8 +75,8 @@ class Bans(Command):
             return
 
         mention = message.mentions[0]
-        if cmd.is_owner(mention):
-            mesg = 'te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
+        if Command.is_owner(self.bot, mention, message.server):
+            mesg = 'Te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
             mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
             await cmd.answer(mesg)
             return
