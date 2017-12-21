@@ -77,6 +77,15 @@ class MessageCmd:
     def is_owner(self, user):
         return utils.is_owner(self.bot, user, self.message.server)
 
+    def is_enabled(self):
+        if self.is_pm:
+            return True
+
+        avail = {c[1:]: c[0] for c in self.config.get('cmd_status', '').split('|') if c != ''}
+        cmd = self.bot.cmds[self.cmdname]
+        enabled_db = avail.get(cmd.name, '+' if cmd.default_enabled else '-')
+        return enabled_db == '+'
+
     def no_tags(self):
         txt = self.text
         for mention in self.message.mentions:

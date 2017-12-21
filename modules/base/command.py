@@ -1,11 +1,8 @@
-from discord import Embed
-
-from modules.base.database import ServerConfig, ServerConfigMgrSingle
-
 import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
+from modules.base.database import ServerConfigMgrSingle
 from modules.base.message_cmd import MessageCmd
 
 
@@ -78,6 +75,8 @@ class Command:
                 # Comando deshabilitado por PM
                 elif not cmd_ins.allow_pm and cmd.is_pm:
                     # await cmd.answer(cmd_ins.pm_error)
+                    return
+                elif not cmd.is_pm and not cmd.is_enabled():
                     return
                 # Delay para el comando
                 elif cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay \

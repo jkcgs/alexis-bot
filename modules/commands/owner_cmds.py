@@ -6,7 +6,7 @@ from modules.base.command import Command
 from discord import Game
 import sys
 import alexis
-from modules.base.database import ServerConfig
+from modules.base.utils import unserialize_avail
 
 rx_snowflake = re.compile('^\d{10,19}$')
 rx_channel = re.compile('^<#\d{10,19}>$')
@@ -136,3 +136,45 @@ class ChangePrefix(Command):
 
         cmd.config.set('command_prefix', txt)
         await cmd.answer('Prefijo configurado como {}'.format(txt))
+
+
+class CommandConfig(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'cmd'
+        self.help = 'Cambia la configuración de algún comando'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if cmd.argc < 2:
+            await cmd.answer('Formato: $PX$NM <enable|disable> <comando>')
+            return
+
+        if cmd.args[1] not in self.bot.cmds:
+            await cmd.answer('El comando no existe')
+            return
+
+        avail = {c[1:]: c[0] for c in cmd.config.get('cmd_status', '').split('|') if c != ''}
+        cmd_ins = self.bot.cmds[cmd.args[1]]
+        current = avail.get(cmd_ins.name, '+' if cmd_ins.default_enabled else '-')
+
+        if cmd.args[0] == 'enable':
+            if current == '+':
+                await cmd.answer('El comando ya está activado')
+                return
+            else:
+                avail[cmd_ins.name] = '+'
+                cmd.config.set('cmd_status', unserialize_avail(avail))
+                await cmd.answer('Comando activado correctamente')
+                return
+        elif cmd.args[0] == 'disable':
+            if current == '-':
+                await cmd.answer('El comando ya está desactivado')
+                return
+            else:
+                avail[cmd_ins.name] = '-'
+                cmd.config.set('cmd_status', unserialize_avail(avail))
+                await cmd.answer('Comando desactivado correctamente')
+                return
+        else:
+            await cmd.answer('No existe owo')

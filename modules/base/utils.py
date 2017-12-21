@@ -32,3 +32,11 @@ def img_embed(url, title=''):
     if title != '':
         embed.title = title
     return embed
+
+
+def unserialize_avail(avails):
+    s = ''
+    for k, v in avails.items():
+        s += v + k
+
+    return s
