@@ -1,3 +1,4 @@
+import discord
 from discord import Embed
 
 from modules.base.database import ServerConfigMgrSingle
@@ -27,10 +28,20 @@ def is_owner(bot, member, server):
     return False
 
 
-def get_server_role(server, role_name):
-    for role in server.roles:
-        if role.name == role_name:
-            return role
+def get_server_role(server, role):
+    """
+    Obtiene la instancia de un rol de un servidor
+    :param server: La instancia de servidor en la que se buscará
+    :param role: El nombre o ID del rol
+    :return: La instancia del rol, o None si no ha sido encontrado
+    """
+    if not isinstance(server, discord.Server):
+        raise RuntimeError('"server" argument must be a discord.Server instance')
+
+    for role_ins in server.roles:
+        if role_ins.name == role or role_ins.id == role:
+            return role_ins
+
     return None
 
 

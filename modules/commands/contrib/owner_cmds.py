@@ -6,7 +6,7 @@ from modules.base.command import Command
 from discord import Game
 import sys
 import alexis
-from modules.base.utils import unserialize_avail
+from modules.base.utils import unserialize_avail, get_server_role
 
 rx_snowflake = re.compile('^\d{10,19}$')
 rx_channel = re.compile('^<#\d{10,19}>$')
@@ -188,8 +188,64 @@ class OwnerRoles(Command):
         self.owner_only = True
 
     async def handle(self, message, cmd):
-        if cmd.argc < 2:
-            await cmd.answer('Formato: $PX$NM <comando> <rol/roles...>')
+        if cmd.argc < 1:
+            await cmd.answer('formato: $PX$NM <comando> [rol/roles...]')
             return
 
-        await cmd.answer('wip')
+        await cmd.typing()
+        owner_roles = cmd.config.get('owner_roles', self.bot.config['owner_role'])
+        owner_roles = [owner_roles.split('\n'), []][int(owner_roles == '')]
+
+        if cmd.args[0] in ['set', 'add', 'remove']:
+            if cmd.argc < 2:
+                await cmd.answer('formato: $PX$NM <comando> [rol/roles...]')
+                return
+
+            cmd_role = ' '.join(cmd.args[1:])
+            role = get_server_role(message.server, cmd_role)
+            if role is None and cmd_role not in owner_roles:
+                await cmd.answer('el rol no fue encontrado')
+                return
+
+            if cmd.args[0] == 'set':
+                if role is None:  # doble check
+                    await cmd.answer('el rol no fue encontrado')
+                    return
+
+                cmd.config.set('owner_roles', role.id)
+                await cmd.answer('el rol de owner ahora es **{}**'.format(role.name))
+            elif cmd.args[0] == 'add':
+                if role.id in owner_roles:
+                    await cmd.answer('El rol ya es de owner')
+                    return
+
+                cmd.config.set('owner_roles', '\n'.join(owner_roles + [role.id]))
+                await cmd.answer('rol **{}** agregado como de owner'.format(role.name))
+            elif cmd.args[0] == 'remove':
+                if role.id not in owner_roles:
+                    await cmd.answer('Ese rol no es de owner')
+                    return
+
+                owner_roles.remove(role.id)
+                cmd.config.set('owner_roles', '\n'.join(owner_roles))
+                await cmd.answer('el rol **{}** ahora ya no es owner'.format(role.name))
+        elif cmd.args[0] == 'adduser':
+            await cmd.answer('wip')
+        elif cmd.args[0] == 'removeuser':
+            await cmd.answer('wip')
+        elif cmd.args[0] == 'list':
+            msg = 'Roles owner: '
+            msg_list = []
+            for roleid in owner_roles:
+                srole = get_server_role(message.server, roleid)
+                if srole is not None:
+                    msg_list.append(srole.name)
+                else:
+                    member = message.server.get_member(roleid)
+                    if member is not None:
+                        msg_list.append('usuario:' + member.display_name)
+                    else:
+                        msg_list.append('id:' + roleid)
+            await cmd.answer(msg + ', '.join(msg_list))
+        else:
+            await cmd.answer('No existe owo')
