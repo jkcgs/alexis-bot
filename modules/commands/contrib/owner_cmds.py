@@ -248,4 +248,4 @@ class OwnerRoles(Command):
                         msg_list.append('id:' + roleid)
             await cmd.answer(msg + ', '.join(msg_list))
         else:
-            await cmd.answer('No existe owo')
+            await cmd.answer('no existe este subcomando')
