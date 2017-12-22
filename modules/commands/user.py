@@ -28,7 +28,7 @@ class UserCmd(Command):
 
     # Restaurar el rol de muteado una vez que el usuario ha reingresado
     async def on_member_join(self, member):
-        cfg = self.config_mgr(member.server)
+        cfg = self.config_mgr(member.server.id)
         channel = cfg.get(UserCmd.chan_config_name, '')
         if channel == '':
             return
@@ -38,7 +38,7 @@ class UserCmd(Command):
                                     embed=UserCmd.gen_embed(member))
 
     async def on_member_remove(self, member):
-        cfg = self.config_mgr(member.server)
+        cfg = self.config_mgr(member.server.id)
         channel = cfg.get(UserCmd.chan_config_name, '')
         if channel == '':
             return

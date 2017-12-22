@@ -1,3 +1,4 @@
+import discord
 import peewee
 
 db = peewee.SqliteDatabase('database.db')
@@ -86,12 +87,12 @@ class ServerConfigMgrSingle:
     """
     Shortcut para gestionar la configuración de un sólo servidor
     """
-    def __init__(self, mgr, serverid):
+    def __init__(self, mgr, server):
         """
         :param mgr: El gestor de configuración global
-        :param serverid: El ID específico del servidor
+        :param server: Una instancia de discord.Server o el ID del servidor específico
         """
-        self.svid = serverid
+        self.svid = server.id if isinstance(server, discord.Server) else server
         self.mgr = mgr
 
     def get(self, name, default=''):
