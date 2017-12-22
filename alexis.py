@@ -17,10 +17,11 @@ import modules.commands
 from modules import logger
 from modules.base.command import Command
 from modules.base.database import ServerConfigMgr
+from modules.base.message_cmd import MessageCmd
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '1.0.0-dev.7'
+__version__ = '1.0.0-dev.8'
 __status__ = "Desarrollo"
 
 
@@ -139,9 +140,9 @@ class Alexis(discord.Client):
                 config = {}
 
             # Completar info con defaults
-            config['owners'] = config.get('owners', [])
             config['bot_owners'] = config.get('bot_owners', ['130324995984326656'])
             config['ext_modpath'] = config.get('ext_modpath', '')
+            config['owner_role'] = config.get('owner_role', 'AlexisMaster')
 
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
                 config['command_prefix'] = '!'
@@ -156,13 +157,21 @@ class Alexis(discord.Client):
         if not self.initialized:
             return
 
+        cmd = None
+        if name == 'on_message':
+            cmd = MessageCmd(kwargs.get('message'), self)
+
         for x in self._get_handlers('pre_' + name):
-            y = await x(**kwargs)
+            if name == 'on_message':
+                y = await x(cmd=cmd, **kwargs)
+            else:
+                y = await x(**kwargs)
+
             if y is not None and isinstance(y, bool) and not y:
                 return
 
         if name == 'on_message':
-            await Command.message_handler(kwargs.get('message'), self)
+            await Command.message_handler(kwargs.get('message'), self, cmd)
 
         for z in self._get_handlers(name):
             await z(**kwargs)

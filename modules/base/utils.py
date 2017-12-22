@@ -1,5 +1,7 @@
 from discord import Embed
 
+from modules.base.database import ServerConfigMgrSingle
+
 
 def is_owner(bot, member, server):
     if member.id in bot.config['bot_owners']:
@@ -8,12 +10,18 @@ def is_owner(bot, member, server):
     if server is None:
         return False
 
-    if member.id in bot.config['owners']:
-        return True
+    cfg = ServerConfigMgrSingle(bot.sv_config, server.id)
+
+    owner_roles = cfg.get('owner_roles', bot.config['owner_role'])
+    if owner_roles == '':
+        owner_roles = []
+    else:
+        owner_roles = owner_roles.split('\n')
 
     for role in member.roles:
-        owner_role = server.id + "@" + role.id
-        if owner_role in bot.config['owners']:
+        if role.id in owner_roles \
+                or role.name in owner_roles \
+                or member.id in owner_roles:
             return True
 
     return False

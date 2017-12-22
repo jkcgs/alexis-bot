@@ -3,7 +3,6 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 from modules.base.database import ServerConfigMgrSingle
-from modules.base.message_cmd import MessageCmd
 
 
 class Command:
@@ -41,11 +40,9 @@ class Command:
         return ServerConfigMgrSingle(self.bot.sv_config, serverid)
 
     @staticmethod
-    async def message_handler(message, bot):
+    async def message_handler(message, bot, cmd):
         if not bot.initialized:
             return
-
-        cmd = MessageCmd(message, bot)
 
         # Mandar PMs al log
         if cmd.is_pm:
@@ -69,7 +66,7 @@ class Command:
                 if cmd_ins.bot_owner_only and not cmd.bot_owner:
                     return
                 # Sólo owner
-                elif cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
+                elif cmd_ins.owner_only and not cmd.owner:
                     # await cmd.answer(cmd_ins.owner_error)
                     return
                 # Comando deshabilitado por PM

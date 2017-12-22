@@ -215,7 +215,7 @@ class EmbedMacroSet(Command):
     async def handle(self, message, cmd):
         argc_req = 1 if len(message.attachments) > 0 else 2
         if len(cmd.args) < argc_req:
-            await cmd.answer('Formato: !iset <nombre> [url_imagen]|[título]|[descripción]|[color_embed]\n'
+            await cmd.answer('Formato: $PX$NM <nombre> [url_imagen]|[título]|[descripción]|[color_embed]\n'
                              'El primer parámetro es ignorado si se envía una imagen adjunta al comando.')
             return
 

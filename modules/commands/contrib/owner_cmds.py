@@ -178,3 +178,18 @@ class CommandConfig(Command):
                 return
         else:
             await cmd.answer('No existe owo')
+
+
+class OwnerRoles(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'ownerrole'
+        self.help = 'Cambia la configuración de roles de propietario'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if cmd.argc < 2:
+            await cmd.answer('Formato: $PX$NM <comando> <rol/roles...>')
+            return
+
+        await cmd.answer('wip')

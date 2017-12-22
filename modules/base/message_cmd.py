@@ -10,12 +10,12 @@ class MessageCmd:
         self.author_name = message.author.display_name
         self.is_pm = message.server is None
         self.own = message.author.id == bot.user.id
-        self.owner = utils.is_owner(bot, message.author, message.server)
         self.server_member = None
         self.is_cmd = False
         self.text = message.content
         self.config = None
         self.bot_owner = message.author.id in bot.config['bot_owners']
+        self.owner = utils.is_owner(bot, message.author, message.server)
 
         self.cmdname = ''
         self.args = []
