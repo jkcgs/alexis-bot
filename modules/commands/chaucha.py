@@ -38,7 +38,7 @@ class Chaucha(Command):
 
         try:
             await cmd.typing()
-            req = self.http.post(chaucha_api, data=json.dumps(chaucha_json), headers=headers, timeout=30)
+            req = self.http.post(chaucha_api, data=json.dumps(chaucha_json), headers=headers, timeout=10)
 
             async with req as r:
                 if r.status == 200:
