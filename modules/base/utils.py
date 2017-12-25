@@ -12,6 +12,14 @@ def is_int(val):
         return False
 
 
+def is_float(val):
+    try:
+        float(val)
+        return True
+    except (IndexError, ValueError):
+        return False
+
+
 def is_owner(bot, member, server):
     if member.id in bot.config['bot_owners']:
         return True
