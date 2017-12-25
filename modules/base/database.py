@@ -15,6 +15,9 @@ class ServerConfig(BaseModel):
     value = peewee.TextField(default='')
 
 
+db.create_table(ServerConfig, safe=True)
+
+
 class ServerConfigMgr:
     """
     Gestiona la configuración por servidor almacenada en la base de datos, cacheada en memoria.
