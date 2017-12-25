@@ -1,5 +1,11 @@
+import discord
+import re
+
 from modules.base.database import ServerConfigMgrSingle
 from modules.base import utils
+from modules.base.utils import serialize_avail
+
+pat_user_mention = re.compile('^<@!?[0-9]+>$')
 
 
 class MessageCmd:
@@ -81,7 +87,8 @@ class MessageCmd:
         if self.is_pm:
             return True
 
-        avail = {c[1:]: c[0] for c in self.config.get('cmd_status', '').split('|') if c != ''}
+        data_db = self.config.get('cmd_status', '')
+        avail = serialize_avail(data_db)
         cmd = self.bot.cmds[self.cmdname]
         enabled_db = avail.get(cmd.name, '+' if cmd.default_enabled else '-')
         return enabled_db == '+'
@@ -92,6 +99,23 @@ class MessageCmd:
             txt = txt.replace(mention.mention, mention.display_name)
 
         return txt
+
+    def get_user(self, user):
+        if self.is_pm:
+            raise RuntimeError('Esta función no funciona desde PMs')
+
+        if isinstance(user, discord.Member) or isinstance(user, discord.User):
+            return user
+
+        u = self.message.server.get_member_named(user)
+        if u is not None:
+            return u
+
+        if pat_user_mention.match(user):
+            st = 3 if user[2] == '!' else 2
+            user = user[st:-1]
+
+        return self.message.server.get_member(user)
 
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(

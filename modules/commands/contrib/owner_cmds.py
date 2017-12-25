@@ -6,7 +6,7 @@ from modules.base.command import Command
 from discord import Game
 import sys
 import alexis
-from modules.base.utils import unserialize_avail, get_server_role
+from modules.base.utils import unserialize_avail, get_server_role, serialize_avail
 
 rx_snowflake = re.compile('^\d{10,19}$')
 rx_channel = re.compile('^<#\d{10,19}>$')
@@ -154,30 +154,30 @@ class CommandConfig(Command):
             await cmd.answer('El comando no existe')
             return
 
-        avail = {c[1:]: c[0] for c in cmd.config.get('cmd_status', '').split('|') if c != ''}
+        avail = serialize_avail(cmd.config.get('cmd_status', ''))
         cmd_ins = self.bot.cmds[cmd.args[1]]
         current = avail.get(cmd_ins.name, '+' if cmd_ins.default_enabled else '-')
 
         if cmd.args[0] == 'enable':
             if current == '+':
-                await cmd.answer('El comando ya está activado')
+                await cmd.answer('el comando ya está activado')
                 return
             else:
                 avail[cmd_ins.name] = '+'
                 cmd.config.set('cmd_status', unserialize_avail(avail))
-                await cmd.answer('Comando activado correctamente')
+                await cmd.answer('comando activado correctamente')
                 return
         elif cmd.args[0] == 'disable':
             if current == '-':
-                await cmd.answer('El comando ya está desactivado')
+                await cmd.answer('el comando ya está desactivado')
                 return
             else:
                 avail[cmd_ins.name] = '-'
                 cmd.config.set('cmd_status', unserialize_avail(avail))
-                await cmd.answer('Comando desactivado correctamente')
+                await cmd.answer('comando desactivado correctamente')
                 return
         else:
-            await cmd.answer('No existe owo')
+            await cmd.answer('este subcomando no existe')
 
 
 class OwnerRoles(Command):

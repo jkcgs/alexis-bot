@@ -54,8 +54,12 @@ def img_embed(url, title=''):
 
 
 def unserialize_avail(avails):
-    s = ''
+    s = []
     for k, v in avails.items():
-        s += v + k
+        s.append(v + k)
 
-    return s
+    return '|'.join(s)
+
+
+def serialize_avail(avails):
+    return {c[1:]: c[0] for c in avails.split('|') if c != ''}
