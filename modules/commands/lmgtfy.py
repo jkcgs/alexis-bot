@@ -14,6 +14,6 @@ class LetMeGoogleThatForYou(Command):
             await cmd.answer('formato: $PX$NM <texto>')
             return
 
-        url = 'https://lmgtfy.com/?' + urlencode({'iie': '1', 'q': cmd.text})
+        url = 'https://lmgtfy.com/?' + urlencode({'q': cmd.text})
 
         await cmd.answer(url)

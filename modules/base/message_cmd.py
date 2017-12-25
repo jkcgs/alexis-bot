@@ -6,6 +6,7 @@ from modules.base import utils
 from modules.base.utils import serialize_avail
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')
+pat_snowflake = re.compile('^\d{10,19}$')
 
 
 class MessageCmd:
@@ -100,7 +101,7 @@ class MessageCmd:
 
         return txt
 
-    def get_user(self, user):
+    async def get_user(self, user, member_only=False):
         if self.is_pm:
             raise RuntimeError('Esta función no funciona desde PMs')
 
@@ -115,7 +116,14 @@ class MessageCmd:
             st = 3 if user[2] == '!' else 2
             user = user[st:-1]
 
-        return self.message.server.get_member(user)
+        u = self.message.server.get_member(user)
+        if u is not None:
+            return u
+
+        if member_only or not pat_snowflake.match(user):
+            return None
+
+        return await self.bot.get_user_info(user)
 
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(

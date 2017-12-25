@@ -12,7 +12,4 @@ class Ping(Command):
         self.default_enabled = False
 
     async def handle(self, message, cmd):
-        if random.random() >= .5:
-            await cmd.answer('wena xoro')
-        else:
-            await cmd.answer('pong!')
+        await cmd.answer(['wena xoro', 'pong!'][int(random.random() >= .5)])

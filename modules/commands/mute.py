@@ -31,14 +31,18 @@ class Mute(Command):
     async def handle(self, message, cmd):
         # TODO: Mostrar tiempo de mute propio cuando se usa sin argumentos
         # TODO: Mostrar tiempo de mute de un usuario cuando se pasa sólo el usuario como argumento
-        if len(cmd.args) < 1 or len(message.mentions) != 1:
-            await cmd.answer('Formato: !mute <@mención> [duración] [razón]')
+        if len(cmd.args) < 1:
+            await cmd.answer('Formato: !mute <id, mención> [duración] [razón]')
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        member = message.mentions[0]
+        member = await cmd.get_user(cmd.args[0], member_only=True)
         server = message.server
         await cmd.typing()
+
+        if member is None:
+            await cmd.answer('no se encontró al usuario')
+            return
 
         if member.id == self.bot.user.id:
             await cmd.answer('como me vas a mutear a mi! owo')
@@ -213,12 +217,16 @@ class Unmute(Command):
         self.allow_pm = False
 
     async def handle(self, message, cmd):
-        if len(cmd.args) != 1 or len(message.mentions) != 1:
-            await cmd.answer('formato: !unmute <@mención>')
+        if len(cmd.args) != 1:
+            await cmd.answer('formato: !unmute <usuario, id, @mención>')
+            return
+
+        member = await cmd.get_user(cmd.args[0], member_only=True)
+        if member is None:
+            await cmd.answer('usuario no encontrado')
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        member = message.mentions[0]
         mutedrole = utils.get_server_role(message.server, sv_role)
 
         if mutedrole is None:

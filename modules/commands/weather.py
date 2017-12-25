@@ -20,7 +20,7 @@ class Weather(Command):
         if not self.enabled:
             return
 
-        if len(cmd.args) < 1:
+        if cmd.argc < 1:
             await cmd.answer('formato: $PX$NM <lugar>')
             return
 

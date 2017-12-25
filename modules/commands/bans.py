@@ -5,6 +5,8 @@ from modules.base.command import Command
 from modules.base.database import BaseModel
 import random
 
+from modules.base.utils import is_int
+
 
 class BanCmd(Command):
     def __init__(self, bot):
@@ -19,11 +21,15 @@ class BanCmd(Command):
         self.user_delay = 10
 
     async def handle(self, message, cmd):
-        if cmd.argc != 1:
-            await cmd.answer('Formato: !ban <mención>')
+        if cmd.argc < 1:
+            await cmd.answer('Formato: $PX$NM <nombre, id, @mención>')
             return
 
-        mention = cmd.get_user(cmd.args[0])
+        mention = await cmd.get_user(cmd.text, member_only=True)
+        if mention is None:
+            await cmd.answer('usuario no encontrado')
+            return
+
         mention_name = mention.display_name
 
         if not cmd.owner and cmd.is_owner(mention):
@@ -72,10 +78,14 @@ class Bans(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1:
-            await cmd.answer('formato: !ban <usuario (nombre*, id, mención)>')
+            await cmd.answer('formato: $PX$NM <usuario (nombre*, id, mención)>')
             return
 
-        mention = cmd.get_user(cmd.args[0])
+        mention = await cmd.get_user(cmd.text)
+        if mention is None:
+            await cmd.answer('usuario no encontrado')
+            return
+
         if cmd.is_owner(mention):
             mesg = 'te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
             mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
@@ -86,7 +96,7 @@ class Bans(Command):
                                           defaults={'user': str(mention)})
 
         if user.bans == 0:
-            mesg = "```\nException in thread \"main\" java.lang.NullPointerException\n"
+            mesg = "```\nException in thread \"main\" cl.discord.alexis.ZeroBansException\n"
             mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
         else:
             word = 'ban' if user.bans == 1 else 'bans'
@@ -108,19 +118,16 @@ class SetBans(Command):
         self.owner_only = True
 
     async def handle(self, message, cmd):
-        is_valid = cmd.argc != 2
-        num_bans = 0
-
-        try:
-            num_bans = int(cmd.args[1])
-        except (IndexError, ValueError):
-            is_valid = False
-
-        if not is_valid:
-            await cmd.answer('Formato: !setbans <mención> <cantidad>')
+        if cmd.argc < 2 or not is_int(cmd.args[-1]):
+            await cmd.answer('Formato: $PX$NM <nombre, id, cantidad> <cantidad>')
             return
 
-        mention = cmd.get_user(cmd.args[0])
+        mention = await cmd.get_user(' '.join(cmd.args[0:-1]))
+        if mention is None:
+            await cmd.answer('usuario no encontrado')
+            return
+
+        num_bans = int(cmd.args[-1])
         user, _ = Ban.get_or_create(userid=mention.id, server=message.server.id,
                                     defaults={'user': str(mention)})
         update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
@@ -148,8 +155,9 @@ class BanRank(Command):
 
     async def handle(self, message, cmd):
         bans = Ban.select().where(Ban.server == message.channel.server.id).order_by(Ban.bans.desc())
+        px = self.bot.config['command_prefix']
         banlist = []
-        limit = 10 if message.content == '!!banrank' else 5
+        limit = 10 if message.content == '{px}{px}banrank'.format(px=px) else 5
 
         i = 1
         for item in bans.iterator():

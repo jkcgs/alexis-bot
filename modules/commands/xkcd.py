@@ -13,6 +13,7 @@ class xkcd(Command):
         self.xkcd_comic = []
 
     async def handle(self, message, cmd):
+        # TODO: Usar aiohttp
         arg = cmd.text
         if arg.isdigit() and 0 < int(arg) < self.xkcd_current['num']:
             self.xkcd_comic = requests.get('https://xkcd.com/{}/info.0.json'.format(arg)).json()

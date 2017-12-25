@@ -1,4 +1,5 @@
 from modules.base.command import Command
+from modules.base.utils import img_embed
 
 
 class Avatar(Command):
@@ -8,18 +9,14 @@ class Avatar(Command):
         self.help = 'Envia el ávatar del usuario que envió el comando o del usuario mencionado'
 
     async def handle(self, message, cmd):
-        if len(cmd.args) > 0:
-            if len(message.mentions) == 0:
-                await cmd.answer('Formato: !avatar [@mención]')
-                return
-            else:
-                user = message.mentions[0]
-        else:
-            user = cmd.author
+        user = cmd.author if cmd.argc == 0 else await cmd.get_user(cmd.text)
+        if user is None:
+            await cmd.answer('usuario no encontrado')
+            return
 
         if user and user.avatar_url != '':
             self.log.debug('enviando avatar: ' + user.avatar_url)
-            title = 'ávatar de ' + user.display_name
-            await cmd.answer(embed=Command.img_embed(user.avatar_url, title))
+            title = 'Avatar de ' + user.display_name
+            await cmd.answer(embed=img_embed(user.avatar_url, title))
         else:
-            await cmd.answer('Ávatar no disponible uwu')
+            await cmd.answer('ávatar no disponible uwu')

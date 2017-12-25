@@ -4,6 +4,14 @@ from discord import Embed
 from modules.base.database import ServerConfigMgrSingle
 
 
+def is_int(val):
+    try:
+        int(val)
+        return True
+    except (IndexError, ValueError):
+        return False
+
+
 def is_owner(bot, member, server):
     if member.id in bot.config['bot_owners']:
         return True

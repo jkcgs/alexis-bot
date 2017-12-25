@@ -16,11 +16,15 @@ class Kick(Command):
         self.owner_only = True
 
     async def handle(self, message, cmd):
-        if len(message.mentions) == 0 or not pat_mention.match(cmd.args[0]):
+        if cmd.argc < 1:
             await cmd.answer('formato: $PX$NM @usuario [razón]')
             return
 
-        to_kick = message.mentions[0]
+        to_kick = await cmd.get_user(cmd.text)
+        if to_kick is None:
+            await cmd.answer('usuario no encontrado')
+            return
+
         msg_user = 'Lamentablemente has sido kickeado de {}'.format(message.server.name)
         msg_all = '{} ha sido kickead@ del servidor'.format(to_kick.display_name)
         if cmd.argc > 1:

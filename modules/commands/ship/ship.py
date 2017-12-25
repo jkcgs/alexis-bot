@@ -12,7 +12,7 @@ class ShipperUwU(Command):
         self.allow_pm = False
 
     async def handle(self, message, cmd):
-        if len(cmd.args) != 2 or len(message.mentions) != 2:
+        if cmd.argc != 2 or len(message.mentions) != 2:
             await cmd.answer('Formato: !ship @mención1 @mención2')
             return
 

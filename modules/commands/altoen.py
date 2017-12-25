@@ -1,6 +1,8 @@
 from modules.base.command import Command
 import urllib.parse as urlparse
 
+from modules.base.utils import img_embed
+
 
 class AltoEn(Command):
     def __init__(self, bot):
@@ -18,4 +20,4 @@ class AltoEn(Command):
             return
 
         altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(cmd.text)
-        await cmd.answer(embed=Command.img_embed(altourl))
+        await cmd.answer(embed=img_embed(altourl))

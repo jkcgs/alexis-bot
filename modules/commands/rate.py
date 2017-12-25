@@ -15,9 +15,11 @@ class Rate(Command):
         self.help = 'Evalúa algo'
 
     async def handle(self, message, cmd):
-        text = cmd.text if cmd.text != '' else cmd.author_name
+        text = [cmd.text, cmd.author_name][int(cmd.text == '')]
+        t_user = await cmd.get_user(text)
+
         if random.random() > .90:
-            if len(cmd.args) == 1 and len(message.mentions) == 1:
+            if cmd.argc == 1 and t_user is not None:
                 m = message.mentions[0]
                 hashi = hashlib.md5()
                 hashi.update(m.id.encode('utf-8'))
