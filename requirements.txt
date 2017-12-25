@@ -7,6 +7,7 @@ bs4==0.0.1
 chardet==3.0.2
 cleverwrap==0.2.3.6
 discord.py==0.16.7
+emoji==0.4.5
 lxml==4.1.0
 multidict==2.1.4
 packaging==16.8

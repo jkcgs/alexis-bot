@@ -6,7 +6,8 @@ from modules.base.command import Command
 class Flipcoin(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['flipcoin', 'coinflip', 'coin', 'moneda']
+        self.name = 'flipcoin'
+        self.aliases = ['coinflip', 'coin', 'moneda']
         self.help = 'Lanza una moneda y muestra el resultado'
 
     async def handle(self, message, cmd):

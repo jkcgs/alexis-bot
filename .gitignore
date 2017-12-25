@@ -1,9 +1,11 @@
 # Application
 
 config.yml
+config.py
 database.db
 logs/
 data.json
+external_modules/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

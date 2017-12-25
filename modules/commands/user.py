@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from modules.base.command import Command, ConfigError
+from modules.base.command import Command
 from discord import Embed
 
 
@@ -15,23 +15,21 @@ class UserCmd(Command):
         self.name = 'user'
         self.help = 'Entrega información sobre un usuario'
         self.allow_pm = False
-        self.configurations = {UserCmd.chan_config_name: ''}
 
     async def handle(self, message, cmd):
-        if len(cmd.args) == 1 and len(message.mentions) == 1:
-            user = message.mentions[0]
-        elif len(cmd.args) == 0:
-            user = cmd.author
-        else:
-            cmd.answer('Formato: !user [@usuario]')
+        if cmd.argc >= 1 and cmd.args[0] == 'channel':
+            chan = message.channel.mention if cmd.argc == 1 else cmd.args[1]
+            await UserCmd._setchannel_handler(cmd, chan)
             return
 
+        user = message.mentions[0] if len(message.mentions) == 1 else cmd.author
         embed = UserCmd.gen_embed(user)
-        await cmd.answer('Acerca de **{}**'.format(user.id), embed=embed)
+        await cmd.answer('acerca de **{}**'.format(user.id), embed=embed)
 
     # Restaurar el rol de muteado una vez que el usuario ha reingresado
     async def on_member_join(self, member):
-        channel = self.get_config(UserCmd.chan_config_name, member.server)
+        cfg = self.config_mgr(member.server.id)
+        channel = cfg.get(UserCmd.chan_config_name, '')
         if channel == '':
             return
 
@@ -39,20 +37,30 @@ class UserCmd(Command):
         await self.bot.send_message(channel, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
                                     embed=UserCmd.gen_embed(member))
 
-    async def config_handler(self, name, value, cmd):
-        if name == UserCmd.chan_config_name:
-            if value != 'off' and not UserCmd.rx_channel.match(value):
-                raise ConfigError('Por favor ingresa un canal u "off" como valor')
+    async def on_member_remove(self, member):
+        cfg = self.config_mgr(member.server.id)
+        channel = cfg.get(UserCmd.chan_config_name, '')
+        if channel == '':
+            return
 
-            if value == 'off':
-                value = ''
+        channel = discord.Object(id=channel)
+        await self.bot.send_message(channel, 'El usuario <@{mid}> ({mid}) dejó el servidor.'.format(mid=member.id))
 
-            self.set_config(UserCmd.chan_config_name, value[2:-1], cmd.message.server)
+    @staticmethod
+    async def _setchannel_handler(cmd, value):
+        if value != 'off' and not UserCmd.rx_channel.match(value):
+            await cmd.answer('por favor ingresa un canal u "off" como valor')
+            return
 
-            if value == '':
-                await cmd.answer('Información de usuarios desactivada')
-            else:
-                await cmd.answer('Canal de información de usuarios actualizado')
+        if value == 'off':
+            value = ''
+
+        cmd.config.set(UserCmd.chan_config_name, value[2:-1])
+
+        if value == '':
+            await cmd.answer('información de usuarios desactivada')
+        else:
+            await cmd.answer('canal de información de usuarios actualizado a {}'.format(value))
 
     @staticmethod
     def gen_embed(member):

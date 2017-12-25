@@ -10,7 +10,8 @@ class EightBall(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['8ball', 'bola8', '8']
+        self.name = '8ball'
+        self.aliases = ['bola8', '8']
         self.help = 'Responde al texto de forma afirmativa, negativa o dudosa'
 
     async def handle(self, message, cmd):

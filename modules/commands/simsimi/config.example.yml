@@ -1,0 +1,7 @@
+lang: es
+api_keys:
+- key: ""
+  is_trial: true
+- key: ""
+  is_trial: false
+lang_code: "es"

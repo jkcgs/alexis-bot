@@ -16,11 +16,12 @@ import yaml
 import modules.commands
 from modules import logger
 from modules.base.command import Command
-from modules.reaction_hook import reaction_hook
+from modules.base.database import ServerConfigMgr
+from modules.base.message_cmd import MessageCmd
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '0.8.0-dev'
+__version__ = '1.0.0-dev.10'
 __status__ = "Desarrollo"
 
 
@@ -28,29 +29,21 @@ class Alexis(discord.Client):
     """Contiene al bot e inicializa su funcionamiento."""
     def __init__(self, **options):
         super().__init__(**options)
+        self.sv_config = ServerConfigMgr()
+        self.log = logger.get_logger('Alexis')
         self.http_session = aiohttp.ClientSession(loop=self.loop)
 
-        self.log = logger.get_logger('Alexis')
+        self.db = None
+        self.rx_mention = None  # Regex de mención (incluye nicks)
+        self.last_author = None  # El ID del último en enviar un mensaje (omite PM)
         self.initialized = False
-        self.config = {}
-        self.sharedcfg = {}
+
         self.cmds = {}
-        self.cmd_instances = []
+        self.config = {}
+        self.db_models = []
         self.swhandlers = {}
+        self.cmd_instances = []
         self.mention_handlers = []
-        self.config_handlers = {}
-        self.config_defaults = {}
-
-        self.db = peewee.SqliteDatabase('database.db')
-        self.db.connect()
-
-        self.load_config()
-
-        # Regex de mención (incluye nicks)
-        self.rx_mention = None
-
-        # El ID del último en enviar un mensaje (omite PM)
-        self.last_author = None
 
     """Inicializa al bot"""
     def init(self):
@@ -61,66 +54,62 @@ class Alexis(discord.Client):
         self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
+        # Cargar configuración
+        self.load_config()
+
+        # Cargar base de datos
+        self.db_connect()
+
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
-        db_models = []
-
-        for cmd in modules.commands.classes:
-            self.cmd_instances.append(cmd(self))
-
-        # Guardar instancias de módulos de comandos
-        for i in self.cmd_instances:
-            db_models += i.db_models
-
-            # Comandos
-            names = [i.name] if isinstance(i.name, str) else list(i.name)
-            for name in names:
-                name = name.strip()
-                if name == '':
-                    continue
-
-                if name not in self.cmds:
-                    self.cmds[name] = []
-
-                self.cmds[name].append(i)
-
-            # Handlers startswith
-            if isinstance(i.swhandler, str) or isinstance(i.swhandler, list):
-                swh = [i.swhandler] if isinstance(i.swhandler, str) else i.swhandler
-                for swtext in swh:
-                    swtext = swtext
-                    if swtext == '':
-                        continue
-
-                    if swtext not in self.swhandlers:
-                        self.swhandlers[swtext] = []
-
-                    self.swhandlers[swtext].append(i)
-
-            # Comandos que se activan con una mención
-            if isinstance(i.mention_handler, bool) and i.mention_handler:
-                self.mention_handlers.append(i)
-
-            # Tasks
-            if i.run_task:
-                self.loop.create_task(i.task())
-
-            for conf_name, default_val in i.configurations.items():
-                if conf_name not in self.config_handlers:
-                    self.config_handlers[conf_name] = i.config_handler
-                    self.config_defaults[conf_name] = default_val
-
-        self.log.info('Inicializando base de datos...')
-        self.db.create_tables(db_models, True)
-
+        self.cmd_instances = [self.load_command(c) for c in modules.commands.get_mods(self.config['ext_modpath'])]
+        self.log.debug('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-        self.log.info('Conectando...')
 
+        self.log.info('Inicializando tablas de bases de datos de comandos...')
+        self.db.create_tables(self.db_models, True)
+        self.log.info('Tablas de base de datos inicializadas')
+
+        # Conectar con Discord
         try:
+            self.log.info('Conectando...')
             self.run(self.config['token'])
         except Exception as ex:
             self.log.exception(ex)
             raise
+
+    def load_command(self, cls):
+        instance = cls(self)
+        self.db_models += instance.db_models
+
+        # Comandos
+        for name in [instance.name] + instance.aliases:
+            if name != '':
+                self.cmds[name] = instance
+
+        # Handlers startswith
+        if isinstance(instance.swhandler, str) or isinstance(instance.swhandler, list):
+            swh = [instance.swhandler] if isinstance(instance.swhandler, str) else instance.swhandler
+            for swtext in swh:
+                if swtext != '':
+                    self.log.debug('Registrando sw_handler "%s"', swtext)
+                    self.swhandlers[swtext] = instance
+
+        # Comandos que se activan con una mención
+        if isinstance(instance.mention_handler, bool) and instance.mention_handler:
+            self.mention_handlers.append(instance)
+
+        # Call task
+        if callable(getattr(instance, 'task', None)):
+            self.loop.create_task(instance.task())
+
+        return instance
+
+    def db_connect(self):
+        self.log.info('Conectando a base de datos...')
+        self.db = peewee.SqliteDatabase('database.db')
+        self.db.connect()
+        self.log.info('Conectado correctamente a la base de datos.')
 
     """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
@@ -131,30 +120,12 @@ class Alexis(discord.Client):
         self.rx_mention = re.compile('^<@!?{}>'.format(self.user.id))
         self.initialized = True
 
-    """Método ejecutado cada vez que se recibe un mensaje"""
-    async def on_message(self, message):
-        if not self.initialized:
-            return
-
-        await Command.message_handler(message, self)
-
-    """Esta función es llamada cuando un mensaje recibe una reacción"""
-    async def on_reaction_add(self, reaction, user):
-        if not self.initialized:
-            return
-
-        await reaction_hook(self, reaction, user)
-
-    async def on_member_join(self, member):
-        if not self.initialized:
-            return
-
-        for cmd in self.cmd_instances:
-            await cmd.on_member_join(member)
+        await self._call_handlers('on_ready')
 
     async def send_message(self, destination, content=None, **kwargs):
         svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'
-        msg = 'Sending message "{}" to {}#{}'.format(content, svid, destination)
+        dest_str = destination.id if isinstance(destination, discord.Object) else str(destination)
+        msg = 'Sending message "{}" to {}#{}'.format(content, svid, dest_str)
         if isinstance(kwargs.get('embed'), discord.Embed):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
 
@@ -165,12 +136,14 @@ class Alexis(discord.Client):
         try:
             with open('config.yml', 'r') as file:
                 config = yaml.safe_load(file)
+            if config is None:
+                config = {}
 
             # Completar info con defaults
-            if 'owners' not in config:
-                config['owners'] = []
-            if 'starboard_reactions' not in config or not isinstance(config['starboard_reactions'], int):
-                config['starboard_reactions'] = 5
+            config['bot_owners'] = config.get('bot_owners', ['130324995984326656'])
+            config['ext_modpath'] = config.get('ext_modpath', '')
+            config['owner_role'] = config.get('owner_role', 'AlexisMaster')
+
             if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
                 config['command_prefix'] = '!'
 
@@ -179,6 +152,78 @@ class Alexis(discord.Client):
         except Exception as ex:
             self.log.exception(ex)
             return False
+
+    async def _call_handlers(self, name, **kwargs):
+        if not self.initialized:
+            return
+
+        cmd = None
+        if name == 'on_message':
+            cmd = MessageCmd(kwargs.get('message'), self)
+
+        for x in self._get_handlers('pre_' + name):
+            if name == 'on_message':
+                y = await x(cmd=cmd, **kwargs)
+            else:
+                y = await x(**kwargs)
+
+            if y is not None and isinstance(y, bool) and not y:
+                return
+
+        if name == 'on_message':
+            await Command.message_handler(kwargs.get('message'), self, cmd)
+
+        for z in self._get_handlers(name):
+            await z(**kwargs)
+
+    def _get_handlers(self, name):
+        return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
+
+    """
+    ===== EVENT HANDLERS =====
+    """
+
+    async def on_message(self, message):
+        await self._call_handlers('on_message', message=message)
+
+    async def on_reaction_add(self, reaction, user):
+        await self._call_handlers('on_reaction_add', reaction=reaction, user=user)
+
+    async def on_reaction_remove(self, reaction, user):
+        await self._call_handlers('on_reaction_remove', reaction=reaction, user=user)
+
+    async def on_reaction_clear(self, message, reactions):
+        await self._call_handlers('on_reaction_clear', message=message, reactions=reactions)
+
+    async def on_member_join(self, member):
+        await self._call_handlers('on_member_join', member=member)
+
+    async def on_member_remove(self, member):
+        await self._call_handlers('on_member_remove', member=member)
+
+    async def on_member_update(self, before, after):
+        await self._call_handlers('on_member_update', before=before, after=after)
+
+    async def on_message_delete(self, message):
+        await self._call_handlers('on_message_delete', message=message)
+
+    async def on_message_edit(self, before, after):
+        await self._call_handlers('on_message_edit', before=before, after=after)
+
+    async def on_server_join(self, server):
+        await self._call_handlers('on_server_join', server=server)
+
+    async def on_server_remove(self, server):
+        await self._call_handlers('on_server_remove', server=server)
+
+    async def on_member_ban(self, member):
+        await self._call_handlers('on_member_ban', member=member)
+
+    async def on_member_unban(self, member):
+        await self._call_handlers('on_member_unban', member=member)
+
+    async def on_typing(self, channel, user, when):
+        await self._call_handlers('on_server_remove', channel=channel, user=user, when=when)
 
 
 if __name__ == '__main__':

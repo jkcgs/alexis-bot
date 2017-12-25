@@ -18,7 +18,7 @@ class MacroSet(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 2:
-            await cmd.answer('Formato: !set <nombre> <contenido>')
+            await cmd.answer('formato: !set <nombre> <contenido>')
             return
 
         meme_name = cmd.args[0]
@@ -29,10 +29,10 @@ class MacroSet(Command):
         meme.save()
 
         if created:
-            msg = 'Macro **{name}** creado'.format(name=meme_name)
+            msg = 'macro **{name}** creado'.format(name=meme_name)
             self.bot.log.info('Macro %s creado con valor: "%s"', meme_name, meme_value)
         else:
-            msg = 'Macro **{name}** actualizado'.format(name=meme_name)
+            msg = 'macro **{name}** actualizado'.format(name=meme_name)
             self.bot.log.info('Macro %s actualizado a: "%s"', meme_name, meme_value)
 
         await cmd.answer(msg)
@@ -47,7 +47,7 @@ class MacroUnset(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !unset <nombre>')
+            await cmd.answer('formato: !unset <nombre>')
             return
 
         name = cmd.args[0].replace('\\', '')
@@ -55,11 +55,11 @@ class MacroUnset(Command):
         try:
             macro = Meme.get(name=name)
             macro.delete_instance()
-            msg = 'Macro **{name}** eliminado'.format(name=name)
+            msg = 'macro **{name}** eliminado'.format(name=name)
             await cmd.answer(msg)
             self.bot.log.info('Macro %s eliminado', name)
         except Meme.DoesNotExist:
-            msg = 'El macro **{name}** no existe'.format(name=name)
+            msg = 'el macro **{name}** no existe'.format(name=name)
             await cmd.answer(msg)
 
 
@@ -98,7 +98,7 @@ class MacroList(Command):
                 namelist.append(name)
 
         namelist.sort()
-        resp = 'Hay {} macro{}:'.format(len(namelist), '' if len(namelist) == 1 else 's')
+        resp = 'hay {} macro{}:'.format(len(namelist), '' if len(namelist) == 1 else 's')
         for i, name in enumerate(namelist):
             if len(resp + ', ' + name) > 2000:
                 await cmd.answer(resp)
@@ -135,11 +135,10 @@ class MacroSuperList(Command):
 
         num_memes = len(memelist)
         if num_memes == 0:
-            await cmd.answer('No hay macros disponibles')
+            await cmd.answer('no hay macros disponibles')
             return
 
-        word = 'macro' if num_memes == 1 else 'macros'
-        resp = 'Hay {} {}:'.format(num_memes, word)
+        resp = 'hay {} {}:'.format(num_memes, ['macros', 'macro'][int(num_memes == 1)])
         await cmd.answer(resp)
 
         # Separar lista de memes en mensajes con menos de 2000 carácteres
@@ -159,9 +158,8 @@ class MacroSuperList(Command):
 class MacroUse(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.swhandler = [bot.config['command_prefix'] + ' ', bot.config['command_prefix'], '¡']
+        self.swhandler = ['$PX ', '$PX', '¡']
         self.swhandler_break = True
-        self.first_use = True
 
     async def handle(self, message, cmd):
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
@@ -217,7 +215,7 @@ class EmbedMacroSet(Command):
     async def handle(self, message, cmd):
         argc_req = 1 if len(message.attachments) > 0 else 2
         if len(cmd.args) < argc_req:
-            await cmd.answer('Formato: !iset <nombre> [url_imagen]|[título]|[descripción]|[color_embed]\n'
+            await cmd.answer('Formato: $PX$NM <nombre> [url_imagen]|[título]|[descripción]|[color_embed]\n'
                              'El primer parámetro es ignorado si se envía una imagen adjunta al comando.')
             return
 
@@ -254,7 +252,7 @@ class EmbedMacroSet(Command):
             self.log.debug('no subargs>3, %s %s', len(subargs), str(subargs))
 
         if image_url == '' and title == '' and description == '':
-            await cmd.answer('Al menos la imagen, el titulo o la descripción deben ser ingresados')
+            await cmd.answer('al menos la imagen, el titulo o la descripción deben ser ingresados')
             return
 
         server_id = 'global' if cmd.is_pm else message.server.id
@@ -266,9 +264,9 @@ class EmbedMacroSet(Command):
         macro.save()
 
         if created:
-            await cmd.answer('Macro **{}** creado'.format(name))
+            await cmd.answer('macro **{}** creado'.format(name))
         else:
-            await cmd.answer('Macro **{}** actualizado'.format(name))
+            await cmd.answer('macro **{}** actualizado'.format(name))
 
     @staticmethod
     def get_colour(value):
@@ -302,16 +300,17 @@ class EmbedMacroUnset(Command):
             EmbedMacro.get(name=name, server=server_id)
             q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
             q.execute()
-            await cmd.answer('Macro **{}** eliminado'.format(name))
+            await cmd.answer('macro **{}** eliminado'.format(name))
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('El macro **{}** no existe'.format(name))
+            await cmd.answer('el macro **{}** no existe'.format(name))
             pass
 
 
 class EmbedMacroSetColour(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['isetcolour', 'isetcolor']
+        self.name = 'isetcolour'
+        self.aliases = ['isetcolor']
         self.help = 'Actualiza el color de un macro embed'
         self.owner_only = True
 
@@ -333,9 +332,9 @@ class EmbedMacroSetColour(Command):
             macro = EmbedMacro.get(name=name, server=server_id)
             macro.embed_color = colour.value
             macro.save()
-            await cmd.answer('Color de macro **{}** actualizado'.format(name))
+            await cmd.answer('color de macro **{}** actualizado'.format(name))
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('El macro **{}** no existe'.format(name))
+            await cmd.answer('el macro **{}** no existe'.format(name))
             pass
 
 

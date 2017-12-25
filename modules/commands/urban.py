@@ -1,7 +1,6 @@
 from modules.base.command import Command
-from urllib import request, parse as urlparse
+from urllib import parse as urlparse
 from discord import Embed
-import json
 
 
 class Urban(Command):
@@ -9,7 +8,8 @@ class Urban(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = ['urban', 'ub']
+        self.name = 'urban'
+        self.aliases = ['ub']
         self.help = 'Obtiene una definición desde UrbanDictionary'
 
     async def handle(self, message, cmd):
@@ -17,8 +17,8 @@ class Urban(Command):
         text = urlparse.quote(text)
 
         try:
-            with request.urlopen(Urban.url + text) as urlresp:
-                data = json.loads(urlresp.read().decode())
+            async with self.http.get(Urban.url + text) as urlresp:
+                data = await urlresp.json()
                 if 'result_type' not in data or data['result_type'] != 'exact':
                     await cmd.answer('No se pudo obtener la respuesta de UB')
                     return

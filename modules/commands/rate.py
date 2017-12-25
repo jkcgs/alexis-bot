@@ -15,16 +15,18 @@ class Rate(Command):
         self.help = 'Evalúa algo'
 
     async def handle(self, message, cmd):
-        text = cmd.text if cmd.text != '' else cmd.author_name
-        if random.random() > .95:
-            if len(cmd.args) == 1 and len(message.mentions) == 1:
+        text = [cmd.text, cmd.author_name][int(cmd.text == '')]
+        t_user = await cmd.get_user(text)
+
+        if random.random() > .90:
+            if cmd.argc == 1 and t_user is not None:
                 m = message.mentions[0]
                 hashi = hashlib.md5()
                 hashi.update(m.id.encode('utf-8'))
                 hid = hashi.hexdigest()
                 # no si no es niuna weá transfuga wn sólo estoy ocultando los ids de los locos especiales jaj
                 if hid in Rate.special1:
-                    await cmd.answer('A {} de un 1 a un 100, le doy :$'.format(text))
+                    await cmd.answer('a {} de un 1 a un 100, le doy :$'.format(text))
                 elif hid in Rate.special2:
                     await cmd.answer('uff men gr8 i r8 8/8')
                 elif m.id == self.bot.user.id:
@@ -32,7 +34,7 @@ class Rate(Command):
                 else:
                     await cmd.answer('no me mandis weas xfa')
             else:
-                await cmd.answer('penca tu wea po xd')
+                await cmd.answer('penca tu weá xd')
         else:
             rating = '{:.1f}'.format(random.random()*100)
-            await cmd.answer('A {} le doy {}/100'.format(text, rating))
+            await cmd.answer('a {} le doy {}/100'.format(text, rating))
