@@ -1,5 +1,7 @@
 import json
 
+import asyncio
+
 from modules.base.command import Command
 from modules.base.utils import is_float
 
@@ -29,22 +31,25 @@ class Chaucha(Command):
                 await cmd.answer('formato: $PX$NM [múltiplo]')
                 return
             else:
-                mult = float(cmd.args[0])
+                mult = float(cmd.args[0].replace(',', '.'))
                 if mult <= 0:
                     await cmd.answer('formato: $PX$NM [múltiplo (positivo porfa)]')
                     return
 
         try:
             await cmd.typing()
-            req = self.http.post(chaucha_api, data=json.dumps(chaucha_json), headers=headers, timeout=10)
+            req = self.http.post(chaucha_api, data=json.dumps(chaucha_json), headers=headers, timeout=30)
 
             async with req as r:
                 if r.status == 200:
                     data = await r.json()
                     val = int(data[0]['data']['market']['lastTrade']['price'])
-                    await cmd.answer('una chaucha vale: **${}**'.format(str(val * mult)))
+                    txt = 'una chaucha vale' if mult == 1 else (str(mult) + ' chauchas valen')
+                    await cmd.answer('{}: **${}**'.format(txt, str(val * mult)))
                 else:
                     await cmd.answer('algo pasó jaj, status: ' + str(r.status))
+        except asyncio.TimeoutError:
+            await cmd.answer('el servidor demoró mucho en responder D:')
         except KeyError as e:
             self.log.exception(e)
             await cmd.answer('no se pudo cargar el valor de la chaucha :(')
