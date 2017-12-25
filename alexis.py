@@ -21,7 +21,7 @@ from modules.base.message_cmd import MessageCmd
 
 __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
 __license__ = 'MIT'
-__version__ = '1.0.0-dev.8'
+__version__ = '1.0.0-dev.10'
 __status__ = "Desarrollo"
 
 
