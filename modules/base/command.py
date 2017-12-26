@@ -125,6 +125,9 @@ class Command:
                         await cmd_ins.handle(message, cmd)
 
         except Exception as e:
+            if str(e) == 'BAD REQUEST (status code: 400)':
+                e = Exception('Command failed successfully')
+
             if bot.config['debug']:
                 await cmd.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
             else:
