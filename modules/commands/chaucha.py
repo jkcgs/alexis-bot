@@ -23,6 +23,7 @@ class Chaucha(Command):
         self.aliases = ['cha']
         self.help = 'Entrega el valor de la chauchita'
         self.user_delay = 5
+        self.current = None
 
     async def handle(self, message, cmd):
         mult = 1
@@ -36,21 +37,29 @@ class Chaucha(Command):
                     await cmd.answer('formato: $PX$NM [múltiplo (positivo porfa)]')
                     return
 
+        if self.current is None:
+            await cmd.answer('datos no disponibles')
+            return
+
+        txt = 'una chaucha vale' if mult == 1 else (str(mult) + ' chauchas valen')
+        await cmd.answer('{}: **${}**'.format(txt, str(self.current * mult)))
+
+    async def task(self):
+        await self.bot.wait_until_ready()
         try:
-            await cmd.typing()
-            req = self.http.post(chaucha_api, data=json.dumps(chaucha_json), headers=headers, timeout=10)
+            req = self.http.post(chaucha_api, data=json.dumps(chaucha_json), headers=headers, timeout=20)
 
             async with req as r:
                 if r.status == 200:
                     data = await r.json()
-                    val = int(data[0]['data']['market']['lastTrade']['price'])
-                    txt = 'una chaucha vale' if mult == 1 else (str(mult) + ' chauchas valen')
-                    await cmd.answer('{}: **${}**'.format(txt, str(val * mult)))
-                else:
-                    await cmd.answer('algo pasó jaj, status: ' + str(r.status))
-        except asyncio.TimeoutError:
-            await cmd.answer('el servidor demoró mucho en responder D:')
-        except KeyError as e:
-            self.log.exception(e)
-            await cmd.answer('no se pudo cargar el valor de la chaucha :(')
+                    self.current = int(data[0]['data']['market']['lastTrade']['price'])
+        except Exception as e:
+            if self.bot.config['debug']:
+                self.log.debug('Error al cargar datos de chaucha')
+                self.log.exception(e)
+        finally:
+            await asyncio.sleep(1)
+
+        if not self.bot.is_closed:
+            self.bot.loop.create_task(self.task())
 
