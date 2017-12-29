@@ -13,16 +13,16 @@ class Emoji(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1:
-            await cmd.answer('Formato: !emoji <emoji>')
+            await cmd.answer('formato: !emoji <emoji>')
             return
 
         etext = cmd.args[0]
         if re.match(self.rx_normal_emoji, etext):
-            await cmd.answer('No envíes el emoji como texto. Sólo se soportan custom emojis.')
+            await cmd.answer('no envíes el emoji como texto. Sólo se soportan custom emojis.')
             return
 
         if not re.match(self.rx_custom_emoji, etext):
-            await cmd.answer('Formato: !emoji <emoji_custom>')
+            await cmd.answer('formato: $PX$NM <emoji_custom>')
             return
 
         emoji_id = etext.split(':')[2][:-1]

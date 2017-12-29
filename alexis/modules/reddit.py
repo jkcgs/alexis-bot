@@ -89,7 +89,7 @@ class RedditFollow(Command):
             if len(res) == 0:
                 await cmd.answer('no hay subs por seguir')
             else:
-                await cmd.answer('Subreddits a seguir:\n{}'.format('\n'.join(resp)))
+                await cmd.answer('subreddits a seguir:\n{}'.format('\n'.join(resp)))
         elif cmd.args[0] == 'posts':
             if cmd.argc < 2:
                 await cmd.answer('formato: $PX$NM posts <redditor>')

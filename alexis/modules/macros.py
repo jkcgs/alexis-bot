@@ -316,7 +316,7 @@ class EmbedMacroSetColour(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !isetcolour <nombre> <color=default>')
+            await cmd.answer('formato: !isetcolour <nombre> <color=default>')
             return
 
         colour = Colour.default()

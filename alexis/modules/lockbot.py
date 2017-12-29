@@ -1,6 +1,5 @@
 from alexis.base.command import Command
 from alexis.base.database import ServerConfig
-from alexis.base.message_cmd import MessageCmd
 
 
 class LockBot(Command):

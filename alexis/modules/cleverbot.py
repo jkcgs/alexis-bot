@@ -43,7 +43,7 @@ class CleverbotHandler(Command):
 
         msg = self.bot.pat_self_mention.sub('', message.content).strip()
         if msg == '':
-            reply = '*Si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'
+            reply = '*si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'
         else:
             await cmd.typing()
             try:

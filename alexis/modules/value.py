@@ -92,11 +92,11 @@ class Value(Command):
                 div2 = cmd.args[2].upper()
 
         if not Value.rx_div.match(div1) or not self.rx_div.match(div2):
-            await cmd.answer('Formato de divisas incorrecto')
+            await cmd.answer('formato de divisas incorrecto')
             return
 
         if not Value.valid_currency(div1) or not Value.valid_currency(div2):
-            await cmd.answer('Una de las divisas ingresadas es incorrecta. '
+            await cmd.answer('una de las divisas ingresadas es incorrecta. '
                              'Puedes utilizar UF, UTM, o una de las divisas de la lista de esta página: '
                              'http://www.xe.com/iso4217.php')
             return
@@ -104,14 +104,14 @@ class Value(Command):
         try:
             cant = float(cant.replace(',', '.'))
         except ValueError:
-            await cmd.answer('Formato incorrecto de valor a convertir')
+            await cmd.answer('formato incorrecto de valor a convertir')
             return
 
         await cmd.typing()
 
         try:
             if div1 == div2:
-                await cmd.answer('Técnicamente, no hay conversión entre dos divisas iguales, '
+                await cmd.answer('técnicamente, no hay conversión entre dos divisas iguales, '
                                  'así que no me vengai na con weas')
                 return
 
@@ -141,7 +141,7 @@ class Value(Command):
             await cmd.answer('no pude obtener los datos de divisas D:\n```{}```'.format(str(e)))
 
     async def formato(self, cmd):
-        await cmd.answer('Formato: !value [cantidad] <divisa1> [a] <divisa2>\n'
+        await cmd.answer('formato: !value [cantidad] <divisa1> [a] <divisa2>\n'
                          '!uf [cantidad] [a] <divisa2>\n'
                          '!utm [cantidad] [a] <divisa2>')
 

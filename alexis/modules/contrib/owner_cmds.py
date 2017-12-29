@@ -34,7 +34,7 @@ class ClearReactions(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 1:
-            await cmd.answer('Formato:  $PX$NM [#canal=actual] <id_mensaje1> ... <id_mensajeN>')
+            await cmd.answer('formato:  $PX$NM [#canal=actual] <id_mensaje1> ... <id_mensajeN>')
             return
 
         await cmd.typing()
@@ -78,16 +78,16 @@ class ChangePrefix(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 1:
-            await cmd.answer('Formato: $PX$NM <prefijo>')
+            await cmd.answer('formato: $PX$NM <prefijo>')
             return
 
         txt = cmd.args[0]
         if len(txt) > 3:
-            await cmd.answer('El prefijo sólo puede tener hasta 3 carácteres')
+            await cmd.answer('el prefijo sólo puede tener hasta 3 carácteres')
             return
 
         cmd.config.set('command_prefix', txt)
-        await cmd.answer('Prefijo configurado como {}'.format(txt))
+        await cmd.answer('prefijo configurado como {}'.format(txt))
 
 
 class CommandConfig(Command):
@@ -99,11 +99,11 @@ class CommandConfig(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 2:
-            await cmd.answer('Formato: $PX$NM <enable|disable> <comando>')
+            await cmd.answer('formato: $PX$NM <enable|disable> <comando>')
             return
 
         if cmd.args[1] not in self.bot.cmds:
-            await cmd.answer('El comando no existe')
+            await cmd.answer('el comando no existe')
             return
 
         avail = serialize_avail(cmd.config.get('cmd_status', ''))

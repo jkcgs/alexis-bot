@@ -24,7 +24,7 @@ class Help(Command):
 
         num_memes = len(helplist)
         if num_memes == 0:
-            await cmd.answer('No hay comandos disponibles')
+            await cmd.answer('no hay comandos disponibles')
             return
 
         if not cmd.is_pm:

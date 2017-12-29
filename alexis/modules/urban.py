@@ -20,7 +20,7 @@ class Urban(Command):
             async with self.http.get(Urban.url + text) as urlresp:
                 data = await urlresp.json()
                 if 'result_type' not in data or data['result_type'] != 'exact':
-                    await cmd.answer('No se pudo obtener la respuesta de UB')
+                    await cmd.answer('no se pudo obtener la respuesta de UB')
                     return
 
                 result = data['list'][0]

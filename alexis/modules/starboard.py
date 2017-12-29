@@ -45,66 +45,66 @@ class StarboardHook(Command):
                 return
 
             cmd.config.set(cfg_starboard_channel, channel.id)
-            await cmd.answer('Canal de starboard actualizado a <#{}>!'.format(channel.id))
+            await cmd.answer('canal de starboard actualizado a <#{}>!'.format(channel.id))
         elif subcmd == 'disable':
             cmd.config.set(cfg_starboard_channel, '')
             await cmd.answer('Starboard desactivado! Para volver a activarlo, utiliza el subcomando "channel".')
         elif subcmd == 'count':
             if argc == 0:
                 count = cmd.config.get(cfg_starboard_tcount, default_count)
-                await cmd.answer('Cuenta trigger actual: ' + count)
+                await cmd.answer('cuenta trigger actual: ' + count)
                 return
 
             if not args[0].isdigit():
-                await cmd.answer('Utiliza un número entero entre 1 y 10, inclusive.')
+                await cmd.answer('utiliza un número entero entre 1 y 10, inclusive.')
                 return
 
             count = int(args[0])
             if count < 1 or count > 1000:
-                await cmd.answer('Utiliza un número entero entre 1 y 10, inclusive.')
+                await cmd.answer('utiliza un número entero entre 1 y 10, inclusive.')
                 return
 
             cmd.config.set(cfg_starboard_tcount, count)
-            await cmd.answer('Número de trigger definido en **{}**'.format(count))
+            await cmd.answer('número de trigger definido en **{}**'.format(count))
         elif subcmd == 'emojis':
             emojis = cmd.config.get(cfg_starboard_emojis)
 
             if argc == 0:
                 val = 'Ninguno' if emojis == '' else emojis
-                await cmd.answer('Emojis: ' + val)
+                await cmd.answer('emojis: ' + val)
                 return
 
             if argc > 10:
-                await cmd.answer('Formato: <inserte formato aquí>')
+                await cmd.answer('formato: <inserte formato aquí>')
                 return
 
             for arg in cmd.args:
                 if not pat_emoji.match(arg) and arg not in emoji.UNICODE_EMOJI:
-                    await cmd.answer('Formato: <inserte formato aquí>')
+                    await cmd.answer('formato: <inserte formato aquí>')
                     return
 
             res = cmd.config.set(cfg_starboard_emojis, cmd.text)
-            await cmd.answer('Emojis guardados: ' + res)
+            await cmd.answer('emojis guardados: ' + res)
         elif subcmd == 'delemojis':
             cmd.config.set(cfg_starboard_emojis, '')
-            await cmd.answer('Emojis de starboard eliminados (ahora se reacciona con cualquiera).')
+            await cmd.answer('emojis de starboard eliminados (ahora se reacciona con cualquiera).')
         elif subcmd == 'nsfw':
             if argc == 0:
                 val = cmd.config.get(cfg_starboard_nsfw, '0')
                 msg = 'activado :speak_no_evil:' if val == '1' else 'desactivado :dolphin:'
-                await cmd.answer('Starboard para canales NSFW: {}'.format(msg))
+                await cmd.answer('starboard para canales NSFW: {}'.format(msg))
             else:
                 arg = cmd.args[0].lower()
                 if arg in ['yes', 'true', '1', 'on', 'si']:
                     cmd.config.set(cfg_starboard_nsfw, '1')
-                    await cmd.answer('Starboard para NSFW activado :flushed:')
+                    await cmd.answer('starboard para NSFW activado :flushed:')
                 elif arg in ['no', 'false', '0', 'off']:
                     cmd.config.set(cfg_starboard_nsfw, '0')
-                    await cmd.answer('Starboard para NSFW desactivado :two_hearts:')
+                    await cmd.answer('starboard para NSFW desactivado :two_hearts:')
                 else:
                     await cmd.answer('Formato: nsfw [on|off]')
         else:
-            await cmd.answer('Formato: $PX{} <subcomando> <opts>.\n'
+            await cmd.answer('formato: $PX{} <subcomando> <opts>.\n'
                              'Subcomandos: channel, disable, count, emojis, delemojis, nfsw.'.format(cmd.cmdname))
 
     async def on_reaction_add(self, reaction, user):

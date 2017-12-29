@@ -170,7 +170,7 @@ class BanRank(Command):
         if len(banlist) == 0:
             await cmd.answer('no hay bans registrados')
         else:
-            await cmd.answer('\nRanking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
+            await cmd.answer('\nranking de bans:\n```\n{}\n```'.format('\n'.join(banlist)))
 
 
 class Ban(BaseModel):

@@ -12,7 +12,7 @@ class AltoEn(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !altoen <str>')
+            await cmd.answer('formato: !altoen <str>')
             return
 
         if len(cmd.text) > 25:
