@@ -10,6 +10,9 @@ class Weather(Command):
         self.aliases = ['clima']
         self.help = 'Entrega información del clima'
         self.urlbase = 'http://api.openweathermap.org/data/2.5/weather?q='
+        self.default_config = {
+            'weatherapi_key': ''
+        }
 
         self.enabled = True
         if bot.config.get('weatherapi_key', '') == '':

@@ -4,14 +4,12 @@
 """Este módulo contiene al bot y lo ejecuta si se corre el script."""
 
 import platform
-import re
 import sqlite3
 import sys
 
 import aiohttp
 import discord
 import peewee
-import yaml
 
 import alexis.modules
 from alexis import logger
@@ -34,6 +32,7 @@ class Alexis(discord.Client):
         super().__init__(**options)
         self.sv_config = None
         self.log = logger.get_logger('Alexis')
+        self.config = StaticConfig('config.yml')
         self.http_session = aiohttp.ClientSession(loop=self.loop)
 
         self.db = None
@@ -41,7 +40,6 @@ class Alexis(discord.Client):
         self.initialized = False
 
         self.cmds = {}
-        self.config = {}
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
@@ -89,6 +87,9 @@ class Alexis(discord.Client):
         instance = cls(self)
         if len(instance.db_models) > 0:
             self.db.create_tables(instance.db_models, True)
+
+        if isinstance(instance.default_config, dict):
+            self.config.load_defaults(instance.default_config)
 
         # Comandos
         for name in [instance.name] + instance.aliases:
@@ -149,12 +150,10 @@ class Alexis(discord.Client):
                 'owner_role': 'AlexisMaster',
                 'ext_modpath': '',
                 'subreddit': [],
-                'default_channel': '',
-                'weatherapi_key': ''
+                'default_channel': ''
             }
 
             self.log.debug('Cargando configuración...')
-            self.config = StaticConfig('config.yml')
             self.config.load(defaults)
             self.log.debug('Configuración cargada')
             return True

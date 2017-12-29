@@ -24,6 +24,7 @@ class Command:
         self.owner_error = 'no puedes usar este comando'
         self.format = ''  # TODO
         self.default_enabled = True
+        self.default_config = None
 
         self.user_delay = 0
         self.users_delay = {}
