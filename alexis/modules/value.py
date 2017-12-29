@@ -30,7 +30,9 @@ class Value(Command):
         self.name = 'value'
         self.aliases = ['valor', 'uf', 'utm']
         self.help = 'Entrega datos de conversión de divisas'
-        self.config = self.load_config()
+        self.default_config = {
+            'sbif_apikey': ''
+        }
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 2 and cmd.cmdname not in ['uf', 'utm']:
@@ -114,12 +116,14 @@ class Value(Command):
                 return
 
             if div1 in ['UF', 'UTM']:
-                if self.config is None or self.config['sbif_apikey'] == '':
-                    cmd.answer('La información de {} no está disponible'.format(div1))
+                if self.bot.config['sbif_apikey'] == '':
+                    await cmd.answer('La información de {} no está disponible'.format(div1))
                 else:
                     value = await self.sbif(div1.lower())
                     if div2 == 'CLP':
-                        if cant == 1:
+                        if value is None:
+                            await cmd.answer('no se pudo obtener el valor')
+                        elif cant == 1:
                             await cmd.answer('La {} está a **$ {:.2f}**'.format(div1, value))
                         else:
                             await cmd.answer('{} {} son **$ {:.2f}**'.format(cant, div1, value*cant))
@@ -182,8 +186,9 @@ class Value(Command):
             return value
 
     async def sbif(self, api):
+        # TODO: Cache
         attempts = 0
-        url = Value.baseurl_uf.format(api, self.config['sbif_apikey'])
+        url = Value.baseurl_uf.format(api, self.bot.config['sbif_apikey'])
 
         while attempts < 10:
             async with self.http.get(url) as r:
@@ -200,24 +205,6 @@ class Value(Command):
                     raise DivRetrievalError('no pude obtener los datos de divisas (UF) D:')
 
                 return value
-
-    def load_config(self):
-        try:
-            config_path = path.join(path.dirname(path.realpath(__file__)), 'value.yml')
-            with open(config_path, 'r') as file:
-                config = yaml.safe_load(file)
-
-            if 'sbif_apikey' not in config or config['sbif_apikey'].strip() == '':
-                config['sbif_apikey'] = ''
-
-            return config
-        except FileNotFoundError:
-            self.log.warning('No existe el archivo de configuración de !value. '
-                             'La información de UF y UTM no estará disponible.')
-            return None
-        except Exception as ex:
-            self.log.exception(ex)
-            return None
 
     @staticmethod
     def valid_currency(curr):

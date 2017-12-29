@@ -53,20 +53,27 @@ class SimSimiCmd(Command):
         self.user_delay = 5
         self.allow_pm = False
         self.enabled = True
-        self.config = {}
         self.key_index = 0
-        self.load_config()
+        self.default_config = {
+            'simsimi_apikeys': [],
+            'simsimi_lang': 'es'
+        }
+
+    def on_loaded(self):
+        if len(self.bot.config['simsimi_apikeys']) == 0:
+            self.log.warn('No se definieron API keys para SimSimi, las puedes agregar al valor simsimi_apikeys'
+                          'de la configuración.')
 
     async def handle(self, message, cmd):
-        if cmd.text == '' or not self.enabled:
+        if cmd.text == '':
             return
+
+        if len(self.bot.config['simsimi_apikeys']) == 0:
+            await cmd.answer('no disponible :c')
 
         if cmd.text in ['off', 'on'] and cmd.owner:
             self.enabled = cmd.text == 'on'
             await cmd.answer('ya')
-            return
-
-        if len(self.config['api_keys']) == 0:
             return
 
         await cmd.typing()
@@ -74,7 +81,7 @@ class SimSimiCmd(Command):
 
         while True:
             try:
-                sim = self.get_bot(self.key_index)
+                sim = self.get_bot(lang=cmd.config.get('simsimi_lang', self.bot.config['simsimi_lang']))
                 if sim is None:
                     await cmd.answer('no hay api keys disponibles')
                     break
@@ -86,7 +93,7 @@ class SimSimiCmd(Command):
                 if str(e) == 'Daily Request Query Limit Exceeded.'\
                         or str(e) == 'Unauthorized'\
                         or str(e) == 'Trial app is expired.':
-                    if self.key_index + 1 >= len(self.config['api_keys']):
+                    if self.key_index + 1 >= len(self.bot.config['simsimi_apikeys']):
                         self.key_index = 0
                     else:
                         self.key_index += 1
@@ -98,39 +105,21 @@ class SimSimiCmd(Command):
                     await cmd.answer('el coso tiró un error: ' + str(e))
                     break
 
-    def load_config(self):
-        self.log.debug('[SimSimiCmd] Cargando configuración...')
+    def get_bot(self, lang):
+        keys = self.get_keys()
 
-        try:
-            config_path = path.join(path.dirname(path.realpath(__file__)), 'config.yml')
-            with open(config_path, 'r') as file:
-                config = yaml.safe_load(file)
-
-            if config is None:
-                config = {}
-
-            self.config = {
-                'api_keys': config.get('api_keys', []),
-                'lang': config.get('lang', 'es')
-            }
-
-        except Exception as ex:
-            self.log.exception(ex)
-            self.config = {
-                'api_keys': [],
-                'lang': 'es'
-            }
-
-        if len(self.config['api_keys']) == 0:
-            self.log.warn('No se definieron API keys para SimSimi, por lo que no será activado.')
-
-    def get_bot(self, idx):
-        if len(self.config['api_keys']) == 0:
+        if not self.enabled:
             return None
 
-        key = self.config['api_keys'][idx].get('key', '')
-        is_trial = self.config['api_keys'][idx].get('is_trial', True)
+        key = keys[self.key_index].get('key', '')
+        is_trial = keys[self.key_index].get('is_trial', True)
         if key == '':
             return None
 
-        return SimSimi(conversation_key=key, http_session=self.http, is_trial=is_trial)
+        return SimSimi(conversation_key=key, http_session=self.http, is_trial=is_trial, conversation_language=lang)
+
+    def get_keys(self):
+        return self.bot.config.get('simsimi_apikeys', [])
+
+    def load_config(self):
+        self.on_loaded()

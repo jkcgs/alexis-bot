@@ -10,6 +10,7 @@ import sys
 import aiohttp
 import discord
 import peewee
+import re
 
 import alexis.modules
 from alexis import logger
@@ -22,7 +23,7 @@ from alexis.base.message_cmd import MessageCmd
 class Alexis(discord.Client):
     __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.11'
+    __version__ = '1.0.0-dev.12'
 
     def __init__(self, **options):
         """
@@ -38,6 +39,7 @@ class Alexis(discord.Client):
         self.db = None
         self.last_author = None  # El ID del último en enviar un mensaje (omite PM)
         self.initialized = False
+        self.pat_self_mention = None
 
         self.cmds = {}
         self.swhandlers = {}
@@ -68,6 +70,8 @@ class Alexis(discord.Client):
         self.cmd_instances = [self.load_command(c) for c in alexis.modules.get_mods(self.config['ext_modpath'])]
         self.log.debug('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
+
+        self._call_handlers_sync('on_loaded', force=True)
 
         # Conectar con Discord
         try:
@@ -125,6 +129,7 @@ class Alexis(discord.Client):
         self.log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
         self.log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
+        self.pat_self_mention = re.compile('^<@!?{}>$'.format(self.user.id))
 
         self.initialized = True
         await self._call_handlers('on_ready')
@@ -184,6 +189,13 @@ class Alexis(discord.Client):
         for z in self._get_handlers(name):
             await z(**kwargs)
 
+    def _call_handlers_sync(self, name, force=False, **kwargs):
+        if not self.initialized and not force:
+            return
+
+        for z in self._get_handlers(name):
+            z(**kwargs)
+
     def _get_handlers(self, name):
         return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
 
@@ -232,4 +244,3 @@ class Alexis(discord.Client):
 
     async def on_typing(self, channel, user, when):
         await self._call_handlers('on_server_remove', channel=channel, user=user, when=when)
-

@@ -8,8 +8,6 @@ import random
 
 
 class Slots(Command):
-    def_frutas = [':cookie:', ':apple:', ':tangerine:', ':lemon:', ':cherries:', ':grapes:', ':watermelon:',
-                  ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -17,17 +15,21 @@ class Slots(Command):
         self.mention_handler = False
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False
-        self.frutas = {}
-        self.load_config()
+        self.enabled = True
+        self.default_config = {
+            'slots_fruits': [':cookie:', ':apple:', ':tangerine:', ':lemon:', ':cherries:', ':grapes:', ':watermelon:',
+                             ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
+        }
 
     async def handle(self, message, cmd):
-        if len(self.frutas) < 3:
+        frutas = self.bot.config['slots_fruits']
+        if len(frutas) < 3:
             await cmd.answer('este comando no funciona u_u')
             return
 
-        slot1 = random.choice(self.frutas)
-        slot2 = random.choice(self.frutas)
-        slot3 = random.choice(self.frutas)
+        slot1 = random.choice(frutas)
+        slot2 = random.choice(frutas)
+        slot3 = random.choice(frutas)
         if slot1 == slot2 == slot3:
             text = 'Ganaste wn!  :confetti_ball:'
         elif slot1 == slot2 or slot1 == slot3 or slot2 == slot3:
@@ -41,19 +43,3 @@ class Slots(Command):
         slots.description = desc
         await cmd.answer(embed=slots)
         return
-
-    def load_config(self):
-        self.log.debug('[Slots] Cargando frutitas...')
-
-        try:
-            config_path = path.join(path.dirname(path.realpath(__file__)), 'frutas.yml')
-            with open(config_path, 'r') as file:
-                config = yaml.safe_load(file)
-
-            self.frutas = config.get('frutas', [])
-        except Exception as ex:
-            self.log.exception(ex)
-            self.frutas = []
-
-        if len(self.frutas) < 3:
-            self.frutas = set(list(self.frutas) + self.def_frutas)
