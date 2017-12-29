@@ -12,7 +12,7 @@ class Weather(Command):
         self.urlbase = 'http://api.openweathermap.org/data/2.5/weather?q='
 
         self.enabled = True
-        if 'weatherapi_key' not in bot.config or bot.config['weatherapi_key'].strip() == '':
+        if bot.config.get('weatherapi_key', '') == '':
             self.log.warning('API Key de clima no configurado, comando desactivado')
             self.enabled = False
 

@@ -16,6 +16,7 @@ import yaml
 import alexis.modules
 from alexis import logger
 from alexis.base.command import Command
+from alexis.base.configuration import StaticConfig
 from alexis.base.database import ServerConfigMgr
 from alexis.base.message_cmd import MessageCmd
 
@@ -23,7 +24,7 @@ from alexis.base.message_cmd import MessageCmd
 class Alexis(discord.Client):
     __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.10'
+    __version__ = '1.0.0-dev.11'
 
     def __init__(self, **options):
         """
@@ -86,7 +87,7 @@ class Alexis(discord.Client):
         """
 
         instance = cls(self)
-        if len(instance.db_model) > 0:
+        if len(instance.db_models) > 0:
             self.db.create_tables(instance.db_models, True)
 
         # Comandos
@@ -139,20 +140,23 @@ class Alexis(discord.Client):
 
     def load_config(self):
         try:
-            with open('config.yml', 'r') as file:
-                config = yaml.safe_load(file)
-            if config is None:
-                config = {}
+            defaults = {
+                'token': '',
+                'debug': False,
+                'command_prefix': '!',
+                'playing': '!help',
+                'bot_owners': ['130324995984326656'],
+                'owner_role': 'AlexisMaster',
+                'ext_modpath': '',
+                'subreddit': [],
+                'default_channel': '',
+                'weatherapi_key': ''
+            }
 
-            # Completar info con defaults
-            config['bot_owners'] = config.get('bot_owners', ['130324995984326656'])
-            config['ext_modpath'] = config.get('ext_modpath', '')
-            config['owner_role'] = config.get('owner_role', 'AlexisMaster')
-
-            if 'command_prefix' not in config or not isinstance(config['command_prefix'], str):
-                config['command_prefix'] = '!'
-
-            self.config = config
+            self.log.debug('Cargando configuración...')
+            self.config = StaticConfig('config.yml')
+            self.config.load(defaults)
+            self.log.debug('Configuración cargada')
             return True
         except Exception as ex:
             self.log.exception(ex)

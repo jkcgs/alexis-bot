@@ -6,5 +6,4 @@ default_channel: "168469255979925504"
 playing: "/r/chile"
 owner_role: "AlexisMaster"
 bot_owners: ["130324995984326656"]
-weatherapi_key: ""
 ext_modpath: ""
