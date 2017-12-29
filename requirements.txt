@@ -17,3 +17,4 @@ PyYAML==3.12
 requests==2.13.0
 six==1.10.0
 websockets==3.3
+ruamel.yaml==0.15.35

@@ -3,46 +3,11 @@ import re
 import discord
 
 from alexis.base.command import Command
-from discord import Game
-import sys
-import alexis
+from alexis import Alexis
 from alexis.base.utils import unserialize_avail, get_server_role, serialize_avail
 
 rx_snowflake = re.compile('^\d{10,19}$')
 rx_channel = re.compile('^<#\d{10,19}>$')
-
-
-class ReloadCmd(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'reload'
-        self.help = 'Recarga la configuración'
-        self.bot_owner_only = True
-
-    async def handle(self, message, cmd):
-        if not self.bot.load_config():
-            msg = 'no se pudo recargar la configuración'
-        else:
-            msg = 'configuración recargada correctamente'
-
-        nmods = len([i.load_config() for i in self.bot.cmd_instances if callable(getattr(i, 'load_config', None))])
-        if nmods > 0:
-            msg += ', incluyendo {} módulo{}'.format(nmods, ['s', ''][int(nmods == 1)])
-
-        await cmd.answer(msg)
-
-
-class ShutdownCmd(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'shutdown'
-        self.help = 'Detiene el proceso del bot'
-        self.owner_only = True
-
-    async def handle(self, message, cmd):
-        await cmd.answer('chao loh vimo')
-        await self.bot.logout()
-        sys.exit(0)
 
 
 class InfoCmd(Command):
@@ -53,22 +18,9 @@ class InfoCmd(Command):
         self.help = 'Muestra la información del bot'
 
     async def handle(self, message, cmd):
-        info_msg = "```\nAutores: {}\nVersión: {}\nEstado: {}```"
-        info_msg = info_msg.format(alexis.__author__, alexis.__version__, alexis.__status__)
+        info_msg = "```\nAutores: {}\nVersión: {}```"
+        info_msg = info_msg.format(Alexis.__author__, Alexis.__version__)
         await cmd.answer(info_msg)
-
-
-class SetStatus(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'status'
-        self.help = 'Determina el status del bot'
-        self.owner_only = True
-
-    async def handle(self, message, cmd):
-        status = '' if len(cmd.args) < 1 else cmd.text
-        await self.bot.change_presence(game=Game(name=status))
-        await cmd.answer('k')
 
 
 class ClearReactions(Command):

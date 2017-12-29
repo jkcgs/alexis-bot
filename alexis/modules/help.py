@@ -14,6 +14,8 @@ class Help(Command):
             ins = self.bot.cmds[i]
             if ins.owner_only and not cmd.owner:
                 continue
+            if ins.bot_owner_only and not cmd.bot_owner:
+                continue
 
             cmds = ', $PX'.join(ins.name) if isinstance(ins.name, list) else ins.name
             helpline = "- $PX{}: {}".format(cmds, ins.help)

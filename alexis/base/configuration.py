@@ -1,4 +1,7 @@
-import yaml
+from ruamel.yaml import YAML
+
+yaml = YAML(typ='safe')
+yaml.default_flow_style = False
 
 
 class StaticConfig:
@@ -33,7 +36,7 @@ class StaticConfig:
         :return: Un dict con los datos del archivo y los parámetros predeterminados, de haber sido entregados.
         """
         with open(self.path) as f:
-            loaded_conf = yaml.safe_load(f)
+            loaded_conf = yaml.load(f)
             if loaded_conf is None:
                 loaded_conf = {}
 
@@ -59,7 +62,7 @@ class StaticConfig:
         Guarda la configuración actual al archivo y la recarga
         """
         with open(self.path, 'w') as f:
-            yaml.dump(self.config, f, default_flow_style=False)
+            yaml.dump(self.config, f)
 
         if reload:
             self.load()
