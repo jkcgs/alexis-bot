@@ -31,23 +31,20 @@ class Alexis(discord.Client):
         :param options: Las opciones correspondientes de discord.Client
         """
         super().__init__(**options)
-        self.sv_config = ServerConfigMgr()
+        self.sv_config = None
         self.log = logger.get_logger('Alexis')
         self.http_session = aiohttp.ClientSession(loop=self.loop)
 
         self.db = None
-        self.rx_mention = None  # Regex de mención (incluye nicks)
         self.last_author = None  # El ID del último en enviar un mensaje (omite PM)
         self.initialized = False
 
         self.cmds = {}
         self.config = {}
-        self.db_models = []
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
 
-    """Inicializa al bot"""
     def init(self):
         """
         Inicializa la conexión del bot con Discord, además de cargar los módulos y la base de datos
@@ -65,16 +62,13 @@ class Alexis(discord.Client):
 
         # Cargar base de datos
         self.db_connect()
+        self.sv_config = ServerConfigMgr()
 
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
         self.cmd_instances = [self.load_command(c) for c in alexis.modules.get_mods(self.config['ext_modpath'])]
         self.log.debug('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-
-        self.log.info('Inicializando tablas de bases de datos de comandos...')
-        self.db.create_tables(self.db_models, True)
-        self.log.info('Tablas de base de datos inicializadas')
 
         # Conectar con Discord
         try:
@@ -85,8 +79,15 @@ class Alexis(discord.Client):
             raise
 
     def load_command(self, cls):
+        """
+        Carga un módulo de comando en el bot
+        :param cls: Clase-módulo a cargar
+        :return: La instancia del módulo cargado
+        """
+
         instance = cls(self)
-        self.db_models += instance.db_models
+        if len(instance.db_model) > 0:
+            self.db.create_tables(instance.db_models, True)
 
         # Comandos
         for name in [instance.name] + instance.aliases:
@@ -123,9 +124,7 @@ class Alexis(discord.Client):
         self.log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
-        self.rx_mention = re.compile('^<@!?{}>'.format(self.user.id))
         self.initialized = True
-
         await self._call_handlers('on_ready')
 
     async def send_message(self, destination, content=None, **kwargs):

@@ -25,7 +25,6 @@ class Mute(Command):
         self.help = 'Mutea usuarios'
         self.owner_only = True
         self.db_models = [MutedUser]
-        self.run_task = True
         self.allow_pm = False
 
     async def handle(self, message, cmd):

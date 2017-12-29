@@ -21,7 +21,7 @@ class StaticConfig:
         with open(self.path, 'w') as f:
             yaml.dump(self.config, f, default_flow_style=False)
 
-    def get(self, name, default):
+    def get(self, name, default=''):
         return self.config.get(name, default)
 
     def set(self, name, val):

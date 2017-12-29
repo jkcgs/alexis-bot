@@ -15,7 +15,6 @@ class RedditorCmd(Command):
         super().__init__(bot)
         self.name = 'redditor'
         self.help = 'Muestra la cantidad de posts (registrados por el bot) hechos por un redditor'
-        self.run_task = True
         self.db_models = [Redditor, Post]
 
         if 'subreddit' not in self.bot.config:
