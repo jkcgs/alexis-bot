@@ -1,7 +1,12 @@
 import discord
+import re
 from discord import Embed
 
 from alexis.base.database import ServerConfigMgrSingle
+
+
+pat_channel = re.compile('^<#\d{10,19}>$')
+pat_subreddit = re.compile('^[a-zA-Z0-9_\-]{2,25}$')
 
 
 def is_int(val):

@@ -8,52 +8,104 @@ from discord import Embed
 
 from alexis.base.command import Command
 from alexis.base.database import BaseModel
+from alexis.base.utils import pat_channel, pat_subreddit
 
 
-class RedditorCmd(Command):
+class RedditFollow(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = 'redditor'
+        self.name = 'reddit'
         self.help = 'Muestra la cantidad de posts (registrados por el bot) hechos por un redditor'
-        self.db_models = [Redditor, Post]
+        self.db_models = [Redditor, Post, ChannelFollow]
+        self.chans = {}
+        self.allow_pm = False
+        self.owner_only = True
 
-        if 'subreddit' not in self.bot.config:
-            self.bot.config['subreddit'] = []
+        self.load_channels()
 
     async def handle(self, message, cmd):
-        user = cmd.args[0]
-
-        if user.startswith('/u/'):
-            user = user[3:]
-        if not re.match('^[a-zA-Z0-9_-]*$', user):
+        if cmd.argc < 1:
+            await cmd.answer('formato: $PX$NM (set|remove|posts)')
             return
 
-        redditor, _ = Redditor.get_or_create(name=user.lower())
+        if cmd.args[0] == 'set' or cmd.args[0] == 'remove':
+            if cmd.argc < 2:
+                await cmd.answer('formato: $PX$NM {} <subreddit> [channel=actual]'.format(cmd.args[0]))
+                return
+            else:
+                if not pat_subreddit.match(cmd.args[1]):
+                    await cmd.answer('nombre de subreddit incorrecto')
+                    return
 
-        if redditor.posts > 0:
-            suffix = 'post' if redditor.posts == 1 else 'posts'
-            text = '**/u/{name}** ha creado **{num}** {suffix}.'
-            text = text.format(name=user, num=redditor.posts, suffix=suffix)
-            await cmd.answer(text)
+                if cmd.argc > 2:
+                    if not pat_channel.match(cmd.args[2]):
+                        await cmd.answer('formato: $PX$NM add <subreddit> [channel=actual]')
+                        return
+
+                    channel = message.server.get_channel(cmd.args[2][2:-1])
+                    if channel is None:
+                        await cmd.answer('canal no encontrado aquí')
+                        return
+                else:
+                    channel = message.channel
+
+            if cmd.args[0] == 'set':
+                chan, created = ChannelFollow.get_or_create(
+                    subreddit=cmd.args[1], serverid=message.server.id, channelid=channel.id)
+
+                if created:
+                    await cmd.answer('subreddit agregado')
+                    if chan.subreddit not in self.chans:
+                        self.chans[chan.subreddit] = []
+
+                    self.chans[chan.subreddit].append((chan.serverid, chan.channelid))
+                    return
+                else:
+                    await cmd.answer('ese subreddit ya estaba configurado para ese canal xd')
+                    return
+            else:
+                try:
+                    asd = ChannelFollow.get(ChannelFollow.subreddit == cmd.args[1],
+                                            ChannelFollow.serverid == message.server.id,
+                                            ChannelFollow.channelid == channel.id)
+                    asd.delete_instance()
+
+                    if cmd.args[1] in self.chans:
+                        self.chans[cmd.args[1]].remove((message.server.id, channel.id))
+                        if len(self.chans[cmd.args[1]]) == 0:
+                            del self.chans[cmd.args[1]]
+
+                    await cmd.answer('subreddit desactivado del canal seleccionado')
+                    return
+                except ChannelFollow.DoesNotExist:
+                    await cmd.answer('el subreddit no está configurado en el canal seleccionado')
+                    return
+        elif cmd.args[0] == 'posts':
+            if cmd.argc < 2:
+                await cmd.answer('formato: $PX$NM posts <redditor>')
+                return
+
+            user = cmd.args[1]
+            if user.startswith('/u/'):
+                user = user[3:]
+
+            num_posts = get_user_posts(user)
+
+            if num_posts > 0:
+                text = '**/u/{name}** ha creado **{num}** post{s}.'
+                await cmd.answer(text.format(name=user, num=num_posts, s=['s', ''][bool(num_posts == 1)]))
+            else:
+                text = '**/u/{name}** no ha creado ningún post.'.format(name=user)
+                await cmd.answer(text)
         else:
-            text = '**/u/{name}** no ha creado ningún post.'
-            text = text.format(name=user)
-            await cmd.answer(text)
+            await cmd.answer('formato: $PX$NM (set|remove|posts)')
 
     async def task(self):
         post_id = ''
         await self.bot.wait_until_ready()
         try:
-            for subconfig in self.bot.config['subreddit']:
-                subconfig = subconfig.split('@')
-                if len(subconfig) < 2:
-                    if 'default_channel' in self.bot.config and self.bot.config['default_channel'] != '':
-                        subconfig.append(self.bot.config['default_channel'])
-                    else:
-                        continue
-
-                subname = subconfig[0]
-                subchannels = subconfig[1].split(',')
+            for (subname, chans) in self.chans.items():
+                subchannels = [chanid for svid, chanid in chans]
                 posts = await get_posts(self.bot, subname)
 
                 if len(posts) == 0:
@@ -70,26 +122,7 @@ class RedditorCmd(Command):
 
                 while data['id'] != post_id and not exists:
                     message = 'Nuevo post en **/r/{}**'.format(data['subreddit'])
-                    embed = Embed()
-                    embed.title = data['title']
-                    embed.set_author(name='/u/' + data['author'], url='https://www.reddit.com/user/' + data['author'])
-                    embed.url = 'https://www.reddit.com' + data['permalink']
-
-                    if data['is_self']:
-                        if len(data['selftext']) > 2048:
-                            embed.description = data['selftext'][:2044] + '...'
-                        else:
-                            embed.description = data['selftext']
-                    elif data['media']:
-                        if 'preview' in data:
-                            embed.set_image(url=html.unescape(data['preview']['images'][0]['source']['url']))
-                        else:
-                            embed.set_thumbnail(url=html.unescape(data['thumbnail']))
-                        embed.description = "Link del multimedia: " + data['url']
-                    elif 'preview' in data:
-                        embed.set_image(url=html.unescape(data['preview']['images'][0]['source']['url']))
-                    elif data['thumbnail'] != '':
-                        embed.set_thumbnail(url=html.unescape(data['thumbnail']))
+                    embed = post_to_embed(data)
 
                     for channel in subchannels:
                         await self.bot.send_message(discord.Object(id=channel), content=message, embed=embed)
@@ -102,24 +135,37 @@ class RedditorCmd(Command):
 
                         Redditor.update(posts=Redditor.posts + 1).where(
                             Redditor.name == data['author'].lower()).execute()
-                        self.bot.log.info(
-                            '/u/{author} ha sumado un nuevo post, quedando en {num}.'.format(author=data['author'],
-                                                                                             num=redditor.posts + 1))
 
         except Exception as e:
             if isinstance(e, RuntimeError):
                 pass
             self.bot.log.exception(e)
         finally:
-            await asyncio.sleep(60)
+            await asyncio.sleep(15)
 
         if not self.bot.is_closed:
             self.bot.loop.create_task(self.task())
 
+    def load_channels(self):
+        for chan in ChannelFollow.select():
+            if chan.subreddit not in self.chans:
+                self.chans[chan.subreddit] = []
+
+            self.chans[chan.subreddit].append((chan.serverid, chan.channelid))
+
+
+def get_user_posts(user):
+    if not re.match('^[a-zA-Z0-9_-]*$', user):
+        return None
+
+    redditor, _ = Redditor.get_or_create(name=user.lower())
+    return redditor.suffix
+
 
 async def get_posts(bot, sub, since=0):
     url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
-    async with bot.http_session.get(url, headers={'User-agent': 'Alexis'}) as r:
+    req = bot.http_session.get(url, headers={'User-agent': 'Alexis/' + bot.__version__})
+    async with req as r:
         if not r.status == 200:
             return []
 
@@ -132,6 +178,31 @@ async def get_posts(bot, sub, since=0):
         return posts
 
 
+def post_to_embed(post):
+    embed = Embed()
+    embed.title = post['title']
+    embed.set_author(name='/u/' + post['author'], url='https://www.reddit.com/user/' + post['author'])
+    embed.url = 'https://www.reddit.com' + post['permalink']
+
+    if post['is_self']:
+        if len(post['selftext']) > 2048:
+            embed.description = post['selftext'][:2044] + '...'
+        else:
+            embed.description = post['selftext']
+    elif post['media']:
+        if 'preview' in post:
+            embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
+        else:
+            embed.set_thumbnail(url=html.unescape(post['thumbnail']))
+        embed.description = "Link del multimedia: " + post['url']
+    elif 'preview' in post:
+        embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
+    elif post['thumbnail'] != '':
+        embed.set_thumbnail(url=html.unescape(post['thumbnail']))
+
+    return embed
+
+
 class Post(BaseModel):
     id = peewee.CharField()
     permalink = peewee.CharField(null=True)
@@ -141,3 +212,9 @@ class Post(BaseModel):
 class Redditor(BaseModel):
     name = peewee.TextField()
     posts = peewee.IntegerField(default=0)
+
+
+class ChannelFollow(BaseModel):
+    subreddit = peewee.TextField()
+    serverid = peewee.TextField()
+    channelid = peewee.TextField()
