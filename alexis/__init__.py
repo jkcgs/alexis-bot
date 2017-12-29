@@ -23,7 +23,7 @@ from alexis.base.message_cmd import MessageCmd
 class Alexis(discord.Client):
     __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.12'
+    __version__ = '1.0.0-dev.13'
 
     def __init__(self, **options):
         """
