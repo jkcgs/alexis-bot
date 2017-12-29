@@ -25,7 +25,7 @@ class RedditFollow(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM (set|remove|posts)')
+            await cmd.answer('formato: $PX$NM (set|remove|list|posts)')
             return
 
         if cmd.args[0] == 'set' or cmd.args[0] == 'remove':
@@ -80,6 +80,16 @@ class RedditFollow(Command):
                 except ChannelFollow.DoesNotExist:
                     await cmd.answer('el subreddit no está configurado en el canal seleccionado')
                     return
+        elif cmd.args[0] == 'list':
+            res = ChannelFollow.select().where(ChannelFollow.serverid == message.server.id)
+            resp = []
+            for chan in res:
+                resp.append('- **{}** \➡ <#{}>'.format(chan.subreddit, chan.channelid))
+
+            if len(res) == 0:
+                await cmd.answer('no hay subs por seguir')
+            else:
+                await cmd.answer('Subreddits a seguir:\n{}'.format('\n'.join(resp)))
         elif cmd.args[0] == 'posts':
             if cmd.argc < 2:
                 await cmd.answer('formato: $PX$NM posts <redditor>')
