@@ -21,6 +21,7 @@ class RedditFollow(Command):
         self.allow_pm = False
         self.owner_only = True
 
+    def on_loaded(self):
         self.load_channels()
 
     async def handle(self, message, cmd):
