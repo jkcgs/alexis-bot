@@ -54,11 +54,10 @@ class Chaucha(Command):
                     data = await r.json()
                     self.current = int(data[0]['data']['market']['lastTrade']['price'])
         except Exception as e:
-            if self.bot.config['debug']:
-                self.log.debug('Error al cargar datos de chaucha')
-                self.log.exception(e)
+            self.log.debug('Error al cargar datos de chaucha')
+            self.log.exception(e)
         finally:
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
 
         if not self.bot.is_closed:
             self.bot.loop.create_task(self.task())
