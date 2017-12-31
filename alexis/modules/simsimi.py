@@ -3,7 +3,7 @@ from os import path
 import yaml
 
 from alexis.logger import log
-from alexis.base.command import Command
+from alexis import Command
 
 
 class SimSimiException(Exception):

@@ -3,7 +3,7 @@ import glob
 import inspect
 import sys
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.logger import log
 
 

@@ -2,7 +2,7 @@ import sys
 
 from discord import Game
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base.utils import is_float, is_int
 
 

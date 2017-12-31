@@ -5,7 +5,7 @@ import peewee
 import emoji
 from discord import Emoji, Object, Embed
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base.database import BaseModel, ServerConfig
 
 default_count = 10

@@ -1,4 +1,4 @@
-from alexis.base.command import Command
+from alexis import Command
 import urllib.parse as urlparse
 
 from alexis.base.utils import img_embed

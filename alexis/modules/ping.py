@@ -1,6 +1,6 @@
 import random
 
-from alexis.base.command import Command
+from alexis import Command
 
 
 class Ping(Command):

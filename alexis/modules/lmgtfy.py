@@ -1,5 +1,5 @@
 from urllib.parse import urlencode
-from alexis.base.command import Command
+from alexis import Command
 
 
 class LetMeGoogleThatForYou(Command):

@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis import Alexis
 from alexis.base.utils import unserialize_avail, get_server_role, serialize_avail
 

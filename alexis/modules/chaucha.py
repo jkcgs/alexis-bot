@@ -2,7 +2,7 @@ import json
 
 import asyncio
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base.utils import is_float
 
 chaucha_api = 'https://api.orionx.io/graphql'

@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from alexis.base.command import Command
+from alexis import Command
 
 pat_mention = re.compile('^<@!?[0-9]+>$')
 

@@ -1,4 +1,4 @@
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base import utils
 
 

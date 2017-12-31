@@ -6,7 +6,7 @@ from datetime import datetime as dt
 import discord
 import peewee
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base.database import BaseModel
 from alexis.base import utils
 

@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from alexis.base.command import Command
+from alexis import Command
 from discord import Embed
 
 

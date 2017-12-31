@@ -1,4 +1,4 @@
-from alexis.base.command import Command
+from alexis import Command
 from urllib import parse as urlparse
 from discord import Embed
 

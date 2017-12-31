@@ -6,7 +6,7 @@ import discord
 import peewee
 from discord import Embed
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base.database import BaseModel
 from alexis.base.utils import pat_channel, pat_subreddit
 
@@ -175,7 +175,7 @@ def get_user_posts(user):
 
 async def get_posts(bot, sub, since=0):
     url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
-    req = bot.http_session.get(url, headers={'User-agent': 'Alexis/' + bot.__version__})
+    req = bot.http_session.get(url)
     async with req as r:
         if not r.status == 200:
             return []

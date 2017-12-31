@@ -4,7 +4,7 @@ from datetime import datetime
 import peewee
 from discord import Embed, Colour
 
-from alexis.base.command import Command
+from alexis import Command
 from alexis.base.database import BaseModel
 
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')

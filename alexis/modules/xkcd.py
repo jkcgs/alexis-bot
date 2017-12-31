@@ -1,4 +1,4 @@
-from alexis.base.command import Command
+from alexis import Command
 from discord import Embed
 import random
 import requests

@@ -2,7 +2,7 @@ from os import path
 
 import yaml
 
-from alexis.base.command import Command
+from alexis import Command
 from discord import Embed
 import random
 

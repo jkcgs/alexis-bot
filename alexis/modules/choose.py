@@ -1,5 +1,5 @@
 import random
-from alexis.base.command import Command
+from alexis import Command
 
 
 class Choose(Command):

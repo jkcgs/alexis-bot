@@ -1,7 +1,7 @@
 from io import BytesIO
 from os import path
 from PIL import Image
-from alexis.base.command import Command
+from alexis import Command
 
 
 class ShipperUwU(Command):
