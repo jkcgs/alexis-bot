@@ -31,7 +31,7 @@ class Mute(Command):
         # TODO: Mostrar tiempo de mute propio cuando se usa sin argumentos
         # TODO: Mostrar tiempo de mute de un usuario cuando se pasa sólo el usuario como argumento
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: !mute <id, mención> [duración] [razón]')
+            await cmd.answer('formato: $PX$NM <id, mención> [duración] [razón]')
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
@@ -66,7 +66,7 @@ class Mute(Command):
         deltatime = None
         if len(cmd.args) > 1:
             if Mute.rx_timediff_all.match(cmd.args[1]) is None:
-                await cmd.answer('Tiempo de mute no válido')
+                await cmd.answer('tiempo de mute no válido')
                 return
 
             deltatime = Mute.timediff_parse(cmd.args[1])

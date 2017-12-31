@@ -61,7 +61,7 @@ class SimSimiCmd(Command):
 
     def on_loaded(self):
         if len(self.bot.config['simsimi_apikeys']) == 0:
-            self.log.warn('No se definieron API keys para SimSimi, las puedes agregar al valor simsimi_apikeys'
+            self.log.warn('No se definieron API keys para SimSimi, las puedes agregar al valor simsimi_apikeys '
                           'de la configuración.')
 
     async def handle(self, message, cmd):
