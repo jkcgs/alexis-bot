@@ -14,7 +14,7 @@ class Ban(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <id, mención> [duración] [razón]')
+            await cmd.answer('Formato: $PX$NM <id, mención> [días-eliminar-mensajes (0-7)] [razón]')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
