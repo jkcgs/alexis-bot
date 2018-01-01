@@ -2,6 +2,7 @@ from datetime import datetime
 
 import discord
 import peewee
+from discord import Embed
 
 from alexis import Command
 from alexis.base.database import BaseModel
@@ -111,6 +112,45 @@ class ClearWarns(Command):
 
         UserWarn.delete().where(UserWarn.serverid == message.server.id, UserWarn.userid == member.id).execute()
         await cmd.answer('advertencias eliminadas para **{}**'.format(member.display_name))
+
+
+class WarnList(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'warnlist'
+        self.help = 'Muestra el número de advertencias que tiene el usuario'
+        self.allow_pm = False
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if len(cmd.args) < 1:
+            await cmd.answer('Formato: $PX$NM <id, mención>')
+            return
+
+        member = await cmd.get_user(cmd.args[0], member_only=True)
+        await cmd.typing()
+
+        if member is None:
+            await cmd.answer('no se encontró al usuario')
+            return
+
+        warns = get_member_warns(member).order_by(UserWarn.timestamp.desc())
+        num = warns.count()
+        adv = ['advertencias', 'advertencia'][bool(num == 1)]
+
+        if num == 0:
+            await cmd.answer('**{}** no tiene advertencias :3'.format(member.display_name))
+            return
+
+        warnlist = []
+        for warn in warns.iterator():
+            fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            warnlist.append('`[{}]` {}'.format(fdate, warn.reason))
+
+        msg = '**{}** tiene {} {}.'.format(member.display_name, num, adv)
+        emb = Embed()
+        emb.description = '\n'.join(warnlist)
+        await cmd.answer(msg, embed=emb)
 
 
 def get_member_warns(member):

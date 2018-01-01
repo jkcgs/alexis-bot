@@ -62,13 +62,17 @@ class Alexis(discord.Client):
         # Cargar configuración
         self.load_config()
 
+        if self.config.get('token', '') == '':
+            raise RuntimeError('SHOTTO MATTE KUDASAI - ¿Donde está el token para el bot? Agrega el valor "token" a la '
+                               'configuración con el token del bot de Discord.')
+
         # Cargar base de datos
         self.db_connect()
         self.sv_config = ServerConfigMgr()
 
         # Cargar (instanciar clases de) comandos
         self.log.debug('Cargando comandos...')
-        self.cmd_instances = [self.load_command(c) for c in alexis.modules.get_mods(self.config['ext_modpath'])]
+        self.cmd_instances = [self.load_command(c) for c in alexis.modules.get_mods(self.config.get('ext_modpath', ''))]
         self.log.debug('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
@@ -78,6 +82,8 @@ class Alexis(discord.Client):
         try:
             self.log.info('Conectando...')
             self.run(self.config['token'])
+        except discord.errors.LoginFailure:
+            raise RuntimeError('El token de Discord es incorrecto!')
         except Exception as ex:
             self.log.exception(ex)
             raise

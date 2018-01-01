@@ -1,4 +1,4 @@
-token: "token"
+token: ""
 debug: false
 command_prefix: "!"
 subreddit: ["chile@198944348379938816"]
