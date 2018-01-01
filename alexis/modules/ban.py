@@ -52,7 +52,7 @@ class Ban(Command):
 
         str_reason = ' debido a: **{}**'.format(reason) if reason != '' else ''
 
-        # Enviar PM con el aviso del mute
+        # Enviar PM con el aviso del ban
         try:
             await self.bot.send_message(member, 'Hola! Lamentablemente has sido expulsad@ del servidor **{}**{}.'
                                         .format(server.name, str_reason))
