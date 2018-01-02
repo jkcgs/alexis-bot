@@ -32,6 +32,9 @@ def is_owner(bot, member, server):
     if server is None:
         return False
 
+    if member.server_permissions.administrator:
+        return True
+
     cfg = ServerConfigMgrSingle(bot.sv_config, server.id)
 
     owner_roles = cfg.get('owner_roles', bot.config['owner_role'])
