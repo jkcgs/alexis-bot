@@ -1,5 +1,3 @@
-import discord
-
 from alexis import Command
 
 
@@ -25,6 +23,20 @@ class ServerWhitelist(Command):
         except Exception as e:
             self.log.exception(e)
 
+    async def on_ready(self):
+        if not self.bot.config.get('whitelist', False):
+            self.log.debug('whitelist disabled')
+            return
+
+        self.log.debug('estoy en %s servers', len(self.bot.servers))
+        wlist = self.bot.config.get('whitelist_servers', [])
+        servers = [sv for sv in self.bot.servers if sv.id not in wlist and int(sv.id) not in wlist]
+        self.log.debug('%s servers en la whitelist', len(wlist))
+        self.log.debug('%s servers que no están en la whitelist', len(servers))
+        for server in servers:
+            self.log.debug('La guild "%s" (%s) no está en la whitelist, bye bye', server.name, server.id)
+            await self.bot.leave_server(server)
+
     async def on_server_join(self, server):
         if not self.bot.config.get('whitelist', False):
             self.log.debug('whitelist not enabled')
@@ -33,7 +45,7 @@ class ServerWhitelist(Command):
         wlist = self.bot.config.get('whitelist_servers', [])
         wcontact = self.bot.config.get('whitelist_contact', '')
 
-        if server.id in wlist:
+        if server.id in wlist or int(server.id) in wlist:
             self.log.debug('Entré a "%s" (%s) :3', server.name, server.id)
             return
 
