@@ -32,7 +32,8 @@ class ConfigCmd(Command):
                 if len(val) == 0:
                     await cmd.answer('la lista "{}" está vacía'.format(name))
                 else:
-                    await cmd.answer('valores de "{}":\n```- {}```'.format(name, '\n- '.join(str(val))))
+                    cont = '\n'.join(['- ' + str(f) for f in val])
+                    await cmd.answer('valores de "{}":\n```{}```'.format(name, cont))
             else:
                 await cmd.answer('valor de "{}": **{}**'.format(name, str(val)))
         elif arg == 'set':
