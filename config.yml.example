@@ -7,3 +7,7 @@ playing: "/r/chile"
 owner_role: "AlexisMaster"
 bot_owners: ["130324995984326656"]
 ext_modpath: ""
+whitelist: false
+whitelist_contact: 130324995984326656
+whitelist_servers:
+- 198944348379938816
