@@ -6,6 +6,24 @@ from alexis import Command
 class ServerWhitelist(Command):
     def __init__(self, bot):
         super().__init__(bot)
+        self.name = 'leaveserver'
+        self.bot_owner_only = True
+
+    async def handle(self, message, cmd):
+        if cmd.argc == 0:
+            await cmd.answer('formato: $PX$NM <server_id>')
+            return
+
+        server = self.bot.get_server(cmd.args[0])
+        if server is None:
+            await cmd.answer('server no encontrado')
+            return
+
+        await self.bot.leave_server(server)
+        try:
+            await cmd.answer('dejé el server "{}" ({})'.format(server.name, server.id))
+        except Exception as e:
+            self.log.exception(e)
 
     async def on_server_join(self, server):
         if not self.bot.config.get('whitelist', False):
@@ -26,10 +44,13 @@ class ServerWhitelist(Command):
         else:
             msg += 'hablar con <@{}>. Saludos!'.format(wcontact)
 
-        try:
-            await self.bot.send_message(server.default_channel, msg)
-        except discord.Forbidden:
-            pass
+        if server.default_channel is not None:
+            try:
+                await self.bot.send_message(server.default_channel, msg)
+            except Exception as e:
+                self.log.error('No pude enviar un mensaje de despedida a "%s" (%s)'.format(server.name, server.id))
+                self.log.exception(e)
+                pass
 
         self.log.debug('La guild "%s" (%s) no está en la whitelist, bye bye', server.name, server.id)
         await self.bot.leave_server(server)
