@@ -27,7 +27,6 @@ class ServerWhitelist(Command):
 
     async def on_ready(self):
         if not self.bot.config.get('whitelist', False):
-            self.log.debug('whitelist disabled')
             return
 
         if not self.bot.config.get('whitelist_autoleave', False):
