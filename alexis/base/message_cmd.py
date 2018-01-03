@@ -1,6 +1,8 @@
 import discord
 import re
 
+from discord import Embed
+
 from alexis.base.database import ServerConfigMgrSingle
 from alexis.base import utils
 from alexis.base.utils import serialize_avail
@@ -44,6 +46,10 @@ class MessageCmd:
             self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
+        if isinstance(content, Embed):
+            kwargs['embed'] = content
+            content = ''
+
         content = content.replace('$PX', self.prefix)
         content = content.replace('$NM', self.cmdname)
         content = content.replace('$AU', self.author_name)

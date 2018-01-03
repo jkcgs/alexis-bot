@@ -11,3 +11,4 @@ whitelist: false
 whitelist_contact: 130324995984326656
 whitelist_servers:
 - 198944348379938816
+whitelist_autoleave: false

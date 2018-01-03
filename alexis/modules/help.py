@@ -44,5 +44,3 @@ class Help(Command):
         # Enviar lista restante
         if resp_list != '':
             await cmd.answer('```{}```'.format(resp_list), to_author=True, withname=False)
-
-        return

@@ -1,3 +1,5 @@
+from discord import Embed
+
 from alexis import Command
 
 
@@ -26,6 +28,9 @@ class ServerWhitelist(Command):
     async def on_ready(self):
         if not self.bot.config.get('whitelist', False):
             self.log.debug('whitelist disabled')
+            return
+
+        if not self.bot.config.get('whitelist_autoleave', False):
             return
 
         self.log.debug('estoy en %s servers', len(self.bot.servers))
@@ -66,3 +71,33 @@ class ServerWhitelist(Command):
 
         self.log.debug('La guild "%s" (%s) no está en la whitelist, bye bye', server.name, server.id)
         await self.bot.leave_server(server)
+
+
+class ServersList(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'serverslist'
+        self.bot_owner_only = True
+
+    async def handle(self, message, cmd):
+        if len(self.bot.servers) == 0:
+            await cmd.answer('no estoy en ningún servidor uwu')
+            return
+
+        await cmd.answer('estoy en los siguientes servidores:')
+
+        resp_list = ''
+        for server in self.bot.servers:
+            item = '- {} ({})'.format(server.name, server.id)
+            if server.default_channel is not None:
+                item += ' -> ' + server.default_channel.mention
+
+            if len('{}\n{}'.format(resp_list, item)) > 2000:
+                await cmd.answer(Embed(description=resp_list), withname=False)
+                resp_list = ''
+            else:
+                resp_list = '{}\n{}'.format(resp_list, item)
+
+        # Enviar lista restante
+        if resp_list != '':
+            await cmd.answer(Embed(description=resp_list), withname=False)
