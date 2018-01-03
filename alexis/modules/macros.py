@@ -40,7 +40,8 @@ class MacroSet(Command):
             await cmd.answer('Formato: $PX$NM <nombre> <valor> (para macros sólo texto),\n'
                              '$PX$NM <nombre> [url_imagen]|[título]|[descripción]|[color_embed] (para macros embed)\n'
                              'Para los macros embed, el primer parámetro es ignorado si se envía una imagen adjunta '
-                             'al comando.')
+                             'al comando. Para agregar un macro embed sólo con url, agrega un pipe (|) al final. '
+                             'Ejemplo: `$PX$NM <nombre> <url> |`')
             return
 
         name = cmd.args[0]
@@ -50,6 +51,10 @@ class MacroSet(Command):
         title = ''
         description = ''
         embed_colour = Colour.default()
+
+        if len(name) > 30:
+            await cmd.answer('el nombre del macro puede tener hasta 30 carácteres')
+            return
 
         if len(subargs) == 1 and subargs[0] != '':
             image_url = None
@@ -188,7 +193,7 @@ class MacroList(Command):
 
             if len(resp + to_add) > 2000:
                 await cmd.answer(resp, withname=False)
-                resp = to_add
+                resp = name
             else:
                 resp += to_add
 
