@@ -182,18 +182,18 @@ class MacroList(Command):
 
         namelist.sort()
         n_items = len(namelist)
-        resp = 'hay {} macro{}:'.format(n_items, ['s', ''][int(n_items == 1)])
+        resp = '{}, hay {} macro{}:'.format(cmd.author_name, n_items, ['s', ''][int(n_items == 1)])
         for i, name in enumerate(namelist):
             to_add = (' ' if i == 0 else ', ') + name
 
             if len(resp + to_add) > 2000:
-                await cmd.answer(resp)
+                await cmd.answer(resp, withname=False)
                 resp = to_add
             else:
                 resp += to_add
 
         if resp != '':
-            await cmd.answer(resp.strip())
+            await cmd.answer(resp.strip(), withname=False)
 
 
 """
