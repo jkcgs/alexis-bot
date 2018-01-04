@@ -71,6 +71,64 @@ class ServerConfigMgr:
 
         return q.value
 
+    def get_list(self, svid, name, separator=','):
+        """
+        Obtiene un valor de la configuración como una lista
+        :param svid: El ID del servidor
+        :param name: El nombre de la configuración
+        :param separator: El separador que determinará la configuración de la lista
+        :return: La lista desde la configuración
+        """
+        val = self.get(svid, name, '')
+        return [] if val == '' else val.split(separator)
+
+    def set_list(self, svid, name, elements, separator=','):
+        """
+        Guarda una lista en la configuración desde una lista como tal, sobreescribiendo el valor actual
+        en la configuración
+        :param svid: El ID del servidor
+        :param name: El nombre de la configuración
+        :param elements: La lista a guardar
+        :param separator: El separador de la lista para generar un valor a guardar en la configuración
+        """
+        if not isinstance(elements, list):
+            raise RuntimeError('elements argument only supports lists')
+
+        result = separator.join(elements)
+        self.set(svid, name, result)
+
+    def add(self, svid, name, value, separator=','):
+        """
+        Interpretar valores como una lista dada por un separador, y agregar el valor pasado.
+        :param svid: El ID del servidor
+        :param name: El nombre del valor
+        :param value: El valor del a agregar. No es agregado si ya está.
+        :param separator: El separador que genera la lista.
+        :return: La lista de con el valor agregado
+        """
+        values = self.get_list(svid, name, separator)
+        if value not in values:
+            values.append(value)
+            self.set_list(svid, name, values, separator)
+
+        return values
+
+    def remove(self, svid, name, value, separator=','):
+        """
+        Elimina un valor de una lista en la configuración
+        :param svid: El ID del servidor
+        :param name: El nombre de la configuración
+        :param value: El valor a eliminar de la lista
+        :param separator: El separador que genera la lista desde el valor de la configuración
+        :return: La lista con el valor eliminado
+        """
+        values = self.get_list(svid, name, separator)
+        if value in values:
+            values.append(value)
+            self.set_list(svid, name, values, separator)
+
+        return values
+
     def _local_save(self, svid, name, value):
         """
         Guarda una configuración en memoria solamente
@@ -115,3 +173,41 @@ class ServerConfigMgrSingle:
         :return: El valor guardado de la configuración
         """
         return self.mgr.set(self.svid, name, value)
+
+    def get_list(self, name, separator=','):
+        """
+        Genera una lista desde un valor de la configuración
+        :param name: EL nombre de la configuración
+        :param separator: El separador que genera la lista desde el valor
+        :return: La lista generada desde el valor y el separador
+        """
+        return self.mgr.get_list(self.svid, name, separator)
+
+    def set_list(self, name, elements, separator='.'):
+        """
+        Une una lista de elementos con un separador y los guarda en la base de datos
+        :param name: El nombre de la configuración
+        :param elements: La lista a ser guardada en la configuración
+        :param separator: El separador que define la separación entre elementos de la lista
+        """
+        self.mgr.set_list(self.svid, name, elements, separator)
+
+    def add(self, name, value, separator=','):
+        """
+        Agrega un elemento a una lista
+        :param name: El nombre de la configuración
+        :param value: El valor a agregar a la lista
+        :param separator: El separador del valor que genera una lista
+        :return: La lista final con el valor agregado
+        """
+        return self.mgr.add(self.svid, name, value, separator)
+
+    def remove(self, name, value, separator=','):
+        """
+        Elimina un elemento de una lista en la configuración
+        :param name: El nombre de la configuración
+        :param value: El valor a eliminar de la lista
+        :param separator: El separador que genera la lista del valor de la configuración
+        :return: La lista final con el valor eliminado
+        """
+        return self.mgr.remove(self.svid, name, value, separator)
