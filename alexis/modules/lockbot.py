@@ -20,6 +20,7 @@ class LockBot(Command):
 
     async def handle(self, message, cmd):
         channel = None
+        chall = False
         if cmd.argc == 0:
             channel = message.channel
         elif cmd.argc >= 1:
@@ -27,13 +28,15 @@ class LockBot(Command):
                 channel = message.channel_mentions[0]
             elif cmd.args[0] != 'all':
                 channel = cmd.find_channel(cmd.args[0])
+            else:
+                chall = True
 
-        if channel is None:
+        if not chall and channel is None:
             await cmd.answer('canal no encontrado')
             return
 
         chans = cmd.config.get_list('locked_bot_channels',)
-        chanid = 'all' if cmd.args[0] == 'all' else channel.id
+        chanid = 'all' if chall else channel.id
 
         if cmd.cmdname == 'islocked':
             locked = is_locked(message.server.id, chanid)
