@@ -25,6 +25,8 @@ class MessageCmd:
         self.config = None
         self.bot_owner = message.author.id in bot.config['bot_owners']
         self.owner = utils.is_owner(bot, message.author, message.server)
+        self.allargs = message.content.replace('  ', ' ').split(' ')
+        self.sw_mention = bot.pat_self_mention.match(self.allargs[0])
 
         self.cmdname = ''
         self.args = []
@@ -37,12 +39,12 @@ class MessageCmd:
         else:
             self.prefix = bot.config['command_prefix']
 
-        if message.content.startswith(self.prefix):
+        if message.content.startswith(self.prefix) or self.sw_mention:
             self.is_cmd = True
-            allargs = message.content.replace('  ', ' ').split(' ')
-            self.args = [] if len(allargs) == 1 else [f for f in allargs[1:] if f.strip() != '']
+
+            self.args = [] if len(self.allargs) == 1 else [f for f in self.allargs[1:] if f.strip() != '']
             self.argc = len(self.args)
-            self.cmdname = allargs[0][len(self.prefix):]
+            self.cmdname = self.allargs[0][len(self.prefix):]
             self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):

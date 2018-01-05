@@ -71,6 +71,7 @@ class ClearReactions(Command):
 class ChangePrefix(Command):
     def __init__(self, bot):
         super().__init__(bot)
+        self.mention_handler = True
         self.name = 'prefix'
         self.aliases = ['changeprefix']
         self.help = 'Cambia el prefijo para los comandos'
@@ -78,10 +79,12 @@ class ChangePrefix(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <prefijo>')
+            msg = 'el prefijo actual es **{}** y puedes cambiarlo con $PX{} <prefijo> o con {} <prefijo>'
+            await cmd.answer(msg.format(cmd.config.get('command_prefix'), self.name, self.bot.user.mention))
             return
 
         txt = cmd.args[0]
+
         if len(txt) > 3:
             await cmd.answer('el prefijo sólo puede tener hasta 3 carácteres')
             return

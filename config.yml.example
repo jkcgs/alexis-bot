@@ -1,8 +1,6 @@
 token: ""
 debug: false
 command_prefix: "!"
-subreddit: ["chile@198944348379938816"]
-default_channel: "168469255979925504"
 playing: "/r/chile"
 owner_role: "AlexisMaster"
 bot_owners: ["130324995984326656"]

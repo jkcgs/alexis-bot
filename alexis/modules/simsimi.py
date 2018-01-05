@@ -1,6 +1,4 @@
 from urllib.parse import urlencode
-from os import path
-import yaml
 
 from alexis.logger import log
 from alexis import Command
@@ -70,6 +68,7 @@ class SimSimiCmd(Command):
 
         if len(self.bot.config['simsimi_apikeys']) == 0:
             await cmd.answer('no disponible :c')
+            return
 
         if cmd.text in ['off', 'on'] and cmd.owner:
             self.enabled = cmd.text == 'on'

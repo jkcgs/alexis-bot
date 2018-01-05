@@ -1,12 +1,7 @@
 import json
 
-from os import path
-
-import yaml
-
 from alexis import Command
 from cleverwrap import CleverWrap
-import random
 
 
 class CleverbotHandler(Command):
@@ -15,7 +10,7 @@ class CleverbotHandler(Command):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.mention_handler = True
+        self.name = 'c'
         self.allow_pm = False
         self.cbot = None
         self.default_config = {
@@ -33,15 +28,11 @@ class CleverbotHandler(Command):
             self.log.debug('CleverWrap cargado')
 
     async def handle(self, message, cmd):
-        start = message.content.split(' ')[0]
-        if not self.bot.pat_self_mention.match(start):
-            return
-
         if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '1':
             await cmd.answer('conversación desactivada uwu')
             return
 
-        msg = self.bot.pat_self_mention.sub('', message.content).strip()
+        msg = self.bot.pat_self_mention.sub('', cmd.text).strip()
         if msg == '':
             reply = '*si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'
         else:
