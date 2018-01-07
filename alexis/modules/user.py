@@ -51,7 +51,7 @@ class UserCmd(Command):
             channel = discord.Object(id=channel)
 
         await self.bot.send_message(channel, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
-                                    embed=UserCmd.gen_embed(member))
+                                    embed=UserCmd.gen_embed(member, more=True))
 
     async def on_member_remove(self, member):
         cfg = self.config_mgr(member.server.id)
