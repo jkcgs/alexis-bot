@@ -168,9 +168,9 @@ class UpdateUsername(Command):
         c = self.all()
         self.log.debug('Usuarios actualizados: %i', c)
 
-    async def on_message(self, message):
+    async def on_member_join(self, member):
         if not self.updating:
-            UpdateUsername.do_it(message.author)
+            UpdateUsername.do_it(member)
 
     async def on_member_update(self, before, after):
         if not self.updating:
