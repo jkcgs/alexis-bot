@@ -1,5 +1,6 @@
 import random
 import re
+from datetime import datetime
 
 import discord
 import peewee
@@ -8,6 +9,7 @@ from alexis import Command
 from discord import Embed
 
 from alexis.base.database import BaseModel
+from alexis.logger import log
 
 
 class UserCmd(Command):
@@ -19,7 +21,6 @@ class UserCmd(Command):
         self.name = 'user'
         self.aliases = [bot.config['command_prefix'] + 'user']
         self.help = 'Entrega información sobre un usuario'
-        self.db_models = [UserNote]
 
     async def handle(self, message, cmd):
         if cmd.argc >= 1 and cmd.args[0] == 'channel' and not cmd.is_pm and cmd.owner:
@@ -82,6 +83,11 @@ class UserCmd(Command):
         xd.save()
 
     @staticmethod
+    def get_names(userid):
+        xd = UserNameReg.select().where(UserNameReg.userid == userid).order_by(UserNameReg.timestamp.desc()).limit(10)
+        return [u.name for u in xd]
+
+    @staticmethod
     async def _setchannel_handler(cmd, value):
         if value != 'off' and not UserCmd.rx_channel.match(value):
             await cmd.answer('por favor ingresa un canal u "off" como valor')
@@ -98,7 +104,7 @@ class UserCmd(Command):
             await cmd.answer('canal de información de usuarios actualizado a {}'.format(value))
 
     @staticmethod
-    def gen_embed(member, note=False):
+    def gen_embed(member, more=False):
         embed = Embed()
         embed.add_field(name='Nombre', value=str(member))
         embed.add_field(name='Nick', value=member.nick if member.nick is not None else 'Ninguno :c')
@@ -110,15 +116,16 @@ class UserCmd(Command):
         else:
             embed.set_thumbnail(url=member.default_avatar_url)
 
-        if note and isinstance(member, discord.Member):
+        if more and isinstance(member, discord.Member):
             n = UserCmd.get_note(member)
-            embed.add_field(name='Notas:', value=n if n != '' else '(sin notas)')
+            embed.add_field(name='Notas', value=n if n != '' else '(sin notas)')
+            embed.add_field(name='Nombres ', value=', '.join(UserCmd.get_names(member.id)))
 
         return embed
 
     @staticmethod
     def parsedate(the_date):
-        return the_date.strftime('%d de %B de %Y, %H:%M:%S')
+        return the_date.strftime('%Y-%m-%d %H:%M:%S')
 
 
 class UserNoteCmd(Command):
@@ -126,6 +133,7 @@ class UserNoteCmd(Command):
         super().__init__(bot)
         self.name = 'usernote'
         self.help = 'Define una nota para el usuario'
+        self.db_models = [UserNote]
         self.owner_only = True
         self.allow_pm = False
 
@@ -138,12 +146,85 @@ class UserNoteCmd(Command):
             await cmd.answer('usuario no encontrado')
             return
 
+        note = ' '.join(cmd.args[1:])
+        if len(note) > 1000:
+            await cmd.answer('nooo, len(note) <= 1000')
+            return
+
         UserCmd.set_note(member, ' '.join(cmd.args[1:]))
         await cmd.answer(
             random.choice(['ok', 'ya', 'bueno', 'ta bn eso', 'xd', 'sip bn dixo', ':ok_hand:', ':thumbs_up']))
+
+
+class UpdateUsername(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.db_models = [UserNameReg]
+        self.updating = False
+        self.updated = False
+
+    async def on_ready(self):
+        self.log.debug('Actualizando usuarios...')
+        c = self.all()
+        self.log.debug('Usuarios actualizados: %i', c)
+
+    async def on_message(self, message):
+        if not self.updating:
+            UpdateUsername.do_it(message.author)
+
+    async def on_member_update(self, before, after):
+        if not self.updating:
+            UpdateUsername.do_it(after)
+
+    def all(self):
+        if self.updating or self.updated:
+            return
+
+        # Don't do this at home
+        self.updating = True
+
+        j = {u.userid: u.name for u in
+             UserNameReg.select(
+                 UserNameReg.userid,
+                 UserNameReg.name,
+                 peewee.fn.MAX(UserNameReg.timestamp)
+             ).group_by(UserNameReg.userid)}
+
+        k = [{'userid': m.id, 'name': m.name}
+             for m in self.bot.get_all_members() if m.id not in j or j[m.id] != m.name]
+        k = [i for n, i in enumerate(k) if i not in k[n + 1:]]  # https://stackoverflow.com/a/9428041
+
+        with self.bot.db.atomic():
+            for idx in range(0, len(k), 100):
+                UserNameReg.insert_many(k[idx:idx + 100]).execute()
+
+        self.updating = False
+        self.updated = True
+        return len(k)
+
+    @staticmethod
+    def do_it(user):
+        if not isinstance(user, discord.User):
+            raise RuntimeError('user argument can only be a discord.User')
+
+        r = UserNameReg.select().where(UserNameReg.userid == user.id).order_by(UserNameReg.timestamp.desc()).limit(1)
+        u = r.get() if r.count() > 0 else None
+
+        if r.count() == 0 or u.name != user.name:
+            log.debug('Actualizando usuario "%s" -> "%s" id %s', u.name, user.name, user.id)
+            UserNameReg.create(userid=user.id, name=user.name)
+            return True
+
+        return False
 
 
 class UserNote(BaseModel):
     userid = peewee.TextField()
     serverid = peewee.TextField()
     note = peewee.TextField(default='')
+
+
+class UserNameReg(BaseModel):
+    userid = peewee.TextField()
+    name = peewee.TextField()
+    timestamp = peewee.DateTimeField(default=datetime.now)
