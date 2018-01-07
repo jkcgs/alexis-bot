@@ -14,9 +14,11 @@ class Avatar(Command):
             await cmd.answer('usuario no encontrado')
             return
 
-        if user and user.avatar_url != '':
-            self.log.debug('enviando avatar: ' + user.avatar_url)
-            title = 'Avatar de ' + user.display_name
-            await cmd.answer(embed=img_embed(user.avatar_url, title))
-        else:
-            await cmd.answer('ávatar no disponible uwu')
+        has_avatar = user.avatar_url != ''
+        avatar_url = user.avatar_url if has_avatar else user.default_avatar_url
+
+        title = 'Avatar de ' + user.display_name
+        if not has_avatar:
+            title += ' (no tiene xd)'
+
+        await cmd.answer(embed=img_embed(avatar_url, title))
