@@ -118,13 +118,29 @@ class WarnList(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'warnlist'
-        self.help = 'Muestra el número de advertencias que tiene el usuario'
+        self.help = 'Muestra las últimas advertencias o el número de advertencias que tiene el usuario'
         self.allow_pm = False
         self.owner_only = True
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <id, mención>')
+            warns = UserWarn.select().order_by(UserWarn.timestamp.desc()).limit(5)
+            if warns.count() == 0:
+                await cmd.answer('no hay advertencias registradas')
+                return
+
+            warnlist = []
+            for warn in warns:
+                fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                u = message.server.get_member(warn.userid)
+                if u is None:
+                    u = '<@{}> ({})'.format(warn.userid, warn.userid)
+                else:
+                    u = u.display_name
+
+                warnlist.append('`[{}]` {}: {}'.format(fdate, u, warn.reason))
+
+            await cmd.answer(Embed(title='Últimas advertencias', description='\n'.join(warnlist)))
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
@@ -143,7 +159,7 @@ class WarnList(Command):
             return
 
         warnlist = []
-        for warn in warns.iterator():
+        for warn in warns:
             fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             warnlist.append('`[{}]` {}'.format(fdate, warn.reason))
 
@@ -151,6 +167,38 @@ class WarnList(Command):
         emb = Embed()
         emb.description = '\n'.join(warnlist)
         await cmd.answer(msg, embed=emb)
+
+
+class WarnRank(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'warnrank'
+        self.help = 'Muestra un ránking de advertencias'
+        self.allow_pm = False
+
+    async def handle(self, message, cmd):
+        e = UserWarn.select(UserWarn.serverid, UserWarn.userid, UserWarn.timestamp, UserWarn.reason,
+                            peewee.fn.COUNT(UserWarn.userid).alias('num_warns')) \
+            .group_by(UserWarn.userid) \
+            .order_by(peewee.fn.COUNT(UserWarn.userid).desc())
+
+        if e.count() == 0:
+            await cmd.answer('no hay registros de warns')
+            return
+
+        msg = []
+        for xd in e:
+            u = message.server.get_member(xd.userid)
+            d = xd.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            if u is None:
+                u = 'ID {}'.format(xd.userid, xd.userid)
+            else:
+                u = u.display_name
+
+            msg.append('{} - {} (último: {}, "{}")'.format(xd.num_warns, u, d, xd.reason))
+
+        await cmd.answer(Embed(title='Ranking de advertencias', description='\n'.join(msg)))
+        return
 
 
 def get_member_warns(member):
