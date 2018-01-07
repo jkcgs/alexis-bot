@@ -211,7 +211,8 @@ class UpdateUsername(Command):
         u = r.get() if r.count() > 0 else None
 
         if r.count() == 0 or u.name != user.name:
-            log.debug('Actualizando usuario "%s" -> "%s" id %s', u.name, user.name, user.id)
+            old = '(ninguno)' if u is None else u.name
+            log.debug('Actualizando usuario "%s" -> "%s" id %s', old, user.name, user.id)
             UserNameReg.create(userid=user.id, name=user.name)
             return True
 
