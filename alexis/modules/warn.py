@@ -20,7 +20,7 @@ class Warn(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 2:
-            await cmd.answer('Formato: $PX$NM <id, mención> <razón>')
+            await cmd.answer('formato: $PX$NM <id, mención> <razón>')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
@@ -52,7 +52,7 @@ class Warn(Command):
             self.log.exception(e)
 
         # Avisar por el canal donde se envió el comando
-        await cmd.answer('A **{}** se le ha dado una advertencia por: **{}**! Ahora tiene {} {}.'
+        await cmd.answer('a **{}** se le ha dado una advertencia por: **{}**! Ahora tiene {} {}.'
                          .format(member.display_name, reason, num, adv))
 
 
@@ -66,7 +66,7 @@ class Warns(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <id, mención>')
+            await cmd.answer('formato: $PX$NM <id, mención>')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
@@ -96,7 +96,7 @@ class ClearWarns(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <id, mención>')
+            await cmd.answer('formato: $PX$NM <id, mención>')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
@@ -124,7 +124,7 @@ class WarnList(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <id, mención>')
+            await cmd.answer('formato: $PX$NM <id, mención>')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)

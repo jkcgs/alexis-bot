@@ -7,6 +7,7 @@ from alexis.base.database import ServerConfigMgrSingle
 
 pat_channel = re.compile('^<#\d{10,19}>$')
 pat_subreddit = re.compile('^[a-zA-Z0-9_\-]{2,25}$')
+pat_emoji = re.compile('<(:[a-zA-Z0-9\-_]+:)[0-9]+>')
 
 
 def is_int(val):

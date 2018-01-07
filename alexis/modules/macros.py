@@ -37,7 +37,7 @@ class MacroSet(Command):
     async def handle(self, message, cmd):
         argc_req = 1 if len(message.attachments) > 0 else 2
         if len(cmd.args) < argc_req:
-            await cmd.answer('Formato: $PX$NM <nombre> <valor> (para macros sólo texto),\n'
+            await cmd.answer('formato: $PX$NM <nombre> <valor> (para macros sólo texto),\n'
                              '$PX$NM <nombre> [url_imagen]|[título]|[descripción]|[color_embed] (para macros embed)\n'
                              'Para los macros embed, el primer parámetro es ignorado si se envía una imagen adjunta '
                              'al comando. Para agregar un macro embed sólo con url, agrega un pipe (|) al final. '
@@ -113,7 +113,7 @@ class MacroUnset(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('Formato: $PX$NM <nombre>')
+            await cmd.answer('formato: $PX$NM <nombre>')
             return
 
         name = cmd.args[0].replace('\\', '')
@@ -199,53 +199,6 @@ class MacroList(Command):
 
         if resp != '':
             await cmd.answer(resp.strip(), withname=False)
-
-
-"""
-class MacroSuperList(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = bot.config['command_prefix'] + 'list'
-        self.help = 'Muestra una lista completa de los macros con sus valores'
-        self.owner_only = True
-        self.rx_mention = re.compile('^<@!?[0-9]+>$')
-        self.rx_blob = re.compile('^<:[a-zA-Z\-_]+:[0-9]+>$')
-
-    async def handle(self, message, cmd):
-        memelist = []
-        for item in Meme.select().iterator():
-            if re.match(self.rx_mention, item.name):
-                name = item.name.replace('!', '')
-                member_id = name[2:-1]
-                member = cmd.member_by_id(member_id)
-                name = '@' + member.display_name
-            elif re.match(self.rx_blob, item.name):
-                name = ':{}:'.format(item.name.split(':')[1])
-            else:
-                name = item.name
-            memelist.append("- {}: {}".format(name, item.content))
-
-        num_memes = len(memelist)
-        if num_memes == 0:
-            await cmd.answer('no hay macros disponibles')
-            return
-
-        resp = 'hay {} {}:'.format(num_memes, ['macros', 'macro'][int(num_memes == 1)])
-        await cmd.answer(resp)
-
-        # Separar lista de memes en mensajes con menos de 2000 carácteres
-        resp_list = ''
-        for meme in memelist:
-            if len('```{}\n{}```'.format(resp_list, meme)) > 2000:
-                await cmd.answer('```{}```'.format(resp_list))
-                resp_list = ''
-            else:
-                resp_list = '{}\n{}'.format(resp_list, meme)
-
-        # Enviar lista restante
-        if resp_list != '':
-            await cmd.answer('```{}```'.format(resp_list))
-"""
 
 
 class MacroUse(Command):

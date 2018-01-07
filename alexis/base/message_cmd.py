@@ -4,8 +4,7 @@ import re
 from discord import Embed
 
 from alexis.base.database import ServerConfigMgrSingle
-from alexis.base import utils
-from alexis.base.utils import serialize_avail
+from alexis.base.utils import serialize_avail, pat_emoji, is_owner
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')
 pat_snowflake = re.compile('^\d{10,19}$')
@@ -24,7 +23,7 @@ class MessageCmd:
         self.text = message.content
         self.config = None
         self.bot_owner = message.author.id in bot.config['bot_owners']
-        self.owner = utils.is_owner(bot, message.author, message.server)
+        self.owner = is_owner(bot, message.author, message.server)
         self.allargs = message.content.replace('  ', ' ').split(' ')
         self.sw_mention = bot.pat_self_mention.match(self.allargs[0])
 
@@ -90,7 +89,7 @@ class MessageCmd:
         return None
 
     def is_owner(self, user):
-        return utils.is_owner(self.bot, user, self.message.server)
+        return is_owner(self.bot, user, self.message.server)
 
     def is_enabled(self):
         if self.is_pm:
@@ -104,8 +103,15 @@ class MessageCmd:
 
     def no_tags(self):
         txt = self.text
+        # tags de usuarios
         for mention in self.message.mentions:
             txt = txt.replace(mention.mention, mention.display_name)
+        # tags de canales
+        for mention in self.message.channel_mentions:
+            txt = txt.replace(mention.mention, '#' + mention.name)
+        # emojis custom
+        for m in pat_emoji.finditer(txt):
+            txt = txt.replace(m.group(0), m.group(1))
 
         return txt
 

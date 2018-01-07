@@ -16,13 +16,12 @@ class BanCmd(Command):
         self.allow_pm = False
         self.pm_error = 'banéame esta xd'
         self.db_models = [Ban]
-        self.default_enabled = False
 
         self.user_delay = 10
 
     async def handle(self, message, cmd):
         if cmd.argc < 1:
-            await cmd.answer('Formato: $PX$NM <nombre, id, @mención>')
+            await cmd.answer('formato: $PX$NM <nombre, id, @mención>')
             return
 
         mention = await cmd.get_user(cmd.text, member_only=True)
@@ -37,7 +36,7 @@ class BanCmd(Command):
             return
 
         if mention.id == self.bot.user.id:
-            await cmd.answer('OYE NUUUUUUU >w<')
+            await cmd.answer('oye que te has creído')
             return
 
         if mention.bot:
@@ -46,7 +45,7 @@ class BanCmd(Command):
 
         # Evitar que alguien se banee a si mismo
         if self.bot.last_author == mention.id:
-            await cmd.answer('no hagai trampa po wn xd')
+            await cmd.answer('no te odies por favor :(')
             return
 
         if not random.randint(0, 1):
@@ -119,7 +118,7 @@ class SetBans(Command):
 
     async def handle(self, message, cmd):
         if cmd.argc < 2 or not is_int(cmd.args[-1]):
-            await cmd.answer('Formato: $PX$NM <nombre, id, cantidad> <cantidad>')
+            await cmd.answer('formato: $PX$NM <nombre, id, cantidad> <cantidad>')
             return
 
         mention = await cmd.get_user(' '.join(cmd.args[0:-1]))

@@ -65,7 +65,7 @@ class ToggleConversation(Command):
 
     async def handle(self, message, cmd):
         if not CleverbotHandler.check:
-            await cmd.answer('Comando no disponible')
+            await cmd.answer('comando no disponible')
             return
 
         new_val = ['0', '1'][int(cmd.config.get(CleverbotHandler.cfg_enabled, '1') == '0')]
