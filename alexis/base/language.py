@@ -6,7 +6,7 @@ from ruamel import yaml
 
 
 class Language:
-    def __index__(self, langpath, default='en', autoload=False):
+    def __init__(self, langpath, default='en', autoload=False):
         self.lib = {}
         self.path = langpath
         self.default = default
@@ -44,3 +44,12 @@ class Language:
                 return self.get(name, self.default)
 
         return self.lib[lang][name]
+
+
+class SingleLanguage:
+    def __init__(self, instance, lang):
+        self.instance = instance
+        self.lang = lang
+
+    def get(self, name):
+        return self.instance.get(name, self.lang)

@@ -1,6 +1,10 @@
 from alexis import Alexis
 
 if __name__ == '__main__':
-    ale = Alexis()
-    ale.init()
-    ale.http_session.close()
+    ale = None
+
+    try:
+        ale = Alexis()
+        ale.init()
+    finally:
+        ale.close()

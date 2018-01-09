@@ -4,6 +4,7 @@ import re
 from discord import Embed
 
 from alexis.base.database import ServerConfigMgrSingle
+from alexis.base.language import SingleLanguage
 from alexis.base.utils import serialize_avail, pat_emoji, is_owner
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')
@@ -38,6 +39,11 @@ class MessageCmd:
         else:
             self.prefix = bot.config['command_prefix']
 
+        self.lang = SingleLanguage(
+            self.bot.lang,
+            bot.config['default_lang'] if self.is_pm else self.config.get('lang', bot.config['default_lang'])
+        )
+
         if message.content.startswith(self.prefix) or self.sw_mention:
             self.is_cmd = True
 
@@ -47,6 +53,15 @@ class MessageCmd:
             self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
+        """
+        Envía un mensaje al canal desde donde se originó el mensaje
+        :param content: El contenido del mensaje. Si es una instancia de discord.Embed, se convierte en un Embed
+        :param to_author: Si se define como True, se envía directamente a quien envió el mensaje, en vez del canal desde
+        donde se envió.
+        :param withname: Establece si se agrega el nombre del usuario a quien se le responde al principio del mensaje en
+        el formato "<display_name>, ...". Si el mensaje no lleva contenido, no se agrega la coma, ni un punto.
+        :param kwargs: Parámetros adicionales a pasar a la función send_message de discord.Client
+        """
         if isinstance(content, Embed):
             kwargs['embed'] = content
             content = ''
@@ -66,9 +81,17 @@ class MessageCmd:
             await self.bot.send_message(self.message.channel, content, **kwargs)
 
     async def typing(self):
+        """
+        Envía el estado "Escribiendo..." al canal desde el cual se recibió el mensaje.
+        """
         await self.bot.send_typing(self.message.channel)
 
     def member_by_id(self, user_id):
+        """
+        (Sólo para mensajes en guild) Entrega un miembro del servidor, según el ID de usuario
+        :param user_id: El ID del usuario a buscar.
+        :return: El discord.Member del servidor. Si no se encontró, retorna None
+        """
         if self.is_pm:
             return None
 
@@ -79,6 +102,11 @@ class MessageCmd:
         return None
 
     def find_channel(self, name_or_id):
+        """
+        Encuentra un canal según su nombre o ID, para un mensaje desde una guild.
+        :param name_or_id: El nombre o ID del canal a buscar
+        :return: El discord.Channel. Si no se encontró, se devuelve None.
+        """
         if self.is_pm:
             return None
 
@@ -138,6 +166,9 @@ class MessageCmd:
             return None
 
         return await self.bot.get_user_info(user)
+
+    def _(self, name):
+        return self.lang.get(name)
 
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(

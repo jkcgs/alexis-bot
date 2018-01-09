@@ -17,13 +17,14 @@ from alexis import logger
 from alexis.base.command import Command
 from alexis.base.configuration import StaticConfig
 from alexis.base.database import ServerConfigMgr
+from alexis.base.language import Language
 from alexis.base.message_cmd import MessageCmd
 
 
 class Alexis(discord.Client):
     __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.17'
+    __version__ = '1.0.0-dev.18'
 
     def __init__(self, **options):
         """
@@ -43,6 +44,7 @@ class Alexis(discord.Client):
         self.pat_self_mention = None
 
         self.cmds = {}
+        self.lang = {}
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
@@ -61,6 +63,7 @@ class Alexis(discord.Client):
 
         # Cargar configuración
         self.load_config()
+        # self.lang = Language('./lang', self.config['default_lang'], True)
 
         if self.config.get('token', '') == '':
             raise RuntimeError('SHOTTO MATTE KUDASAI - ¿Donde está el token para el bot? Agrega el valor "token" a la '
@@ -162,7 +165,8 @@ class Alexis(discord.Client):
                 'owner_role': 'AlexisMaster',
                 'ext_modpath': '',
                 'subreddit': [],
-                'default_channel': ''
+                'default_channel': '',
+                'default_lang': 'es_CL'
             }
 
             self.log.debug('Cargando configuración...')
@@ -205,6 +209,11 @@ class Alexis(discord.Client):
 
     def _get_handlers(self, name):
         return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
+
+    def close(self):
+        self.log.debug('Cerrando...')
+        self.http_session.close()
+        self.http.close()
 
     """
     ===== EVENT HANDLERS =====
