@@ -24,28 +24,33 @@ class BanCmd(Command):
             await cmd.answer('formato: $PX$NM <nombre, id, @mención>')
             return
 
-        mention = await cmd.get_user(cmd.text, member_only=True)
-        if mention is None:
+        member = await cmd.get_user(cmd.text, member_only=True)
+        if member is None:
             await cmd.answer('usuario no encontrado')
             return
 
-        mention_name = mention.display_name
+        mention_name = member.display_name
 
-        if not cmd.owner and cmd.is_owner(mention):
+        if not cmd.owner and cmd.is_owner(member):
             await cmd.answer('nopo wn no hagai esa wea xd')
             return
 
-        if mention.id == self.bot.user.id:
+        if member.id == self.bot.user.id:
             await cmd.answer('oye que te has creído')
             return
 
-        if mention.bot:
+        if member.bot:
             await cmd.answer('con mi colega no, tamo? :angry:')
             return
 
         # Evitar que alguien se banee a si mismo
-        if self.bot.last_author == mention.id:
+        if self.bot.last_author == member.id:
             await cmd.answer('no te odies por favor :(')
+            return
+
+        # No banear personas que no están en el canal
+        if not member.permissions_in(message.channel).read_messages:
+            await cmd.answer('oye pero **{}** no está ná aquí'.format(mention_name))
             return
 
         if not random.randint(0, 1):
@@ -53,10 +58,10 @@ class BanCmd(Command):
                              .format(mention_name), withname=False)
             return
 
-        user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
-                                          defaults={'user': str(mention)})
-        update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(mention))
-        update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
+        user, created = Ban.get_or_create(userid=member.id, server=message.server.id,
+                                          defaults={'user': str(member)})
+        update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(member))
+        update = update.where(Ban.userid == member.id, Ban.server == message.server.id)
         update.execute()
 
         if created:
