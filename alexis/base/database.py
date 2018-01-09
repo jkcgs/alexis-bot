@@ -124,7 +124,7 @@ class ServerConfigMgr:
         """
         values = self.get_list(svid, name, separator)
         if value in values:
-            values.append(value)
+            values.remove(value)
             self.set_list(svid, name, values, separator)
 
         return values
