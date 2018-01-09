@@ -87,7 +87,7 @@ def text_cut(text, limit, cutter='…'):
     :return: El texto cortado, si corresponde, o el texto completo, si no supera el límite.
     """
     if len(text) > limit:
-        return text[:len(text)-len(cutter)] + cutter
+        return text[:limit-len(cutter)-1] + cutter
     else:
         return text
 
