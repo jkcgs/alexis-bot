@@ -78,7 +78,7 @@ def img_embed(url, title=''):
     return embed
 
 
-def text_cut(text, limit, cutter='...'):
+def text_cut(text, limit, cutter='…'):
     """
     Corta un texto y agrega un texto al final en caso de que el texto sea mayor que el tamaño límite
     :param text: El texto a cortar
