@@ -15,6 +15,7 @@ class RedditFollow(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'reddit'
+        self.aliases = ['redditor']
         self.help = 'Muestra la cantidad de posts (registrados por el bot) hechos por un redditor'
         self.db_models = [Redditor, Post, ChannelFollow]
         self.chans = {}
@@ -25,6 +26,11 @@ class RedditFollow(Command):
         self.load_channels()
 
     async def handle(self, message, cmd):
+        if cmd.cmdname == 'redditor':
+            cmd.args = ['posts'] + cmd.args
+            cmd.argc = len(cmd.args)
+            cmd.cmdname = 'reddit'
+
         if cmd.argc < 1:
             await cmd.answer('formato: $PX$NM (set|remove|list|posts)')
             return
@@ -170,7 +176,7 @@ def get_user_posts(user):
         return None
 
     redditor, _ = Redditor.get_or_create(name=user.lower())
-    return redditor.suffix
+    return redditor.posts
 
 
 async def get_posts(bot, sub, since=0):
