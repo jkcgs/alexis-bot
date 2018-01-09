@@ -8,7 +8,7 @@ from discord import Embed
 
 from alexis import Command
 from alexis.base.database import BaseModel
-from alexis.base.utils import pat_channel, pat_subreddit
+from alexis.base.utils import pat_channel, pat_subreddit, text_cut
 
 
 class RedditFollow(Command):
@@ -197,15 +197,12 @@ async def get_posts(bot, sub, since=0):
 
 def post_to_embed(post):
     embed = Embed()
-    embed.title = post['title']
+    embed.title = text_cut(post['title'], 256)
     embed.set_author(name='/u/' + post['author'], url='https://www.reddit.com/user/' + post['author'])
     embed.url = 'https://www.reddit.com' + post['permalink']
 
     if post['is_self']:
-        if len(post['selftext']) > 2048:
-            embed.description = post['selftext'][:2044] + '...'
-        else:
-            embed.description = post['selftext']
+        embed.description = text_cut(post['selftext'], 2048)
     elif post['media']:
         if 'preview' in post:
             embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))

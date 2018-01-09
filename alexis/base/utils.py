@@ -78,6 +78,20 @@ def img_embed(url, title=''):
     return embed
 
 
+def text_cut(text, limit, cutter='…'):
+    """
+    Corta un texto y agrega un texto al final en caso de que el texto sea mayor que el tamaño límite
+    :param text: El texto a cortar
+    :param limit: El límite de texto
+    :param cutter: El texto que se colocará al final en caso de ser cortado
+    :return: El texto cortado, si corresponde, o el texto completo, si no supera el límite.
+    """
+    if len(text) > limit:
+        return text[:len(text)-len(cutter)] + cutter
+    else:
+        return text
+
+
 def unserialize_avail(avails):
     s = []
     for k, v in avails.items():
