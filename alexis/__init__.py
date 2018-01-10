@@ -24,7 +24,7 @@ from alexis.base.message_cmd import MessageCmd
 class Alexis(discord.Client):
     __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.18'
+    __version__ = '1.0.0-dev.19'
 
     def __init__(self, **options):
         """
@@ -63,7 +63,6 @@ class Alexis(discord.Client):
 
         # Cargar configuración
         self.load_config()
-        self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
 
         if self.config.get('token', '') == '':
             raise RuntimeError('SHOTTO MATTE KUDASAI - ¿Donde está el token para el bot? Agrega el valor "token" a la '
@@ -171,6 +170,7 @@ class Alexis(discord.Client):
 
             self.log.info('Cargando configuración...')
             self.config.load(defaults)
+            self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
             self.log.info('Configuración cargada')
             return True
         except Exception as ex:

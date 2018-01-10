@@ -18,6 +18,8 @@ class Language:
 
     def load(self):
         log.info('Cargando archivos de idioma...')
+
+        self.lib = {}
         p = path.join(self.path, "**{s}*.yml".format(s=path.sep))
         lang_files = glob.iglob(p, recursive=True)
         fcount = 0
@@ -43,20 +45,29 @@ class Language:
 
         log.info('Cargado{s} %i archivo{s}'.format(s=['s', ''][int(fcount == 1)]), fcount)
 
-    def get(self, name, lang=None):
-        if lang is None:
-            lang = self.default
+    def get(self, name, __lang=None, **kwargs):
+        if __lang is None:
+            __lang = self.default
 
-        if lang not in self.lib:
-            return lang + '_' + name
-
-        if name not in self.lib[lang]:
-            if lang == self.default:
-                return lang + '_' + name
+        if __lang not in self.lib:
+            text = __lang + '_' + name
+        elif name not in self.lib[__lang]:
+            if __lang == self.default:
+                text = __lang + '_' + name
             else:
-                return self.get(name, self.default)
+                text = self.get(name, self.default)
+        else:
+            text = self.lib[__lang][name]
 
-        return self.lib[lang][name]
+            try:
+                text = text.format(**kwargs)
+            except KeyError:
+                log.warn('No se pudo formatear el texto "%s" con las variables %s', text, kwargs)
+
+        return text
+
+    def has(self, lang):
+        return lang in self.lib
 
 
 class SingleLanguage:
@@ -64,5 +75,5 @@ class SingleLanguage:
         self.instance = instance
         self.lang = lang
 
-    def get(self, name):
-        return self.instance.get(name, self.lang)
+    def get(self, name, **kwargs):
+        return self.instance.get(name, self.lang, **kwargs)

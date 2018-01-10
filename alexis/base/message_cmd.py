@@ -167,8 +167,8 @@ class MessageCmd:
 
         return await self.bot.get_user_info(user)
 
-    def _(self, name):
-        return self.lang.get(name)
+    def l(self, name, **kwargs):
+        return self.lang.get(name, **kwargs)
 
     def __str__(self):
         return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(

@@ -26,7 +26,7 @@ class BanCmd(Command):
 
         member = await cmd.get_user(cmd.text, member_only=True)
         if member is None:
-            await cmd.answer('usuario no encontrado')
+            await cmd.answer(cmd.l('user-not-found'))
             return
 
         mention_name = member.display_name
