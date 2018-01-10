@@ -78,6 +78,9 @@ class ChangePrefix(Command):
         self.owner_only = True
 
     async def handle(self, message, cmd):
+        if not cmd.is_cmd and not cmd.sw_mention:
+            return
+
         if cmd.argc < 1:
             msg = 'el prefijo actual es **{}** y puedes cambiarlo con $PX{} <prefijo> o con {} <prefijo>'
             await cmd.answer(msg.format(cmd.config.get('command_prefix'), self.name, self.bot.user.mention))

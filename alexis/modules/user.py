@@ -176,6 +176,21 @@ class UpdateUsername(Command):
         if not self.updating:
             UpdateUsername.do_it(after)
 
+        if before.name != after.name:
+            cfg = self.config_mgr(before.server.id)
+            channel = cfg.get(UserCmd.chan_config_name, '')
+            if channel == '':
+                return
+
+            channel = before.server.get_channel(channel)
+            if channel is None:
+                channel = discord.Object(id=channel)
+
+            disp = ' nick actual: "{}"'.format(after.display_name) if after.display_name != after.name else ''
+            await self.bot.send_message(channel, 'El usuario "*{}*" ha cambiado su nombre a "**{}**"{}.'.format(
+                before.name, after.name, disp
+            ))
+
     def all(self):
         if self.updating or self.updated:
             return
