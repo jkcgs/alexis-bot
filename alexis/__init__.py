@@ -74,9 +74,9 @@ class Alexis(discord.Client):
         self.sv_config = ServerConfigMgr()
 
         # Cargar (instanciar clases de) comandos
-        self.log.debug('Cargando comandos...')
+        self.log.info('Cargando comandos...')
         self.cmd_instances = [self.load_command(c) for c in alexis.modules.get_mods(self.config.get('ext_modpath', ''))]
-        self.log.debug('Se cargaron %i módulos', len(self.cmd_instances))
+        self.log.info('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
 
         self._call_handlers_sync('on_loaded', force=True)
@@ -213,7 +213,7 @@ class Alexis(discord.Client):
     async def close(self):
         self.log.debug('Cerrando...')
         await self.http_session.close()
-        await super(Alexis, self).close()
+        await self.http.close()
 
     """
     ===== EVENT HANDLERS =====

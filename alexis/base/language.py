@@ -20,6 +20,7 @@ class Language:
         log.info('Cargando archivos de idioma...')
         p = path.join(self.path, "**{s}*.yml".format(s=path.sep))
         lang_files = glob.iglob(p, recursive=True)
+        fcount = 0
 
         for lang_file in lang_files:
             fn = path.basename(lang_file)
@@ -27,6 +28,7 @@ class Language:
                 continue
 
             with open(lang_file) as f:
+                fcount += 1
                 yml = yaml.safe_load(f)
                 lang = fn[:-4]
 
@@ -38,6 +40,8 @@ class Language:
                         self.lib[lang] = {}
 
                     self.lib[lang][k] = str(v)
+
+        log.info('Cargado{s} %i archivo{s}'.format(s=['s', ''][int(fcount == 1)]), fcount)
 
     def get(self, name, lang=None):
         if lang is None:
