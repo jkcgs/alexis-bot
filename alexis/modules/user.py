@@ -186,7 +186,7 @@ class UpdateUsername(Command):
             if channel is None:
                 channel = discord.Object(id=channel)
 
-            disp = ' nick actual: "{}"'.format(after.display_name) if after.display_name != after.name else ''
+            disp = ' (nick actual: "{}")'.format(after.display_name) if after.display_name != after.name else ''
             await self.bot.send_message(channel, 'El usuario "*{}*" ha cambiado su nombre a "**{}**"{}.'.format(
                 before.name, after.name, disp
             ))
