@@ -63,7 +63,7 @@ class Alexis(discord.Client):
 
         # Cargar configuración
         self.load_config()
-        # self.lang = Language('./lang', self.config['default_lang'], True)
+        self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
 
         if self.config.get('token', '') == '':
             raise RuntimeError('SHOTTO MATTE KUDASAI - ¿Donde está el token para el bot? Agrega el valor "token" a la '
@@ -169,9 +169,9 @@ class Alexis(discord.Client):
                 'default_lang': 'es_CL'
             }
 
-            self.log.debug('Cargando configuración...')
+            self.log.info('Cargando configuración...')
             self.config.load(defaults)
-            self.log.debug('Configuración cargada')
+            self.log.info('Configuración cargada')
             return True
         except Exception as ex:
             self.log.exception(ex)
@@ -210,10 +210,10 @@ class Alexis(discord.Client):
     def _get_handlers(self, name):
         return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
 
-    def close(self):
+    async def close(self):
         self.log.debug('Cerrando...')
-        self.http_session.close()
-        self.http.close()
+        await self.http_session.close()
+        await super(Alexis, self).close()
 
     """
     ===== EVENT HANDLERS =====

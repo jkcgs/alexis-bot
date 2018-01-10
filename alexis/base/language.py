@@ -4,6 +4,8 @@ from os import path
 
 from ruamel import yaml
 
+from alexis.logger import log
+
 
 class Language:
     def __init__(self, langpath, default='en', autoload=False):
@@ -15,20 +17,27 @@ class Language:
             self.load()
 
     def load(self):
-        lang_files = glob.iglob(self.path + "/**/*.yml", recursive=True)
+        log.info('Cargando archivos de idioma...')
+        p = path.join(self.path, "**{s}*.yml".format(s=path.sep))
+        lang_files = glob.iglob(p, recursive=True)
 
         for lang_file in lang_files:
             fn = path.basename(lang_file)
             if not path.isfile(lang_file) or not fn.endswith('.yml'):
                 continue
 
-            yml = yaml.safe_load(lang_file)
-            lang = fn[:-3]
-            for k, v in yml.items():
-                if not isinstance(v, str) and not isinstance(v, int) and not isinstance(v, float):
-                    continue
+            with open(lang_file) as f:
+                yml = yaml.safe_load(f)
+                lang = fn[:-4]
 
-                self.lib[lang][k] = str(v)
+                for k, v in yml.items():
+                    if not isinstance(v, str) and not isinstance(v, int) and not isinstance(v, float):
+                        continue
+
+                    if lang not in self.lib:
+                        self.lib[lang] = {}
+
+                    self.lib[lang][k] = str(v)
 
     def get(self, name, lang=None):
         if lang is None:
