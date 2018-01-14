@@ -206,7 +206,7 @@ def post_to_embed(post):
     elif post['media']:
         if 'preview' in post:
             embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
-        else:
+        elif post['thumbnail'] != 'default':
             embed.set_thumbnail(url=html.unescape(post['thumbnail']))
         embed.description = "Link del multimedia: " + post['url']
     elif 'preview' in post:
