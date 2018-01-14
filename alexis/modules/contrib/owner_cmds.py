@@ -78,7 +78,7 @@ class ChangePrefix(Command):
         self.owner_only = True
 
     async def handle(self, message, cmd):
-        if not cmd.is_cmd and not cmd.sw_mention:
+        if not cmd.is_cmd and not cmd.sw_mention or not self.right_cmd(cmd):
             return
 
         if cmd.argc < 1:

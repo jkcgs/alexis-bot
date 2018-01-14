@@ -128,6 +128,33 @@ class MacroUnset(Command):
             pass
 
 
+class MacroRename(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'rename'
+        self.help = 'Renombra un macro'
+        self.owner_only = True
+
+    async def handle(self, message, cmd):
+        if cmd.argc != 2:
+            await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
+            return
+
+        serverid = 'global' if cmd.is_pm else message.server.id
+        try:
+            other = EmbedMacro.select().where(EmbedMacro.name == cmd.args[1], EmbedMacro.server == serverid)
+            if other.count() > 0:
+                await cmd.answer('ya existe un macro con el nuevo nombre')
+                return
+
+            macro = EmbedMacro.get(EmbedMacro.name == cmd.args[0], EmbedMacro.server == serverid)
+            macro.name = cmd.args[1]
+            macro.save()
+            await cmd.answer('macro renombrado')
+        except EmbedMacro.DoesNotExist:
+            await cmd.answer('ese macro no existe')
+
+
 class MacroSetColour(Command):
     def __init__(self, bot):
         super().__init__(bot)
