@@ -1,0 +1,4 @@
+user-not-found: "usuario no encontrado"
+lang-not-available: "idioma no disponible"
+current-lang: "idioma actual: **{lang}**"
+lang-set-to: "idioma **{lang}** seleccionado"
