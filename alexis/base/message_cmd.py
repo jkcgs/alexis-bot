@@ -133,7 +133,11 @@ class MessageCmd:
         txt = self.text
         # tags de usuarios
         for mention in self.message.mentions:
-            txt = txt.replace(mention.mention, mention.display_name)
+            mtext = mention.mention
+            if mention.name != mention.display_name:
+                mtext = mtext.replace('@', '@!')
+
+            txt = txt.replace(mtext, mention.display_name)
         # tags de canales
         for mention in self.message.channel_mentions:
             txt = txt.replace(mention.mention, '#' + mention.name)
