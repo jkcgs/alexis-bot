@@ -41,7 +41,7 @@ class Command:
         return ServerConfigMgrSingle(self.bot.sv_config, serverid)
 
     def right_cmd(self, cmd):
-        return cmd.is_cmd and cmd.cmdname != self.name and cmd.cmdname not in self.aliases
+        return cmd.is_cmd and cmd.cmdname == self.name or cmd.cmdname in self.aliases
 
     @staticmethod
     async def message_handler(message, bot, cmd):
