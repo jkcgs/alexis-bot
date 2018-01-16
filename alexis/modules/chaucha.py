@@ -55,7 +55,7 @@ class Chaucha(Command):
                 if r.status == 200:
                     data = await r.json()
                     self.current = int(data[0]['data']['market']['lastTrade']['price'])
-        except (asyncio.TimeoutError, aiohttp.errors.ServerDisconnectedError):
+        except (asyncio.TimeoutError, aiohttp.ServerDisconnectedError):
             self.log.debug('Error al cargar datos de chaucha: el servidor demoró mucho en responder')
         except Exception as e:
             self.log.debug('Error al cargar datos de chaucha')
