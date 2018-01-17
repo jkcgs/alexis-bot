@@ -11,20 +11,17 @@ class Rule34(Command):
         super().__init__(bot)
         self.name = 'rule34'
         self.aliases = ['r34']
+        self.help = 'Busca imágenes en rule34.xxx'
         self.nsfw_only = True
 
     async def handle(self, message, cmd):
-        if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <texto de búsqueda>')
-            return
-
         await cmd.typing()
 
         query = {
             'page': 'dapi',
             's': 'post',
             'q': 'index',
-            'tags': cmd.text
+            'tags': '*' if cmd.argc < 1 else cmd.text
         }
 
         q_url = 'https://rule34.xxx/index.php?' + urlencode(query)

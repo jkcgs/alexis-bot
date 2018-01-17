@@ -10,20 +10,17 @@ class Gelbooru(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'gelbooru'
+        self.help = 'Busca imágenes en el imageboard gelbooru (animé y hentai)'
         self.nsfw_only = True
 
     async def handle(self, message, cmd):
-        if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <texto de búsqueda>')
-            return
-
         await cmd.typing()
 
         query = {
             'page': 'dapi',
             's': 'post',
             'q': 'index',
-            'tags': cmd.text
+            'tags': '*' if cmd.argc < 1 else cmd.text
         }
 
         q_url = 'https://gelbooru.com/index.php?' + urlencode(query)

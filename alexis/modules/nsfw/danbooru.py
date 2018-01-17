@@ -10,17 +10,14 @@ class Danbooru(Command):
         super().__init__(bot)
         self.name = 'danbooru'
         self.aliases = ['danb']
+        self.help = 'Busca imágenes en el imageboard danbooru (animé y hentai)'
         self.nsfw_only = True
 
     async def handle(self, message, cmd):
-        if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <texto de búsqueda>')
-            return
-
         await cmd.typing()
 
         query = {
-            'tags': cmd.text,
+            'tags': '*' if cmd.argc < 1 else cmd.text,
             'limit': 30
         }
 

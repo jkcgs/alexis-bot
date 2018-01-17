@@ -9,17 +9,14 @@ class E621(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'e621'
+        self.help = 'Busca imágenes en e621 (imageboard furry)'
         self.nsfw_only = True
 
     async def handle(self, message, cmd):
-        if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <texto de búsqueda>')
-            return
-
         await cmd.typing()
 
         query = {
-            'tags': cmd.text,
+            'tags': '*' if cmd.argc < 1 else cmd.text,
             'limit': 30
         }
 
