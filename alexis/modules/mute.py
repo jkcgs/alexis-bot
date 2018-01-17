@@ -146,7 +146,7 @@ class Mute(Command):
                     continue
 
                 self_member = server.get_member(self.bot.user.id)
-                if not self_member.server_permissions.manage_roles:
+                if self_member is not None and not self_member.server_permissions.manage_roles:
                     self.log.warning(Mute.cant_manage_msg + ' (server: %s)', server)
                     continue
 
