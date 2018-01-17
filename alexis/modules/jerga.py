@@ -1,7 +1,6 @@
 from alexis import Command
-from urllib import request, parse as urlparse
+from urllib import parse as urlparse
 from discord import Embed
-import requests
 from bs4 import BeautifulSoup
 
 
