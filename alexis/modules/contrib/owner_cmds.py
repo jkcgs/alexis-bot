@@ -112,6 +112,10 @@ class CommandConfig(Command):
             await cmd.answer('el comando no existe')
             return
 
+        if cmd.args[1] == self.name:
+            await cmd.answer('no puedes cambiar el ajuste para este comando')
+            return
+
         avail = serialize_avail(cmd.config.get('cmd_status', ''))
         cmd_ins = self.bot.cmds[cmd.args[1]]
         current = avail.get(cmd_ins.name, '+' if cmd_ins.default_enabled else '-')
