@@ -85,6 +85,9 @@ class Command:
                         and not cmd.owner:
                     # await cmd.answer(cmd_ins.user_delay_error)
                     return
+                elif not cmd.is_pm and cmd_ins.nsfw_only and 'nsfw' not in message.channel.name:
+                    await cmd.answer('este comando sólo puede ser usado en un canal NSFW')
+                    return
                 # Ejecutar el comando
                 else:
                     cmd_ins.users_delay[cmd.author.id] = dt.now()
