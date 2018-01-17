@@ -36,7 +36,7 @@ class Alexis(discord.Client):
         self.log = logger.get_logger('Alexis')
         self.config = StaticConfig('config.yml')
         self.http_session = aiohttp.ClientSession(
-            loop=self.loop, headers={'User-Agent': 'AlexisBot/' + Alexis.__version__})
+            loop=self.loop, headers={'User-Agent': 'AlexisBot/{} +discord.cl/pages/alexis'.format(Alexis.__version__)})
 
         self.db = None
         self.last_author = None  # El ID del último en enviar un mensaje (omite PM)
