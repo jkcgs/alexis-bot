@@ -16,6 +16,8 @@ class E621(Command):
             await cmd.answer('formato: $PX$NM <texto de búsqueda>')
             return
 
+        await cmd.typing()
+
         query = {
             'tags': cmd.text,
             'limit': 30
