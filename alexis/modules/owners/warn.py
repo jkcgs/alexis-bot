@@ -76,7 +76,6 @@ class Warns(Command):
             await cmd.answer('no se encontró al usuario')
             return
 
-        # TODO: Listar
         num = get_member_warns(member).count()
         adv = ['advertencias', 'advertencia'][bool(num == 1)]
         if num > 0:

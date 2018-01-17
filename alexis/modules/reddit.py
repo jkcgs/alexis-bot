@@ -16,7 +16,7 @@ class RedditFollow(Command):
         super().__init__(bot)
         self.name = 'reddit'
         self.aliases = ['redditor']
-        self.help = 'Muestra la cantidad de posts (registrados por el bot) hechos por un redditor'
+        self.help = 'Sigue un subreddit y envía los nuevos posts a un canal'
         self.db_models = [Redditor, Post, ChannelFollow]
         self.chans = {}
         self.allow_pm = False
@@ -115,7 +115,7 @@ class RedditFollow(Command):
                 text = '**/u/{name}** no ha creado ningún post.'.format(name=user)
                 await cmd.answer(text)
         else:
-            await cmd.answer('formato: $PX$NM (set|remove|posts)')
+            await cmd.answer('formato: $PX$NM (set|remove|list|posts)')
 
     async def task(self):
         post_id = ''
