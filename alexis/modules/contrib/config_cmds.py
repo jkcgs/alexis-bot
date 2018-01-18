@@ -131,7 +131,7 @@ class SetStatus(Command):
         super().__init__(bot)
         self.name = 'status'
         self.help = 'Determina el status del bot'
-        self.owner_only = True
+        self.bot_owner_only = True
 
     async def handle(self, message, cmd):
         status = '' if len(cmd.args) < 1 else cmd.text
