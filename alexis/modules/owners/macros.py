@@ -245,7 +245,7 @@ class MacroUse(Command):
         # Usar un macro embed si existe
         try:
             server_id = 'global' if cmd.is_pm else message.server.id
-            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server == server_id)
+            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server in [server_id, 'global'])
             macro.used_count += 1
             macro.save()
 

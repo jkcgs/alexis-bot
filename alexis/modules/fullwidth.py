@@ -1,6 +1,3 @@
-import discord
-from discord import Embed
-
 from alexis import Command
 
 
