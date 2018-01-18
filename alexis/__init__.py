@@ -22,9 +22,9 @@ from alexis.base.message_cmd import MessageCmd
 
 
 class Alexis(discord.Client):
-    __author__ = 'Nicolás Santisteban, Jonathan Gutiérrez'
+    __author__ = 'Nicolás "ibk" Santisteban, Jonathan "makzk" Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.21'
+    __version__ = '1.0.0-dev.22'
 
     def __init__(self, **options):
         """
@@ -211,7 +211,8 @@ class Alexis(discord.Client):
         return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
 
     async def close(self):
-        self.log.debug('Cerrando...')
+        # self.log.debug('Cerrando...')
+        super().close()
         await self.http_session.close()
         await self.http.close()
 

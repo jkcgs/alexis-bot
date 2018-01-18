@@ -82,32 +82,36 @@ class Bans(Command):
 
     async def handle(self, message, cmd):
         if len(cmd.args) != 1:
-            await cmd.answer('formato: $PX$NM <usuario (nombre*, id, mención)>')
-            return
+            user = cmd.author
+        else:
+            user = await cmd.get_user(cmd.text)
+            if user is None:
+                await cmd.answer('usuario no encontrado')
+                return
 
-        mention = await cmd.get_user(cmd.text)
-        if mention is None:
-            await cmd.answer('usuario no encontrado')
-            return
-
-        if cmd.is_owner(mention):
+        if cmd.is_owner(user) and not cmd.owner:
             mesg = 'te voy a decir la cifra exacta: Cuatro mil trescientos cuarenta y '
             mesg += 'cuatro mil quinientos millones coma cinco bans, ese es el valor.'
             await cmd.answer(mesg)
             return
 
-        user, created = Ban.get_or_create(userid=mention.id, server=message.server.id,
-                                          defaults={'user': str(mention)})
+        userbans, created = Ban.get_or_create(userid=user.id, server=message.server.id,
+                                              defaults={'user': str(user)})
 
-        if user.bans == 0:
+        if userbans.bans == 0:
             mesg = "```\nException in thread \"main\" cl.discord.alexis.ZeroBansException\n"
             mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
         else:
-            word = 'ban' if user.bans == 1 else 'bans'
-            if user.bans == 2:
+            word = 'ban' if userbans.bans == 1 else 'bans'
+            if userbans.bans == 2:
                 word = '~~papás~~ bans'
 
-            mesg = '**{}** tiene {} {}'.format(mention.display_name, user.bans, word)
+            if user.id == cmd.author.id:
+                prefix = 'tienes'
+            else:
+                prefix = '**{}** tiene'.format(user.display_name)
+
+            mesg = '{} {} {}'.format(prefix, userbans.bans, word)
 
         await cmd.answer(mesg)
 

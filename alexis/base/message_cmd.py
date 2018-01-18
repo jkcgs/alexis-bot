@@ -80,6 +80,21 @@ class MessageCmd:
         else:
             await self.bot.send_message(self.message.channel, content, **kwargs)
 
+    async def answer_embed(self, msg, delete_trigger=False, withname=True):
+        if delete_trigger:
+            try:
+                await self.bot.delete_message(self.message)
+            except discord.Forbidden:
+                pass
+
+        if not isinstance(msg, Embed):
+            msg = Embed(description=msg)
+
+        if withname:
+            msg.set_footer(text='para ' + self.author_name)
+
+        await self.answer(embed=msg, withname=False)
+
     async def typing(self):
         """
         Envía el estado "Escribiendo..." al canal desde el cual se recibió el mensaje.

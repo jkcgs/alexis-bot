@@ -40,9 +40,9 @@ class Ban(Command):
                 await cmd.answer('el tiempo de eliminación de mensajes debe ser entre 0 y 7 (días)')
                 return
             else:
-                reason = ' '.join(cmd.args[1:])
+                reason = ' '.join(cmd.args[2:])
         else:
-            reason = ' '.join(cmd.args[2:])
+            reason = ' '.join(cmd.args[1:])
 
         try:
             await self.bot.ban(member, delete_days)

@@ -1,3 +1,6 @@
+import discord
+from discord import Embed
+
 from alexis import Command
 
 
@@ -13,4 +16,5 @@ class Fullwidth(Command):
     async def handle(self, message, cmd):
         text = [cmd.no_tags(), 'QUE WEA COXINO KLO'][int(cmd.text == '')].replace(' ', '   ')
         converted = [chr(0xFEE0 + ord(i)) if i in Fullwidth.supported else i for i in list(text)]
-        await cmd.answer(''.join(converted))
+
+        await cmd.answer_embed(''.join(converted), delete_trigger=True)
