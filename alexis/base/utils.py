@@ -31,7 +31,7 @@ def is_owner(bot, member, server):
     if member.id in bot.config['bot_owners']:
         return True
 
-    if server is None:
+    if server is None or not isinstance(member, discord.Member):
         return False
 
     if member.server_permissions.administrator:
