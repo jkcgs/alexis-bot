@@ -1,7 +1,7 @@
 import discord
 
 from alexis import Command
-from alexis.base.utils import is_int
+from alexis.utils import is_int
 
 
 class Ban(Command):
@@ -12,13 +12,13 @@ class Ban(Command):
         self.allow_pm = False
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('Formato: $PX$NM <id, mención> [días-eliminar-mensajes (0-7)] [razón]')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = message.server
+        server = cmd.message.server
         await cmd.typing()
 
         if member is None:

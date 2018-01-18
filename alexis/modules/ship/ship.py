@@ -11,15 +11,15 @@ class ShipperUwU(Command):
         self.help = 'Forma parejas entre dos usuarios'
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
-        if cmd.argc != 2 or len(message.mentions) != 2:
+    async def handle(self, cmd):
+        if cmd.argc != 2 or len(cmd.message.mentions) != 2:
             await cmd.answer('Formato: !ship @mención1 @mención2')
             return
 
         # obtener menciones en el mismo orden en el que se escribieron
         user1 = ''
         user2 = ''
-        for mention in message.mentions:
+        for mention in cmd.message.mentions:
             if cmd.args[0] == mention.mention:
                 user1 = mention
             elif cmd.args[1] == mention.mention:

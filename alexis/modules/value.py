@@ -34,7 +34,7 @@ class Value(Command):
             'sbif_apikey': ''
         }
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 2 and cmd.cmdname not in ['uf', 'utm']:
             await self.formato(cmd)
             return

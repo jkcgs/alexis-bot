@@ -3,9 +3,9 @@ import re
 
 from discord import Embed
 
-from alexis.base.database import ServerConfigMgrSingle
-from alexis.base.language import SingleLanguage
-from alexis.base.utils import serialize_avail, pat_emoji, is_owner
+from alexis.database import ServerConfigMgrSingle
+from alexis.language import SingleLanguage
+from alexis.utils import serialize_avail, pat_emoji, is_owner
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')
 pat_snowflake = re.compile('^\d{10,19}$')

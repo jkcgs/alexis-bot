@@ -1,6 +1,6 @@
 from alexis import Command
 from discord import Embed
-from alexis.base.utils import pat_emoji, pat_normal_emoji
+from alexis.utils import pat_emoji, pat_normal_emoji
 import re
 
 
@@ -10,7 +10,7 @@ class Emoji(Command):
         self.name = 'emoji'
         self.help = 'Envía la imagen en grande de un emoji custom'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) != 1:
             await cmd.answer('formato: $PX$NM <emoji>')
             return

@@ -13,7 +13,7 @@ class Jerga(Command):
         self.aliases = ['dc']
         self.help = 'Obtiene una definición desde Diccionario Chileno'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         text = cmd.text if cmd.text != '' else 'weon'
         text_url = urlparse.quote(text)
 

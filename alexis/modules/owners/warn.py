@@ -5,7 +5,7 @@ import peewee
 from discord import Embed
 
 from alexis import Command
-from alexis.base.database import BaseModel
+from alexis.database import BaseModel
 
 
 class Warn(Command):
@@ -64,7 +64,7 @@ class Warns(Command):
         self.help = 'Muestra el número de advertencias que tiene el usuario'
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <id, mención>')
             return
@@ -93,7 +93,7 @@ class ClearWarns(Command):
         self.allow_pm = False
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <id, mención>')
             return
@@ -121,7 +121,7 @@ class WarnList(Command):
         self.allow_pm = False
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             warns = UserWarn.select().order_by(UserWarn.timestamp.desc()).limit(5)
             if warns.count() == 0:
@@ -131,7 +131,7 @@ class WarnList(Command):
             warnlist = []
             for warn in warns:
                 fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                u = message.server.get_member(warn.userid)
+                u = cmd.message.server.get_member(warn.userid)
                 if u is None:
                     u = '<@{}> ({})'.format(warn.userid, warn.userid)
                 else:
@@ -175,7 +175,7 @@ class WarnRank(Command):
         self.help = 'Muestra un ránking de advertencias'
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         e = UserWarn.select(UserWarn.serverid, UserWarn.userid, UserWarn.timestamp, UserWarn.reason,
                             peewee.fn.COUNT(UserWarn.userid).alias('num_warns')) \
             .group_by(UserWarn.userid) \
@@ -187,7 +187,7 @@ class WarnRank(Command):
 
         msg = []
         for xd in e:
-            u = message.server.get_member(xd.userid)
+            u = cmd.message.server.get_member(xd.userid)
             d = xd.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             if u is None:
                 u = 'ID {}'.format(xd.userid, xd.userid)

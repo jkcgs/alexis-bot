@@ -3,7 +3,7 @@ import sys
 from discord import Game
 
 from alexis import Command
-from alexis.base.utils import is_float, is_int
+from alexis.utils import is_float, is_int
 
 
 class ConfigCmd(Command):
@@ -13,7 +13,7 @@ class ConfigCmd(Command):
         self.help = 'Administración de configuración'
         self.bot_owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc < 2 or (cmd.args[0] != 'get' and cmd.argc < 3):
             await cmd.answer('$PX$NM (get|set|add|remove) (name) [value]')
             return
@@ -100,7 +100,7 @@ class ReloadCmd(Command):
         self.help = 'Recarga la configuración'
         self.bot_owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if not self.bot.load_config():
             msg = 'no se pudo recargar la configuración'
         else:
@@ -120,7 +120,7 @@ class ShutdownCmd(Command):
         self.help = 'Detiene el proceso del bot'
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         await cmd.answer('chao loh vimo')
         await self.bot.logout()
         sys.exit(0)
@@ -133,7 +133,7 @@ class SetStatus(Command):
         self.help = 'Determina el status del bot'
         self.bot_owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         status = '' if len(cmd.args) < 1 else cmd.text
         await self.bot.change_presence(game=Game(name=status))
         await cmd.answer('k')

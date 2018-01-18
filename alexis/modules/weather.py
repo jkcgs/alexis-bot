@@ -21,7 +21,7 @@ class Weather(Command):
             self.log.warn('La API key del clima no está configurada. Puedes agregarla en el valor weatherapi_key de la'
                           'configuración')
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if self.bot.config['weatherapi_key'] == '':
             await cmd.answer('este comando está desactivado debido a que no está configurado')
             return

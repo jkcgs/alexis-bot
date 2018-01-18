@@ -1,7 +1,7 @@
 from alexis import Command
 import urllib.parse as urlparse
 
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class AltoEn(Command):
@@ -10,7 +10,7 @@ class AltoEn(Command):
         self.name = 'altoen'
         self.help = 'Muestra una imagen basada en el logo "ALTO EN"'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('formato: !altoen <str>')
             return

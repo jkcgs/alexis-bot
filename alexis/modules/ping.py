@@ -10,5 +10,5 @@ class Ping(Command):
         self.help = 'Responde al comando *ping*'
         self.user_delay = 5
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         await cmd.answer(['wena xoro', 'pong!'][int(random.random() >= .5)])

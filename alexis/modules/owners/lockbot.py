@@ -1,7 +1,7 @@
 from discord import Embed
 
 from alexis import Command
-from alexis.base.database import ServerConfig
+from alexis.database import ServerConfig
 
 
 cfg_locked = 'locked_bot_channels'
@@ -23,14 +23,14 @@ class LockBot(Command):
         if is_locked(message.server.id, message.channel.id):
             return False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         channel = None
         chall = False
         if cmd.argc == 0:
-            channel = message.channel
+            channel = cmd.message.channel
         elif cmd.argc >= 1:
-            if len(message.channel_mentions) > 0:
-                channel = message.channel_mentions[0]
+            if len(cmd.message.channel_mentions) > 0:
+                channel = cmd.message.channel_mentions[0]
             elif cmd.args[0] != 'all':
                 channel = cmd.find_channel(cmd.args[0])
             else:
@@ -44,7 +44,7 @@ class LockBot(Command):
         chanid = 'all' if chall else channel.id
 
         if cmd.cmdname == 'islocked':
-            locked = is_locked(message.server.id, chanid)
+            locked = is_locked(cmd.message.server.id, chanid)
             msg = 'si' if locked else 'no'
 
             if 'all' in chans:
@@ -99,13 +99,13 @@ class LockedChans(Command):
         self.owner_only = True
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         chans = cmd.config.get_list(cfg_locked)
         is_all = 'all' in chans
         others = [f for f in chans if f != 'all']
         chan_list = []
         for chanid in others:
-            chan = message.server.get_channel(chanid)
+            chan = cmd.message.server.get_channel(chanid)
             if chan is None:
                 chan_list.append('- {} (no encontrado)'.format(chanid))
             else:

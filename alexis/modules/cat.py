@@ -1,5 +1,4 @@
-from alexis import Command
-from alexis.base import utils
+from alexis import Command, utils
 
 
 class Cat(Command):
@@ -11,7 +10,7 @@ class Cat(Command):
         self.aliases = ['gato', 'gatito', 'neko']
         self.help = 'Entrega un gato'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         try:
             await cmd.typing()
             async with self.http.get(Cat.url) as r:
@@ -34,7 +33,7 @@ class Dog(Command):
         self.aliases = ['perro', 'perrito', 'doggo']
         self.help = 'Entrega un perro'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         try:
             await cmd.typing()
             async with self.http.get(Dog.url) as r:

@@ -15,7 +15,7 @@ class Kick(Command):
         self.allow_pm = False
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc < 1:
             await cmd.answer('formato: $PX$NM @usuario [razón]')
             return
@@ -25,7 +25,7 @@ class Kick(Command):
             await cmd.answer('usuario no encontrado')
             return
 
-        msg_user = 'Lamentablemente has sido kickeado de {}'.format(message.server.name)
+        msg_user = 'Lamentablemente has sido kickeado de {}'.format(cmd.message.server.name)
         msg_all = '{} ha sido kickead@ del servidor'.format(to_kick.display_name)
         if cmd.argc > 1:
             reason = ' '.join(cmd.args[1:])

@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 
 from alexis import Command
-from alexis.base.utils import is_float
+from alexis.utils import is_float
 
 chaucha_api = 'https://api.orionx.io/graphql'
 chaucha_json = [{
@@ -27,7 +27,7 @@ class Chaucha(Command):
         self.user_delay = 5
         self.current = None
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         mult = 1
         if cmd.argc == 1:
             if not is_float(cmd.args[0]):

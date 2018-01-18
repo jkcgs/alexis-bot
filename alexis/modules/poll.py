@@ -11,7 +11,7 @@ class Ping(Command):
         self.aliases = ['encuesta', 'strawpoll']
         self.help = 'Crea una encuesta en strawpoll.me . Separa el título y las opciones con " | "'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         args = []
         max_opciones = 6
         for x in cmd.text.split("|"):

@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 
 from alexis import Command
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class QRCode(Command):
@@ -10,7 +10,7 @@ class QRCode(Command):
         self.name = 'qr'
         self.help = 'Entrega un código QR del texto enviado'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.text == '':
             await cmd.answer('formato: $PX$NM <texto>')
             return

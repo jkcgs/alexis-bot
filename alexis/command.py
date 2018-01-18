@@ -2,7 +2,7 @@ import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
-from alexis.base.database import ServerConfigMgrSingle
+from alexis.database import ServerConfigMgrSingle
 
 
 class Command:
@@ -42,6 +42,9 @@ class Command:
 
     def right_cmd(self, cmd):
         return cmd.is_cmd and cmd.cmdname == self.name or cmd.cmdname in self.aliases
+
+    def handle(self, cmd):
+        pass
 
     @staticmethod
     async def message_handler(message, bot, cmd):
@@ -91,7 +94,7 @@ class Command:
                 # Ejecutar el comando
                 else:
                     cmd_ins.users_delay[cmd.author.id] = dt.now()
-                    await cmd_ins.handle(message, cmd)
+                    await cmd_ins.handle(cmd)
 
             # 'startswith' handlers
             swbreak = False
@@ -111,10 +114,10 @@ class Command:
                         # await cmd.answer(swhandler.pm_error)
                         continue
                     else:
-                        await swhandler.handle(message, cmd)
+                        await swhandler.handle(cmd)
 
                     if swhandler.swhandler_break:
-                        swbreak = True
+                        swbreak = True  # PyCharm dice que no se usa pero si se usa xd
                         break
 
             # Mention handlers
@@ -123,13 +126,11 @@ class Command:
                     if cmd_ins.bot_owner_only and not cmd.bot_owner:
                         continue
                     if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
-                        # await cmd.answer(cmd_ins.owner_error)
                         continue
                     elif not cmd_ins.allow_pm and cmd.is_pm:
-                        # await cmd.answer(cmd_ins.pm_error)
                         continue
                     else:
-                        await cmd_ins.handle(message, cmd)
+                        await cmd_ins.handle(cmd)
 
         except Exception as e:
             if str(e) == 'BAD REQUEST (status code: 400)':

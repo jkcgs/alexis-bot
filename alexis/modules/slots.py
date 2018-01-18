@@ -21,7 +21,7 @@ class Slots(Command):
                              ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
         }
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         frutas = self.bot.config['slots_fruits']
         if len(frutas) < 3:
             await cmd.answer('este comando no funciona u_u')

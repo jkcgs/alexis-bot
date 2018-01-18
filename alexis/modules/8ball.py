@@ -16,7 +16,7 @@ class EightBall(Command):
         self.aliases = ['bola8', '8']
         self.help = 'Responde al texto de forma afirmativa, negativa o dudosa'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         text = cmd.text if cmd.text != '' else 'seré weón?'
         resp = random.choice(EightBall.resp) if cmd.text != '' else 'si po jajaj XDD'
 

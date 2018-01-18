@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 from random import choice
 
 from alexis import Command
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class E621(Command):
@@ -12,7 +12,7 @@ class E621(Command):
         self.help = 'Busca imágenes en e621 (imageboard furry)'
         self.nsfw_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         await cmd.typing()
 
         query = {

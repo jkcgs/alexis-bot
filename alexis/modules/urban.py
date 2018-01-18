@@ -12,7 +12,7 @@ class Urban(Command):
         self.aliases = ['ub']
         self.help = 'Obtiene una definición desde UrbanDictionary'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         text = cmd.text if cmd.text != '' else 'weon'
         text = urlparse.quote(text)
 

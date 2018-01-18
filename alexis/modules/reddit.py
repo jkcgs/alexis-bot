@@ -7,8 +7,8 @@ import peewee
 from discord import Embed
 
 from alexis import Command
-from alexis.base.database import BaseModel
-from alexis.base.utils import pat_channel, pat_subreddit, text_cut
+from alexis.database import BaseModel
+from alexis.utils import pat_channel, pat_subreddit, text_cut
 
 
 class RedditFollow(Command):
@@ -25,7 +25,7 @@ class RedditFollow(Command):
     def on_loaded(self):
         self.load_channels()
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.cmdname == 'redditor':
             cmd.args = ['posts'] + cmd.args
             cmd.argc = len(cmd.args)
@@ -49,16 +49,16 @@ class RedditFollow(Command):
                         await cmd.answer('formato: $PX$NM add <subreddit> [channel=actual]')
                         return
 
-                    channel = message.server.get_channel(cmd.args[2][2:-1])
+                    channel = cmd.message.server.get_channel(cmd.args[2][2:-1])
                     if channel is None:
                         await cmd.answer('canal no encontrado aquí')
                         return
                 else:
-                    channel = message.channel
+                    channel = cmd.message.channel
 
             if cmd.args[0] == 'set':
                 chan, created = ChannelFollow.get_or_create(
-                    subreddit=cmd.args[1], serverid=message.server.id, channelid=channel.id)
+                    subreddit=cmd.args[1], serverid=cmd.message.server.id, channelid=channel.id)
 
                 if created:
                     await cmd.answer('subreddit agregado')
@@ -73,12 +73,12 @@ class RedditFollow(Command):
             else:
                 try:
                     asd = ChannelFollow.get(ChannelFollow.subreddit == cmd.args[1],
-                                            ChannelFollow.serverid == message.server.id,
+                                            ChannelFollow.serverid == cmd.message.server.id,
                                             ChannelFollow.channelid == channel.id)
                     asd.delete_instance()
 
                     if cmd.args[1] in self.chans:
-                        self.chans[cmd.args[1]].remove((message.server.id, channel.id))
+                        self.chans[cmd.args[1]].remove((cmd.message.server.id, channel.id))
                         if len(self.chans[cmd.args[1]]) == 0:
                             del self.chans[cmd.args[1]]
 
@@ -88,7 +88,7 @@ class RedditFollow(Command):
                     await cmd.answer('el subreddit no está configurado en el canal seleccionado')
                     return
         elif cmd.args[0] == 'list':
-            res = ChannelFollow.select().where(ChannelFollow.serverid == message.server.id)
+            res = ChannelFollow.select().where(ChannelFollow.serverid == cmd.message.server.id)
             resp = []
             for chan in res:
                 resp.append('- **{}** \➡ <#{}>'.format(chan.subreddit, chan.channelid))

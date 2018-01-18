@@ -1,5 +1,5 @@
 from alexis import Command
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class Avatar(Command):
@@ -8,7 +8,7 @@ class Avatar(Command):
         self.name = 'avatar'
         self.help = 'Envia el ávatar del usuario que envió el comando o del usuario mencionado'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         user = cmd.author if cmd.argc == 0 else await cmd.get_user(cmd.text)
         if user is None:
             await cmd.answer('usuario no encontrado')

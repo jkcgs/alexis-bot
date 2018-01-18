@@ -8,7 +8,7 @@ class Help(Command):
         self.aliases = ['ayuda']
         self.help = 'Muestra la lista de comandos y su ayuda'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         helplist = []
         for i in self.bot.cmds.keys():
             ins = self.bot.cmds[i]

@@ -9,7 +9,7 @@ class LetMeGoogleThatForYou(Command):
         self.aliases = ['google', 'comandoqueteayudaraabuscarloquenecesitasdeunaformamuyfacilydivertida']
         self.help = 'Te ayuda a buscar algo en Google'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <texto>')
             return

@@ -1,6 +1,7 @@
 token: ""
 debug: false
 command_prefix: "!"
+database_url: 'sqlite:///database.db'
 default_lang: "en"
 playing: "/r/chile"
 owner_role: "AlexisMaster"

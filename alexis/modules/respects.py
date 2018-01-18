@@ -11,7 +11,7 @@ class Respects(Command):
         self.aliases = ['f']
         self.help = 'Muestra que el usuario que ejecuta el comando ha dado respetos'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         msg = '**$AU** ha pedido respetos '
         if cmd.text != '':
             msg += 'por **{}** '.format(cmd.text)

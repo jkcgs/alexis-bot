@@ -9,7 +9,7 @@ class ServerWhitelist(Command):
         self.name = 'leaveserver'
         self.bot_owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc == 0:
             await cmd.answer('formato: $PX$NM <server_id>')
             return
@@ -78,7 +78,7 @@ class ServersList(Command):
         self.name = 'serverslist'
         self.bot_owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(self.bot.servers) == 0:
             await cmd.answer('no estoy en ningún servidor uwu')
             return

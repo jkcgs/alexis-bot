@@ -6,9 +6,8 @@ from datetime import datetime as dt
 import discord
 import peewee
 
-from alexis import Command
-from alexis.base.database import BaseModel
-from alexis.base import utils
+from alexis import Command, utils
+from alexis.database import BaseModel
 
 
 class Mute(Command):
@@ -27,7 +26,7 @@ class Mute(Command):
         self.db_models = [MutedUser]
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         # TODO: Mostrar tiempo de mute propio cuando se usa sin argumentos
         # TODO: Mostrar tiempo de mute de un usuario cuando se pasa sólo el usuario como argumento
         if len(cmd.args) < 1:
@@ -36,7 +35,7 @@ class Mute(Command):
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = message.server
+        server = cmd.message.server
         await cmd.typing()
 
         if member is None:
@@ -215,7 +214,7 @@ class Unmute(Command):
         self.owner_only = True
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) != 1:
             await cmd.answer('formato: !unmute <usuario, id, @mención>')
             return
@@ -226,7 +225,7 @@ class Unmute(Command):
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        mutedrole = utils.get_server_role(message.server, sv_role)
+        mutedrole = utils.get_server_role(cmd.message.server, sv_role)
 
         if mutedrole is None:
             await cmd.answer('el usuario no tiene el rol de muteado ({})'.format(sv_role))
@@ -250,12 +249,12 @@ class SetMutedRole(Command):
         self.owner_only = True
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) != 1:
             await cmd.answer('formato: $PX$NM <rol>')
             return
 
-        r = utils.get_server_role(message.server, cmd.args[0])
+        r = utils.get_server_role(cmd.message.server, cmd.args[0])
         if r is None:
             await cmd.answer('el rol especificado no existe')
             return

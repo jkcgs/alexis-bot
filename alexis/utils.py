@@ -2,7 +2,7 @@ import discord
 import re
 from discord import Embed
 
-from alexis.base.database import ServerConfigMgrSingle
+from alexis.database import ServerConfigMgrSingle
 
 
 pat_channel = re.compile('^<#\d{10,19}>$')

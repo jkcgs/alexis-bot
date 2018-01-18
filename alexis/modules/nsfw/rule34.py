@@ -3,7 +3,7 @@ from xml.etree.ElementTree import fromstring as parsexml
 from random import choice
 
 from alexis import Command
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class Rule34(Command):
@@ -14,7 +14,7 @@ class Rule34(Command):
         self.help = 'Busca imágenes en rule34.xxx'
         self.nsfw_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         await cmd.typing()
 
         query = {

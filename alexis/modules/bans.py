@@ -2,10 +2,10 @@ from datetime import datetime
 import peewee
 
 from alexis import Command
-from alexis.base.database import BaseModel
+from alexis.database import BaseModel
 import random
 
-from alexis.base.utils import is_int
+from alexis.utils import is_int
 
 
 class BanCmd(Command):
@@ -19,7 +19,7 @@ class BanCmd(Command):
 
         self.user_delay = 10
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc < 1:
             await cmd.answer('formato: $PX$NM <nombre, id, @mención>')
             return
@@ -80,7 +80,7 @@ class Bans(Command):
         self.allow_pm = False
         self.pm_error = 'no po wn que te crei'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) != 1:
             user = cmd.author
         else:
@@ -125,7 +125,7 @@ class SetBans(Command):
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc < 2 or not is_int(cmd.args[-1]):
             await cmd.answer('formato: $PX$NM <nombre, id, cantidad> <cantidad>')
             return
@@ -136,10 +136,10 @@ class SetBans(Command):
             return
 
         num_bans = int(cmd.args[-1])
-        user, _ = Ban.get_or_create(userid=mention.id, server=message.server.id,
+        user, _ = Ban.get_or_create(userid=mention.id, server=cmd.message.server.id,
                                     defaults={'user': str(mention)})
         update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
-        update = update.where(Ban.userid == mention.id, Ban.server == message.server.id)
+        update = update.where(Ban.userid == mention.id, Ban.server == cmd.message.server.id)
         update.execute()
 
         name = mention.display_name
@@ -161,11 +161,11 @@ class BanRank(Command):
         self.allow_pm = False
         self.pm_error = 'como va a funcionar esta weá por pm wn que chucha'
 
-    async def handle(self, message, cmd):
-        bans = Ban.select().where(Ban.server == message.channel.server.id).order_by(Ban.bans.desc())
+    async def handle(self, cmd):
+        bans = Ban.select().where(Ban.server == cmd.message.channel.server.id).order_by(Ban.bans.desc())
         px = self.bot.config['command_prefix']
         banlist = []
-        limit = 10 if message.content == '{px}{px}banrank'.format(px=px) else 5
+        limit = 10 if cmd.cmdname == '{}{}'.format(px, self.name) else 5
 
         i = 1
         for item in bans.iterator():

@@ -27,7 +27,7 @@ class CleverbotHandler(Command):
             self.cbot = CleverWrap(config_key)
             self.log.debug('CleverWrap cargado')
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '1':
             await cmd.answer('conversación desactivada uwu')
             return
@@ -63,7 +63,7 @@ class ToggleConversation(Command):
         self.help = 'Activa/desactiva la conversación con el bot'
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if not CleverbotHandler.check:
             await cmd.answer('comando no disponible')
             return

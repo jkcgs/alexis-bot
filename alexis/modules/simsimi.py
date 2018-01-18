@@ -62,7 +62,7 @@ class SimSimiCmd(Command):
             self.log.warn('No se definieron API keys para SimSimi, las puedes agregar al valor simsimi_apikeys '
                           'de la configuración.')
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.text == '':
             return
 

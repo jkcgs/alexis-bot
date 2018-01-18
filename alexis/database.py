@@ -1,7 +1,11 @@
 import discord
 import peewee
+from playhouse.db_url import connect
+from alexis.configuration import StaticConfig
 
-db = peewee.SqliteDatabase('database.db')
+cfg = StaticConfig('config.yml')
+cfg.load({'database_url': 'sqlite:///database.db'})
+db = connect(cfg['database_url'])
 
 
 class BaseModel(peewee.Model):

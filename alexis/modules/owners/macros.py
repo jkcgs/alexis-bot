@@ -5,7 +5,7 @@ import peewee
 from discord import Embed, Colour
 
 from alexis import Command
-from alexis.base.database import BaseModel
+from alexis.database import BaseModel
 
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
@@ -34,8 +34,8 @@ class MacroSet(Command):
         self.owner_only = True
         self.db_models = [EmbedMacro]
 
-    async def handle(self, message, cmd):
-        argc_req = 1 if len(message.attachments) > 0 else 2
+    async def handle(self, cmd):
+        argc_req = 1 if len(cmd.message.attachments) > 0 else 2
         if len(cmd.args) < argc_req:
             await cmd.answer('formato: $PX$NM <nombre> <valor> (para macros sólo texto),\n'
                              '$PX$NM <nombre> [url_imagen]|[título]|[descripción]|[color_embed] (para macros embed)\n'
@@ -61,8 +61,8 @@ class MacroSet(Command):
             title = None
             description = ' '.join(cmd.args[1:])
         else:
-            if len(message.attachments) > 0:
-                for atata in message.attachments:
+            if len(cmd.message.attachments) > 0:
+                for atata in cmd.message.attachments:
                     if atata['url'].lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
                         subargs[0] = atata['url']
                         break
@@ -90,7 +90,7 @@ class MacroSet(Command):
                 await cmd.answer('al menos la imagen, el titulo o la descripción deben ser ingresados')
                 return
 
-        server_id = 'global' if cmd.is_pm else message.server.id
+        server_id = 'global' if cmd.is_pm else cmd.message.server.id
         macro, created = EmbedMacro.get_or_create(name=name, server=server_id)
         macro.image_url = image_url
         macro.title = title
@@ -111,13 +111,13 @@ class MacroUnset(Command):
         self.help = 'Elimina un macro'
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <nombre>')
             return
 
         name = cmd.args[0].replace('\\', '')
-        server_id = 'global' if cmd.is_pm else message.server.id
+        server_id = 'global' if cmd.is_pm else cmd.message.server.id
         try:
             EmbedMacro.get(name=name, server=server_id)
             q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
@@ -135,12 +135,12 @@ class MacroRename(Command):
         self.help = 'Renombra un macro'
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc != 2:
             await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
             return
 
-        serverid = 'global' if cmd.is_pm else message.server.id
+        serverid = 'global' if cmd.is_pm else cmd.message.server.id
         try:
             other = EmbedMacro.select().where(EmbedMacro.name == cmd.args[1], EmbedMacro.server == serverid)
             if other.count() > 0:
@@ -163,7 +163,7 @@ class MacroSetColour(Command):
         self.help = 'Actualiza el color de un macro embed'
         self.owner_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <nombre> <color=default>')
             return
@@ -176,7 +176,7 @@ class MacroSetColour(Command):
                 return
 
         name = cmd.args[0].replace('\\', '')
-        server_id = 'global' if cmd.is_pm else message.server.id
+        server_id = 'global' if cmd.is_pm else cmd.message.server.id
         try:
             macro = EmbedMacro.get(name=name, server=server_id)
             macro.embed_color = colour.value
@@ -195,11 +195,11 @@ class MacroList(Command):
         self.rx_mention = re.compile('^<@!?[0-9]+>$')
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         await cmd.typing()
         namelist = []
 
-        items = EmbedMacro.select().where(EmbedMacro.server == message.server.id)
+        items = EmbedMacro.select().where(EmbedMacro.server == cmd.message.server.id)
         for item in items:
             if re.match(self.rx_mention, item.name):
                 name = item.name.replace('!', '')
@@ -234,17 +234,17 @@ class MacroUse(Command):
         self.swhandler = ['$PX ', '$PX', '¡']
         self.swhandler_break = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
         if self.bot.last_author is None or not cmd.own:
-            self.bot.last_author = message.author.id
+            self.bot.last_author = cmd.author.id
 
         pfx = self.bot.config['command_prefix']
-        macro_name = cmd.args[0] if message.content.startswith(pfx + ' ') else message.content[1:].split(' ')[0]
+        macro_name = cmd.args[0] if cmd.message.content.startswith(pfx + ' ') else cmd.message.content[1:].split(' ')[0]
 
         # Usar un macro embed si existe
         try:
-            server_id = 'global' if cmd.is_pm else message.server.id
+            server_id = 'global' if cmd.is_pm else cmd.message.server.id
             macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server in [server_id, 'global'])
             macro.used_count += 1
             macro.save()

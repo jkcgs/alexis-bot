@@ -8,7 +8,7 @@ import peewee
 from alexis import Command
 from discord import Embed
 
-from alexis.base.database import BaseModel
+from alexis.database import BaseModel
 from alexis.logger import log
 
 
@@ -22,9 +22,9 @@ class UserCmd(Command):
         self.aliases = [bot.config['command_prefix'] + 'user']
         self.help = 'Entrega información sobre un usuario'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc >= 1 and cmd.args[0] == 'channel' and not cmd.is_pm and cmd.owner:
-            chan = message.channel.mention if cmd.argc == 1 else cmd.args[1]
+            chan = cmd.message.channel.mention if cmd.argc == 1 else cmd.args[1]
             await UserCmd._setchannel_handler(cmd, chan)
             return
 
@@ -137,7 +137,7 @@ class UserNoteCmd(Command):
         self.owner_only = True
         self.allow_pm = False
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if cmd.argc < 1:
             return
 

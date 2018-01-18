@@ -6,7 +6,7 @@ import emoji
 from discord import Emoji, Object, Embed
 
 from alexis import Command
-from alexis.base.database import BaseModel, ServerConfig
+from alexis.database import BaseModel
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
@@ -25,7 +25,7 @@ class StarboardHook(Command):
         self.name = 'starboard'
         self.help = 'Administrar el starboard'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         args = [] if cmd.argc == 0 else cmd.args[1:]
         argc = len(args)
         subcmd = None if cmd.argc == 0 else cmd.args[0]
@@ -33,10 +33,10 @@ class StarboardHook(Command):
         if subcmd == 'channel':
             channel = None
             if argc == 0:
-                channel = message.channel
+                channel = cmd.message.channel
             elif argc == 1:
-                if len(message.channel_mentions) > 0:
-                    channel = message.channel_mentions[0]
+                if len(cmd.message.channel_mentions) > 0:
+                    channel = cmd.message.channel_mentions[0]
                 else:
                     channel = cmd.find_channel(args[0])
 

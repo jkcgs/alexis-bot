@@ -3,7 +3,7 @@ from xml.etree.ElementTree import fromstring as parsexml
 from random import choice
 
 from alexis import Command
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class Gelbooru(Command):
@@ -13,7 +13,7 @@ class Gelbooru(Command):
         self.help = 'Busca imágenes en el imageboard gelbooru (animé y hentai)'
         self.nsfw_only = True
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         await cmd.typing()
 
         query = {

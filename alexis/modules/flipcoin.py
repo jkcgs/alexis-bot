@@ -10,7 +10,7 @@ class Flipcoin(Command):
         self.aliases = ['coinflip', 'coin', 'moneda']
         self.help = 'Lanza una moneda y muestra el resultado'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         prob = random.random()
         if prob < .01:
             resp = 'CANTO WN, EN SERIO XDDDD'

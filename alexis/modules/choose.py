@@ -8,7 +8,7 @@ class Choose(Command):
         self.name = 'choose'
         self.help = 'Elige un elemento al azar de una lista separada por el símbolo "|"'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         options = cmd.text.split("|")
         if len(options) < 2:
             return
@@ -30,7 +30,7 @@ class RandomNum(Command):
         self.aliases = ['rand']
         self.help = 'Elige un número al azar'
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         nmin = 0
         nmax = 10
 

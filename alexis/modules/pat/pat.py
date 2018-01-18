@@ -5,7 +5,7 @@ import yaml
 from alexis import Command
 import random
 
-from alexis.base.utils import img_embed
+from alexis.utils import img_embed
 
 
 class Pat(Command):
@@ -17,12 +17,12 @@ class Pat(Command):
         self.config = {}
         self.load_config()
 
-    async def handle(self, message, cmd):
-        if len(cmd.args) != 1 or len(message.mentions) != 1:
+    async def handle(self, cmd):
+        if len(cmd.args) != 1 or len(cmd.message.mentions) != 1:
             await cmd.answer('Formato: !pat <@mención>')
             return
 
-        mention = message.mentions[0]
+        mention = cmd.message.mentions[0]
         text = '{}, {} te ha dado una palmadita :3'.format(
             mention.display_name, cmd.author_name
         )
