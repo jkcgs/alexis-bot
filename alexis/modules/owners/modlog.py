@@ -189,9 +189,14 @@ class UpdateUsername(Command):
         self.updated = False
 
     async def on_ready(self):
+        if self.updating or self.updated:
+            return
+
         self.log.debug('Actualizando usuarios...')
         c = self.all()
-        self.log.debug('Usuarios actualizados: %i', c)
+
+        if c is not None:
+            self.log.debug('Usuarios actualizados: %i', c)
 
     async def on_member_join(self, member):
         if not self.updating:
@@ -220,9 +225,9 @@ class UpdateUsername(Command):
         if self.updating or self.updated:
             return
 
-        # Don't do this at home
         self.updating = True
 
+        # Don't do this at home
         j = {u.userid: u.name for u in
              UserNameReg.select(
                  UserNameReg.userid,
@@ -230,6 +235,7 @@ class UpdateUsername(Command):
                  peewee.fn.MAX(UserNameReg.timestamp)
              ).group_by(UserNameReg.userid)}
 
+        # Neither this thing
         k = [{'userid': m.id, 'name': m.name}
              for m in self.bot.get_all_members() if m.id not in j or j[m.id] != m.name]
         k = [i for n, i in enumerate(k) if i not in k[n + 1:]]  # https://stackoverflow.com/a/9428041
