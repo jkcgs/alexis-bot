@@ -49,7 +49,7 @@ class BanCmd(Command):
             return
 
         # No banear personas que no están en el canal
-        if not member.permissions_in(message.channel).read_messages:
+        if not member.permissions_in(cmd.message.channel).read_messages:
             await cmd.answer('oye pero **{}** no está ná aquí'.format(mention_name))
             return
 
@@ -58,10 +58,10 @@ class BanCmd(Command):
                              .format(mention_name), withname=False)
             return
 
-        user, created = Ban.get_or_create(userid=member.id, server=message.server.id,
+        user, created = Ban.get_or_create(userid=member.id, server=cmd.message.server.id,
                                           defaults={'user': str(member)})
         update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(member))
-        update = update.where(Ban.userid == member.id, Ban.server == message.server.id)
+        update = update.where(Ban.userid == member.id, Ban.server == cmd.message.server.id)
         update.execute()
 
         if created:
@@ -95,7 +95,7 @@ class Bans(Command):
             await cmd.answer(mesg)
             return
 
-        userbans, created = Ban.get_or_create(userid=user.id, server=message.server.id,
+        userbans, created = Ban.get_or_create(userid=user.id, server=cmd.message.server.id,
                                               defaults={'user': str(user)})
 
         if userbans.bans == 0:
