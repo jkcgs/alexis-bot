@@ -3,6 +3,7 @@ import re
 import discord
 
 from alexis import Command
+from alexis.modules.owners.modlog import ModLog
 
 pat_mention = re.compile('^<@!?[0-9]+>$')
 
@@ -20,7 +21,7 @@ class Kick(Command):
             await cmd.answer('formato: $PX$NM @usuario [razón]')
             return
 
-        to_kick = await cmd.get_user(cmd.text)
+        to_kick = await cmd.get_user(cmd.args[0])
         if to_kick is None:
             await cmd.answer('usuario no encontrado')
             return
@@ -48,3 +49,4 @@ class Kick(Command):
 
         # all iz well
         await cmd.answer(msg_all)
+        # await ModLog.send_modlog(cmd, message=msg_all)

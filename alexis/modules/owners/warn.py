@@ -6,6 +6,7 @@ from discord import Embed
 
 from alexis import Command
 from alexis.database import BaseModel
+from alexis.modules.owners.modlog import ModLog
 
 
 class Warn(Command):
@@ -18,13 +19,13 @@ class Warn(Command):
         self.owner_only = True
         self.db_models = [UserWarn]
 
-    async def handle(self, message, cmd):
+    async def handle(self, cmd):
         if len(cmd.args) < 2:
             await cmd.answer('formato: $PX$NM <id, mención> <razón>')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = message.server
+        server = cmd.message.server
         await cmd.typing()
 
         if member is None:
@@ -52,8 +53,10 @@ class Warn(Command):
             self.log.exception(e)
 
         # Avisar por el canal donde se envió el comando
-        await cmd.answer('a **{}** se le ha dado una advertencia por: **{}**! Ahora tiene {} {}.'
-                         .format(member.display_name, reason, num, adv))
+        msg = 'a **{}** se le ha dado una advertencia por: **{}**! Ahora tiene {} {}.'.format(
+            member.display_name, reason, num, adv)
+        await cmd.answer(msg)
+        # await ModLog.send_modlog(cmd, message=msg)
 
 
 class Warns(Command):

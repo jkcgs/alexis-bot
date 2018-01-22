@@ -53,7 +53,7 @@ class ModLog(Command):
         return [u.name for u in xd]
 
     @staticmethod
-    async def send_modlog(bot, serverid, message='', embed=None):
+    async def send_modlog(bot, serverid='', message='', embed=None):
         if isinstance(bot, MessageCmd):
             serverid = bot.message.channel.id
             bot = bot.bot
@@ -72,6 +72,7 @@ class ModLog(Command):
 
         chan = bot.get_channel(chanid)
         if chan is None:
+            log.debug('canal no encontrado (svid %s chanid %s)', serverid, chanid)
             return
 
         await bot.send_message(chan, message, embed=embed)
@@ -149,7 +150,7 @@ class ModLogChannel(Command):
         if chan == '':
             await cmd.answer('información de usuarios desactivada')
         else:
-            await cmd.answer('canal de información de usuarios actualizado a {}'.format(value))
+            await cmd.answer('canal de información de usuarios actualizado a <#{}>'.format(value))
 
 
 class UserNoteCmd(Command):
