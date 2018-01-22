@@ -5,65 +5,30 @@ from datetime import datetime
 import discord
 import peewee
 
-from alexis import Command
+from alexis import Command, Alexis, MessageCmd
 from discord import Embed
 
 from alexis.database import BaseModel
 from alexis.logger import log
 
 
-class UserCmd(Command):
+class ModLog(Command):
     rx_channel = re.compile('^<#[0-9]+>$')
     chan_config_name = 'join_send_channel'
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = 'user'
-        self.aliases = [bot.config['command_prefix'] + 'user']
-        self.help = 'Entrega información sobre un usuario'
-
-    async def handle(self, cmd):
-        if cmd.argc >= 1 and cmd.args[0] == 'channel' and not cmd.is_pm and cmd.owner:
-            chan = cmd.message.channel.mention if cmd.argc == 1 else cmd.args[1]
-            await UserCmd._setchannel_handler(cmd, chan)
-            return
-
-        if cmd.argc == 0:
-            user = cmd.author
-        else:
-            user = await cmd.get_user(cmd.args[0], member_only=True)
-            if user is None:
-                await cmd.answer('usuario no encontrado')
-                return
-
-        with_notes = cmd.cmdname == self.aliases[0] and cmd.owner
-        embed = UserCmd.gen_embed(user, with_notes)
-        await cmd.answer('acerca de **{}**'.format(user.id), embed=embed)
 
     async def on_member_join(self, member):
-        cfg = self.config_mgr(member.server.id)
-        channel = cfg.get(UserCmd.chan_config_name, '')
-        if channel == '':
-            return
-
-        channel = member.server.get_channel(channel)
-        if channel is None:
-            channel = discord.Object(id=channel)
-
-        await self.bot.send_message(channel, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
-                                    embed=UserCmd.gen_embed(member, more=True))
+        await ModLog.send_modlog(
+            self.bot, member.server.id,
+            'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
+            embed=ModLog.gen_embed(member, more=True))
 
     async def on_member_remove(self, member):
-        cfg = self.config_mgr(member.server.id)
-        channel = cfg.get(UserCmd.chan_config_name, '')
-        if channel == '':
-            return
-
-        channel = member.server.get_channel(channel)
-        if channel is None:
-            channel = discord.Object(id=channel)
-
-        await self.bot.send_message(channel, 'El usuario <@{mid}> ({mid}) dejó el servidor.'.format(mid=member.id))
+        await ModLog.send_modlog(
+            self.bot, member.server.id,
+            'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor.'.format(mid=member.id, name=str(member)))
 
     @staticmethod
     def get_note(member):
@@ -88,28 +53,36 @@ class UserCmd(Command):
         return [u.name for u in xd]
 
     @staticmethod
-    async def _setchannel_handler(cmd, value):
-        if value != 'off' and not UserCmd.rx_channel.match(value):
-            await cmd.answer('por favor ingresa un canal u "off" como valor')
+    async def send_modlog(bot, serverid, message='', embed=None):
+        if isinstance(bot, MessageCmd):
+            serverid = bot.message.channel.id
+            bot = bot.bot
+        elif not isinstance(bot, Alexis):
+            raise RuntimeError('bot must be an Alexis or MessageCmd instance')
+
+        if (message is None or message == '') and embed is None:
+            raise RuntimeError('message or embed arguments are required')
+
+        if embed is not None and not isinstance(embed, Embed):
+            raise RuntimeError('embed must be a discord.Embed instance')
+
+        chanid = bot.sv_config.get(serverid, ModLog.chan_config_name)
+        if chanid == '':
             return
 
-        if value == 'off':
-            value = ''
+        chan = bot.get_channel(chanid)
+        if chan is None:
+            return
 
-        cmd.config.set(UserCmd.chan_config_name, value[2:-1])
-
-        if value == '':
-            await cmd.answer('información de usuarios desactivada')
-        else:
-            await cmd.answer('canal de información de usuarios actualizado a {}'.format(value))
+        await bot.send_message(chan, message, embed=embed)
 
     @staticmethod
     def gen_embed(member, more=False):
         embed = Embed()
         embed.add_field(name='Nombre', value=str(member))
         embed.add_field(name='Nick', value=member.nick if member.nick is not None else 'Ninguno :c')
-        embed.add_field(name='Usuario creado el', value=UserCmd.parsedate(member.created_at))
-        embed.add_field(name='Se unió al server el', value=UserCmd.parsedate(member.joined_at))
+        embed.add_field(name='Usuario creado el', value=ModLog.parsedate(member.created_at))
+        embed.add_field(name='Se unió al server el', value=ModLog.parsedate(member.joined_at))
 
         if member.avatar_url != '':
             embed.set_thumbnail(url=member.avatar_url)
@@ -117,15 +90,66 @@ class UserCmd(Command):
             embed.set_thumbnail(url=member.default_avatar_url)
 
         if more and isinstance(member, discord.Member):
-            n = UserCmd.get_note(member)
+            n = ModLog.get_note(member)
             embed.add_field(name='Notas', value=n if n != '' else '(sin notas)')
-            embed.add_field(name='Nombres ', value=', '.join(UserCmd.get_names(member.id)))
+            embed.add_field(name='Nombres ', value=', '.join(ModLog.get_names(member.id)))
 
         return embed
 
     @staticmethod
     def parsedate(the_date):
         return the_date.strftime('%Y-%m-%d %H:%M:%S')
+
+
+class UserCommand(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'user'
+        self.aliases = [bot.config['command_prefix'] + 'user']
+        self.help = 'Entrega información sobre un usuario'
+
+    async def handle(self, cmd):
+        if cmd.cmdname == self.aliases[0] and not cmd.owner:
+            return
+
+        if cmd.argc == 0:
+            user = cmd.author
+        else:
+            user = await cmd.get_user(cmd.text, member_only=True)
+            if user is None:
+                await cmd.answer('usuario no encontrado')
+                return
+
+        with_notes = cmd.cmdname == self.aliases[0] and cmd.owner
+        embed = ModLog.gen_embed(user, with_notes)
+        await cmd.answer('acerca de **{}**'.format(user.id), embed=embed)
+
+
+class ModLogChannel(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'logchannel'
+        self.help = 'Determina el canal de registros de moderación'
+        self.owner_only = True
+        self.allow_pm = False
+
+    async def handle(self, cmd):
+        if cmd.argc != 1:
+            await cmd.answer('formato: $PX$NM <#canal>')
+            return
+
+        chan = cmd.args[0]
+        if chan != 'off' and not ModLog.rx_channel.match(chan):
+            await cmd.answer('por favor ingresa un canal u "off" como valor')
+            return
+
+        value = '' if chan == 'off' else chan[2:-1]
+        cmd.config.set(ModLog.chan_config_name, value)
+
+        if chan == '':
+            await cmd.answer('información de usuarios desactivada')
+        else:
+            await cmd.answer('canal de información de usuarios actualizado a {}'.format(value))
 
 
 class UserNoteCmd(Command):
@@ -151,7 +175,7 @@ class UserNoteCmd(Command):
             await cmd.answer('nooo, len(note) <= 1000')
             return
 
-        UserCmd.set_note(member, ' '.join(cmd.args[1:]))
+        ModLog.set_note(member, ' '.join(cmd.args[1:]))
         await cmd.answer(
             random.choice(['ok', 'ya', 'bueno', 'ta bn eso', 'xd', 'sip bn dixo', ':ok_hand:', ':thumbs_up']))
 
@@ -178,7 +202,7 @@ class UpdateUsername(Command):
 
         if before.name != after.name:
             cfg = self.config_mgr(before.server.id)
-            channel = cfg.get(UserCmd.chan_config_name, '')
+            channel = cfg.get(ModLog.chan_config_name, '')
             if channel == '':
                 return
 
