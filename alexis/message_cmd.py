@@ -36,13 +36,10 @@ class MessageCmd:
             self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
             self.prefix = self.config.get('command_prefix', bot.config['command_prefix'])
+            self.lang = self.bot.get_lang(message.server.id)
         else:
             self.prefix = bot.config['command_prefix']
-
-        self.lang = SingleLanguage(
-            self.bot.lang,
-            bot.config['default_lang'] if self.is_pm else self.config.get('lang', bot.config['default_lang'])
-        )
+            self.lang = SingleLanguage(self.bot.lang, bot.config['default_lang'])
 
         if message.content.startswith(self.prefix) or self.sw_mention:
             self.is_cmd = True

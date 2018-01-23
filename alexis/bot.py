@@ -13,7 +13,7 @@ import re
 import alexis.modules
 from alexis.configuration import StaticConfig
 from alexis.command import Command
-from alexis.language import Language
+from alexis.language import Language, SingleLanguage
 from alexis.message_cmd import MessageCmd
 from alexis.database import ServerConfigMgr
 from alexis.logger import log
@@ -156,14 +156,26 @@ class Alexis(discord.Client):
         await self._call_handlers('on_ready')
 
     async def send_message(self, destination, content=None, **kwargs):
-        svid = destination.server.id if isinstance(destination, discord.Channel) else 'PM?'
-        dest_str = destination.id if isinstance(destination, discord.Object) else str(destination)
-        msg = 'Sending message "{}" to {}#{}'.format(content, svid, dest_str)
+        # Call pre_send_message handlers, append destination
+        kwargs = {'destination': destination, 'content': content, **kwargs}
+        self._call_handlers_ref('pre_send_message', kwargs)
+
+        # Log the message
+        destination = kwargs['destination']
+        if destination.server is None:
+            dest = '{} (ID: {})'.format(str(destination), destination.id)
+        else:
+            dest = '{}#{} (IDS {}#{})'.format(destination.server, str(destination), destination.id,
+                                              destination.server.id)
+
+        msg = 'Sending message "{}" to {} '.format(kwargs['content'], dest)
         if isinstance(kwargs.get('embed'), discord.Embed):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
 
         self.log.debug(msg)
-        await super(Alexis, self).send_message(destination, content, **kwargs)
+
+        # Send the actual message
+        await super(Alexis, self).send_message(**kwargs)
 
     def load_config(self):
         try:
@@ -175,6 +187,15 @@ class Alexis(discord.Client):
         except Exception as ex:
             self.log.exception(ex)
             return False
+
+    def get_lang(self, svid=None):
+        if svid is None:
+            lang_code = self.config['default_lang']
+        else:
+            svid = svid if not isinstance(svid, discord.Server) else svid.id
+            lang_code = self.sv_config.get(svid, 'lang', self.config['default_lang'])
+
+        return SingleLanguage(self.lang, lang_code)
 
     async def _call_handlers(self, name, **kwargs):
         if not self.initialized:
@@ -205,6 +226,13 @@ class Alexis(discord.Client):
 
         for z in self._get_handlers(name):
             z(**kwargs)
+
+    def _call_handlers_ref(self, name, kwargs):
+        if not self.initialized:
+            return
+
+        for z in self._get_handlers(name):
+            z(kwargs)
 
     def _get_handlers(self, name):
         return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]

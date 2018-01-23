@@ -1,10 +1,14 @@
 import glob
+import re
 
 from os import path
-
 from ruamel import yaml
 
+from discord import Embed
+
 from alexis.logger import log
+
+pat_lang_placeholder = re.compile('\${([a-zA-Z0-9_\-]+)}')
 
 
 class Language:
@@ -77,3 +81,19 @@ class SingleLanguage:
 
     def get(self, name, **kwargs):
         return self.instance.get(name, self.lang, **kwargs)
+
+    def format(self, message):
+        if isinstance(message, str):
+            for m in pat_lang_placeholder.finditer(message):
+                message = message.replace(m.group(0), self.get(m.group(1)))
+        elif isinstance(message, Embed):
+            message.title = self.format(message.title)
+            message.description = self.format(message.description)
+            message.set_footer(text=self.format(message.footer.text), icon_url=message.footer.icon_url)
+            for idx, field in enumerate(message.fields):
+                message.set_field_at(
+                    idx, name=self.format(field.name), value=self.format(field.value), inline=field.inline)
+        else:
+            raise RuntimeError('message can only be a str or Embed instance')
+
+        return message
