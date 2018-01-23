@@ -48,13 +48,18 @@ class Weather(Command):
                     return
 
             data = await r.json()
+            if 'deg' in data['wind']:
+                wind = '{} m/s ({}º)'.format(data['wind']['speed'], data['wind']['deg'])
+            else:
+                wind = '{} m/s'.format(data['wind']['speed'])
+
             e = Embed()
             e.description = ':flag_{}: Clima de **{}**'.format(data['sys']['country'].lower(), data['name'])
             e.add_field(name='Clima', value=data['weather'][0]['description'])
             e.add_field(name='Temperatura', value='{} ºC'.format(data['main']['temp']))
             e.add_field(name='Presión atmosférica', value='{} hPa'.format(data['main']['pressure']))
             e.add_field(name='Humedad', value='{}%'.format(data['main']['humidity']))
-            e.add_field(name='Viento', value='{} m/s ({}º)'.format(data['wind']['speed'], data['wind']['deg']))
+            e.add_field(name='Viento', value=wind)
             e.add_field(name='Nubosidad', value='{}%'.format(data['clouds']['all']))
             e.set_thumbnail(url='http://openweathermap.org/img/w/{}.png'.format(data['weather'][0]['icon']))
             await cmd.answer(embed=e)
