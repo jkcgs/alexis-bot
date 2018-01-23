@@ -87,13 +87,19 @@ class SingleLanguage:
             for m in pat_lang_placeholder.finditer(message):
                 message = message.replace(m.group(0), self.get(m.group(1)))
         elif isinstance(message, Embed):
-            message.title = self.format(message.title)
-            message.description = self.format(message.description)
-            message.set_footer(text=self.format(message.footer.text), icon_url=message.footer.icon_url)
+            if message.title != Embed.Empty:
+                message.title = self.format(message.title)
+            if message.description != Embed.Empty:
+                message.description = self.format(message.description)
+            if message.footer.text != Embed.Empty:
+                message.set_footer(text=self.format(message.footer.text), icon_url=message.footer.icon_url)
+
             for idx, field in enumerate(message.fields):
                 message.set_field_at(
                     idx, name=self.format(field.name), value=self.format(field.value), inline=field.inline)
+        elif message is None:
+            return None
         else:
-            raise RuntimeError('message can only be a str or Embed instance')
+            return self.format(str(message))
 
         return message
