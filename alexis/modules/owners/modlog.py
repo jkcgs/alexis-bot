@@ -92,8 +92,12 @@ class ModLog(Command):
 
         if more and isinstance(member, discord.Member):
             n = ModLog.get_note(member)
+            names = ModLog.get_names(member.id)
+            if len(names) == 0:
+                names = [member.name]
+
             embed.add_field(name='Notas', value=n if n != '' else '(sin notas)')
-            embed.add_field(name='Nombres ', value=', '.join(ModLog.get_names(member.id)))
+            embed.add_field(name='Nombres ', value=', '.join(names))
 
         return embed
 
