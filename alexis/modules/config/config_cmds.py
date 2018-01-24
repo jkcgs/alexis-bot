@@ -121,9 +121,16 @@ class ShutdownCmd(Command):
         self.owner_only = True
 
     async def handle(self, cmd):
+        self.bot.config['shutdown_channel'] = cmd.message.channel.id
         await cmd.answer('chao loh vimo')
         await self.bot.logout()
         sys.exit(0)
+
+    async def on_ready(self):
+        if self.bot.config.get('shutdown_channel', '') != '':
+            chan = self.bot.get_channel(self.bot.config['shutdown_channel'])
+            await self.bot.send_message(chan, 'volví :3')
+            self.bot.config['shutdown_channel'] = ''
 
 
 class SetStatus(Command):
