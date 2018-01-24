@@ -129,6 +129,9 @@ class ShutdownCmd(Command):
     async def on_ready(self):
         if self.bot.config.get('shutdown_channel', '') != '':
             chan = self.bot.get_channel(self.bot.config['shutdown_channel'])
+            if chan is None:
+                return
+
             await self.bot.send_message(chan, 'volví :3')
             self.bot.config['shutdown_channel'] = ''
 
