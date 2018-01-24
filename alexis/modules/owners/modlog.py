@@ -30,6 +30,16 @@ class ModLog(Command):
             self.bot, member.server.id,
             'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor.'.format(mid=member.id, name=str(member)))
 
+    async def on_message_delete(self, message):
+        if message.channel.server is None:
+            return
+
+        await ModLog.send_modlog(
+            self.bot, message.channel.server.id,
+            'El usuario {} borró un mensaje en el canal {}'.format(message.author.mention, message.channel.mention),
+            Embed(description=message.content)
+        )
+
     @staticmethod
     def get_note(member):
         if not isinstance(member, discord.Member):
