@@ -14,9 +14,9 @@ class Respects(Command):
     async def handle(self, cmd):
         msg = '**$AU** ha pedido respetos '
         if cmd.text != '':
-            msg += 'por **{}** '.format(cmd.text)
+            msg += 'por **{}**'.format(cmd.text)
 
         for x in range(random.randint(1, 3)):
-            msg += ':' + random.choice(Respects.hearts) + ':'
+            msg += ' :' + random.choice(Respects.hearts) + ':'
 
         await cmd.answer(msg, withname=False)
