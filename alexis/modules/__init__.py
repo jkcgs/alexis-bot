@@ -56,6 +56,9 @@ def get_mods(ext_path=''):
 
         # Instanciar módulos disponibles
         for name, obj in inspect.getmembers(mod):
+            if obj in classes:
+                continue
+
             if inspect.isclass(obj) and name != 'Command' and issubclass(obj, Command):
                 classes.append(obj)
 
