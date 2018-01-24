@@ -34,10 +34,16 @@ class ModLog(Command):
         if message.channel.server is None:
             return
 
+        footer = 'Enviado: ' + ModLog.parsedate(message.timestamp)
+        if message.edited_timestamp is not None:
+            footer += ', editado: ' + ModLog.parsedate(message.edited_timestamp)
+
+        embed = Embed(description=message.content)
+        embed.set_footer(text=footer)
         await ModLog.send_modlog(
             self.bot, message.channel.server.id,
             'Se ha borrado un mensaje de {} en el canal {}'.format(message.author.mention, message.channel.mention),
-            Embed(description=message.content)
+            embed=embed
         )
 
     @staticmethod
