@@ -38,19 +38,23 @@ class ModLog(Command):
         if message.edited_timestamp is not None:
             footer += ', editado: ' + ModLog.parsedate(message.edited_timestamp)
 
-        embed = Embed(description=message.content)
+        embed = Embed(description='(sin texto)' if message.content == '' else message.content)
         embed.set_footer(text=footer)
         if len(message.attachments) > 0:
             with_img = False
             if 'width' in message.attachments[0] is not None:
                 embed.set_image(url=message.attachments[0]['url'])
+                embed.add_field(name='Nombre del archivo', value=message.attachments[0]['filename'])
                 with_img = True
 
             if with_img and len(message.attachments) > 1 or not with_img:
                 i = 1 if with_img else 0
-                t = 'Otros archvos adjuntos' if with_img else 'Archivos adjuntos'
-                x = [f['url'] for f in message.attachments[i:]]
-                embed.add_field(name=t, value='\n'.join(x))
+                x = ['[{}]({})'.format(f['filename'], f['url']) for f in message.attachments[i:]]
+                t = [
+                        ['Archivos adjuntos', 'Otros archivos adjuntos'],
+                        ['Archivo adjunto', 'Otro archivo adjunto']
+                    ][int(len(x) == 1)][i]
+                embed.add_field(name=t, value=', '.join(x))
 
         await ModLog.send_modlog(
             self.bot, message.channel.server.id,
