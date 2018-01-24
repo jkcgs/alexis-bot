@@ -42,14 +42,15 @@ class ModLog(Command):
         embed.set_footer(text=footer)
         if len(message.attachments) > 0:
             with_img = False
-            if message.attachments[0].width is not None:
-                embed.set_image(url=message.attachments[0].url)
+            if 'width' in message.attachments[0] is not None:
+                embed.set_image(url=message.attachments[0]['url'])
                 with_img = True
 
             if with_img and len(message.attachments) > 1 or not with_img:
                 i = 1 if with_img else 0
-                x = [f.url for f in message.attachments[i:]]
-                embed.add_field(name='Archivos adjuntos', value='\n'.join(x))
+                t = 'Otros archvos adjuntos' if with_img else 'Archivos adjuntos'
+                x = [f['url'] for f in message.attachments[i:]]
+                embed.add_field(name=t, value='\n'.join(x))
 
         await ModLog.send_modlog(
             self.bot, message.channel.server.id,
