@@ -162,7 +162,7 @@ class Alexis(discord.Client):
 
         # Log the message
         destination = kwargs['destination']
-        if destination.server is None:
+        if getattr(destination, 'server', None) is None:
             dest = '{} (ID: {})'.format(str(destination), destination.id)
         else:
             dest = '{}#{} (IDS {}#{})'.format(destination.server, str(destination), destination.id,

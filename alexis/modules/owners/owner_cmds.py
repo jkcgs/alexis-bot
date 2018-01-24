@@ -1,7 +1,6 @@
 import re
 
 import discord
-from discord import PrivateChannel, Server
 
 from alexis import Command
 from alexis import Alexis
@@ -234,15 +233,3 @@ class SetLanguage(Command):
 
         cmd.config.set('lang', cmd.text)
         await cmd.answer(self.bot.lang.get('lang-set-to', cmd.text, lang=cmd.text))
-
-    def pre_send_message(self, kwargs):
-        if isinstance(kwargs.get('destination').server, Server):
-            svid = kwargs.get('destination').server.id
-        else:
-            svid = None
-
-        lang = self.bot.get_lang(svid)
-        if kwargs.get('content', '') != '':
-            kwargs['content'] = lang.format(kwargs['content'])
-        if kwargs.get('embed', None) is not None:
-            kwargs['embed'] = lang.format(kwargs['embed'])
