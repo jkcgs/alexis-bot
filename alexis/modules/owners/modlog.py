@@ -36,7 +36,7 @@ class ModLog(Command):
 
         await ModLog.send_modlog(
             self.bot, message.channel.server.id,
-            'El usuario {} borró un mensaje en el canal {}'.format(message.author.mention, message.channel.mention),
+            'Se ha borrado un mensaje de {} en el canal {}'.format(message.author.mention, message.channel.mention),
             Embed(description=message.content)
         )
 
