@@ -43,8 +43,9 @@ class ModLog(Command):
         if len(message.attachments) > 0:
             with_img = False
             if 'width' in message.attachments[0] is not None:
+                fn_value = '[{}]({})'.format(message.attachments[0]['filename'], message.attachments[0]['url'])
                 embed.set_image(url=message.attachments[0]['url'])
-                embed.add_field(name='Nombre del archivo', value=message.attachments[0]['filename'])
+                embed.add_field(name='Nombre del archivo', value=fn_value)
                 with_img = True
 
             if with_img and len(message.attachments) > 1 or not with_img:
