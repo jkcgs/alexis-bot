@@ -27,10 +27,18 @@ class Mute(Command):
         self.allow_pm = False
 
     async def handle(self, cmd):
-        # TODO: Mostrar tiempo de mute propio cuando se usa sin argumentos
-        # TODO: Mostrar tiempo de mute de un usuario cuando se pasa sólo el usuario como argumento
-        if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <id, mención> [duración] [razón]')
+        if cmd.argc < 1:
+            delta = Mute.current_delta(cmd.author.id, cmd.message.server.id)
+            if delta is None:
+                await cmd.answer('no estás actualmente muteado')
+            else:
+                await cmd.answer('te queda(n) {} de mute'.format(delta))
+            return
+
+        if cmd.args[0] == 'list':
+            curr = self.current_server_deltas(cmd.message.server.id)
+            x = ['- {} ({})'.format(getattr(user, 'display_name', str(user)), delta) for user, delta in curr]
+            await cmd.answer('actualmente hay {} usuarios muteados:\n{}'.format(len(curr), '\n'.join(x)))
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
@@ -44,10 +52,6 @@ class Mute(Command):
 
         if member.id == self.bot.user.id:
             await cmd.answer('como me vas a mutear a mi! owo')
-            return
-
-        if member.bot:
-            await cmd.answer('no mutees a un coleguita xfa')
             return
 
         if member.id == cmd.author.id:
@@ -127,8 +131,8 @@ class Mute(Command):
             return
 
         try:
-            muted = MutedUser.get((MutedUser.until > dt.now()) | MutedUser.until.is_null(),
-                                  MutedUser.userid == member.id)
+            MutedUser.get((MutedUser.until > dt.now()) | MutedUser.until.is_null(),
+                          MutedUser.userid == member.id)
             self.bot.add_roles(member, role)
             self.log.info('Rol de muteado agregado a %s server %s', member.display_name, server)
             return
@@ -170,6 +174,20 @@ class Mute(Command):
         if not self.bot.is_closed:
             self.bot.loop.create_task(self.task())
 
+    def current_deltas_for(self, userid):
+        muted = MutedUser.select().where(MutedUser.userid == userid, MutedUser.until > dt.now())
+        return [(self.bot.get_server(f.serverid) or f.serverid, Mute.deltatime_to_str(f.until - dt.now()))
+                for f in muted]
+
+    def current_server_deltas(self, serverid):
+        muted = MutedUser.select().where(MutedUser.serverid == serverid, MutedUser.until > dt.now())
+        server = self.bot.get_server(serverid)
+        if server is None:
+            return []
+
+        return [(server.get_member(f.userid) or f.userid, Mute.deltatime_to_str(f.until - dt.now()))
+                for f in muted]
+
     @staticmethod
     def timediff_parse(timediff):
         timediff = timediff.lower()
@@ -182,7 +200,7 @@ class Mute(Command):
 
         for t in times:
             if t[-1] not in 'smhd':
-                t += 's'
+                t += 'm'
 
             ds[t[-1]] += int(t[:-1])
 
@@ -204,6 +222,18 @@ class Mute(Command):
             result.append(str(s) + ' segundo{}'.format('' if s == 1 else 's'))
 
         return ', '.join(result)
+
+    @staticmethod
+    def current_delta(userid, serverid):
+        try:
+            muted = MutedUser.get(MutedUser.userid == userid, MutedUser.serverid == serverid)
+
+            if dt.now() > muted.until:
+                return None
+            else:
+                return Mute.deltatime_to_str(muted.until - dt.now())
+        except MutedUser.DoesNotExist:
+            return None
 
 
 class Unmute(Command):
