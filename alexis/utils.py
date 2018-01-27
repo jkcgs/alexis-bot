@@ -100,3 +100,20 @@ def unserialize_avail(avails):
 
 def serialize_avail(avails):
     return {c[1:]: c[0] for c in avails.split('|') if c != ''}
+
+
+def deltatime_to_str(deltatime):
+    result = []
+    if deltatime.days > 0:
+        result.append(str(deltatime.days) + ' día{}'.format('' if deltatime.days == 1 else 's'))
+    m, s = divmod(deltatime.seconds, 60)
+    h, m = divmod(m, 60)
+
+    if h > 0:
+        result.append(str(h) + ' hora{}'.format('' if h == 1 else 's'))
+    if m > 0:
+        result.append(str(m) + ' minuto{}'.format('' if m == 1 else 's'))
+    if s > 0:
+        result.append(str(s) + ' segundo{}'.format('' if s == 1 else 's'))
+
+    return ', '.join(result)

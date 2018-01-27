@@ -7,15 +7,18 @@ import aiohttp
 from alexis import Command
 from alexis.utils import is_float
 
-chaucha_api = 'https://api.orionx.io/graphql'
+chaucha_api = 'https://api2.orionx.io/graphql'
 chaucha_json = [{
-    "operationName": "marketCurrentStats",
-    "query": "query marketCurrentStats($marketCode: ID!) { market(code: $marketCode) { lastTrade { price } } }",
+    "operationName": "getMarketIdleData",
+    "query": "query getMarketIdleData($code: ID) { market(code: $code) { code lastTrade { price } } }",
     "variables": {
-        "marketCode": "CHACLP"
+        "code": "CHACLP"
     }
 }]
-headers = {'content-type': 'application/json'}
+headers = {
+    'content-type': 'application/json',
+    'fingerprint': '34119444335432e80868790a11c15a36'
+}
 
 
 class Chaucha(Command):

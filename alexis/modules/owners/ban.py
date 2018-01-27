@@ -13,13 +13,13 @@ class Ban(Command):
         self.owner_only = True
 
     async def handle(self, cmd):
-        if len(cmd.args) < 1:
+        if cmd.argc < 1:
             await cmd.answer('Formato: $PX$NM <id, mención> [días-eliminar-mensajes (0-7)] [razón]')
             return
 
+        await cmd.typing()
         member = await cmd.get_user(cmd.args[0], member_only=True)
         server = cmd.message.server
-        await cmd.typing()
 
         if member is None:
             await cmd.answer('no se encontró al usuario')
