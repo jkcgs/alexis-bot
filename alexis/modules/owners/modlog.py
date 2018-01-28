@@ -10,6 +10,7 @@ from discord import Embed
 
 from alexis.database import BaseModel
 from alexis.logger import log
+from alexis.utils import deltatime_to_str
 
 
 class ModLog(Command):
@@ -26,9 +27,11 @@ class ModLog(Command):
             embed=ModLog.gen_embed(member, more=True))
 
     async def on_member_remove(self, member):
+        dt = deltatime_to_str(datetime.now() - member.joined_at)
         await ModLog.send_modlog(
             self.bot, member.server.id,
-            'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor.'.format(mid=member.id, name=str(member)))
+            'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor. Estuvo por {dt}.'.format(
+                mid=member.id, name=str(member), dt=dt))
 
     async def on_message_delete(self, message):
         if message.channel.server is None:
