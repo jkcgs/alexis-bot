@@ -23,7 +23,7 @@ from alexis.database import db
 class Alexis(discord.Client):
     __author__ = 'Nicolás "ibk" Santisteban, Jonathan "makzk" Gutiérrez'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.25'
+    __version__ = '1.0.0-dev.26'
 
     default_config = {
         'token': '',
@@ -175,7 +175,7 @@ class Alexis(discord.Client):
         self.log.debug(msg)
 
         # Send the actual message
-        await super(Alexis, self).send_message(**kwargs)
+        return await super(Alexis, self).send_message(**kwargs)
 
     def load_config(self):
         try:

@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 from alexis import Command
 
@@ -11,4 +12,11 @@ class Ping(Command):
         self.user_delay = 5
 
     async def handle(self, cmd):
-        await cmd.answer(['wena xoro', 'pong!'][int(random.random() >= .5)])
+        now = datetime.now()
+        msg = await cmd.answer(['wena xoro', 'pong!'][int(random.random() >= .5)])
+        if msg is None:
+            self.log.debug('msg is None')
+            return
+
+        delay = (datetime.now() - now).microseconds / 1000
+        await self.bot.edit_message(msg, new_content=msg.content + ' | `delay: {:.0f} ms`'.format(delay))

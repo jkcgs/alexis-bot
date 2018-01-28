@@ -3,6 +3,7 @@ import re
 
 from discord import Embed
 
+from alexis.logger import log
 from alexis.database import ServerConfigMgrSingle
 from alexis.language import SingleLanguage
 from alexis.utils import serialize_avail, pat_emoji, is_owner
@@ -73,9 +74,9 @@ class MessageCmd:
             content = self.author_name + content
 
         if to_author:
-            await self.bot.send_message(self.message.author, content, **kwargs)
+            return await self.bot.send_message(self.message.author, content, **kwargs)
         else:
-            await self.bot.send_message(self.message.channel, content, **kwargs)
+            return await self.bot.send_message(self.message.channel, content, **kwargs)
 
     async def answer_embed(self, msg, delete_trigger=False, withname=True):
         if delete_trigger:
