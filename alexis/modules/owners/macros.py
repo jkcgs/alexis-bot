@@ -31,10 +31,15 @@ class MacroSet(Command):
         super().__init__(bot)
         self.name = 'set'
         self.help = 'Define un embed macro'
-        self.owner_only = True
         self.db_models = [EmbedMacro]
 
     async def handle(self, cmd):
+        if not cmd.is_pm and not cmd.owner:
+            return
+
+        if cmd.is_pm and not cmd.bot_owner:
+            return
+
         argc_req = 1 if len(cmd.message.attachments) > 0 else 2
         if len(cmd.args) < argc_req:
             await cmd.answer('formato: $PX$NM <nombre> <valor> (para macros sólo texto),\n'
@@ -109,9 +114,14 @@ class MacroUnset(Command):
         super().__init__(bot)
         self.name = 'unset'
         self.help = 'Elimina un macro'
-        self.owner_only = True
 
     async def handle(self, cmd):
+        if not cmd.is_pm and not cmd.owner:
+            return
+
+        if cmd.is_pm and not cmd.bot_owner:
+            return
+
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <nombre>')
             return
@@ -133,9 +143,14 @@ class MacroRename(Command):
         super().__init__(bot)
         self.name = 'rename'
         self.help = 'Renombra un macro'
-        self.owner_only = True
 
     async def handle(self, cmd):
+        if not cmd.is_pm and not cmd.owner:
+            return
+
+        if cmd.is_pm and not cmd.bot_owner:
+            return
+
         if cmd.argc != 2:
             await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
             return
@@ -161,9 +176,14 @@ class MacroSetColour(Command):
         self.name = 'setcolour'
         self.aliases = ['setcolor']
         self.help = 'Actualiza el color de un macro embed'
-        self.owner_only = True
 
     async def handle(self, cmd):
+        if not cmd.is_pm and not cmd.owner:
+            return
+
+        if cmd.is_pm and not cmd.bot_owner:
+            return
+
         if len(cmd.args) < 1:
             await cmd.answer('formato: $PX$NM <nombre> <color=default>')
             return
@@ -193,13 +213,17 @@ class MacroList(Command):
         self.name = 'list'
         self.help = 'Muestra una lista de los nombres de los macros guardados'
         self.rx_mention = re.compile('^<@!?[0-9]+>$')
-        self.allow_pm = False
 
     async def handle(self, cmd):
         await cmd.typing()
         namelist = []
 
-        items = EmbedMacro.select().where(EmbedMacro.server == cmd.message.server.id)
+        if cmd.is_pm:
+            items = EmbedMacro.select().where(EmbedMacro.server == 'global')
+        else:
+            items = EmbedMacro.select().where(
+                EmbedMacro.server == cmd.message.server.id or EmbedMacro.server == 'global')
+
         for item in items:
             if re.match(self.rx_mention, item.name):
                 name = item.name.replace('!', '')
