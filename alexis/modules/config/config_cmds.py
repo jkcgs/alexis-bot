@@ -118,7 +118,7 @@ class ShutdownCmd(Command):
         super().__init__(bot)
         self.name = 'shutdown'
         self.help = 'Detiene el proceso del bot'
-        self.owner_only = True
+        self.cmd_owner_only = True
 
     async def handle(self, cmd):
         self.bot.config['shutdown_channel'] = cmd.message.channel.id
