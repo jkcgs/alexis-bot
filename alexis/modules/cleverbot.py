@@ -38,7 +38,7 @@ class CleverbotHandler(Command):
         else:
             await cmd.typing()
             try:
-                self.log.debug('Cleverbot <- "%s" (%s, %s)', msg, str(cmd.author), str(message.channel))
+                self.log.debug('Cleverbot <- "%s" (%s, %s)', msg, str(cmd.author), str(cmd.message.channel))
                 reply = self.cbot.say(msg)
                 if reply is None:
                     self.log.warn('No se pudo conectar con Cleverbot. La API key podría ser incorrecta.')

@@ -66,5 +66,5 @@ class ShipperUwU(Command):
         u1name = user1.display_name
         u2name = user2.display_name
         ship_name = u1name[0:int(len(u1name) / 2)] + u2name[int(len(u2name) / 2):]
-        await self.bot.send_file(message.channel, temp, filename='ship.png',
+        await self.bot.send_file(cmd.message.channel, temp, filename='ship.png',
                                  content='Formando la pareja: **{}**'.format(ship_name))
