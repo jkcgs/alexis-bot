@@ -177,7 +177,7 @@ class MessageCmd:
 
         return await self.bot.get_user_info(user)
 
-    async def find_channel(self, channel):
+    def find_channel(self, channel):
         """
         Encuentra un canal según su nombre, #nombre, mención o ID, para un mensaje desde una guild.
         :param channel: El nombre, #nombre, mención o ID del canal a buscar

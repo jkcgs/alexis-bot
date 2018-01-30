@@ -50,7 +50,7 @@ class Welcome(Command):
                                  '$server: nombre del servidor'.format(max_msgs, Welcome.separator))
                 return
 
-            chan = cmd.get_channel(cmd.args[1])
+            chan = cmd.find_channel(cmd.args[1])
             if chan is None:
                 await cmd.answer('canal no encontrado')
                 return
@@ -132,7 +132,7 @@ class Welcome(Command):
                 await cmd.answer('mensajes guardados')
 
         elif cmd.args[0] == 'channel':
-            chan = cmd.get_channel(cmd.args[1])
+            chan = cmd.find_channel(cmd.args[1])
             if chan is None:
                 await cmd.answer('canal no encontrado')
                 return
