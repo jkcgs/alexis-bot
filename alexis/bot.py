@@ -21,9 +21,9 @@ from alexis.database import db
 
 
 class Alexis(discord.Client):
-    __author__ = 'Nicolás "ibk" Santisteban, Jonathan "makzk" Gutiérrez'
+    __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.26'
+    __version__ = '1.0.0-dev.27~f1'
 
     default_config = {
         'token': '',
@@ -36,7 +36,7 @@ class Alexis(discord.Client):
         'ext_modpath': '',
         'subreddit': [],
         'default_channel': '',
-        'default_lang': 'es_CL'
+        'default_lang': 'es'
     }
 
     def __init__(self, **options):

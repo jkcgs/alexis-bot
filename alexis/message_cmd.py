@@ -3,10 +3,9 @@ import re
 
 from discord import Embed
 
-from alexis.logger import log
 from alexis.database import ServerConfigMgrSingle
 from alexis.language import SingleLanguage
-from alexis.utils import serialize_avail, pat_emoji, is_owner
+from alexis.utils import serialize_avail, pat_emoji, is_owner, pat_channel
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')
 pat_snowflake = re.compile('^\d{10,19}$')
@@ -114,21 +113,6 @@ class MessageCmd:
 
         return None
 
-    def find_channel(self, name_or_id):
-        """
-        Encuentra un canal según su nombre o ID, para un mensaje desde una guild.
-        :param name_or_id: El nombre o ID del canal a buscar
-        :return: El discord.Channel. Si no se encontró, se devuelve None.
-        """
-        if self.is_pm:
-            return None
-
-        for channel in self.message.server.channels:
-            if channel.id == name_or_id or channel.name == name_or_id:
-                return channel
-
-        return None
-
     def is_owner(self, user):
         return is_owner(self.bot, user, self.message.server)
 
@@ -161,11 +145,20 @@ class MessageCmd:
         return txt
 
     async def get_user(self, user, member_only=False):
+        """
+        Obtiene un usuario según su nombre, una mención, su ID o su nombre con discriminador de Discord.
+        :param user:
+        :param member_only:
+        :return:
+        """
         if self.is_pm:
             raise RuntimeError('Esta función no funciona desde PMs')
 
         if isinstance(user, discord.Member) or isinstance(user, discord.User):
             return user
+
+        if user.startswith("@"):
+            user = user[1:]
 
         u = self.message.server.get_member_named(user)
         if u is not None:
@@ -183,6 +176,30 @@ class MessageCmd:
             return None
 
         return await self.bot.get_user_info(user)
+
+    async def find_channel(self, channel):
+        """
+        Encuentra un canal según su nombre, #nombre, mención o ID, para un mensaje desde una guild.
+        :param channel: El nombre, #nombre, mención o ID del canal a buscar
+        :return: El discord.Channel. Si no se encontró, se devuelve None.
+        """
+        if self.is_pm:
+            return None
+
+        sv = self.message.server
+        if pat_snowflake.match(channel):
+            return sv.get_channel(channel)
+        elif pat_channel.match(channel):
+            return sv.get_channel(channel[2:-1])
+        else:
+            if channel.startswith('#'):
+                channel = channel[1:]
+
+            for chan in sv.channels:
+                if chan.name == channel:
+                    return chan
+
+        return None
 
     def l(self, name, **kwargs):
         return self.lang.get(name, **kwargs)

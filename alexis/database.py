@@ -133,6 +133,23 @@ class ServerConfigMgr:
 
         return values
 
+    def remove_index(self, svid, name, idx, separator):
+        """
+        Elimina un valor de una lista en la configuración
+        :param svid: El ID del servidor
+        :param name: El nombre de la configuración
+        :param idx: El índice (partiendo desde cero) del valor de la lista
+        :param separator: El separador que genera la lista desde el valor de la configuración
+        :return: La lista con el valor eliminado
+        """
+        values = self.get_list(svid, name, separator)
+        if abs(values) >= len(values):
+            return values
+
+        del values[idx]
+        self.set_list(svid, name, values, separator)
+        return values
+
     def _local_save(self, svid, name, value):
         """
         Guarda una configuración en memoria solamente
@@ -215,3 +232,13 @@ class ServerConfigMgrSingle:
         :return: La lista final con el valor eliminado
         """
         return self.mgr.remove(self.svid, name, value, separator)
+
+    def remove_index(self, name, idx, separator=','):
+        """
+        Elimina un elemento de una lista en la configuración
+        :param name: El nombre de la configuración
+        :param idx: El índice del valor a eliminar de la lista
+        :param separator: El separador que genera la lista del valor de la configuración
+        :return: La lista final con el valor eliminado
+        """
+        return self.mgr.remove(self.svid, name, idx, separator)

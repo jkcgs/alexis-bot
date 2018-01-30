@@ -75,7 +75,7 @@ class Mute(Command):
             deltatime = Mute.timediff_parse(cmd.args[1])
             until = dt.now() + deltatime
 
-        str_deltatime = '' if deltatime is None else ' por ' + Mute.deltatime_to_str(deltatime)
+        str_deltatime = '' if deltatime is None else ' por ' + utils.deltatime_to_str(deltatime)
         if deltatime is not None and str_deltatime == '':
             await cmd.answer('si quieres desmutear a alguien, utiliza !unmute <user>')
             return
@@ -176,7 +176,7 @@ class Mute(Command):
 
     def current_deltas_for(self, userid):
         muted = MutedUser.select().where(MutedUser.userid == userid, MutedUser.until > dt.now())
-        return [(self.bot.get_server(f.serverid) or f.serverid, Mute.deltatime_to_str(f.until - dt.now()))
+        return [(self.bot.get_server(f.serverid) or f.serverid, utils.deltatime_to_str(f.until - dt.now()))
                 for f in muted]
 
     def current_server_deltas(self, serverid):
@@ -185,7 +185,7 @@ class Mute(Command):
         if server is None:
             return []
 
-        return [(server.get_member(f.userid) or f.userid, Mute.deltatime_to_str(f.until - dt.now()))
+        return [(server.get_member(f.userid) or f.userid, utils.deltatime_to_str(f.until - dt.now()))
                 for f in muted]
 
     @staticmethod
@@ -207,23 +207,6 @@ class Mute(Command):
         return datetime.timedelta(seconds=ds['s'], minutes=ds['m'], hours=ds['h'], days=ds['d'])
 
     @staticmethod
-    def deltatime_to_str(deltatime):
-        result = []
-        if deltatime.days > 0:
-            result.append(str(deltatime.days) + ' día{}'.format('' if deltatime.days == 1 else 's'))
-        m, s = divmod(deltatime.seconds, 60)
-        h, m = divmod(m, 60)
-
-        if h > 0:
-            result.append(str(h) + ' hora{}'.format('' if h == 1 else 's'))
-        if m > 0:
-            result.append(str(m) + ' minuto{}'.format('' if m == 1 else 's'))
-        if s > 0:
-            result.append(str(s) + ' segundo{}'.format('' if s == 1 else 's'))
-
-        return ', '.join(result)
-
-    @staticmethod
     def current_delta(userid, serverid):
         try:
             muted = MutedUser.get(MutedUser.userid == userid, MutedUser.serverid == serverid)
@@ -231,7 +214,7 @@ class Mute(Command):
             if dt.now() > muted.until:
                 return None
             else:
-                return Mute.deltatime_to_str(muted.until - dt.now())
+                return utils.deltatime_to_str(muted.until - dt.now())
         except MutedUser.DoesNotExist:
             return None
 
@@ -262,12 +245,18 @@ class Unmute(Command):
             return
 
         try:
+            await self.bot.remove_roles(member, mutedrole)
+        except discord.errors.Forbidden:
+            await cmd.answer('no pude quitar el rol! Revisa los permisos del bot (¿está el rol de usuarios muteados por'
+                             ' sobre el del bot?')
+            return
+
+        try:
             muteduser = MutedUser.get(MutedUser.userid == member.id)
             muteduser.delete()
         except MutedUser.DoesNotExist:
             pass
 
-        await self.bot.remove_roles(member, mutedrole)
         await cmd.answer('usuario desmuteado!')
 
 
