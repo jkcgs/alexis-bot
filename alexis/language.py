@@ -82,24 +82,26 @@ class SingleLanguage:
     def get(self, name, **kwargs):
         return self.instance.get(name, self.lang, **kwargs)
 
-    def format(self, message):
+    def format(self, message, locales=None):
         if isinstance(message, str):
+            locales = locales or {}
             for m in pat_lang_placeholder.finditer(message):
-                message = message.replace(m.group(0), self.get(m.group(1)))
+                message = message.replace(m.group(0), self.get(m.group(1)), locales)
         elif isinstance(message, Embed):
             if message.title != Embed.Empty:
-                message.title = self.format(message.title)
+                message.title = self.format(message.title, locales)
             if message.description != Embed.Empty:
-                message.description = self.format(message.description)
+                message.description = self.format(message.description, locales)
             if message.footer.text != Embed.Empty:
-                message.set_footer(text=self.format(message.footer.text), icon_url=message.footer.icon_url)
+                message.set_footer(text=self.format(message.footer.text, locales), icon_url=message.footer.icon_url)
 
             for idx, field in enumerate(message.fields):
                 message.set_field_at(
-                    idx, name=self.format(field.name), value=self.format(field.value), inline=field.inline)
+                    idx, name=self.format(
+                        field.name, locales), value=self.format(field.value, locales), inline=field.inline)
         elif message is None:
             return None
         else:
-            return self.format(str(message))
+            return self.format(str(message), locales)
 
         return message

@@ -23,7 +23,7 @@ from alexis.database import db
 class Alexis(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.27~f2'
+    __version__ = '1.0.0-dev.28~f3'
 
     default_config = {
         'token': '',
@@ -141,12 +141,16 @@ class Alexis(discord.Client):
         return instance
 
     def db_connect(self):
+        """
+        Ejecuta la conexión a la base de datos
+        """
         self.log.info('Conectando a base de datos...')
         self.db = db
         self.log.info('Conectado correctamente a la base de datos.')
 
-    """Esto se ejecuta cuando el bot está conectado y listo"""
     async def on_ready(self):
+        """Esto se ejecuta cuando el bot está conectado y listo"""
+
         self.log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
         self.log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
@@ -156,6 +160,15 @@ class Alexis(discord.Client):
         await self._call_handlers('on_ready')
 
     async def send_message(self, destination, content=None, **kwargs):
+        """
+        Sobrecarga la llamada original de discord.Client para enviar mensajes para accionar otras llamadas
+        como handlers de modificación de mensajes y registros del bot. Soporta los mismos parámetros del
+        método original.
+        :param destination: Dónde enviar un mensaje, como discord.Channel, discord.User, discord.Object, entre otros.
+        :param content: El contenido textual a enviar
+        :param kwargs: El resto de parámetros del método original.
+        :return:
+        """
         # Call pre_send_message handlers, append destination
         kwargs = {'destination': destination, 'content': content, **kwargs}
         self._call_handlers_ref('pre_send_message', kwargs)
@@ -178,6 +191,10 @@ class Alexis(discord.Client):
         return await super(Alexis, self).send_message(**kwargs)
 
     def load_config(self):
+        """
+        Carga la configuración estática y de idioma
+        :return: Un valor booleano dependiente del éxito de la carga de los datos.
+        """
         try:
             self.log.info('Cargando configuración...')
             self.config.load(Alexis.default_config)
@@ -189,6 +206,12 @@ class Alexis(discord.Client):
             return False
 
     def get_lang(self, svid=None):
+        """
+        Genera una instancia de SingleLanguage para un servidor en específico o con el idioma predeterminado.
+        :param svid: El ID del servidor para obtener el idioma. Si es None, se devuelve una instancia con el idioma
+        predeterminado.
+        :return: La instancia de SingleLanguage con el idioma obtenido.
+        """
         if svid is None:
             lang_code = self.config['default_lang']
         else:

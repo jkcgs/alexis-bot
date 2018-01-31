@@ -129,7 +129,8 @@ class Welcome(Command):
                         return
 
                 cmd.config.set_list(Welcome.cfg_messages, msgs, Welcome.separator)
-                await cmd.answer('mensajes guardados')
+                msg = ['mensajes guardados', 'mensaje guardado'][int(len(msgs) == 1)]
+                await cmd.answer(msg)
 
         elif cmd.args[0] == 'channel':
             chan = cmd.find_channel(cmd.args[1])
