@@ -86,7 +86,7 @@ class SingleLanguage:
         if isinstance(message, str):
             locales = locales or {}
             for m in pat_lang_placeholder.finditer(message):
-                message = message.replace(m.group(0), self.get(m.group(1)), locales)
+                message = message.replace(m.group(0), self.get(m.group(1), **locales))
         elif isinstance(message, Embed):
             if message.title != Embed.Empty:
                 message.title = self.format(message.title, locales)
