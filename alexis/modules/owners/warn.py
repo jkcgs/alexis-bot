@@ -91,7 +91,7 @@ class ClearWarns(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'clearwarns'
-        self.aliases = ['clearwarnings']
+        self.aliases = ['clearwarnings', 'unwarn']
         self.help = 'Elimina las advertencias del usuario'
         self.allow_pm = False
         self.owner_only = True
@@ -112,7 +112,7 @@ class ClearWarns(Command):
             await cmd.answer('el usuario no tiene advertencias')
             return
 
-        UserWarn.delete().where(UserWarn.serverid == message.server.id, UserWarn.userid == member.id).execute()
+        UserWarn.delete().where(UserWarn.serverid == cmd.message.server.id, UserWarn.userid == member.id).execute()
         await cmd.answer('advertencias eliminadas para **{}**'.format(member.display_name))
 
 
