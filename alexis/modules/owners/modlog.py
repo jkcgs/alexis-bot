@@ -187,7 +187,7 @@ class ModLogChannel(Command):
         value = '' if chan == 'off' else chan[2:-1]
         cmd.config.set(ModLog.chan_config_name, value)
 
-        if chan == '':
+        if value == '':
             await cmd.answer('información de usuarios desactivada')
         else:
             await cmd.answer('canal de información de usuarios actualizado a <#{}>'.format(value))

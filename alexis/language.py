@@ -8,7 +8,7 @@ from discord import Embed
 
 from alexis.logger import log
 
-pat_lang_placeholder = re.compile('\${([a-zA-Z0-9_\-]+)}')
+pat_lang_placeholder = re.compile('\$\[([a-zA-Z0-9_\-]+)\]')
 
 
 class Language:

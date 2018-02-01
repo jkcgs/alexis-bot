@@ -23,7 +23,7 @@ from alexis.database import db
 class Alexis(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.28~f3'
+    __version__ = '1.0.0-dev.29~f3'
 
     default_config = {
         'token': '',

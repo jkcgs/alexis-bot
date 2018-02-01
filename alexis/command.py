@@ -14,11 +14,11 @@ class Command:
         self.swhandler = None
         self.swhandler_break = False
         self.mention_handler = False
-        self.help = '<el que hizo la weaita no le puso texto de ayuda jij>'
+        self.help = '$[missing-help]'
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
         self.nsfw_only = False  # TODO
-        self.pm_error = 'este comando no se puede usar via PM'
+        self.pm_error = '$[disallowed-via-pm]'
         self.bot_owner_only = False
         self.owner_only = False
         self.owner_error = 'no puedes usar este comando'
