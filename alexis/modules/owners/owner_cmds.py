@@ -51,6 +51,7 @@ class ClearReactions(Command):
             return
 
         success_count = 0
+        not_found = []
         for arg in cmd.args:
             try:
                 msg = await self.bot.get_message(channel, arg)
@@ -58,12 +59,32 @@ class ClearReactions(Command):
                 success_count += 1
             except discord.Forbidden:
                 pass
+            except discord.NotFound:
+                not_found.append(arg)
+                pass
 
         if success_count == 0:
             msg_suffix = 'del mensaje' if cmd.argc == 1 else 'de ningún mensaje'
-            await cmd.answer('no se pudo limpiar las reacciones ' + msg_suffix)
+            msg = 'no se pudo limpiar las reacciones ' + msg_suffix
+            if len(not_found) > 0:
+                if cmd.argc == 1:
+                    msg += ': el mensaje no pudo ser encontrado'
+                elif len(not_found) > 1:
+                    msg += ': algunos mensajes no pudieron ser encontrados '
+                    msg += '({})'.format(', '.join(not_found))
+                else:
+                    msg += ': el mensaje {} no pudo ser encontrado'.format(not_found[0])
+            await cmd.answer()
         elif success_count < cmd.argc:
-            await cmd.answer('se eliminaron las reacciones de algunos mensajes')
+            msg = 'se eliminaron las reacciones de algunos mensajes'
+
+            if len(not_found) > 1:
+                msg += ': no se encontraron algunos mensajes '
+                msg += '({})'.format(', '.join(not_found))
+            else:
+                msg += ': el mensaje {} no pudo ser encontrado'.format(not_found[0])
+
+            await cmd.answer(msg)
         else:
             await cmd.answer('reacciones eliminadas correctamente')
 
