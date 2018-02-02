@@ -23,7 +23,7 @@ from alexis.database import db
 class Alexis(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.30~f5'
+    __version__ = '1.0.0-dev.31~f6'
 
     default_config = {
         'token': '',
@@ -61,6 +61,7 @@ class Alexis(discord.Client):
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
+        self.deleted_messages = []
 
     def init(self):
         """
@@ -189,6 +190,16 @@ class Alexis(discord.Client):
 
         # Send the actual message
         return await super(Alexis, self).send_message(**kwargs)
+
+    async def delete_message(self, message):
+        """
+        Elimina un mensaje, y además registra los IDs de los últimos 10 mensajes guardados
+        :param message: El mensaje a eliminar
+        """
+        await super().delete_message(message)
+        self.deleted_messages.append(message.id)
+        if len(self.deleted_messages) > 10:
+            del self.deleted_messages[0]
 
     def load_config(self):
         """

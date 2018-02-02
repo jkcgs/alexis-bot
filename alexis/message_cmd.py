@@ -3,6 +3,7 @@ import re
 
 from discord import Embed
 
+from alexis.logger import log
 from alexis.database import ServerConfigMgrSingle
 from alexis.language import SingleLanguage
 from alexis.utils import serialize_avail, pat_emoji, is_owner, pat_channel

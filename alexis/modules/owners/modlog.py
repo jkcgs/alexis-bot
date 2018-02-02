@@ -62,22 +62,24 @@ class ModLog(Command):
                 embed.add_field(name=t, value=', '.join(x))
 
         msg = '**{}** ha borrado su mensaje en el canal {}'
-        try:
-            last = await self.get_last_alog(message.server.id)
-            if last['action_type'] == 72 and last['options']['channel_id'] == message.channel.id and \
-                    last['target_id'] == message.author.id:
-                who = last['user_id']
-                if who == self.bot.user.id:
-                    msg = 'He borrado un mensaje de **{}** en el canal {}'
-                else:
-                    u = message.server.get_member(who)
-                    u = '<@' + who + '>' if u is None else u.display_name
+        if message.id in self.bot.deleted_messages:
+            msg = 'He borrado un mensaje de **{}** en el canal {}'
+        else:
+            try:
+                last = await self.get_last_alog(message.server.id)
+                if last['action_type'] == 72 and last['options']['channel_id'] == message.channel.id and \
+                        last['target_id'] == message.author.id:
+                    who = last['user_id']
+                    if who == self.bot.user.id:
+                        msg = 'He borrado un mensaje de **{}** en el canal {}'
+                    else:
+                        u = message.server.get_member(who)
+                        u = '<@' + who + '>' if u is None else u.display_name
 
-                    msg = '**' + u + '** ha borrado un mensaje de **{}** en el canal {}'
-        except discord.Forbidden:
-            msg = 'Se ha borrado'
-            self.log.debug('no se pudo obtener el audit log')
-            pass
+                        msg = '**' + u + '** ha borrado un mensaje de **{}** en el canal {}'
+            except discord.Forbidden:
+                msg = 'Se ha borrado'
+                pass
 
         await ModLog.send_modlog(
             self.bot, message.server.id,
