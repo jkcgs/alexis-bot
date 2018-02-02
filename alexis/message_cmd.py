@@ -15,6 +15,7 @@ class MessageCmd:
     def __init__(self, message, bot):
         self.bot = bot
         self.message = message
+        self.channel = message.channel
         self.author = message.author
         self.author_name = message.author.display_name
         self.is_pm = message.server is None
@@ -33,6 +34,7 @@ class MessageCmd:
         self.argc = 0
 
         if not self.is_pm:
+            self.server = message.server
             self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
             self.prefix = self.config.get('command_prefix', bot.config['command_prefix'])
