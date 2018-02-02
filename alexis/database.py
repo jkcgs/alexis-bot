@@ -5,7 +5,12 @@ from alexis.configuration import StaticConfig
 
 cfg = StaticConfig('config.yml')
 cfg.load({'database_url': 'sqlite:///database.db'})
-db = connect(cfg['database_url'])
+dburl = cfg['database_url']
+
+if dburl.startswith('mysql:'):
+    dburl += '&amp;' if '?' in dburl else '?'
+    dburl += 'charset=utf8mb4;'
+db = connect(dburl)
 
 
 class BaseModel(peewee.Model):

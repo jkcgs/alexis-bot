@@ -186,5 +186,5 @@ class StarboardHook(Command):
 
 
 class Starboard(BaseModel):
-    message_id = peewee.TextField(primary_key=True)
+    message_id = peewee.TextField()
     timestamp = peewee.DateTimeField(null=False)
