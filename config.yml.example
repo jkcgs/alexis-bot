@@ -3,6 +3,8 @@ debug: false
 command_prefix: "!"
 database_url: 'sqlite:///database.db'
 default_lang: "en"
+log_path: logs
+log_to_files: true
 playing: "/r/chile"
 owner_role: "AlexisMaster"
 bot_owners: ["130324995984326656"]
