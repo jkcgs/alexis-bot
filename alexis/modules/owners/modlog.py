@@ -302,7 +302,7 @@ class UpdateUsername(Command):
                  UserNameReg.userid,
                  UserNameReg.name,
                  peewee.fn.MAX(UserNameReg.timestamp)
-             ).group_by(UserNameReg.userid)}
+             ).group_by(UserNameReg.userid, UserNameReg.name)}
 
         # Neither this thing
         k = [{'userid': m.id, 'name': m.name}
