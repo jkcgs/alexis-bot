@@ -52,7 +52,7 @@ class Command:
             return
 
         # Mandar PMs al log
-        if cmd.is_pm:
+        if cmd.is_pm and message.content != '':
             if cmd.own:
                 bot.log.info('[PM] (-> %s): %s', message.channel.user, cmd.text)
             else:

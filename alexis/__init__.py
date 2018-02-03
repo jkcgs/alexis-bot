@@ -1,4 +1,4 @@
-from alexis.bot import Alexis
+from alexis.bot import AlexisBot
 from alexis.command import Command
 from alexis.language import Language
 from alexis.message_cmd import MessageCmd

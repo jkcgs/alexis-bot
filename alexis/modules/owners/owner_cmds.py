@@ -3,7 +3,7 @@ import re
 import discord
 
 from alexis import Command
-from alexis import Alexis
+from alexis import AlexisBot
 from alexis.utils import unserialize_avail, get_server_role, serialize_avail
 
 rx_snowflake = re.compile('^\d{10,19}$')
@@ -19,7 +19,7 @@ class InfoCmd(Command):
 
     async def handle(self, cmd):
         info_msg = "```\nAutores: {}\nVersión: {}```"
-        info_msg = info_msg.format(Alexis.__author__, Alexis.__version__)
+        info_msg = info_msg.format(AlexisBot.__author__, AlexisBot.__version__)
         await cmd.answer(info_msg)
 
 

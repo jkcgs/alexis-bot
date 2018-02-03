@@ -6,7 +6,7 @@ import discord
 import peewee
 from discord.http import Route
 
-from alexis import Command, Alexis, MessageCmd
+from alexis import Command, AlexisBot, MessageCmd
 from discord import Embed
 
 from alexis.database import BaseModel
@@ -122,7 +122,7 @@ class ModLog(Command):
         if isinstance(bot, MessageCmd):
             serverid = bot.message.channel.id
             bot = bot.bot
-        elif not isinstance(bot, Alexis):
+        elif not isinstance(bot, AlexisBot):
             raise RuntimeError('bot must be an Alexis or MessageCmd instance')
 
         if (message is None or message == '') and embed is None:

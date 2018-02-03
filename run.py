@@ -1,5 +1,5 @@
 import asyncio
-from alexis import Alexis
+from alexis import AlexisBot
 
 
 async def close():
@@ -7,7 +7,7 @@ async def close():
 
 if __name__ == '__main__':
     try:
-        ale = Alexis()
+        ale = AlexisBot()
         ale.init()
     except asyncio.CancelledError:
         pass

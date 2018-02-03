@@ -20,10 +20,11 @@ from alexis.logger import log
 from alexis.database import db
 
 
-class Alexis(discord.Client):
+class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.33~f8'
+    __version__ = '1.0.0-dev.34~f9'
+    name = 'AlexisBot'
 
     default_config = {
         'token': '',
@@ -49,7 +50,8 @@ class Alexis(discord.Client):
         self.log = log
         self.config = StaticConfig('config.yml')
         self.http_session = aiohttp.ClientSession(
-            loop=self.loop, headers={'User-Agent': 'AlexisBot/{} +discord.cl/pages/alexis'.format(Alexis.__version__)})
+            loop=self.loop, headers={'User-Agent': '{}/{} +discord.cl/pages/alexis'.format(
+                AlexisBot.name, AlexisBot.__version__)})
 
         self.db = None
         self.last_author = None  # El ID del último en enviar un mensaje (omite PM)
@@ -68,7 +70,7 @@ class Alexis(discord.Client):
         Inicializa la conexión del bot con Discord, además de cargar los módulos y la base de datos
         :return:
         """
-        self.log.info('alexis-bot v%s.', Alexis.__version__)
+        self.log.info('%s v%s.', AlexisBot.name, AlexisBot.__version__)
         self.log.info('Python %s en %s.', sys.version, sys.platform)
         self.log.info(platform.uname())
         self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
@@ -189,7 +191,7 @@ class Alexis(discord.Client):
         self.log.debug(msg)
 
         # Send the actual message
-        return await super(Alexis, self).send_message(**kwargs)
+        return await super(AlexisBot, self).send_message(**kwargs)
 
     async def delete_message(self, message):
         """
@@ -208,7 +210,7 @@ class Alexis(discord.Client):
         """
         try:
             self.log.info('Cargando configuración...')
-            self.config.load(Alexis.default_config)
+            self.config.load(AlexisBot.default_config)
             self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
             self.log.info('Configuración cargada')
             return True

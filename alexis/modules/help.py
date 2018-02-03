@@ -1,4 +1,8 @@
-from alexis import Command
+import math
+from discord import Embed
+
+from alexis import Command, AlexisBot
+from alexis.utils import text_cut
 
 
 class Help(Command):
@@ -9,7 +13,9 @@ class Help(Command):
         self.help = 'Muestra la lista de comandos y su ayuda'
 
     async def handle(self, cmd):
-        helplist = []
+        cmds_verif = []
+        fields = []
+
         for i in self.bot.cmds.keys():
             ins = self.bot.cmds[i]
             if ins.owner_only and not cmd.owner:
@@ -17,30 +23,29 @@ class Help(Command):
             if ins.bot_owner_only and not cmd.bot_owner:
                 continue
 
-            cmds = ', $PX'.join(ins.name) if isinstance(ins.name, list) else ins.name
-            helpline = "- $PX{}: {}".format(cmds, ins.help)
-            if helpline not in helplist:
-                helplist.append("- $PX{}: {}".format(cmds, ins.help))
+            cmds = (' ' + cmd.prefix).join([ins.name] + ins.aliases)
+            if cmds not in cmds_verif:
+                cmds_verif.append(cmds)
+                fields.append((cmd.prefix + cmds, ins.help))
 
-        num_memes = len(helplist)
-        if num_memes == 0:
+        if len(cmds_verif) == 0:
             await cmd.answer('no hay comandos disponibles')
             return
 
-        if not cmd.is_pm:
-            await cmd.answer('te enviaré la info vía PM')
+        if cmd.is_cmd:
+            await cmd.answer('te enviaré la info por PM!')
 
-        await cmd.answer('estos son mis comandos:', to_author=True)
+        pages = math.ceil(len(fields) / 25)
+        current = 0
+        for i in range(0, len(fields), 25):
+            fields_chunk = fields[i:i+25]
+            current += 1
+            embed = Embed(title='Comandos de {} ({}/{})'.format(
+                AlexisBot.name,
+                current, pages
+            ))
+            for field in fields_chunk:
+                name, value = field
+                embed.add_field(name=text_cut(name, 256), value=text_cut(value, 1024), inline=False)
 
-        # Separar lista de ayuda en mensajes con menos de 2000 carácteres
-        resp_list = ''
-        for helpitem in helplist:
-            if len('```{}\n{}```'.format(resp_list, helpitem)) > 2000:
-                await cmd.answer('```{}```'.format(resp_list), to_author=True, withname=False)
-                resp_list = ''
-            else:
-                resp_list = '{}\n{}'.format(resp_list, helpitem)
-
-        # Enviar lista restante
-        if resp_list != '':
-            await cmd.answer('```{}```'.format(resp_list), to_author=True, withname=False)
+            await cmd.answer(embed, to_author=True, withname=False)
