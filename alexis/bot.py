@@ -4,7 +4,6 @@
 """Este módulo contiene al bot y lo ejecuta si se corre el script."""
 
 import platform
-import sqlite3
 import sys
 import aiohttp
 import discord
@@ -17,7 +16,7 @@ from alexis.language import Language, SingleLanguage
 from alexis.message_cmd import MessageCmd
 from alexis.database import ServerConfigMgr
 from alexis.logger import log
-from alexis.database import db
+from alexis.database import get_database, init_db
 
 
 class AlexisBot(discord.Client):
@@ -36,7 +35,6 @@ class AlexisBot(discord.Client):
         'owner_role': 'AlexisMaster',
         'ext_modpath': '',
         'subreddit': [],
-        'default_channel': '',
         'default_lang': 'es'
     }
 
@@ -70,11 +68,9 @@ class AlexisBot(discord.Client):
         Inicializa la conexión del bot con Discord, además de cargar los módulos y la base de datos
         :return:
         """
-        self.log.info('%s v%s.', AlexisBot.name, AlexisBot.__version__)
-        self.log.info('Python %s en %s.', sys.version, sys.platform)
+        self.log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
+        self.log.info('Python %s en %s.', sys.version.replace('\n', ''), sys.platform)
         self.log.info(platform.uname())
-        self.log.info('Soporte SQLite3 para versión %s.', sqlite3.sqlite_version)
-        self.log.info('discord.py versión %s.', discord.__version__)
         self.log.info('------')
 
         # Cargar configuración
@@ -147,9 +143,11 @@ class AlexisBot(discord.Client):
         """
         Ejecuta la conexión a la base de datos
         """
-        self.log.info('Conectando a base de datos...')
-        self.db = db
+        self.log.info('Conectando con la base de datos...')
+        self.db = get_database()
+        init_db()
         self.log.info('Conectado correctamente a la base de datos.')
+        self.log.info('Clase de base de datos: %s', self.db.__class__.__name__)
 
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""

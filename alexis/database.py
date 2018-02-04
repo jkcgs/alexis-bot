@@ -6,16 +6,24 @@ from alexis.configuration import StaticConfig
 cfg = StaticConfig('config.yml')
 cfg.load({'database_url': 'sqlite:///database.db'})
 dburl = cfg['database_url']
+db = None
 
 if dburl.startswith('mysql:'):
     dburl += '&amp;' if '?' in dburl else '?'
     dburl += 'charset=utf8mb4;'
-db = connect(dburl)
+
+
+def get_database():
+    global db
+    if db is None:
+        db = connect(dburl)
+
+    return db
 
 
 class BaseModel(peewee.Model):
     class Meta:
-        database = db
+        database = get_database()
 
 
 class ServerConfig(BaseModel):
@@ -24,7 +32,9 @@ class ServerConfig(BaseModel):
     value = peewee.TextField(default='')
 
 
-db.create_table(ServerConfig, safe=True)
+def init_db():
+    tdb = get_database()
+    tdb.create_table(ServerConfig, safe=True)
 
 
 class ServerConfigMgr:
