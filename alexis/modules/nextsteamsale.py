@@ -16,6 +16,7 @@ class NextSteamSale(Command):
 
     async def handle(self, cmd):
         try:
+            await cmd.typing()
             async with self.http.get(NextSteamSale.url) as s:
                 content = await s.text()
                 soup = BeautifulSoup(content, 'html.parser')
