@@ -1,0 +1,7 @@
+nss-help: "Shows next Steam's sale information"
+nss-title: "**The next Steam's sale [information](https://www.whenisthenextsteamsale.com/) is:**"
+nss-start-date: "{startdate} at {starthour} hrs"
+nss-end-date: "{enddate} at {endhour} hrs"
+nss-confirmed: "Confirmed"
+nss-length: "Length"
+nss-length-value: "{days} days"

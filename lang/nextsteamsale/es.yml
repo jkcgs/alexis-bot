@@ -1,0 +1,7 @@
+nss-help: "Muestra la información de la próxima oferta de Steam"
+nss-title: "**La [información](https://www.whenisthenextsteamsale.com/) de la siguiente oferta de Steam es:**"
+nss-start-date: "{startdate} a las {starthour} hrs"
+nss-end-date: "{enddate} a las {endhour} hrs"
+nss-confirmed: "Confirmado"
+nss-length: "Duración"
+nss-length-value: "{days} días"

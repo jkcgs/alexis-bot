@@ -12,7 +12,7 @@ class NextSteamSale(Command):
         super().__init__(bot)
         self.name = 'nextsteamsale'
         self.aliases = ['steamsale']
-        self.help = 'Muestra la información de la próxima oferta de Steam'
+        self.help = '$[nss-help]'
 
     async def handle(self, cmd):
         try:
@@ -22,24 +22,23 @@ class NextSteamSale(Command):
                 sale = json.loads(soup.find('input', {'id': 'hdnNextSale'}).attrs['value'])
                 start_date = sale['StartDate'].split('T')
                 end_date = sale['EndDate'].split('T')
-                confirmed = "No"
-
-                if sale['IsConfirmed']:
-                    confirmed = "Si"
-
-                start_date = start_date[0] + ' a las ' + start_date[1] + ' hrs'
-                end_date = end_date[0] + ' a las ' + end_date[1] + ' hrs'
+                confirmed = "$[yes]" if sale['IsConfirmed'] else '$[no]'
 
                 e = Embed()
-                e.description = '**La [información](https://www.whenisthenextsteamsale.com/) ' \
-                                'de la siguiente oferta de Steam es:**'
-                e.add_field(name='Nombre', value=sale['Name'], inline=False)
-                e.add_field(name='Fecha de inicio', value=start_date, inline=False)
-                e.add_field(name='Fecha de término', value=end_date, inline=False)
-                e.add_field(name='Confirmado', value=confirmed)
-                e.add_field(name='Duración', value=str(sale['Length']) + ' días')
+                e.description = '$[nss-title]'
+                e.add_field(name='$[name]', value=sale['Name'], inline=False)
+                e.add_field(name='$[start-date]', value='$[nss-start-date]', inline=False)
+                e.add_field(name='$[end-date]', value='$[nss-end-date]', inline=False)
+                e.add_field(name='$[nss-confirmed]', value=confirmed)
+                e.add_field(name='$[nss-length]', value='$[nss-length-value]')
 
-                await cmd.answer(embed=e)
+                await cmd.answer(embed=e, locales={
+                    'startdate': start_date[0],
+                    'starthour': start_date[1],
+                    'enddate': end_date[0],
+                    'endhour': end_date[1],
+                    'days': sale['Length']
+                })
         except Exception as err:
             self.log.error(err)
             raise err
