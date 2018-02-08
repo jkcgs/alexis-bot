@@ -57,6 +57,10 @@ class MacroSet(Command):
         description = ''
         embed_colour = Colour.default()
 
+        if name in self.bot.cmds:
+            await cmd.answer('no se puede crear un macro con el nombre de un comando')
+            return
+
         if len(name) > 30:
             await cmd.answer('el nombre del macro puede tener hasta 30 carácteres')
             return
@@ -130,7 +134,7 @@ class MacroUnset(Command):
         server_id = 'global' if cmd.is_pm else cmd.message.server.id
         try:
             EmbedMacro.get(name=name, server=server_id)
-            q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
+            q = EmbedMacro.delete().where(EmbedMacro.name == name and EmbedMacro.server == server_id)
             q.execute()
             await cmd.answer('macro **{}** eliminado'.format(name))
         except EmbedMacro.DoesNotExist:
@@ -153,6 +157,10 @@ class MacroRename(Command):
 
         if cmd.argc != 2:
             await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
+            return
+
+        if cmd.args[1] in self.bot.cmds:
+            await cmd.answer('no se puede nombrar un macro con el nombre de un comando')
             return
 
         serverid = 'global' if cmd.is_pm else cmd.message.server.id
