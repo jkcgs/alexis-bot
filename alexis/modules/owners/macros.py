@@ -134,7 +134,7 @@ class MacroUnset(Command):
         server_id = 'global' if cmd.is_pm else cmd.message.server.id
         try:
             EmbedMacro.get(name=name, server=server_id)
-            q = EmbedMacro.delete().where(EmbedMacro.name == name and EmbedMacro.server == server_id)
+            q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
             q.execute()
             await cmd.answer('macro **{}** eliminado'.format(name))
         except EmbedMacro.DoesNotExist:
@@ -277,7 +277,7 @@ class MacroUse(Command):
         # Usar un macro embed si existe
         try:
             server_id = 'global' if cmd.is_pm else cmd.message.server.id
-            macro = EmbedMacro.get(EmbedMacro.name == macro_name and EmbedMacro.server == server_id)
+            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server == server_id)
             macro.used_count += 1
             macro.save()
 
