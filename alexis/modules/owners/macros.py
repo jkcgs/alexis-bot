@@ -230,7 +230,7 @@ class MacroList(Command):
             items = EmbedMacro.select().where(EmbedMacro.server == 'global')
         else:
             items = EmbedMacro.select().where(
-                EmbedMacro.server == cmd.message.server.id or EmbedMacro.server == 'global')
+                EmbedMacro.server << [cmd.message.server.id, 'global'])
 
         for item in items:
             if re.match(self.rx_mention, item.name):
@@ -277,7 +277,7 @@ class MacroUse(Command):
         # Usar un macro embed si existe
         try:
             server_id = 'global' if cmd.is_pm else cmd.message.server.id
-            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server == server_id)
+            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server << [server_id, 'global'])
             macro.used_count += 1
             macro.save()
 
