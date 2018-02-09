@@ -46,12 +46,12 @@ class NextSteamSale(Command):
         })
 
     async def task(self):
-        await self.bot.wait_until_ready()
         try:
+            self.log.debug('Cargando información de próxima oferta de Steam...')
             async with self.http.get(NextSteamSale.url) as s:
                 content = await s.text()
                 soup = BeautifulSoup(content, 'html.parser')
-                NextSteamSale.sale = json.loads(soup.find('input', {'id': 'hdnNextSale'}).attrs['value'])
+                self.sale = json.loads(soup.find('input', {'id': 'hdnNextSale'}).attrs['value'])
 
         except Exception as err:
             self.log.error(err)
