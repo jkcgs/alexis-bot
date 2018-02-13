@@ -25,6 +25,11 @@ class Ping(Command):
        await cmd.answer('Pong!')
 ```
 
+En la siguiente imagen se puede ver el resultado del comando, pero más elaborado, en la
+forma del script [`ping.py](https://github.com/jkcgs/alexis-bot/blob/dev/alexis/modules/ping.py)
+
+![](https://i.imgur.com/NX94fva.jpg)
+
 Puedes hacer que el bot responda a un comando, interactuar con una base de datos,
 y activar funciones con eventos del bot, por ejemplo, cuando un usuario se une a
 un servidor, y darle una bienvenida.
