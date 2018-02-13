@@ -1,59 +1,46 @@
-# Alexis Bot
+## Alexis Bot
 
-## Requisitos
+Para la instalación y uso del bot, creación de comandos y otros detalles, referirse a la [Wiki](https://github.com/jkcgs/alexis-bot/wiki).
 
-* Python 3.5+
-* Soporte para SQLite3
-* pip
-	* aiohttp
-	* appdirs
-	* async-timeout
-	* charde
-	* cleverwrap
-	* discord.py
-	* multidict
-	* packaging
-	* peewee
-	* pyparsing
-	* PyYAML
-	* requests
-	* six
-	* websockets
-* virtualenv (opcional, recomendado)
+### ¿Qué es este bot y qué puedo hacer con el?
+Mejor dicho, ¿qué puede hacer el bot por ti?
 
-## Instalación
+Actualmente tiene más de 30 comandos, ya sean de diversión, de moderación, y otros.
+Algunos comandos de moderación pueden ser encontrados en la lista de [comandos de owner](https://github.com/jkcgs/alexis-bot/wiki/Comandos-de-owner).
 
-Nota: ejecutar los siguientes comandos en una terminal.
+Este es un bot modular y programable, puedes crear comandos fácilmente gracias a la estructura simple que ofrece el "framework" creado con el bot.
 
-1. Clonar el repositorio.
-2. cd alexis-bot
-2. Copiar config.yml.example a config.yml y configurar.
-3. virtualenv . (con virtualenv instalado)
-4. source bin/activate (con virtualenv instalado)
-5. pip install -r requirements.txt
+Por ejemplo, para hacer un comando `ping` sería así:
 
-## Como usar
+```python
+from alexis import Command
 
-Nota: ejecutar los siguientes comandos en una terminal.
+class Ping(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'ping'
+        self.help = 'Responde al comando *ping*'
 
-1. source bin/activate (con virtualenv instalado)
-2. python alexis.py
-
-## Cómo crear un comando
-
-Revisar el archivo commands/ping.py a modo de ejemplo.
-Además, ver definiciones base en el archivo commands/base/command.py
-
-### Lo que se dijo en el chat sobre los comandos
-(TODO: ordenar)
+    async def handle(self, cmd):
+       await cmd.answer('Pong!')
 ```
-[3:06 PM] makzk: tienes que crear un módulo en la carpeta commands que contenga una o más clases que hereden la clase Command
-[3:06 PM] makzk: en el __init__ debes declarar el nombre del comando y/o los hooks startswith o mention(edited)
-[3:06 PM] makzk: puedes ver los otros atributos que puedes declarar en commands/base/command.py
-[3:07 PM] makzk: luego, debes crear el método async def handle(self, message, cmd):, tal cual esa misma signature
-[3:07 PM] makzk: donde message es el objeto MessageCmd desde on_message, y cmd es la clase Message que viene desde
-commands/base/command.py que interpreta el mensaje con algunos shorthands
-[3:08 PM] makzk: y ahí puedes empezar a jugar
-[3:09 PM] makzk: el hook startswith sirve para cuando quieres triggerear el comando cuando empieza con un string,
-y el hook mention es cuando el mensaje comienza con la mención al bot
+
+Puedes hacer que el bot responda a un comando, interactuar con una base de datos,
+y activar funciones con eventos del bot, por ejemplo, cuando un usuario se une a
+un servidor, y darle una bienvenida.
+
+```python
+from alexis import Command
+
+class Welcome(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+
+    async def on_member_join(self, member):
+        chan = self.bot.get_channel('<id_canal>')
+        await self.bot.send_message(chan, 'Bienvenido a nuestro servidor, {}!'.format(member.display_name))
 ```
+
+Esto está ya mucho más elaborado en el script [`welcome.py`](https://github.com/jkcgs/alexis-bot/blob/dev/alexis/modules/owners/welcome.py)
+(responde al comando !welcome, y permite cambiar el canal de la bienvenida, y colocar distintos
+mensajes aleatorios para enviar).
