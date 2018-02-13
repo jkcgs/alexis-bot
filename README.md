@@ -26,7 +26,7 @@ class Ping(Command):
 ```
 
 En la siguiente imagen se puede ver el resultado del comando, pero más elaborado, en la
-forma del script [`ping.py](https://github.com/jkcgs/alexis-bot/blob/dev/alexis/modules/ping.py)
+forma del script [`ping.py`](https://github.com/jkcgs/alexis-bot/blob/dev/alexis/modules/ping.py)
 
 ![](https://i.imgur.com/NX94fva.jpg)
 
