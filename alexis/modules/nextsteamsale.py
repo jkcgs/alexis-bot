@@ -30,13 +30,18 @@ class NextSteamSale(Command):
             remaining_time.insert(0, "0")
         
         e = Embed()
+        
         e.description = '$[nss-title]'
         e.add_field(name='$[name]', value=self.sale['Name'], inline=False)
         e.add_field(name='$[start-date]', value='$[nss-start-date]', inline=False)
         e.add_field(name='$[end-date]', value='$[nss-end-date]', inline=False)
         e.add_field(name='$[nss-confirmed]', value=confirmed)
         e.add_field(name='$[nss-length]', value='$[nss-length-value]')
-        e.add_field(name='$[nss-remaining-time]', value='$[nss-remaining-time-value]' , inline=False)
+        if len(remaining_time) == 1:
+            remaining_time.insert(1, "00:00:00")
+            e.add_field(name='$[nss-remaining-time]', value='$[nss-sales-have-begun]', inline=False)
+        else:
+            e.add_field(name='$[nss-remaining-time]', value='$[nss-remaining-time-value]' , inline=False)
 
         await cmd.answer(embed=e, locales={
             'startdate': start_date[0],
