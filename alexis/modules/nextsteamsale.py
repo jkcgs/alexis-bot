@@ -27,10 +27,7 @@ class NextSteamSale(Command):
         remaining_time = self.sale['RemainingTime'].split('.')
 
         if len(remaining_time) == 2: remaining_time.insert(0, "0")
-        elif len(remaining_time) == 1:
-            remaining_time.insert(0, "0")
-            remaining_time.insert(1, "0")
-
+        
         e = Embed()
         e.description = '$[nss-title]'
         e.add_field(name='$[name]', value=self.sale['Name'], inline=False)
