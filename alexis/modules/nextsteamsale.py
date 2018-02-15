@@ -26,7 +26,8 @@ class NextSteamSale(Command):
         confirmed = "$[yes]" if self.sale['IsConfirmed'] else '$[no]'
         remaining_time = self.sale['RemainingTime'].split('.')
 
-        if len(remaining_time) == 2: remaining_time.insert(0, "0")
+        if len(remaining_time) == 2:
+            remaining_time.insert(0, "0")
         
         e = Embed()
         
