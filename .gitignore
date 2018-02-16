@@ -107,3 +107,6 @@ pip-selfcheck.json
 
 # VSCode editor settings
 .vscode/
+
+# SonarQube scanner
+.scannerwork/
