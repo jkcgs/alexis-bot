@@ -66,7 +66,6 @@ class ServerWhitelist(Command):
             except Exception as e:
                 self.log.error('No pude enviar un mensaje de despedida a "%s" (%s)'.format(server.name, server.id))
                 self.log.exception(e)
-                pass
 
         self.log.debug('La guild "%s" (%s) no está en la whitelist, bye bye', server.name, server.id)
         await self.bot.leave_server(server)

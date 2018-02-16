@@ -16,7 +16,7 @@ class EightBall(Command):
         text = cmd.text if cmd.text != '' else '$[8b-default-question]'
 
         if cmd.text != '':
-            resp = random.choice(cmd.l('8b-' + random.choice(EightBall.resp)).split('|'))
+            resp = random.choice(cmd.lng('8b-' + random.choice(EightBall.resp)).split('|'))
         else:
             resp = '$[8b-default-answer]'
 

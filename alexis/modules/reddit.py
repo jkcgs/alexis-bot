@@ -154,9 +154,8 @@ class RedditFollow(Command):
                             Redditor.name == data['author'].lower()).execute()
 
         except Exception as e:
-            if isinstance(e, RuntimeError):
-                pass
-            self.bot.log.exception(e)
+            if not isinstance(e, RuntimeError):
+                self.bot.log.exception(e)
         finally:
             await asyncio.sleep(15)
 

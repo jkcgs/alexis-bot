@@ -104,7 +104,7 @@ class Bans(Command):
             mesg = "```\nException in thread \"main\" cl.discord.alexis.ZeroBansException\n"
             mesg += "    at AlexisBot.main(AlexisBot.java:34)\n```"
         else:
-            word = cmd.l('bans-singular') if userbans.bans == 1 else cmd.l('bans-plural')
+            word = cmd.lng('bans-singular') if userbans.bans == 1 else cmd.lng('bans-plural')
             locales = {'amount': userbans.bans, 'ban': word}
 
             if user.id == cmd.author.id:
@@ -146,7 +146,7 @@ class SetBans(Command):
         if num_bans == 0:
             await cmd.answer('$[setbans-reset]', locales={'other': name})
         else:
-            word = cmd.l('bans-singular') if num_bans == 1 else cmd.l('bans-plural')
+            word = cmd.lng('bans-singular') if num_bans == 1 else cmd.lng('bans-plural')
             await cmd.answer('$[setbans-info]', locales={'other': name, 'amount': num_bans, 'ban': word})
 
 

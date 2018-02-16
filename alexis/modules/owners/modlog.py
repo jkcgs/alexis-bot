@@ -79,7 +79,6 @@ class ModLog(Command):
                         msg = '**' + u + '** ha borrado un mensaje de **{}** en el canal {}'
             except discord.Forbidden:
                 msg = 'Se ha borrado'
-                pass
 
         await ModLog.send_modlog(
             self.bot, message.server.id,

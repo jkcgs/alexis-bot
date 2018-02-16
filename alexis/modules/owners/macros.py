@@ -139,7 +139,6 @@ class MacroUnset(Command):
             await cmd.answer('macro **{}** eliminado'.format(name))
         except EmbedMacro.DoesNotExist:
             await cmd.answer('el macro **{}** no existe'.format(name))
-            pass
 
 
 class MacroRename(Command):
@@ -212,7 +211,6 @@ class MacroSetColour(Command):
             await cmd.answer('color de macro **{}** actualizado'.format(name))
         except EmbedMacro.DoesNotExist:
             await cmd.answer('el macro **{}** no existe'.format(name))
-            pass
 
 
 class MacroList(Command):

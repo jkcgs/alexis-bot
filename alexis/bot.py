@@ -122,9 +122,8 @@ class AlexisBot(discord.Client):
                 self.cmds[name] = instance
 
         # Handlers startswith
-        if isinstance(instance.swhandler, str) or isinstance(instance.swhandler, list):
-            swh = [instance.swhandler] if isinstance(instance.swhandler, str) else instance.swhandler
-            for swtext in swh:
+        if isinstance(instance.swhandler, list):
+            for swtext in instance.swhandler:
                 if swtext != '':
                     self.log.debug('Registrando sw_handler "%s"', swtext)
                     self.swhandlers[swtext] = instance

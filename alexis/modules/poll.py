@@ -10,6 +10,7 @@ class Ping(Command):
         self.name = 'poll'
         self.aliases = ['encuesta', 'strawpoll']
         self.help = 'Crea una encuesta en strawpoll.me . Separa el título y las opciones con " | "'
+        self.default_enabled = False
 
     async def handle(self, cmd):
         args = []
@@ -18,10 +19,8 @@ class Ping(Command):
             x.strip('')
             args.append(x)
         if len(args) == 1:
-            await cmd.answer('uso: !poll <Título> | <Opción 1> | <Opción 2> [| <Opción ...> | <Opción {}>]'.format(max_opciones))
-            return
-        elif len(args) == 1:
-            await cmd.answer('¡necesitas ingresar opciones!')
+            await cmd.answer('uso: !poll <Título> | <Opción 1> | <Opción 2> [| <Opción ...> | <Opción {}>]'.format(
+                max_opciones))
             return
         elif len(args) == 2:
             await cmd.answer('¡ncesitas al menos 2 opciones!')

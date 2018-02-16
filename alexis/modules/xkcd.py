@@ -4,7 +4,7 @@ import random
 import requests
 
 
-class xkcd(Command):
+class XKCD(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'xkcd'

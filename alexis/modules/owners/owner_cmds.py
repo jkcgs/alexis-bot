@@ -61,7 +61,6 @@ class ClearReactions(Command):
                 pass
             except discord.NotFound:
                 not_found.append(arg)
-                pass
 
         if success_count == 0:
             msg_suffix = 'del mensaje' if cmd.argc == 1 else 'de ningún mensaje'
@@ -212,10 +211,6 @@ class OwnerRoles(Command):
                 owner_roles.remove(role.id)
                 cmd.config.set('owner_roles', '\n'.join(owner_roles))
                 await cmd.answer('el rol **{}** ahora ya no es owner'.format(role.name))
-        elif cmd.args[0] == 'adduser':
-            await cmd.answer('wip')
-        elif cmd.args[0] == 'removeuser':
-            await cmd.answer('wip')
         elif cmd.args[0] == 'list':
             msg = 'Roles owner: '
             msg_list = []
@@ -245,11 +240,11 @@ class SetLanguage(Command):
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            await cmd.answer(cmd.l('current-lang', lang=cmd.config.get('lang')))
+            await cmd.answer(cmd.lng('current-lang', lang=cmd.config.get('lang')))
             return
 
         if not self.bot.lang.has(cmd.text):
-            await cmd.answer(cmd.l('lang-not-available'))
+            await cmd.answer(cmd.lng('lang-not-available'))
             return
 
         cmd.config.set('lang', cmd.text)

@@ -204,7 +204,7 @@ class MessageCmd:
 
         return None
 
-    def l(self, name, **kwargs):
+    def lng(self, name, **kwargs):
         return self.lang.get(name, **kwargs)
 
     def __str__(self):

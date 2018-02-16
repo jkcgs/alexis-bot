@@ -57,12 +57,4 @@ class RandomNum(Command):
             rand = random.randint(nmin, nmax)
             answ = 'tu número entre {} y {} es el **{}**'.format(nmin, nmax, rand)
 
-            if random.random() >= .5:
-                if rand == 5:
-                    answ += ' ~~(por el c*lo te la hínco)~~'
-                elif rand == 11:
-                    answ += ' ~~(ch*palo entonce)~~'
-                elif rand == 13:
-                    answ += ' ~~(más me crece)~~'
-
             await cmd.answer(answ)

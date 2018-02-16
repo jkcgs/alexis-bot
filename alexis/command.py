@@ -69,24 +69,14 @@ class Command:
                 bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
                 cmd_ins = bot.cmds[cmd.cmdname]
 
-                # Sólo owner del bot
-                if cmd_ins.bot_owner_only and not cmd.bot_owner:
-                    return
-                # Sólo owner
-                elif cmd_ins.owner_only and not cmd.owner:
-                    # await cmd.answer(cmd_ins.owner_error)
-                    return
-                # Comando deshabilitado por PM
-                elif not cmd_ins.allow_pm and cmd.is_pm:
-                    # await cmd.answer(cmd_ins.pm_error)
-                    return
-                elif not cmd.is_pm and not cmd.is_enabled():
-                    return
-                # Delay para el comando
-                elif cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay \
-                        and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now() \
-                        and not cmd.owner:
-                    # await cmd.answer(cmd_ins.user_delay_error)
+                # Filtro de permisos y tiempo
+                if (cmd_ins.bot_owner_only and not cmd.bot_owner) \
+                        or (cmd_ins.owner_only and not cmd.owner) \
+                        or (not cmd_ins.allow_pm and cmd.is_pm) \
+                        or (not cmd.is_pm and not cmd.is_enabled()) \
+                        or (cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay
+                            and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now()
+                            and not cmd.owner):
                     return
                 elif not cmd.is_pm and cmd_ins.nsfw_only and 'nsfw' not in message.channel.name:
                     await cmd.answer('este comando sólo puede ser usado en un canal NSFW')
@@ -97,40 +87,29 @@ class Command:
                     await cmd_ins.handle(cmd)
 
             # 'startswith' handlers
-            swbreak = False
             for swtext in bot.swhandlers.keys():
-                if swbreak:
-                    break
-
                 swtextrep = swtext.replace('$PX', cmd.prefix)
                 if message.content.startswith(swtextrep):
                     swhandler = bot.swhandlers[swtext]
-                    if swhandler.bot_owner_only and not cmd.bot_owner:
-                        continue
-                    if swhandler.owner_only and not (cmd.owner or cmd.bot_owner):
-                        # await cmd.answer(swhandler.owner_error)
-                        continue
-                    elif not swhandler.allow_pm and cmd.is_pm:
-                        # await cmd.answer(swhandler.pm_error)
+                    if (swhandler.bot_owner_only and not cmd.bot_owner) \
+                            or (swhandler.owner_only and not (cmd.owner or cmd.bot_owner))\
+                            or (not swhandler.allow_pm and cmd.is_pm):
                         continue
                     else:
                         await swhandler.handle(cmd)
 
                     if swhandler.swhandler_break:
-                        swbreak = True  # PyCharm dice que no se usa pero si se usa xd
                         break
 
             # Mention handlers
             if bot.user.mentioned_in(message):
                 for cmd_ins in bot.mention_handlers:
-                    if cmd_ins.bot_owner_only and not cmd.bot_owner:
+                    if (cmd_ins.bot_owner_only and not cmd.bot_owner)\
+                            or (cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner))\
+                            or (not cmd_ins.allow_pm and cmd.is_pm):
                         continue
-                    if cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner):
-                        continue
-                    elif not cmd_ins.allow_pm and cmd.is_pm:
-                        continue
-                    else:
-                        await cmd_ins.handle(cmd)
+
+                    await cmd_ins.handle(cmd)
 
         except Exception as e:
             if str(e) == 'BAD REQUEST (status code: 400)':
