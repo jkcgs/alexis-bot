@@ -66,6 +66,7 @@ class MessageCmd:
             kwargs['embed'] = content
             content = ''
 
+        content = content.replace('$CMD', '$PX$NM')
         content = content.replace('$PX', self.prefix)
         content = content.replace('$NM', self.cmdname)
         content = content.replace('$AU', self.author_name)

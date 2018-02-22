@@ -12,18 +12,13 @@ class ShipperUwU(Command):
         self.allow_pm = False
 
     async def handle(self, cmd):
-        if cmd.argc != 2 or len(cmd.message.mentions) != 2:
-            await cmd.answer('Formato: !ship @mención1 @mención2')
+        if cmd.argc != 2:
+            await cmd.answer('formato: $CMD @usuario1 @usuario2')
             return
 
         # obtener menciones en el mismo orden en el que se escribieron
-        user1 = ''
-        user2 = ''
-        for mention in cmd.message.mentions:
-            if cmd.args[0] == mention.mention:
-                user1 = mention
-            elif cmd.args[1] == mention.mention:
-                user2 = mention
+        user1 = await cmd.get_user(cmd.args[0])
+        user2 = await cmd.get_user(cmd.args[1])
 
         # verificar que los usuarios no son iguales po jaja
         if user1.id == user2.id:
@@ -37,10 +32,10 @@ class ShipperUwU(Command):
         avatar1_url = user1.avatar_url[:-4] + '.png'
         avatar2_url = user2.avatar_url[:-4] + '.png'
         async with self.http.get(avatar1_url) as resp:
-            self.log.debug('descargando user1 avatar, url %s', avatar1_url)
+            self.log.debug('Descargando avatar usuario 1 - %s', avatar1_url)
             user1_avatar = await resp.read()
         async with self.http.get(avatar2_url) as resp:
-            self.log.debug('descargando user2 avatar, url %s', avatar2_url)
+            self.log.debug('Descargando avatar usuario 2 - %s', avatar2_url)
             user2_avatar = await resp.read()
 
         # Abrir avatares y cambiar su tamaño
