@@ -296,12 +296,14 @@ class UpdateUsername(Command):
         self.updating = True
 
         # Don't do this at home
+        u_alias = UserNameReg.alias()
         j = {u.userid: u.name for u in
-             UserNameReg.select(
-                 UserNameReg.userid,
-                 UserNameReg.name,
-                 peewee.fn.MAX(UserNameReg.timestamp)
-             ).group_by(UserNameReg.userid, UserNameReg.name)}
+             UserNameReg.select().where(
+                 UserNameReg.timestamp == u_alias.select(peewee.fn.MAX(u_alias.timestamp)).where(
+                     u_alias.userid == UserNameReg.userid)
+             ).order_by(
+                 UserNameReg.timestamp.desc()
+             )}
 
         # Neither this thing
         k = [{'userid': m.id, 'name': m.name}
