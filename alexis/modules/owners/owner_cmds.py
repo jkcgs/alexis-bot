@@ -98,7 +98,7 @@ class ChangePrefix(Command):
         self.owner_only = True
 
     async def handle(self, cmd):
-        if (not cmd.is_cmd and not cmd.sw_mention) and not self.right_cmd(cmd):
+        if (not cmd.is_cmd and not cmd.sw_mention) or (cmd.is_cmd and not self.right_cmd(cmd)):
             return
 
         if cmd.argc < 1:
@@ -109,7 +109,6 @@ class ChangePrefix(Command):
         txt = cmd.args[0]
 
         if len(txt) > 3:
-            await cmd.answer('el prefijo sólo puede tener hasta 3 carácteres')
             return
 
         cmd.config.set('command_prefix', txt)

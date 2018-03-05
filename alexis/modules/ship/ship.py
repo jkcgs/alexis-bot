@@ -2,6 +2,7 @@ from io import BytesIO
 from os import path
 from PIL import Image
 from alexis import Command
+from alexis.utils import parse_tag
 
 
 class ShipperUwU(Command):
@@ -17,11 +18,17 @@ class ShipperUwU(Command):
             return
 
         # obtener menciones en el mismo orden en el que se escribieron
-        user1 = await cmd.get_user(cmd.args[0])
-        user2 = await cmd.get_user(cmd.args[1])
+        item1 = await get_details(cmd, cmd.args[0])
+        item2 = await get_details(cmd, cmd.args[1])
+        if item1 is None or item2 is None:
+            await cmd.answer('formato: $CMD @usuario1 @usuario2')
+            return
+
+        item1_name, item1_url = item1
+        item2_name, item2_url = item2
 
         # verificar que los usuarios no son iguales po jaja
-        if user1.id == user2.id:
+        if item1_url == item2_url:
             await cmd.answer('sabías que para formar una pareja necesitas a dos personas? :3')
             return
 
@@ -29,13 +36,11 @@ class ShipperUwU(Command):
         self.log.debug('Generando imagen...')
 
         # Descargar avatares
-        avatar1_url = user1.avatar_url[:-4] + '.png'
-        avatar2_url = user2.avatar_url[:-4] + '.png'
-        async with self.http.get(avatar1_url) as resp:
-            self.log.debug('Descargando avatar usuario 1 - %s', avatar1_url)
+        async with self.http.get(item1_url) as resp:
+            self.log.debug('Descargando avatar usuario 1 - %s', item1_url)
             user1_avatar = await resp.read()
-        async with self.http.get(avatar2_url) as resp:
-            self.log.debug('Descargando avatar usuario 2 - %s', avatar2_url)
+        async with self.http.get(item2_url) as resp:
+            self.log.debug('Descargando avatar usuario 2 - %s', item2_url)
             user2_avatar = await resp.read()
 
         # Abrir avatares y cambiar su tamaño
@@ -58,8 +63,18 @@ class ShipperUwU(Command):
         self.log.debug('Imagen lista!')
 
         # Generar nombre del ship y enviar con la imagen
-        u1name = user1.display_name
-        u2name = user2.display_name
-        ship_name = u1name[0:int(len(u1name) / 2)] + u2name[int(len(u2name) / 2):]
+        ship_name = item1_name[0:int(len(item1_name) / 2)] + item2_name[int(len(item2_name) / 2):]
         await self.bot.send_file(cmd.message.channel, temp, filename='ship.png',
                                  content='Formando la pareja: **{}**'.format(ship_name))
+
+
+async def get_details(cmd, text):
+    item = parse_tag(text)
+    if item is None or item['type'] == 'user':
+        user = await (cmd.get_user(text) if item is None else cmd.get_user(item['id']))
+        return None if user is None else user.display_name, (user.avatar_url or user.default_avatar_url)
+    elif item['type'] == 'emoji':
+        url = 'https://discordapp.com/api/emojis/{}.{}'
+        return item['name'], url.format(item['id'], 'gif' if item['animated'] else 'png')
+    else:
+        return None
