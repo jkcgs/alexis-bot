@@ -73,10 +73,12 @@ class Command:
                 if (cmd_ins.bot_owner_only and not cmd.bot_owner) \
                         or (cmd_ins.owner_only and not cmd.owner) \
                         or (not cmd_ins.allow_pm and cmd.is_pm) \
-                        or (not cmd.is_pm and not cmd.is_enabled()) \
-                        or (cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay
-                            and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now()
-                            and not cmd.owner):
+                        or (not cmd.is_pm and not cmd.is_enabled()):
+                    return
+                elif (cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay
+                      and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now()
+                      and not cmd.owner):
+                    await cmd.answer('aún no puedes usar ese comando')
                     return
                 elif not cmd.is_pm and cmd_ins.nsfw_only and 'nsfw' not in message.channel.name:
                     await cmd.answer('este comando sólo puede ser usado en un canal NSFW')
