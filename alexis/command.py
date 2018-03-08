@@ -85,7 +85,9 @@ class Command:
                     return
                 # Ejecutar el comando
                 else:
-                    cmd_ins.users_delay[cmd.author.id] = dt.now()
+                    if cmd_ins.user_delay > 0:
+                        cmd_ins.users_delay[cmd.author.id] = dt.now()
+
                     await cmd_ins.handle(cmd)
 
             # 'startswith' handlers
