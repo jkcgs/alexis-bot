@@ -70,6 +70,25 @@ def get_server_role(server, role):
     return None
 
 
+def member_has_role(member, role):
+    """
+    Verifica si un miembro dado tiene un rol
+    :param member: El miembro de un servidor
+    :param role: El nombre, ID del rol o el rol
+    :return:
+    """
+    if not isinstance(member, discord.Member):
+        raise RuntimeError('"member" argument must be a discord.Member instance')
+
+    for member_role in member.roles:
+        if isinstance(role, discord.Role) and member_role == role:
+            return True
+        if member_role.name == role or member_role.id == role:
+            return True
+
+    return False
+
+
 def img_embed(url, title=''):
     embed = Embed()
     embed.set_image(url=url)

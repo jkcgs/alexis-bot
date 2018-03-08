@@ -22,7 +22,7 @@ from alexis.database import get_database, init_db
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.39~f21-rata'
+    __version__ = '1.0.0-dev.40~f22'
     name = 'AlexisBot'
 
     default_config = {
