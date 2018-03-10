@@ -270,7 +270,16 @@ class MacroUse(Command):
             self.bot.last_author = cmd.author.id
 
         pfx = self.bot.config['command_prefix']
-        macro_name = cmd.args[0] if cmd.message.content.startswith(pfx + ' ') else cmd.message.content[1:].split(' ')[0]
+        if cmd.message.content.startswith(pfx + ' '):
+            macro_name = cmd.args[0]
+            macro_args = (' '.join(cmd.args[1:])).split('|')
+        else:
+            args = cmd.message.content[1:].split(' ')
+            macro_name = args[0]
+            macro_args = (' '.join(args[1:])).split('|')
+
+        if len(macro_args) == 1 and macro_args[0] == '':
+            macro_args = []
 
         # Usar un macro embed si existe
         try:
@@ -280,15 +289,15 @@ class MacroUse(Command):
             macro.save()
 
             if macro.image_url is None and macro.title is None:
-                await cmd.answer(macro.description)
+                await cmd.answer(macro.description.format(*macro_args))
             else:
                 embed = Embed()
                 if macro.image_url != '':
                     embed.set_image(url=macro.image_url)
                 if macro.title != '':
-                    embed.title = macro.title
+                    embed.title = macro.title.format(*macro_args)
                 if macro.description != '':
-                    embed.description = macro.description
+                    embed.description = macro.description.format(*macro_args)
 
                 embed.colour = macro.embed_color
                 await cmd.answer(embed=embed)

@@ -35,7 +35,7 @@ class Pat(Command):
         else:
             url = random.choice(self.config['pats'])
 
-        await cmd.answer(embed=img_embed(url, text))
+        await cmd.answer(embed=img_embed(url, text), withname=False)
 
     def load_config(self):
         self.log.debug('[Pat] Cargando pats...')
