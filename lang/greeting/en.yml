@@ -1,0 +1,32 @@
+greeting-character-alert: message cannot contain `{separator}`
+greeting-current-channel: Current channel
+greeting-disabled-alert: this messages are disabled. Set a message for them first,
+  or use `$CMD set <options...>`
+greeting-format: 'format: $CMD <set|message|channel|disable> <options...> (if
+  you don''t pass options, you''ll see subcommand''s help)'
+greeting-goodbye-messages: Goodbye messages
+greeting-help: Manages the channel to greet new and retiring users, with custom messages.
+greeting-limit-alert: unable to add more messages, current limit is {limit}
+greeting-message-added: message added!
+greeting-message-deleted: message deleted!
+greeting-message-format: 'format: $CMD message <list|add|remove|set> <options...>
+  (if you don''t add options, you''ll see sub-sub-command''s help)'
+greeting-message-saved: message saved
+greeting-messages-disabled: messages disabled (current messages were not deleted).
+greeting-messages-saved: messages saved!
+greeting-no-list-number: type a number please. You can have numbers with `$CMD message
+  list`.
+greeting-no-messages: no messages found
+greeting-number-out-of-bounds: number out of bounds! You can have the numbers with
+  `$CMD message list`.
+greeting-set-limit: Messages can only have up to {limit} characters. Message number
+  {number} has {length} characters.
+greeting-settings-saved: settings saved!
+greeting-welcome-messages: Welcome messages
+greeting-set-format: "format: $CMD set <channel> <message1>|<message2>|...|<message{limit}>\n
+If one or more messages are added, a random message will be choose to greet a user.
+Each message must be separated by `{separator}` and can be up to {max-length} characters long.
+You can use the following placeholders on your message: \n
+  `$name`: user name\n
+  `$mention`: user mention\n
+  `$server`: server's name"

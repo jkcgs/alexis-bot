@@ -1,0 +1,37 @@
+greeting-character-alert: el mensaje no puede contener `{separator}`
+greeting-current-channel: Canal actual
+greeting-disabled-alert: esto mensajes están desactivados. Define el canal de envío
+  primero, o bien usa $PX$NM set <opciones...>
+greeting-format: 'formato: $PX$NM <set|message|channel|disable> <opciones...> (si
+  omites las opciones, verás la ayuda de cada sub-comando)'
+greeting-goodbye-messages: Mensajes de despedida
+greeting-help: Determina un canal para dar saludar a usuarios nuevos y retirados,
+  con mensajes personalizados.
+greeting-limit-alert: no es posible agregar más mensajes, el límite es de {limit}.
+greeting-message-added: mensaje agregado!
+greeting-message-deleted: mensaje eliminado!
+greeting-message-format: 'formato: $PX$NM message <list|add|remove|set> <options...>
+  (if you don''t add options, you''ll see sub-sub-command''s help)'
+greeting-message-saved: message saved
+greeting-messages-disabled: mensajes desactivados (los mensajes actuales no fueron
+  eliminados).
+greeting-messages-saved: mensajes guardados!
+greeting-no-list-number: ingresa un número por favor. Puedes obtener los números con
+  `$CMD message list`.
+greeting-no-messages: no hay mensajes
+greeting-number-out-of-bounds: número fuera de rango! Puedes obtener lsos números
+  con `$CMD message list`.
+greeting-set-limit: Los mensajes sólo pueden tener hasta {limit} carácteres. El mensaje
+  número {number} tiene {length} carácteres.
+greeting-settings-saved: configuración guardada!
+greeting-welcome-messages: Mensajes de bienvenida
+greeting-set-format:  "formato: $CMD set <canal> <mensaje1>|<mensaje2>|...|<mensaje{limit}>\n
+Si se agrega más de un mensaje, uno de ellos será elegido de forma aleatoria para
+recibir a un usuario.
+Cada mensaje debe ser separado por `{separator}` y puede contener hasta ${max-length}
+carácteres. Puedes insertar los siguientes placeholders para que sean reemplazados
+en tu mensaje: \n
+  `$name`: nombre del usuario\n
+  `$mention`: mención al nombre del usuario\n
+  `$server`: nombre del servidor"
+
