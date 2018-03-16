@@ -5,6 +5,7 @@ import peewee
 from discord import Embed, Colour
 
 from alexis import Command
+from alexis.utils import is_int
 from alexis.database import BaseModel
 
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
@@ -269,6 +270,7 @@ class MacroUse(Command):
         if self.bot.last_author is None or not cmd.own:
             self.bot.last_author = cmd.author.id
 
+        # Obtener los argumentos del macro
         pfx = self.bot.config['command_prefix']
         if cmd.message.content.startswith(pfx + ' '):
             macro_name = cmd.args[0]
@@ -289,20 +291,43 @@ class MacroUse(Command):
             macro.save()
 
             if macro.image_url is None and macro.title is None:
-                await cmd.answer(macro.description.format(*macro_args))
+                await cmd.answer(safe_format(macro.description, macro_args))
             else:
                 embed = Embed()
                 if macro.image_url != '':
                     embed.set_image(url=macro.image_url)
                 if macro.title != '':
-                    embed.title = macro.title.format(*macro_args)
+                    embed.title = safe_format(macro.title, macro_args)
                 if macro.description != '':
-                    embed.description = macro.description.format(*macro_args)
+                    embed.description = safe_format(macro.description, macro_args)
 
                 embed.colour = macro.embed_color
                 await cmd.answer(embed=embed)
         except EmbedMacro.DoesNotExist:
             pass
+
+
+def safe_format(strp, args):
+    """
+    Agrega placeholders a un macro que tiene placeholders, pero que no se le pasaron los suficientes
+    :param strp: El string del macro
+    :param args: Los parámetros del macro
+    :return: El string formateado según los argumentos
+    """
+
+    # Encontrar los placeholders numéricos
+    t = [int(i) for i in re.findall(r"{(\w+)}", strp) if is_int(i)]
+
+    if len(t) > 0:
+        t = max(t) + 1
+        if len(args) < t:
+            # Agregar los placeholders a la lista de argumentos
+            args += [('{' + str(j) + '}') for j in range(len(args), t - len(args) + 1)]
+
+        print('result:', args)
+
+    # Formatear el string según la nueva lista de argumentos
+    return strp.format(*args)
 
 
 class EmbedMacro(BaseModel):

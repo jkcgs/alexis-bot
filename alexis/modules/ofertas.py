@@ -2,6 +2,8 @@ import asyncio
 
 import math
 
+import aiohttp
+
 from alexis import Command
 from bs4 import BeautifulSoup
 from discord import Embed
@@ -45,17 +47,20 @@ class Ofertas(Command):
             return [x.split(',') for x in (await r.text()).split('\n') if x.strip() != '']
 
     async def task(self):
-        await self.bot.wait_until_ready()
-        file = await self.last()
-        if file == self.lastfile:
-            return
+        try:
+            await self.bot.wait_until_ready()
+            file = await self.last()
+            if file == self.lastfile:
+                return
 
-        self.lastfile = file
-        self.data = await self.get_data(file)
-        await asyncio.sleep(60)
+            self.lastfile = file
+            self.data = await self.get_data(file)
+            await asyncio.sleep(60)
 
-        if not self.bot.is_closed:
-            self.bot.loop.create_task(self.task())
+            if not self.bot.is_closed:
+                self.bot.loop.create_task(self.task())
+        except Exception as e:
+            self.log.debug('No fue posible obtener datos de las ofertas: %s', str(e))
 
     @staticmethod
     def filter(line):
