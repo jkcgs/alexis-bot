@@ -9,7 +9,7 @@ from discord.http import Route
 from alexis import Command, AlexisBot, MessageCmd
 from discord import Embed
 
-from alexis.database import BaseModel
+from alexis.database import BaseModel, ServerConfigMgrSingle
 from alexis.logger import log
 from alexis.utils import deltatime_to_str
 
@@ -35,9 +35,10 @@ class ModLog(Command):
                 mid=member.id, name=str(member), dt=dt))
 
     async def on_message_delete(self, message):
-        if message.server is None:
+        if message.server is None or message.author.id == self.bot.user.id:
             return
 
+        config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
         footer = 'Enviado: ' + ModLog.parsedate(message.timestamp)
         if message.edited_timestamp is not None:
             footer += ', editado: ' + ModLog.parsedate(message.edited_timestamp)
@@ -63,7 +64,8 @@ class ModLog(Command):
 
         msg = '**{}** ha borrado su mensaje en el canal {}'
         if message.id in self.bot.deleted_messages:
-            msg = 'He borrado un mensaje de **{}** en el canal {}'
+            if config.get('log_deleted_by_self', '0') == '1':
+                msg = 'He borrado un mensaje de **{}** en el canal {}'
         else:
             try:
                 last = await self.get_last_alog(message.server.id)
