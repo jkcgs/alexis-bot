@@ -192,12 +192,18 @@ class AlexisBot(discord.Client):
 
     async def delete_message(self, message):
         """
-        Elimina un mensaje, y además registra los IDs de los últimos 10 mensajes guardados
+        Elimina un mensaje, y además registra los IDs de los últimos 20 mensajes guardados
         :param message: El mensaje a eliminar
         """
-        await super().delete_message(message)
         self.deleted_messages.append(message.id)
-        if len(self.deleted_messages) > 10:
+
+        try:
+            await super().delete_message(message)
+        except discord.Forbidden as e:
+            del self.deleted_messages[-1]
+            raise e
+
+        if len(self.deleted_messages) > 20:
             del self.deleted_messages[0]
 
     def load_config(self):
