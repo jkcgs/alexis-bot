@@ -5,8 +5,7 @@ import peewee
 from discord import Embed
 
 from alexis import Command
-from alexis.database import BaseModel
-from alexis.modules.owners.modlog import ModLog
+from alexis.configuration import BaseModel
 
 
 class Warn(Command):

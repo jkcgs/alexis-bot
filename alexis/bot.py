@@ -10,19 +10,17 @@ import discord
 import re
 
 import alexis.modules
-from alexis.configuration import StaticConfig
-from alexis.command import Command
-from alexis.language import Language, SingleLanguage
-from alexis.message_cmd import MessageCmd
-from alexis.database import ServerConfigMgr
-from alexis.logger import log
-from alexis.database import get_database, init_db
+from .configuration import StaticConfig, ServerConfigMgr, get_database, init_db
+from .command import Command
+from .language import Language, SingleLanguage
+from .message_cmd import MessageCmd
+from .logger import log
 
 
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.40~f23'
+    __version__ = '1.0.0-dev.41~f23'
     name = 'AlexisBot'
 
     default_config = {

@@ -1,10 +1,9 @@
 import logging
 import os
 import datetime
-
 from os import path
 
-from alexis.configuration import StaticConfig
+from .configuration import StaticConfig
 
 logger_created = False
 

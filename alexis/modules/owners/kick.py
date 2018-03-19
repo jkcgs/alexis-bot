@@ -3,7 +3,6 @@ import re
 import discord
 
 from alexis import Command
-from alexis.modules.owners.modlog import ModLog
 
 pat_mention = re.compile('^<@!?[0-9]+>$')
 

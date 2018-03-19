@@ -24,7 +24,6 @@ class InfoCmd(Command):
 
 
 class ClearReactions(Command):
-
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'clearreactions'

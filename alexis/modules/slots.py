@@ -1,7 +1,3 @@
-from os import path
-
-import yaml
-
 from alexis import Command
 from discord import Embed
 import random

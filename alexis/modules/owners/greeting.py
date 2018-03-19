@@ -3,7 +3,7 @@ import random
 from discord import Embed
 
 from alexis import Command, MessageCmd
-from alexis.database import ServerConfigMgrSingle
+from alexis.configuration import ServerConfigMgrSingle
 from alexis.utils import is_int
 
 

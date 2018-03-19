@@ -1,6 +1,3 @@
-from os import path
-
-import yaml
 import bs4
 
 from alexis import Command

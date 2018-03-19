@@ -3,7 +3,7 @@ import peewee
 from discord import Embed
 
 from alexis import Command
-from alexis.database import BaseModel
+from alexis.configuration import BaseModel
 import random
 
 from alexis.utils import is_int

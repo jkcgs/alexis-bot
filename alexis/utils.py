@@ -2,7 +2,7 @@ import discord
 import re
 from discord import Embed
 
-from alexis.database import ServerConfigMgrSingle
+from alexis.configuration import ServerConfigMgrSingle
 
 
 pat_tag = re.compile('^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')

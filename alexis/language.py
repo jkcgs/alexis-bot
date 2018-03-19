@@ -3,7 +3,6 @@ import re
 
 from os import path
 from ruamel import yaml
-
 from discord import Embed
 
 from alexis.logger import log

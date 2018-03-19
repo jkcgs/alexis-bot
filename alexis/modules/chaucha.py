@@ -1,8 +1,6 @@
 import json
-
-import asyncio
-
 import aiohttp
+import asyncio
 
 from alexis import Command
 from alexis.utils import is_float

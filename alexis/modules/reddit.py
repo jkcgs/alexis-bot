@@ -7,7 +7,7 @@ import peewee
 from discord import Embed
 
 from alexis import Command
-from alexis.database import BaseModel
+from alexis.configuration import BaseModel
 from alexis.utils import pat_channel, pat_subreddit, text_cut
 
 

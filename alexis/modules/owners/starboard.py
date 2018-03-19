@@ -6,7 +6,7 @@ import emoji
 from discord import Emoji, Object, Embed
 
 from alexis import Command
-from alexis.database import BaseModel
+from alexis.configuration import BaseModel
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'

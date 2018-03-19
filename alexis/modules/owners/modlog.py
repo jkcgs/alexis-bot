@@ -9,7 +9,7 @@ from discord.http import Route
 from alexis import Command, AlexisBot, MessageCmd
 from discord import Embed
 
-from alexis.database import BaseModel, ServerConfigMgrSingle
+from alexis.configuration import BaseModel, ServerConfigMgrSingle
 from alexis.logger import log
 from alexis.utils import deltatime_to_str
 

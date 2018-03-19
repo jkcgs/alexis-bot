@@ -7,7 +7,7 @@ import discord
 import peewee
 
 from alexis import Command, utils
-from alexis.database import BaseModel
+from alexis.configuration import BaseModel
 
 
 class Mute(Command):
