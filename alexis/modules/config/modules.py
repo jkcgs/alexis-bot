@@ -109,6 +109,7 @@ class Modules(Command):
                     self.log.debug('Llamando on_ready para "%s"', name)
                     await ins.on_ready()
 
+                self.bot.cmd_instances.append(ins)
                 self.log.debug('Módulo "%s" cargado', name)
                 return True
 
