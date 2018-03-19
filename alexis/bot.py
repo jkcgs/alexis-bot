@@ -11,10 +11,11 @@ import re
 
 import alexis.modules
 from .configuration import StaticConfig, ServerConfigMgr, get_database, init_db
-from .command import Command
+from .command import message_handler
 from .language import Language, SingleLanguage
 from .message_cmd import MessageCmd
 from .logger import log
+from .utils import methods_class
 
 
 class AlexisBot(discord.Client):
@@ -60,6 +61,7 @@ class AlexisBot(discord.Client):
         self.cmd_instances = []
         self.mention_handlers = []
         self.deleted_messages = []
+        self.tasks = []
 
     def init(self):
         """
@@ -84,9 +86,10 @@ class AlexisBot(discord.Client):
 
         # Cargar (instanciar clases de) comandos
         self.log.info('Cargando comandos...')
-        self.cmd_instances = [self.load_command(c) for c in alexis.modules.get_mods(self.config.get('ext_modpath', ''))]
+        self.load_instances()
         self.log.info('Se cargaron %i módulos', len(self.cmd_instances))
         self.log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
+        self.log.debug('Módulos cargados: ' + ', '.join([i.__class__.__name__ for i in self.cmd_instances]))
 
         self._call_handlers_sync('on_loaded', force=True)
 
@@ -120,11 +123,10 @@ class AlexisBot(discord.Client):
                 self.cmds[name] = instance
 
         # Handlers startswith
-        if isinstance(instance.swhandler, list):
-            for swtext in instance.swhandler:
-                if swtext != '':
-                    self.log.debug('Registrando sw_handler "%s"', swtext)
-                    self.swhandlers[swtext] = instance
+        for swtext in instance.swhandler:
+            if swtext != '':
+                self.log.debug('Registrando sw_handler "%s"', swtext)
+                self.swhandlers[swtext] = instance
 
         # Comandos que se activan con una mención
         if isinstance(instance.mention_handler, bool) and instance.mention_handler:
@@ -132,9 +134,49 @@ class AlexisBot(discord.Client):
 
         # Call task
         if callable(getattr(instance, 'task', None)):
-            self.loop.create_task(instance.task())
+            self.tasks.append(self.loop.create_task(instance.task()))
 
         return instance
+
+    def load_instances(self):
+        self.cmd_instances = []
+        for c in alexis.modules.get_mods(self.config.get('ext_modpath', '')):
+            self.cmd_instances.append(self.load_command(c))
+
+    def unload_instance(self, name):
+        instance = None
+        for i in self.cmd_instances:
+            if i.__class__.__name__ == name:
+                instance = i
+
+        if instance is None:
+            return
+
+        # Unload commands
+        cmd_names = [n for n in [instance.name] + instance.aliases if n != '']
+        for cmd_name in cmd_names:
+            if cmd_name not in self.cmds:
+                continue
+            else:
+                del self.cmds[cmd_name]
+
+        # Unload startswith handlers
+        for swname in instance.swhandler:
+            if swname not in self.swhandlers:
+                continue
+            else:
+                del self.swhandlers[swname]
+
+        # Unload mention handlers
+        for mhandler in self.mention_handlers:
+            if mhandler.__class__.__name__ == name:
+                self.mention_handlers.remove(mhandler)
+
+        # TODO: Unload task
+
+        # Remove from instances list
+        self.cmd_instances.remove(instance)
+        self.log.info('Módulo desactivado: %s', name)
 
     def db_connect(self):
         """
@@ -252,7 +294,7 @@ class AlexisBot(discord.Client):
                 return
 
         if name == 'on_message':
-            await Command.message_handler(kwargs.get('message'), self, cmd)
+            await message_handler(kwargs.get('message'), self, cmd)
 
         for z in self._get_handlers(name):
             await z(**kwargs)

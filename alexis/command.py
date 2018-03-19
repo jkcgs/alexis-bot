@@ -11,7 +11,7 @@ class Command:
         self.log = self.bot.log
         self.name = ''
         self.aliases = []
-        self.swhandler = None
+        self.swhandler = []
         self.swhandler_break = False
         self.mention_handler = False
         self.help = '$[missing-help]'
