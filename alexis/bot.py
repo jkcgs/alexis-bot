@@ -15,13 +15,12 @@ from .command import message_handler
 from .language import Language, SingleLanguage
 from .message_cmd import MessageCmd
 from .logger import log
-from .utils import methods_class
 
 
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.41~f23'
+    __version__ = '1.0.0-dev.42~f23'
     name = 'AlexisBot'
 
     default_config = {
@@ -152,6 +151,8 @@ class AlexisBot(discord.Client):
         if instance is None:
             return
 
+        self.log.debug('Desactivando módulo %s...', name)
+
         # Unload commands
         cmd_names = [n for n in [instance.name] + instance.aliases if n != '']
         for cmd_name in cmd_names:
@@ -172,11 +173,16 @@ class AlexisBot(discord.Client):
             if mhandler.__class__.__name__ == name:
                 self.mention_handlers.remove(mhandler)
 
-        # TODO: Unload task
+        # Hackily unload task
+        for task in self.tasks:
+            if 'coro=<{}.task()'.format(name) in str(task):
+                self.log.debug('Cancelling task %s', str(task))
+                task.cancel()
+                self.tasks.remove(task)
 
         # Remove from instances list
         self.cmd_instances.remove(instance)
-        self.log.info('Módulo desactivado: %s', name)
+        self.log.info('Módulo "%s" desactivado', name)
 
     def db_connect(self):
         """
