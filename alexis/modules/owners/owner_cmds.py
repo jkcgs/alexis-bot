@@ -169,7 +169,7 @@ class OwnerRoles(Command):
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <comando> [rol/roles...]')
+            await cmd.answer('formato: $PX$NM <set/add/remove/list> [rol/roles...]')
             return
 
         await cmd.typing()

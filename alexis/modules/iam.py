@@ -27,32 +27,33 @@ class IAm(Command):
         if cmd.argc == 0:
             if len(roles) == 0:
                 await cmd.answer('no hay roles disponibles')
-                return
+                return False
             else:
                 # Convertir lista de IDs de roles a nombres, filtrar roles no disponibles
                 roles = [get_server_role(cmd.server, r) for r in roles]
                 roles = [r.name for r in roles if r is not None]
                 await cmd.answer('roles disponibles: ' + (', '.join(roles)))
-                return
+                return False
 
         role = get_server_role(cmd.server, cmd.text)
         if role is None or role.id not in roles:
             await cmd.answer('ese rol no está disponible')
-            return
+            return False
 
         if member_has_role(cmd.author, role):
             await cmd.answer('ya tienes ese rol')
-            return
+            return False
 
         if role >= cmd.server.me.top_role:
             await cmd.answer('no puedo asignar este rol, consulta a un miembro del staff')
-            return
+            return False
 
         try:
             await self.bot.add_roles(cmd.author, role)
             await cmd.answer('ahora tienes el rol **{}**!'.format(role.name))
         except discord.Forbidden:
             await cmd.answer('no pude asignar el rol!')
+            return False
         except Exception as e:
             self.log.exception(e)
             raise e

@@ -85,10 +85,10 @@ async def message_handler(message, bot, cmd):
                 return
             # Ejecutar el comando
             else:
-                if cmd_ins.user_delay > 0:
+                result = await cmd_ins.handle(cmd)
+                fine = result is None or (isinstance(result, bool) and result)
+                if fine and cmd_ins.user_delay > 0:
                     cmd_ins.users_delay[cmd.author.id] = dt.now()
-
-                await cmd_ins.handle(cmd)
 
         # 'startswith' handlers
         for swtext in bot.swhandlers.keys():
