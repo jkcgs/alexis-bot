@@ -119,8 +119,8 @@ class IAmRoles(Command):
                 return
             else:
                 # Convertir lista de IDs de roles a su nombre, mostrar "ND:(id)" si no está disponible.
-                roles = [get_server_role(cmd.server, r) for r in roles]
-                roles = [(r.name if r is not None else 'ND:' + r) for r in roles]
+                roles = [get_server_role(cmd.server, r) or r for r in roles]
+                roles = [(r.name if isinstance(r, discord.Role) else 'ND:' + r) for r in roles]
                 await cmd.answer('roles disponibles: ' + (', '.join(roles)))
                 return
 
