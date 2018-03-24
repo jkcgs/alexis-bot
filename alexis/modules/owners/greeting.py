@@ -144,7 +144,7 @@ class Greeting(Command):
 
         elif cmd.args[0] == 'disable':
             cmd.config.set(cfg_channel, '')
-            await cmd.answer('$[greeting-messages-disabled1]')
+            await cmd.answer('$[greeting-messages-disabled]')
 
     async def send_greeting(self, member, is_welcome):
         cfg_channel = self.cfg_welcome_channel if is_welcome else self.cfg_goodbye_channel
