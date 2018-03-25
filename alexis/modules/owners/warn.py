@@ -5,6 +5,7 @@ import peewee
 from discord import Embed
 
 from alexis import Command
+from alexis.utils import is_int
 from alexis.configuration import BaseModel
 
 
@@ -115,6 +116,45 @@ class ClearWarns(Command):
         await cmd.answer('advertencias eliminadas para **{}**'.format(member.display_name))
 
 
+class DeleteWarn(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'deletewarn'
+        self.aliases = ['delwarn']
+        self.help = 'Elimina una advertencia de un usuario, según el número de warn del comando $PXwarnlist'
+        self.allow_pm = False
+        self.owner_only = True
+
+    async def handle(self, cmd):
+        if len(cmd.args) < 2:
+            await cmd.answer('formato: $PX$NM <id, mención> <índice>')
+            return
+
+        if not is_int(cmd.args[1]) or int(cmd.args[1]) < 1:
+            await cmd.answer('el índice debe ser un número entero mayor que cero')
+            return
+
+        member = await cmd.get_user(cmd.args[0], member_only=True)
+        await cmd.typing()
+
+        if member is None:
+            await cmd.answer('no se encontró al usuario')
+            return
+
+        if get_member_warns(member).count() == 0:
+            await cmd.answer('el usuario no tiene advertencias')
+            return
+
+        idx = int(cmd.args[1])
+        warns = list(get_member_warns(member).order_by(UserWarn.timestamp.desc()))
+        if len(warns) < idx:
+            await cmd.answer('índice de advertencia fuera de rango')
+            return
+
+        UserWarn.delete_instance(warns[idx-1])
+        await cmd.answer('advertencia eliminada')
+
+
 class WarnList(Command):
     def __init__(self, bot):
         super().__init__(bot)
@@ -160,9 +200,9 @@ class WarnList(Command):
             return
 
         warnlist = []
-        for warn in warns:
+        for i, warn in enumerate(warns):
             fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-            warnlist.append('`[{}]` {}'.format(fdate, warn.reason))
+            warnlist.append('`[{} - {}]` {}'.format(i+1, fdate, warn.reason))
 
         msg = '**{}** tiene {} {}.'.format(member.display_name, num, adv)
         emb = Embed()
