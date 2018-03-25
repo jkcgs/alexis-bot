@@ -2,7 +2,7 @@ from alexis import Command, utils
 
 
 class Cat(Command):
-    url = 'http://random.cat/meow'
+    url = 'http://aws.random.cat/meow'
 
     def __init__(self, bot):
         super().__init__(bot)
