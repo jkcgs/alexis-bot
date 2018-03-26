@@ -1,6 +1,6 @@
 from alexis import Command
 import urllib.parse as urlparse
-from discord import Embed
+from discord import Embed, Colour
 
 
 class Weather(Command):
@@ -53,7 +53,7 @@ class Weather(Command):
             else:
                 wind = '{} m/s'.format(data['wind']['speed'])
 
-            e = Embed()
+            e = Embed(colour=12608321)
             e.description = ':flag_{}: Clima de **{}**'.format(data['sys']['country'].lower(), data['name'])
             e.set_footer(text='Desde OpenWeatherMap (https://openweathermap.org/)',
                          icon_url='https://openweathermap.org/themes/openweathermap/'
