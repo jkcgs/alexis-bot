@@ -1,16 +1,17 @@
 import re
 
+from bs4 import BeautifulSoup
+
 from discord import Embed
 from alexis import Command
 
 pat_stop = re.compile('^[Pp][a-zA-Z][0-9]+$')
 pat_rec = re.compile('^[a-zA-Z]?[0-9]{2,3}$')
+pat_rec_err = re.compile('error_solo_paradero">([A-Z]?[0-9]{2,3}[A-Z]?)</div>[\n\r\t ]+[<a-z "=_]+>([a-zA-Z .]+)<')
 
 
 # Hola Maxine
 class DTPM(Command):
-    url_time = 'https://api.scltrans.it/v2/stops/{}/next_arrivals'
-
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'transantiago'
@@ -32,38 +33,73 @@ class DTPM(Command):
 
         try:
             await cmd.typing()
-            url = DTPM.url_time.format(cmd.args[0].upper())
-            self.log.debug('loading %s', url)
-            async with self.http.get(url) as r:
-                data = await r.json()
-                if 'results' not in data or len(data['results']) < 1:
-                    await cmd.answer('no se encontró información o el paradero no existe')
-                    return
+            data = await self.get_arrivals(cmd.args[0].upper())
+            if isinstance(data, str):
+                await cmd.answer('error: *{}*'.format(data))
+                return
 
-                if cmd.argc >= 2:
-                    for result in data['results']:
-                        if result['route_id'] == cmd.args[1].upper():
-                            if result['bus_plate_number'] is None:
-                                await cmd.answer('"*{}*"'.format(result['arrival_estimation']))
-                            else:
-                                await cmd.answer('tiempo estimado de llegada: **{}** (patente *{}*)'.format(
-                                    result['arrival_estimation'], result['bus_plate_number']
-                                ))
-                            return
-                    await cmd.answer('no hay llegadas próximas para ese recorrido')
-                else:
-                    routes = []
-                    for arrival in data['results'][:18]:
-                        if arrival['bus_plate_number'] is None:
-                            routes.append('**{}**: *{}*'.format(arrival['route_id'], arrival['arrival_estimation']))
+            if len(data) < 1:
+                await cmd.answer('no se encontró información o el paradero no existe')
+                return
+
+            if cmd.argc >= 2:
+                for result in data:
+                    if result['route_id'] == cmd.args[1].upper():
+                        if result['bus_plate_number'] is None:
+                            await cmd.answer('"*{}*"'.format(result['arrival_estimation']))
                         else:
-                            routes.append('**{}**: {} (patente *{}*)'.format(
-                                arrival['route_id'], arrival['arrival_estimation'], arrival['bus_plate_number']
+                            await cmd.answer('tiempo estimado de llegada: **{}** (patente *{}*)'.format(
+                                result['arrival_estimation'], result['bus_plate_number']
                             ))
+                        return
+                await cmd.answer('no hay llegadas próximas para ese recorrido')
+            else:
+                routes = []
+                for arrival in data[:18]:
+                    if arrival['bus_plate_number'] is None:
+                        routes.append('**{}**: *{}*'.format(arrival['route_id'], arrival['arrival_estimation']))
+                    else:
+                        routes.append('**{}**: {} (patente *{}*)'.format(
+                            arrival['route_id'], arrival['arrival_estimation'], arrival['bus_plate_number']
+                        ))
 
-                    e = Embed(title='Próximas llegadas paradero ' + cmd.args[0].upper(), description='\n'.join(routes))
-                    await cmd.answer(e)
+                e = Embed(title='Próximas llegadas paradero ' + cmd.args[0].upper(), description='\n'.join(routes))
+                await cmd.answer(e)
 
         except Exception as e:
             await cmd.answer('ocurrió un error al obtener la información')
             self.log.exception(e)
+
+    async def get_arrivals(self, bus_stop):
+        url = 'http://web.smsbus.cl/web/buscarAction.do'
+        self.log.debug('loading %s', url)
+
+        await self.http.get(url + '?d=cargarServicios')
+        async with self.http.post(url, data={'d': 'busquedaParadero', 'ingresar_paradero': bus_stop}) as r:
+            txt = await r.text()
+            dom = BeautifulSoup(txt, 'html.parser')
+            error = dom.find(id='respuesta_error')
+            if error is not None:
+                return error.text
+
+            prox = [
+                {
+                    'route_id': p.find(id='servicio_respuesta_solo_paradero').text,
+                    'bus_plate_number': p.find(id='bus_respuesta_solo_paradero').text,
+                    'arrival_estimation': p.find(id='tiempo_respuesta_solo_paradero').text.strip(),
+                    'distance': p.find(id='distancia_respuesta_solo_paradero').text.strip()
+                }
+                for p in dom.find_all(id='proximo_solo_paradero')
+            ]
+
+            err = [
+                {
+                    'route_id': e.group(1),
+                    'bus_plate_number': None,
+                    'arrival_estimation': e.group(2),
+                    'distance': None
+                }
+                for e in pat_rec_err.finditer(txt)
+            ]
+
+            return prox + err
