@@ -37,13 +37,11 @@ class DTPM(Command):
             async with self.http.get(url) as r:
                 data = await r.json()
                 if 'results' not in data or len(data['results']) < 1:
-                    self.log.debug(data)
                     await cmd.answer('no se encontró información o el paradero no existe')
                     return
 
                 if cmd.argc >= 2:
-                    for result in data['results']:
-                        self.log.debug('route_id %s, arg %s', result['route_id'], cmd.args[1].upper())
+                    for result in data['results'][:10]:
                         if result['route_id'] == cmd.args[1].upper():
                             await cmd.answer('tiempo estimado de llegada: **{}** (patente *{}*)'.format(
                                 result['arrival_estimation'], result['bus_plate_number']
@@ -52,7 +50,7 @@ class DTPM(Command):
                     await cmd.answer('recorrido no encontrado')
                 else:
                     routes = []
-                    for arrival in data['results']:
+                    for arrival in data['results'][:10]:
                         if arrival['bus_plate_number'] is None:
                             routes.append('**{}**: *{}*'.format(arrival['route_id'], arrival['arrival_estimation']))
                         else:
