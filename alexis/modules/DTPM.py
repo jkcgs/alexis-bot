@@ -41,13 +41,16 @@ class DTPM(Command):
                     return
 
                 if cmd.argc >= 2:
-                    for result in data['results'][:10]:
+                    for result in data['results']:
                         if result['route_id'] == cmd.args[1].upper():
-                            await cmd.answer('tiempo estimado de llegada: **{}** (patente *{}*)'.format(
-                                result['arrival_estimation'], result['bus_plate_number']
-                            ))
+                            if result['bus_plate_number'] is None:
+                                await cmd.answer('"*{}*"'.format(result['arrival_estimation']))
+                            else:
+                                await cmd.answer('tiempo estimado de llegada: **{}** (patente *{}*)'.format(
+                                    result['arrival_estimation'], result['bus_plate_number']
+                                ))
                             return
-                    await cmd.answer('recorrido no encontrado')
+                    await cmd.answer('no hay llegadas próximas para ese recorrido')
                 else:
                     routes = []
                     for arrival in data['results'][:10]:
