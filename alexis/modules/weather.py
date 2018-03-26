@@ -55,6 +55,9 @@ class Weather(Command):
 
             e = Embed()
             e.description = ':flag_{}: Clima de **{}**'.format(data['sys']['country'].lower(), data['name'])
+            e.set_footer(text='Desde OpenWeatherMap (https://openweathermap.org/)',
+                         icon_url='https://openweathermap.org/themes/openweathermap/'
+                                  'assets/vendor/owm/img/icons/logo_60x60.png')
             e.add_field(name='Clima', value=data['weather'][0]['description'])
             e.add_field(name='Temperatura', value='{} ºC'.format(data['main']['temp']))
             e.add_field(name='Presión atmosférica', value='{} hPa'.format(data['main']['pressure']))
