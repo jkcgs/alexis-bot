@@ -53,7 +53,7 @@ class DTPM(Command):
                     await cmd.answer('no hay llegadas próximas para ese recorrido')
                 else:
                     routes = []
-                    for arrival in data['results'][:10]:
+                    for arrival in data['results'][:15]:
                         if arrival['bus_plate_number'] is None:
                             routes.append('**{}**: *{}*'.format(arrival['route_id'], arrival['arrival_estimation']))
                         else:
