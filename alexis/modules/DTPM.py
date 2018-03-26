@@ -1,13 +1,13 @@
 import re
 
 from discord import Embed
-
 from alexis import Command
 
 pat_stop = re.compile('^[Pp][a-zA-Z][0-9]+$')
 pat_rec = re.compile('^[a-zA-Z]?[0-9]{2,3}$')
 
 
+# Hola Maxine
 class DTPM(Command):
     url_time = 'https://api.scltrans.it/v2/stops/{}/next_arrivals'
 
@@ -15,6 +15,7 @@ class DTPM(Command):
         super().__init__(bot)
         self.name = 'transantiago'
         self.aliases = ['ts']
+        self.help = 'Muestra próximas llegadas de buses a un paradero de Transantiago'
 
     async def handle(self, cmd):
         if cmd.argc < 1:
@@ -59,7 +60,7 @@ class DTPM(Command):
                                 arrival['route_id'], arrival['arrival_estimation'], arrival['bus_plate_number']
                             ))
 
-                    e = Embed(title='Próximas llegadas paradero ' + cmd.args[0], description='\n'.join(routes))
+                    e = Embed(title='Próximas llegadas paradero ' + cmd.args[0].upper(), description='\n'.join(routes))
                     await cmd.answer(e)
 
         except Exception as e:
