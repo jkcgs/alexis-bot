@@ -62,8 +62,8 @@ class MacroSet(Command):
             await cmd.answer('no se puede crear un macro con el nombre de un comando')
             return
 
-        if len(name) > 30:
-            await cmd.answer('el nombre del macro puede tener hasta 30 carácteres')
+        if len(name) > 100:
+            await cmd.answer('el nombre del macro puede tener hasta 100 carácteres')
             return
 
         if len(subargs) == 1 and subargs[0] != '':
@@ -162,6 +162,9 @@ class MacroRename(Command):
         if cmd.args[1] in self.bot.cmds:
             await cmd.answer('no se puede nombrar un macro con el nombre de un comando')
             return
+
+        if len(cmd.args[1]) > 100:
+            await cmd.answer('el nombre del macro no puede tener más de 100 carácteres')
 
         serverid = 'global' if cmd.is_pm else cmd.message.server.id
         try:
