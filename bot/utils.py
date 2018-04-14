@@ -111,6 +111,29 @@ def text_cut(text, limit, cutter='…'):
         return text
 
 
+def split_list(listcont, limit, glue='\n'):
+    """
+    Separa una lista de items en listas más pequeñas para poder ser enviada por partes en un mensaje
+    :param listcont: La lista completa de items
+    :param limit: El límite de carácteres
+    :param glue: El string que unirá cada elemento de la lista
+    :return: Una lista de listas separadas según los parámetros entregados
+    """
+    chunks = []
+    chunk = []
+    for item in listcont:
+        if len(glue.join(chunk + [item])) > limit:
+            chunks.append(list(chunk))
+            chunk = [item]
+        else:
+            chunk.append(item)
+
+    if len(chunk) > 0:
+        chunks.append(chunk)
+
+    return chunks
+
+
 def parse_tag(text):
     if not pat_tag.match(text):
         return None

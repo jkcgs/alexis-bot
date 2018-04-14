@@ -101,6 +101,7 @@ class StaticConfig:
         """
         Carga de manera simple un archivo en una carpeta llamada "config" en la ubicación actual de ejecución
         :param name: El nombre del archivo
+        :param defaults: Valores por defecto a cargar en la configuración
         :return: Una instancia de StaticConfig del archivo cargado
         """
 

@@ -2,8 +2,8 @@ import sys
 
 from discord import Game
 
-from bot import Command
-from bot.utils import is_float, is_int
+from bot import Command, StaticConfig
+from bot.utils import is_float, is_int, split_list
 
 
 class ConfigCmd(Command):
@@ -18,9 +18,21 @@ class ConfigCmd(Command):
             await cmd.answer('$PX$NM (get|set|add|remove) (name) [value]')
             return
 
-        cfg = self.bot.config
+        if cmd.subcmd == '':
+            cfg = self.bot.config
+        else:
+            if not StaticConfig.exists(cmd.subcmd):
+                await cmd.answer('esa configuración no existe')
+                return
+            cfg = StaticConfig.get_config(cmd.subcmd)
+
         arg = cmd.args[0]
         name = cmd.args[1]
+
+        if name not in cfg:
+            await cmd.answer('no existe un valor con ese nombre')
+            return
+
         val = cfg[name]
 
         if arg == 'get':
@@ -32,8 +44,11 @@ class ConfigCmd(Command):
                 if len(val) == 0:
                     await cmd.answer('la lista "{}" está vacía'.format(name))
                 else:
-                    cont = '\n'.join(['- ' + str(f) for f in val])
-                    await cmd.answer('valores de "{}":\n```{}```'.format(name, cont))
+                    await cmd.answer('valores de "{}":'.format(name))
+                    items = ['- ' + str(f) for f in val]
+                    for chunk in split_list(items, 1800):
+                        cont = '\n'.join(chunk)
+                        await cmd.answer('```{}```'.format(cont))
             else:
                 await cmd.answer('valor de "{}": **{}**'.format(name, str(val)))
         elif arg == 'set':
