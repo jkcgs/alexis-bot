@@ -23,7 +23,7 @@ from . import defaults
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.50~f32'
+    __version__ = '1.0.0-dev.50~f33s'
     name = 'AlexisBot'
 
     def __init__(self, **options):

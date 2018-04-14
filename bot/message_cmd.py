@@ -32,6 +32,7 @@ class MessageCmd:
         self.cmdname = ''
         self.args = []
         self.argc = 0
+        self.subcmd = ''
 
         if not self.is_pm:
             self.server = message.server
@@ -48,7 +49,9 @@ class MessageCmd:
 
             self.args = [] if len(self.allargs) == 1 else [f for f in self.allargs[1:] if f.strip() != '']
             self.argc = len(self.args)
-            self.cmdname = self.allargs[0][len(self.prefix):]
+            cmd_parts = self.allargs[0][len(self.prefix):].split(':')
+            self.cmdname = cmd_parts[0]
+            self.subcmd = '' if len(cmd_parts) < 2 else cmd_parts[1]
             self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):

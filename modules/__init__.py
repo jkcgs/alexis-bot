@@ -35,7 +35,7 @@ def get_mods(ext_path=''):
     # Listar módulos internos
     _all = ['modules.' + f for f in get_mod_files(path.dirname(__file__))]
 
-    local_ext = path.join(path.dirname(__file__), '..', '..', 'external_modules')
+    local_ext = path.join(path.dirname(__file__), '..', 'external_modules')
     if path.isdir(local_ext):
         _all += ['external_modules.' + f for f in get_mod_files(local_ext)]
 
