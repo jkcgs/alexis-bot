@@ -66,7 +66,7 @@ class NextSteamSale(Command):
             raise err
         finally:
             if not self.bot.is_closed:
-                await asyncio.sleep(600)
+                await asyncio.sleep(43200)  # 12h
                 self.bot.loop.create_task(self.task())
             
 
