@@ -1,11 +1,10 @@
 import random
 from bot.libs.configuration import yaml
-from os import path
 from bot import Command, StaticConfig
 from bot.utils import img_embed
 
 default_pats = 'https://gist.github.com/jkcgs/137a28dc01b3e8538a253652f44eaf09/' \
-               'raw/4d202bd98180703b6f4145c8995cdf5b09914b8e/pats.yml'
+               'raw/039dfdf76945915ad5d723d0031daa94d2e03e0b/pats.yml'
 
 
 class Pat(Command):
@@ -21,22 +20,26 @@ class Pat(Command):
             await cmd.answer('this is not working yet')
             return
 
-        if len(cmd.args) != 1 or len(cmd.message.mentions) != 1:
-            await cmd.answer('Formato: !pat <@mención>')
-            return
+        if len(cmd.args) > 0:
+            mention = await cmd.get_user(cmd.text)
+            if mention is None:
+                await cmd.answer('usuario no encontrado. Formato: !pat [@usuario]')
+                return
 
-        mention = cmd.message.mentions[0]
-        text = '{}, {} te ha dado una palmadita :3'.format(
-            mention.display_name, cmd.author_name
-        )
+            text = '{}, {} te ha dado una palmadita :3'.format(
+                mention.display_name, cmd.author_name
+            )
 
-        if mention.id == cmd.author.id:
-            url = random.choice(self.config['self_pats'])
-        elif mention.id == self.bot.user.id:
-            url = self.config['bot_pat']
-            text = 'oye nuuuu >_<'
+            if mention.id == cmd.author.id:
+                url = random.choice(self.config['self_pats'])
+            elif mention.id == self.bot.user.id:
+                url = self.config['bot_pat']
+                text = 'oye nuuuu >_<'
+            else:
+                url = random.choice(self.config['pats'])
         else:
             url = random.choice(self.config['pats'])
+            text = '{}, toma una palmadita :3'.format(cmd.author_name)
 
         await cmd.answer(embed=img_embed(url, text), withname=False)
 
