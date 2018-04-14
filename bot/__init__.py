@@ -11,7 +11,7 @@ import re
 
 import bot.modules
 
-from .libs.configuration import StaticConfig, ServerConfigMgr, BaseModel
+from .libs.configuration import StaticConfig, Configuration, BaseModel
 from .libs.language import Language, SingleLanguage
 from .message_cmd import MessageCmd
 from .command import Command
@@ -25,7 +25,7 @@ from . import defaults
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.45~f30'
+    __version__ = '1.0.0-dev.46~f30'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -75,7 +75,7 @@ class AlexisBot(discord.Client):
 
         # Cargar base de datos
         self.db_connect()
-        self.sv_config = ServerConfigMgr()
+        self.sv_config = Configuration()
 
         # Cargar (instanciar clases de) comandos
         log.info('Cargando comandos...')

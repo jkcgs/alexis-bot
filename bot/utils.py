@@ -2,7 +2,7 @@ import discord
 import re
 from discord import Embed
 
-from bot.libs.configuration import ServerConfigMgrSingle
+from bot.libs.configuration import ServerConfiguration
 
 
 pat_tag = re.compile('^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')
@@ -36,7 +36,7 @@ def is_owner(bot, member, server):
     if member.server_permissions.administrator:
         return True
 
-    cfg = ServerConfigMgrSingle(bot.sv_config, server.id)
+    cfg = ServerConfiguration(bot.sv_config, server.id)
 
     owner_roles = cfg.get('owner_roles', bot.config['owner_role'])
     if owner_roles == '':

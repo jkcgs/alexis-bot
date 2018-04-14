@@ -9,7 +9,7 @@ from discord.http import Route
 from bot import Command, AlexisBot, MessageCmd
 from discord import Embed
 
-from bot.libs.configuration import BaseModel, ServerConfigMgrSingle
+from bot.libs.configuration import BaseModel, ServerConfiguration
 from bot.logger import log
 from bot.utils import deltatime_to_str
 
@@ -38,7 +38,7 @@ class ModLog(Command):
         if message.server is None or message.author.id == self.bot.user.id:
             return
 
-        config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
+        config = ServerConfiguration(self.bot.sv_config, message.server.id)
         footer = 'Enviado: ' + ModLog.parsedate(message.timestamp)
         if message.edited_timestamp is not None:
             footer += ', editado: ' + ModLog.parsedate(message.edited_timestamp)

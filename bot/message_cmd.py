@@ -3,7 +3,7 @@ import re
 
 from discord import Embed
 
-from bot.libs.configuration import ServerConfigMgrSingle
+from bot.libs.configuration import ServerConfiguration
 from bot.libs.language import SingleLanguage
 from bot.utils import serialize_avail, pat_emoji, is_owner, pat_channel
 
@@ -36,7 +36,7 @@ class MessageCmd:
         if not self.is_pm:
             self.server = message.server
             self.server_member = message.server.get_member(self.bot.user.id)
-            self.config = ServerConfigMgrSingle(self.bot.sv_config, message.server.id)
+            self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
             self.prefix = self.config.get('command_prefix', bot.config['command_prefix'])
             self.lang = self.bot.get_lang(message.server.id)
         else:

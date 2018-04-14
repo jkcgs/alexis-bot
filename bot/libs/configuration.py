@@ -96,7 +96,7 @@ class StaticConfig:
         return self.config[name]
 
 
-class ServerConfigMgr:
+class Configuration:
     """
     Gestiona la configuración por servidor almacenada en la base de datos, cacheada en memoria.
     """
@@ -239,7 +239,7 @@ class ServerConfigMgr:
         return self.sv[svid][name]
 
 
-class ServerConfigMgrSingle:
+class ServerConfiguration:
     """
     Shortcut para gestionar la configuración de un sólo servidor
     """

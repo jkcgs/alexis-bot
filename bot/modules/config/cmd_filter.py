@@ -1,5 +1,5 @@
 from bot import Command
-from bot.libs.configuration import ServerConfigMgrSingle
+from bot.libs.configuration import ServerConfiguration
 
 
 class CmdFilter(Command):
@@ -12,7 +12,7 @@ class CmdFilter(Command):
         if svid is None:
             return
 
-        svconfig = ServerConfigMgrSingle(self.bot.sv_config, svid)
+        svconfig = ServerConfiguration(self.bot.sv_config, svid)
         prefix = svconfig.get('command_prefix', self.bot.config['command_prefix'])
         if prefix == '':
             return
