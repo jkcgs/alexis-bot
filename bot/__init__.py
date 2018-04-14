@@ -9,8 +9,6 @@ import aiohttp
 import discord
 import re
 
-import bot.modules
-
 from .libs.configuration import StaticConfig, Configuration, BaseModel
 from .libs.language import Language, SingleLanguage
 from .message_cmd import MessageCmd
@@ -25,7 +23,7 @@ from . import defaults
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.48~f32'
+    __version__ = '1.0.0-dev.49~f32'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -93,47 +91,13 @@ class AlexisBot(discord.Client):
             log.exception(ex)
             raise
 
-    def load_command(self, cls):
-        """
-        Carga un módulo de comando en el bot
-        :param cls: Clase-módulo a cargar
-        :return: La instancia del módulo cargado
-        """
-
-        instance = cls(self)
-        if len(instance.db_models) > 0:
-            self.db.create_tables(instance.db_models, True)
-
-        if isinstance(instance.default_config, dict):
-            self.config.load_defaults(instance.default_config)
-
-        # Comandos
-        for name in [instance.name] + instance.aliases:
-            if name != '':
-                self.cmds[name] = instance
-
-        # Handlers startswith
-        for swtext in instance.swhandler:
-            if swtext != '':
-                log.debug('Registrando sw_handler "%s"', swtext)
-                self.swhandlers[swtext] = instance
-
-        # Comandos que se activan con una mención
-        if isinstance(instance.mention_handler, bool) and instance.mention_handler:
-            self.mention_handlers.append(instance)
-
-        # Call task
-        if callable(getattr(instance, 'task', None)):
-            self.tasks.append(self.loop.create_task(instance.task()))
-
-        return instance
-
     def load_instances(self):
         """
         Carga las instancias de las clases de comandos cargadas
         """
+        from . import modules
         self.cmd_instances = []
-        for c in bot.modules.get_mods(self.config.get('ext_modpath', '')):
+        for c in modules.get_mods(self.config.get('ext_modpath', '')):
             self.cmd_instances.append(self.load_command(c))
 
         log.info('Se cargaron %i módulos', len(self.cmd_instances))
@@ -185,6 +149,41 @@ class AlexisBot(discord.Client):
         # Remove from instances list
         self.cmd_instances.remove(instance)
         log.info('Módulo "%s" desactivado', name)
+
+    def load_command(self, cls):
+        """
+        Carga un módulo de comando en el bot
+        :param cls: Clase-módulo a cargar
+        :return: La instancia del módulo cargado
+        """
+
+        instance = cls(self)
+        if len(instance.db_models) > 0:
+            self.db.create_tables(instance.db_models, True)
+
+        if isinstance(instance.default_config, dict):
+            self.config.load_defaults(instance.default_config)
+
+        # Comandos
+        for name in [instance.name] + instance.aliases:
+            if name != '':
+                self.cmds[name] = instance
+
+        # Handlers startswith
+        for swtext in instance.swhandler:
+            if swtext != '':
+                log.debug('Registrando sw_handler "%s"', swtext)
+                self.swhandlers[swtext] = instance
+
+        # Comandos que se activan con una mención
+        if isinstance(instance.mention_handler, bool) and instance.mention_handler:
+            self.mention_handlers.append(instance)
+
+        # Call task
+        if callable(getattr(instance, 'task', None)):
+            self.tasks.append(self.loop.create_task(instance.task()))
+
+        return instance
 
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""
