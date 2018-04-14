@@ -25,7 +25,7 @@ from . import defaults
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.47~f32'
+    __version__ = '1.0.0-dev.48~f32'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -59,7 +59,7 @@ class AlexisBot(discord.Client):
 
     def init(self):
         """
-        Inicializa la conexión del bot con Discord, además de cargar los módulos y la base de datos
+        Carga la configuración, se conecta a la base de datos, y luego se conecta con Discord.
         :return:
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
@@ -69,20 +69,17 @@ class AlexisBot(discord.Client):
 
         # Cargar configuración
         self.load_config()
-
         if self.config.get('token', '') == '':
             raise RuntimeError('No se ha definido el tóken de Discord. Debe estar en e')
 
         # Cargar base de datos
-        self.db_connect()
+        log.info('Conectando con la base de datos...')
+        self.connect_db()
         self.sv_config = Configuration()
 
-        # Cargar (instanciar clases de) comandos
+        # Cargar instancias de las clases de comandos cargadas en bots.modules
         log.info('Cargando comandos...')
         self.load_instances()
-        log.info('Se cargaron %i módulos', len(self.cmd_instances))
-        log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-        log.debug('Módulos cargados: ' + ', '.join([i.__class__.__name__ for i in self.cmd_instances]))
 
         self._call_handlers_sync('on_loaded', force=True)
 
@@ -132,11 +129,22 @@ class AlexisBot(discord.Client):
         return instance
 
     def load_instances(self):
+        """
+        Carga las instancias de las clases de comandos cargadas
+        """
         self.cmd_instances = []
         for c in bot.modules.get_mods(self.config.get('ext_modpath', '')):
             self.cmd_instances.append(self.load_command(c))
 
+        log.info('Se cargaron %i módulos', len(self.cmd_instances))
+        log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
+        log.debug('Módulos cargados: ' + ', '.join([i.__class__.__name__ for i in self.cmd_instances]))
+
     def unload_instance(self, name):
+        """
+        Saca de la memoria una instancia de un módulo, desactivando todos sus comandos y event handlers.
+        :param name: El nombre del módulo.
+        """
         instance = None
         for i in self.cmd_instances:
             if i.__class__.__name__ == name:
@@ -177,16 +185,6 @@ class AlexisBot(discord.Client):
         # Remove from instances list
         self.cmd_instances.remove(instance)
         log.info('Módulo "%s" desactivado', name)
-
-    def db_connect(self):
-        """
-        Ejecuta la conexión a la base de datos
-        """
-        log.info('Conectando con la base de datos...')
-        self.db = get_database()
-        init_db()
-        log.info('Conectado correctamente a la base de datos.')
-        log.info('Clase de base de datos: %s', self.db.__class__.__name__)
 
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""
@@ -246,6 +244,14 @@ class AlexisBot(discord.Client):
         if len(self.deleted_messages) > 20:
             del self.deleted_messages[0]
 
+    def connect_db(self):
+        """
+        Ejecuta la conexión a la base de datos
+        """
+        self.db = get_database()
+        init_db()
+        log.info('Conectado correctamente a la base de datos mediante %s', self.db.__class__.__name__)
+
     def load_config(self):
         """
         Carga la configuración estática y de idioma
@@ -282,6 +288,11 @@ class AlexisBot(discord.Client):
         await self.http.close()
 
     async def _call_handlers(self, name, **kwargs):
+        """
+        Llama a funciones "handlers" en los módulos cargados.
+        :param name: El nombre del handler
+        :param kwargs: Los parámetros del evento
+        """
         if not self.initialized:
             return
 
@@ -305,6 +316,12 @@ class AlexisBot(discord.Client):
             await z(**kwargs)
 
     def _call_handlers_sync(self, name, force=False, **kwargs):
+        """
+        Llama a funciones "handlers" en los módulos cargados.
+        :param name: El nombre del handler
+        :param force: Llamar a los handlers aunque no se haya inicializado al bot
+        :param kwargs: Los parámetros del evento
+        """
         if not self.initialized and not force:
             return
 
