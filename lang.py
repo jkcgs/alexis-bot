@@ -3,8 +3,8 @@ import sys
 from os import path, listdir, mkdir
 
 
-from alexis.libs.configuration import StaticConfig
-from alexis.utils import is_int
+from bot.libs.configuration import StaticConfig
+from bot.utils import is_int
 
 LANG_FOLDER = 'lang'
 LANGS = ['en', 'es', 'es_CL']

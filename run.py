@@ -1,5 +1,5 @@
 import asyncio
-from alexis import AlexisBot
+from bot import AlexisBot
 
 
 async def close():
