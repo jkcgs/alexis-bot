@@ -2,6 +2,7 @@
 
 config.yml
 config.py
+/config/
 database.db
 logs/
 data.json

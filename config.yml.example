@@ -1,16 +1,34 @@
+# Discord token
 token: ""
-debug: false
+
+# Default server prefix
 command_prefix: "!"
+
+# Database URL. MySQL, PostgreSQL and SQLite can be used.
 database_url: 'sqlite:///database.db'
-default_lang: "en"
-log_path: logs
-log_to_files: true
+
+# Default "playing" status
 playing: "/r/chile"
+
+# Role that determines a user is an owner. Alternatively, all server admins are "owners"
 owner_role: "AlexisMaster"
+
+# Bot owners can do config stuff with commands. Server owners can't.
 bot_owners: ["130324995984326656"]
-ext_modpath: ""
-whitelist: false
-whitelist_contact: 130324995984326656
+
+# Servers can change its language, but this is the default one.
+default_lang: "en"
+
+# Advanced stuff
+log_path: logs      # Logs path
+log_to_files: true  # Log to files can be disabled here (useful when using supervisord, or whatever)
+ext_modpath: ""     # External path to load modules
+debug: false        # Debug mode. Exception tracebacks will be fully logged into chat.
+
+# Bot server invitations whitelist. If the bot is invited to a server, but it's not on the following whitelist,
+# it will say a message and will leave the server.
 whitelist_servers:
 - 198944348379938816
-whitelist_autoleave: false
+whitelist: false             # This is normally disabled
+whitelist_autoleave: false   # Used when bot starts up, it leaves currently not-whitelisted servers.
+whitelist_contact: 130324995984326656

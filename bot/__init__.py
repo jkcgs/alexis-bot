@@ -25,7 +25,7 @@ from . import defaults
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.46~f30'
+    __version__ = '1.0.0-dev.47~f31'
     name = 'AlexisBot'
 
     def __init__(self, **options):

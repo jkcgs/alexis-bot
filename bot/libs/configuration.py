@@ -1,3 +1,4 @@
+import os
 import discord
 import peewee
 from playhouse.db_url import connect
@@ -94,6 +95,28 @@ class StaticConfig:
         self.config[name] = val
         self.save(reload=True)
         return self.config[name]
+
+    @staticmethod
+    def get_config(name, defaults=None):
+        """
+        Carga de manera simple un archivo en una carpeta llamada "config" en la ubicación actual de ejecución
+        :param name: El nombre del archivo
+        :return: Una instancia de StaticConfig del archivo cargado
+        """
+
+        if not os.path.exists('config'):
+            os.mkdir('config')
+
+        conf_path = 'config/' + name + '.yml'
+        if not os.path.exists(conf_path):
+            with open(conf_path, 'a'):
+                os.utime(conf_path, None)
+
+        ins = StaticConfig('config/' + name + '.yml', True)
+        if defaults is not None:
+            ins.load_defaults(defaults)
+
+        return ins
 
 
 class Configuration:

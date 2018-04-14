@@ -33,7 +33,7 @@ def get_mods(ext_path=''):
     classes = []
 
     # Listar módulos internos
-    _all = ['alexis.modules.' + f for f in get_mod_files(path.dirname(__file__))]
+    _all = ['bot.modules.' + f for f in get_mod_files(path.dirname(__file__))]
 
     local_ext = path.join(path.dirname(__file__), '..', '..', 'external_modules')
     if path.isdir(local_ext):

@@ -1,10 +1,14 @@
-from bot import Command
+from bot import Command, StaticConfig
 from discord import Embed
 import random
 
+defaults = {
+    'slots_fruits': [':cookie:', ':apple:', ':tangerine:', ':lemon:', ':cherries:', ':grapes:', ':watermelon:',
+                     ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
+}
+
 
 class Slots(Command):
-
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'slots'
@@ -12,13 +16,10 @@ class Slots(Command):
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False
         self.enabled = True
-        self.default_config = {
-            'slots_fruits': [':cookie:', ':apple:', ':tangerine:', ':lemon:', ':cherries:', ':grapes:', ':watermelon:',
-                             ':strawberry:', ':peach:', ':melon:', ':banana:', ':pear:', ':pineapple:']
-        }
+        self.config = StaticConfig.get_config('slots', defaults)
 
     async def handle(self, cmd):
-        frutas = self.bot.config['slots_fruits']
+        frutas = self.config['slots_fruits']
         if len(frutas) < 3:
             await cmd.answer('este comando no funciona u_u')
             return
