@@ -2,7 +2,7 @@ import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
-from .configuration import ServerConfigMgrSingle
+from alexis.libs.configuration import ServerConfigMgrSingle
 
 
 class Command:

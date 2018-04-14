@@ -1,7 +1,6 @@
 from urllib.parse import urlencode
 
-from alexis.logger import log
-from alexis import Command
+from alexis import Command, log
 
 
 class SimSimiException(Exception):

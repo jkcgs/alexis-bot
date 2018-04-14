@@ -1,5 +1,5 @@
 from alexis import Command
-from alexis.configuration import ServerConfigMgrSingle
+from alexis.libs.configuration import ServerConfigMgrSingle
 
 
 class CmdFilter(Command):

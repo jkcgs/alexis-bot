@@ -1,6 +1,6 @@
 from alexis import Command
 import urllib.parse as urlparse
-from discord import Embed, Colour
+from discord import Embed
 
 
 class Weather(Command):

@@ -1,11 +1,9 @@
-from datetime import datetime
 import peewee
-from discord import Embed
-
-from alexis import Command
-from alexis.configuration import BaseModel
 import random
+from discord import Embed
+from datetime import datetime
 
+from alexis import Command, BaseModel
 from alexis.utils import is_int
 
 

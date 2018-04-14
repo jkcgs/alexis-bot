@@ -3,7 +3,7 @@ import os
 import datetime
 from os import path
 
-from .configuration import StaticConfig
+from alexis.libs.configuration import StaticConfig
 
 logger_created = False
 

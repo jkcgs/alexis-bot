@@ -6,7 +6,7 @@ from discord import Embed, Colour
 
 from alexis import Command
 from alexis.utils import is_int
-from alexis.configuration import BaseModel
+from alexis.libs.configuration import BaseModel
 
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',

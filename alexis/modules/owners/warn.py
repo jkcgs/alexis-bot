@@ -6,7 +6,7 @@ from discord import Embed
 
 from alexis import Command
 from alexis.utils import is_int
-from alexis.configuration import BaseModel
+from alexis.libs.configuration import BaseModel
 
 
 class Warn(Command):

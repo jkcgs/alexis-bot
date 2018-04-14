@@ -3,8 +3,8 @@ import re
 
 from discord import Embed
 
-from alexis.configuration import ServerConfigMgrSingle
-from alexis.language import SingleLanguage
+from alexis.libs.configuration import ServerConfigMgrSingle
+from alexis.libs.language import SingleLanguage
 from alexis.utils import serialize_avail, pat_emoji, is_owner, pat_channel
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')

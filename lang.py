@@ -3,7 +3,7 @@ import sys
 from os import path, listdir, mkdir
 
 
-from alexis.configuration import StaticConfig
+from alexis.libs.configuration import StaticConfig
 from alexis.utils import is_int
 
 LANG_FOLDER = 'lang'

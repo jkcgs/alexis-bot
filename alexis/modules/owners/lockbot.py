@@ -1,7 +1,7 @@
 from discord import Embed
 
 from alexis import Command
-from alexis.configuration import ServerConfig
+from alexis.libs.configuration import ServerConfig
 
 
 cfg_locked = 'locked_bot_channels'
