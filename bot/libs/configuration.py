@@ -118,6 +118,10 @@ class StaticConfig:
 
         return ins
 
+    @staticmethod
+    def exists(name):
+        return os.path.exists('config/' + name + '.yml')
+
 
 class Configuration:
     """

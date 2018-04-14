@@ -1,11 +1,11 @@
-from os import path
-
-import yaml
-
-from bot import Command
 import random
-
+from bot.libs.configuration import yaml
+from os import path
+from bot import Command, StaticConfig
 from bot.utils import img_embed
+
+default_pats = 'https://gist.github.com/jkcgs/137a28dc01b3e8538a253652f44eaf09/' \
+               'raw/4d202bd98180703b6f4145c8995cdf5b09914b8e/pats.yml'
 
 
 class Pat(Command):
@@ -14,10 +14,13 @@ class Pat(Command):
         super().__init__(bot)
         self.name = 'pat'
         self.help = 'Te envía una imagen de animé de una caricia en la cabeza y algo más'
-        self.config = {}
-        self.load_config()
+        self.config = None
 
     async def handle(self, cmd):
+        if self.config is None:
+            await cmd.answer('this is not working yet')
+            return
+
         if len(cmd.args) != 1 or len(cmd.message.mentions) != 1:
             await cmd.answer('Formato: !pat <@mención>')
             return
@@ -37,25 +40,18 @@ class Pat(Command):
 
         await cmd.answer(embed=img_embed(url, text), withname=False)
 
-    def load_config(self):
+    async def task(self):
         self.log.debug('[Pat] Cargando pats...')
-
-        try:
-            config_path = path.join(path.dirname(path.realpath(__file__)), 'pats.yml')
-            with open(config_path, 'r') as file:
-                config = yaml.safe_load(file)
-            if config is None:
-                raise Exception('La configuración está vacía')
-
-            self.config = {
-                'pats': config.get('pats', []),
-                'self_pats': config.get('self_pats', []),
-                'bot_pat': config.get('bot_pat', 'http://i.imgur.com/tVzapCY.gif')
-            }
-        except Exception as ex:
-            self.log.exception(ex)
-            self.config = {
+        if not StaticConfig.exists('pats'):
+            self.log.debug('Loading remote default pats')
+            async with self.http.get(default_pats) as r:
+                data = await r.text()
+                defaults = yaml.load(data)
+        else:
+            defaults = {
                 'pats': [],
                 'self_pats': [],
                 'bot_pat': 'http://i.imgur.com/tVzapCY.gif'
             }
+
+        self.config = StaticConfig.get_config('pats', defaults)
