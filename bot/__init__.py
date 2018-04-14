@@ -23,7 +23,7 @@ from . import defaults
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.49~f32'
+    __version__ = '1.0.0-dev.50~f32'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -92,10 +92,8 @@ class AlexisBot(discord.Client):
             raise
 
     def load_instances(self):
-        """
-        Carga las instancias de las clases de comandos cargadas
-        """
-        from . import modules
+        """Carga las instancias de las clases de comandos cargadas"""
+        import modules
         self.cmd_instances = []
         for c in modules.get_mods(self.config.get('ext_modpath', '')):
             self.cmd_instances.append(self.load_command(c))
