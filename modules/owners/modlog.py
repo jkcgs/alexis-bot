@@ -150,6 +150,8 @@ class ModLog(Command):
         embed.add_field(name='Nick', value=member.nick if member.nick is not None else 'Ninguno :c')
         embed.add_field(name='Usuario creado el', value=ModLog.parsedate(member.created_at))
         embed.add_field(name='Se unió al server el', value=ModLog.parsedate(member.joined_at))
+        embed.add_field(name='Estancia en el server',
+                        value=deltatime_to_str(datetime.now() - member.joined_at), inline=False)
 
         if member.avatar_url != '':
             embed.set_thumbnail(url=member.avatar_url)
@@ -164,6 +166,7 @@ class ModLog(Command):
 
             embed.add_field(name='Notas', value=n if n != '' else '(sin notas)')
             embed.add_field(name='Nombres ', value=', '.join(names))
+            embed.add_field(name='Delta server join', value=deltatime_to_str(member.joined_at - member.created_at))
 
         return embed
 
