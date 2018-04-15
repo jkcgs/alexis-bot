@@ -3,6 +3,9 @@ from bot.utils import img_embed
 
 
 class Avatar(Command):
+    __version__ = '1.0.0'
+    __author__ = 'makzk'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'avatar'

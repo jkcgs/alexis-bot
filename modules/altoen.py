@@ -5,6 +5,9 @@ from bot.utils import img_embed
 
 
 class AltoEn(Command):
+    __version__ = '0.1.0'
+    __author__ = 'makzk'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'altoen'
@@ -19,5 +22,5 @@ class AltoEn(Command):
             await cmd.answer('mucho texto, máximo 25 carácteres plix ty')
             return
 
-        altourl = "https://desu.cl/alto.php?size=1000&text=" + urlparse.quote(cmd.text)
+        altourl = "https://est.ceii.ufro.cl/~jk/alto.php?size=1000&text=" + urlparse.quote(cmd.text)
         await cmd.answer(embed=img_embed(altourl))

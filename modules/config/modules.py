@@ -6,13 +6,17 @@ from bot import Command
 
 
 class Modules(Command):
+    __version__ = '1.0.0'
+    __author__ = 'makzk'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'modules'
+        self.help = 'Gestión de módulos'
         self.bot_owner_only = True
 
     async def handle(self, cmd):
-        name = '' if cmd.argc == 0 else (cmd.args[0][1:] if cmd.args[0][0] in ['+', '-', '~'] else cmd.args[0])
+        name = '' if cmd.argc == 0 else (cmd.args[0][1:] if cmd.args[0][0] in ['+', '-', '~', '!'] else cmd.args[0])
         if name == '':
             await cmd.answer('Módulos cargados:\n```{}```'.format(', '.join(self.get_mod_names())))
             return
@@ -63,7 +67,11 @@ class Modules(Command):
 
             return
 
-        module = self.get_mod(name)
+        if cmd.args[0][0] == '!':
+            module = self.get_by_cmd(name)
+        else:
+            module = self.get_mod(name)
+
         if module is None:
             await cmd.answer('módulo no encontrado')
             return
@@ -73,9 +81,10 @@ class Modules(Command):
 
         embed = Embed(title='Información de módulo')
         embed.description = '**{}** v{} por {}\n*{}*'.format(
-            name, getattr(module, '__version__', '0.0.0'), getattr(module, '__author__', '(sin autor)'),
-            module.help
+            module.__class__.__name__, getattr(module, '__version__', '0.0.0'),
+            getattr(module, '__author__', '*(sin autor)*'), module.help
         )
+
         embed.add_field(name='Comando(s)', value=cmds)
         embed.add_field(name='SW Handler', value=(', '.join(module.mention_handler or []) or '(ninguno)'))
         embed.add_field(name='Mention Handler', value=(', '.join(module.mention_handler or []) or '(ninguno)'))
@@ -92,6 +101,13 @@ class Modules(Command):
     def get_mod(self, name):
         for i in self.bot.cmd_instances:
             if i.__class__.__name__ == name:
+                return i
+
+        return None
+
+    def get_by_cmd(self, cmdname):
+        for i in self.bot.cmd_instances:
+            if i.name == cmdname or cmdname in i.aliases:
                 return i
 
         return None
