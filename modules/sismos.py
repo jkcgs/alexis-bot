@@ -49,14 +49,17 @@ class Sismos(Command):
 
     async def task(self):
         await self.bot.wait_until_ready()
-        if self.last_events is None:
+        first = self.last_events is None
+        if first:
             self.log.debug('Recuperando información de sismos por primera vez...')
 
         async with self.http.get(Sismos.api_url) as r:
             data = await r.json()
+            if first:
+                self.log.debug('Información de sismos recuperada. Se cargaron {} registros.'.format(len(data)))
 
             if self.last_events is None or len(self.last_events) == 0 or data[0]['id'] != self.last_events[0]['id']:
-                first = self.last_events is None
+
                 self.last_events = data
                 self.last_update = datetime.now()
 
