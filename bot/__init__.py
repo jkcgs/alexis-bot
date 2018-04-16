@@ -50,7 +50,7 @@ class AlexisBot(discord.Client):
         self.config = StaticConfig('config.yml')
 
         # Cliente HTTP disponible para los módulos
-        headers = {'User-Agent': '{}/{} +discord.cl/pages/alexis'.format(AlexisBot.name, AlexisBot.__version__)}
+        headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(AlexisBot.name, AlexisBot.__version__)}
         self.http_session = aiohttp.ClientSession(
             loop=self.loop, headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
         )
