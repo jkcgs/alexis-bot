@@ -22,7 +22,7 @@ class Sismos(Command):
         self.last_update = None
 
     async def handle(self, cmd):
-        if len(self.last_events) == 0:
+        if self.last_events is None or len(self.last_events) == 0:
             await cmd.answer('no ha habido últimos eventos o la información no ha sido cargada')
             return
 
