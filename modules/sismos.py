@@ -9,7 +9,7 @@ from bot.libs.configuration import ServerConfig
 
 
 class Sismos(Command):
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     __author__ = 'makzk'
     cfg_channel_name = 'sismos_channel'
     api_url = 'https://api.cadcc.cl/sismo/'
@@ -22,8 +22,12 @@ class Sismos(Command):
         self.last_update = None
 
     async def handle(self, cmd):
-        if self.last_events is None or len(self.last_events) == 0:
-            await cmd.answer('no ha habido últimos eventos o la información no ha sido cargada')
+        if self.last_events is None:
+            await cmd.answer('la información no ha sido cargada')
+            return
+
+        if len(self.last_events) == 0:
+            await cmd.answer('no se obtuvieron registros de eventos sísmicos')
             return
 
         if cmd.argc > 0:
@@ -85,10 +89,9 @@ class Sismos(Command):
                             content='Alerta de sismo!',
                             embed=Sismos.make_embed(self.last_events[0])
                         )
-                    pass
 
         if not self.bot.is_closed:
-            asyncio.sleep(20)
+            await asyncio.sleep(20)
             self.bot.loop.create_task(self.task())
 
     @staticmethod
