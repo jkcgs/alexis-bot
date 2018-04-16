@@ -175,3 +175,7 @@ def deltatime_to_str(deltatime):
         result.append(str(s) + ' segundo{}'.format('' if s == 1 else 's'))
 
     return ', '.join(result)
+
+
+def format_date(date):
+    return date.strftime('%Y-%m-%d %H:%M:%S')
