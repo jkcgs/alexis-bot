@@ -375,4 +375,4 @@ class ServerConfig(BaseModel):
 
 def init_db():
     tdb = get_database()
-    tdb.create_table(ServerConfig, safe=True)
+    tdb.create_tables(ServerConfig, safe=True)

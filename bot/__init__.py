@@ -157,7 +157,7 @@ class AlexisBot(discord.Client):
 
         instance = cls(self)
         if len(instance.db_models) > 0:
-            self.db.create_tables(instance.db_models, True)
+            self.db.create_tables(instance.db_models, safe=True)
 
         if isinstance(instance.default_config, dict):
             self.config.load_defaults(instance.default_config)
