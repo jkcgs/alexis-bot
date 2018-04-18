@@ -16,8 +16,8 @@ class LockBot(Command):
         self.owner_only = True
         self.allow_pm = False
 
-    async def pre_on_message(self, message, cmd):
-        if cmd.is_pm or cmd.owner:
+    async def pre_on_message(self, message, event):
+        if event.is_pm or event.owner:
             return
 
         if is_locked(message.server.id, message.channel.id):

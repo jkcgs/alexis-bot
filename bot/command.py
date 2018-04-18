@@ -2,6 +2,7 @@ import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
+from bot.events import CommandEvent, BotMentionEvent
 from bot.libs.configuration import ServerConfiguration
 
 
@@ -47,80 +48,80 @@ class Command:
         pass
 
 
-async def message_handler(message, bot, cmd):
+async def message_handler(message, bot, event):
     if not bot.initialized:
         return
 
     # Mandar PMs al log
-    if cmd.is_pm and message.content != '':
-        if cmd.own:
-            bot.log.info('[PM] (-> %s): %s', message.channel.user, cmd.text)
+    if event.is_pm and message.content != '':
+        if event.own:
+            bot.log.info('[PM] (-> %s): %s', message.channel.user, event.text)
         else:
-            bot.log.info('[PM] %s: %s', cmd.author, cmd.text)
+            bot.log.info('[PM] %s: %s', event.author, event.text)
 
     # Command handler
     try:
         # Comando válido
-        if cmd.is_cmd and cmd.cmdname in bot.cmds:
+        if isinstance(event, CommandEvent):
             # Actualizar id del último que usó un comando (omitir al mismo bot)
-            if not cmd.own:
+            if not event.self:
                 bot.last_author = message.author.id
 
-            bot.log.debug('[command] %s: %s', cmd.author, str(cmd))
-            cmd_ins = bot.cmds[cmd.cmdname]
+            bot.log.debug('[command] %s: %s', event.author, str(event))
+            cmd_ins = bot.cmds[event.cmdname]
 
             # Filtro de permisos y tiempo
-            if (cmd_ins.bot_owner_only and not cmd.bot_owner) \
-                    or (cmd_ins.owner_only and not cmd.owner) \
-                    or (not cmd_ins.allow_pm and cmd.is_pm) \
-                    or (not cmd.is_pm and not cmd.is_enabled()):
+            if (cmd_ins.bot_owner_only and not event.bot_owner) \
+                    or (cmd_ins.owner_only and not event.owner) \
+                    or (not cmd_ins.allow_pm and event.is_pm) \
+                    or (not event.is_pm and not event.is_enabled()):
                 return
-            elif (cmd_ins.user_delay > 0 and cmd.author.id in cmd_ins.users_delay
-                  and cmd_ins.users_delay[cmd.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now()
-                  and not cmd.owner):
-                await cmd.answer('aún no puedes usar ese comando')
+            elif (cmd_ins.user_delay > 0 and event.author.id in cmd_ins.users_delay
+                  and cmd_ins.users_delay[event.author.id] + timedelta(0, cmd_ins.user_delay) > dt.now()
+                  and not event.owner):
+                await event.answer('aún no puedes usar ese comando')
                 return
-            elif not cmd.is_pm and cmd_ins.nsfw_only and 'nsfw' not in message.channel.name:
-                await cmd.answer('este comando sólo puede ser usado en un canal NSFW')
+            elif not event.is_pm and cmd_ins.nsfw_only and 'nsfw' not in message.channel.name:
+                await event.answer('este comando sólo puede ser usado en un canal NSFW')
                 return
             # Ejecutar el comando
             else:
-                result = await cmd_ins.handle(cmd)
+                result = await cmd_ins.handle(event)
                 fine = result is None or (isinstance(result, bool) and result)
                 if fine and cmd_ins.user_delay > 0:
-                    cmd_ins.users_delay[cmd.author.id] = dt.now()
+                    cmd_ins.users_delay[event.author.id] = dt.now()
 
         # 'startswith' handlers
         for swtext in bot.swhandlers.keys():
-            swtextrep = swtext.replace('$PX', cmd.prefix)
+            swtextrep = swtext.replace('$PX', event.prefix)
             if message.content.startswith(swtextrep):
                 swhandler = bot.swhandlers[swtext]
-                if (swhandler.bot_owner_only and not cmd.bot_owner) \
-                        or (swhandler.owner_only and not (cmd.owner or cmd.bot_owner))\
-                        or (not swhandler.allow_pm and cmd.is_pm):
+                if (swhandler.bot_owner_only and not event.bot_owner) \
+                        or (swhandler.owner_only and not (event.owner or event.bot_owner))\
+                        or (not swhandler.allow_pm and event.is_pm):
                     continue
                 else:
-                    await swhandler.handle(cmd)
+                    await swhandler.handle(event)
 
                 if swhandler.swhandler_break:
                     break
 
         # Mention handlers
-        if bot.user.mentioned_in(message):
+        if isinstance(event, BotMentionEvent):
             for cmd_ins in bot.mention_handlers:
-                if (cmd_ins.bot_owner_only and not cmd.bot_owner)\
-                        or (cmd_ins.owner_only and not (cmd.owner or cmd.bot_owner))\
-                        or (not cmd_ins.allow_pm and cmd.is_pm):
+                if (cmd_ins.bot_owner_only and not event.bot_owner)\
+                        or (cmd_ins.owner_only and not (event.owner or event.bot_owner))\
+                        or (not cmd_ins.allow_pm and event.is_pm):
                     continue
 
-                await cmd_ins.handle(cmd)
+                await cmd_ins.handle(event)
 
     except Exception as e:
         if str(e) == 'BAD REQUEST (status code: 400)':
             e = Exception('Command failed successfully')
 
         if bot.config['debug']:
-            await cmd.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
+            await event.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
         else:
-            await cmd.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
+            await event.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
         bot.log.exception(e)

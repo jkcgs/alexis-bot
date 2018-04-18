@@ -270,7 +270,7 @@ class MacroUse(Command):
 
     async def handle(self, cmd):
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
-        if self.bot.last_author is None or not cmd.own:
+        if self.bot.last_author is None or not cmd.self:
             self.bot.last_author = cmd.author.id
 
         # Obtener los argumentos del macro

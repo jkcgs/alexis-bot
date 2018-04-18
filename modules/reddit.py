@@ -141,7 +141,9 @@ class RedditFollow(Command):
                     embed = post_to_embed(data)
 
                     for channel in subchannels:
-                        await self.bot.send_message(discord.Object(id=channel), content=message, embed=embed)
+                        chan = self.bot.get_channel(channel)
+                        if chan is not None:
+                            await self.bot.send_message(chan, content=message, embed=embed)
 
                     post_id = data['id']
                     if not exists:

@@ -1,6 +1,6 @@
 import json
 
-from bot import Command
+from bot import Command, BotMentionEvent
 from cleverwrap import CleverWrap
 
 
@@ -12,6 +12,7 @@ class CleverbotHandler(Command):
         super().__init__(bot)
         self.name = 'c'
         self.allow_pm = False
+        self.mention_handler = True
         self.cbot = None
         self.default_config = {
             'cleverbot_apikey': ''
@@ -28,27 +29,31 @@ class CleverbotHandler(Command):
             self.log.debug('CleverWrap cargado')
 
     async def handle(self, cmd):
+        if isinstance(cmd, BotMentionEvent) and cmd.starts_with and len(cmd.text) < 4:
+            return
+
         if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '1':
             await cmd.answer('conversación desactivada uwu')
             return
 
-        msg = self.bot.pat_self_mention.sub('', cmd.text).strip()
-        if msg == '':
+        if cmd.text == '':
             reply = '*si querías decirme algo, dílo de la siguiente forma: <@bot> <texto>*'
-        else:
-            await cmd.typing()
-            try:
-                self.log.debug('Cleverbot <- "%s" (%s, %s)', msg, str(cmd.author), str(cmd.message.channel))
-                reply = self.cbot.say(msg)
-                if reply is None:
-                    self.log.warn('No se pudo conectar con Cleverbot. La API key podría ser incorrecta.')
-                    CleverbotHandler.check = False
-                    reply = 'noooo que pasa D:'
+            await cmd.answer(reply)
+            return
 
-            except json.decoder.JSONDecodeError as e:
-                reply = 'pucha sorry, no puedo responderte ahora'
-                self.log.error('Ocurrió un error con Cleverbot')
-                self.log.exception(e)
+        await cmd.typing()
+        try:
+            self.log.debug('Cleverbot <- "%s" (%s, %s)', cmd.text, str(cmd.author), str(cmd.message.channel))
+            reply = self.cbot.say(cmd.text)
+            if reply is None:
+                self.log.warn('No se pudo conectar con Cleverbot. La API key podría ser incorrecta.')
+                CleverbotHandler.check = False
+                reply = 'noooo que pasa D:'
+
+        except json.decoder.JSONDecodeError as e:
+            reply = 'pucha sorry, no puedo responderte ahora'
+            self.log.error('Ocurrió un error con Cleverbot')
+            self.log.exception(e)
 
         await cmd.answer(reply)
 

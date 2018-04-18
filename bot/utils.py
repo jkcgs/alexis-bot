@@ -179,3 +179,34 @@ def deltatime_to_str(deltatime):
 
 def format_date(date):
     return date.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def destination_repr(destination):
+    if getattr(destination, 'server', None) is None:
+        return '{} (ID: {})'.format(str(destination), destination.id)
+    else:
+        return '{}#{} (IDS {}#{})'.format(destination.server, str(destination), destination.id,
+                                          destination.server.id)
+
+
+def replace_everywhere(content, search, replace):
+    if isinstance(content, str):
+        content = content.replace(search, replace)
+
+    if isinstance(content, Embed):
+        if content.title != Embed.Empty:
+            content.title = content.title.replace(search, replace)
+        if content.description != Embed.Empty:
+            content.description = content.description.replace(search, replace)
+        if content.footer.text != Embed.Empty:
+            content.set_footer(text=content.footer.text.replace(search, replace), icon_url=content.footer.icon_url)
+
+        for idx, field in enumerate(content.fields):
+            content.set_field_at(idx, name=field.name.replace(search, replace),
+                                 value=field.value.replace(search, replace), inline=field.inline)
+    elif content is None:
+        return None
+    else:
+        return str(content).replace(search, replace)
+
+    return content

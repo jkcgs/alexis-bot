@@ -5,54 +5,40 @@ from discord import Embed
 
 from bot.libs.configuration import ServerConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import serialize_avail, pat_emoji, is_owner, pat_channel
+from bot.utils import pat_emoji, is_owner, pat_channel
 
 pat_user_mention = re.compile('^<@!?[0-9]+>$')
 pat_snowflake = re.compile('^\d{10,19}$')
 
 
-class MessageCmd:
+class MessageEvent:
     def __init__(self, message, bot):
+        if not isinstance(message, discord.Message):
+            raise RuntimeError('message argument is not a discord.Message instance')
+
         self.bot = bot
         self.message = message
         self.channel = message.channel
         self.author = message.author
         self.author_name = message.author.display_name
         self.is_pm = message.server is None
-        self.own = message.author.id == bot.user.id
-        self.server_member = None
-        self.is_cmd = False
+        self.self = message.author.id == bot.user.id
         self.text = message.content
-        self.config = None
         self.bot_owner = message.author.id in bot.config['bot_owners']
         self.owner = is_owner(bot, message.author, message.server)
-        self.allargs = message.content.replace('  ', ' ').split(' ')
-        self.sw_mention = bot.pat_self_mention.match(self.allargs[0])
+        self.prefix = MessageEvent.get_prefix(message, bot)
 
-        self.cmdname = ''
-        self.args = []
-        self.argc = 0
-        self.subcmd = ''
+        self.server = None
+        self.server_member = None
+        self.config = None
 
         if not self.is_pm:
             self.server = message.server
             self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
-            self.prefix = self.config.get('command_prefix', bot.config['command_prefix'])
             self.lang = self.bot.get_lang(message.server.id)
         else:
-            self.prefix = bot.config['command_prefix']
             self.lang = SingleLanguage(self.bot.lang, bot.config['default_lang'])
-
-        if message.content.startswith(self.prefix) or self.sw_mention:
-            self.is_cmd = True
-
-            self.args = [] if len(self.allargs) == 1 else [f for f in self.allargs[1:] if f.strip() != '']
-            self.argc = len(self.args)
-            cmd_parts = self.allargs[0][len(self.prefix):].split(':')
-            self.cmdname = cmd_parts[0]
-            self.subcmd = '' if len(cmd_parts) < 2 else cmd_parts[1]
-            self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """
@@ -68,9 +54,6 @@ class MessageCmd:
             kwargs['embed'] = content
             content = ''
 
-        content = content.replace('$CMD', '$PX$NM')
-        content = content.replace('$PX', self.prefix)
-        content = content.replace('$NM', self.cmdname)
         content = content.replace('$AU', self.author_name)
 
         if withname:
@@ -78,10 +61,8 @@ class MessageCmd:
                 content = ', ' + content
             content = self.author_name + content
 
-        if to_author:
-            return await self.bot.send_message(self.message.author, content, **kwargs)
-        else:
-            return await self.bot.send_message(self.message.channel, content, **kwargs)
+        dest = self.message.author if to_author else self.message.channel
+        return await self.bot.send_message(dest, content, **kwargs)
 
     async def answer_embed(self, msg, delete_trigger=False, withname=True):
         if delete_trigger:
@@ -122,31 +103,27 @@ class MessageCmd:
     def is_owner(self, user):
         return is_owner(self.bot, user, self.message.server)
 
-    def is_enabled(self):
-        if self.is_pm:
-            return True
-
-        data_db = self.config.get('cmd_status', '')
-        avail = serialize_avail(data_db)
-        cmd = self.bot.cmds[self.cmdname]
-        enabled_db = avail.get(cmd.name, '+' if cmd.default_enabled else '-')
-        return enabled_db == '+'
-
-    def no_tags(self):
+    def no_tags(self, users=True, channels=True, emojis=True):
         txt = self.text
-        # tags de usuarios
-        for mention in self.message.mentions:
-            mtext = mention.mention
-            if mention.name != mention.display_name:
-                mtext = mtext.replace('@', '@!')
 
-            txt = txt.replace(mtext, mention.display_name)
+        # tags de usuarios
+        if users:
+            for mention in self.message.mentions:
+                mtext = mention.mention
+                if mention.name != mention.display_name:
+                    mtext = mtext.replace('@', '@!')
+
+                txt = txt.replace(mtext, mention.display_name)
+
         # tags de canales
-        for mention in self.message.channel_mentions:
-            txt = txt.replace(mention.mention, '#' + mention.name)
+        if channels:
+            for mention in self.message.channel_mentions:
+                txt = txt.replace(mention.mention, '#' + mention.name)
+
         # emojis custom
-        for m in pat_emoji.finditer(txt):
-            txt = txt.replace(m.group(0), m.group(1))
+        if emojis:
+            for m in pat_emoji.finditer(txt):
+                txt = txt.replace(m.group(0), m.group(1))
 
         return txt
 
@@ -211,5 +188,14 @@ class MessageCmd:
         return self.lang.get(name, **kwargs)
 
     def __str__(self):
-        return '[MessageCmd name="{}", channel="{}#{}" text="{}"]'.format(
-            self.cmdname, self.message.server, self.message.channel, self.text)
+        return '[{}  channel="{}#{}" author="{}" text="{}"]'.format(
+            self.__class__.__name__, self.message.server, self.message.channel, self.message.author, self.text)
+
+    @staticmethod
+    def get_prefix(message, bot):
+        prefix = bot.config['command_prefix']
+        if message.server is not None:
+            prefix = bot.sv_config.get(message.server.id, 'command_prefix', prefix)
+
+        return prefix
+
