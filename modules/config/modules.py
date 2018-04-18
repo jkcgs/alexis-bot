@@ -1,7 +1,6 @@
 import inspect
 from discord import Embed
 
-from modules import get_mods
 from bot import Command
 
 
