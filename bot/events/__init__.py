@@ -3,7 +3,7 @@ from .command_event import CommandEvent
 from .bot_mention_event import BotMentionEvent
 
 
-def parse_message(message, bot):
+def parse_event(message, bot):
     if CommandEvent.is_command(message, bot):
         return CommandEvent(message, bot)
 

@@ -68,7 +68,7 @@ async def message_handler(message, bot, event):
                 bot.last_author = message.author.id
 
             bot.log.debug('[command] %s: %s', event.author, str(event))
-            cmd_ins = bot.cmds[event.cmdname]
+            cmd_ins = bot.manager.get_cmd(event.cmdname)
 
             # Filtro de permisos y tiempo
             if (cmd_ins.bot_owner_only and not event.bot_owner) \
@@ -92,26 +92,29 @@ async def message_handler(message, bot, event):
                     cmd_ins.users_delay[event.author.id] = dt.now()
 
         # 'startswith' handlers
-        for swtext in bot.swhandlers.keys():
+        for swtext in bot.manager.swhandlers.keys():
             swtextrep = swtext.replace('$PX', event.prefix)
             if message.content.startswith(swtextrep):
-                swhandler = bot.swhandlers[swtext]
-                if (swhandler.bot_owner_only and not event.bot_owner) \
-                        or (swhandler.owner_only and not (event.owner or event.bot_owner))\
-                        or (not swhandler.allow_pm and event.is_pm):
+                swhandler = bot.manager.swhandlers[swtext]
+                if swhandler.bot_owner_only and not event.bot_owner:
                     continue
-                else:
-                    await swhandler.handle(event)
+                if swhandler.owner_only and not (event.owner or event.bot_owner):
+                    continue
+                if not swhandler.allow_pm and event.is_pm:
+                    continue
 
+                await swhandler.handle(event)
                 if swhandler.swhandler_break:
                     break
 
         # Mention handlers
         if isinstance(event, BotMentionEvent):
-            for cmd_ins in bot.mention_handlers:
-                if (cmd_ins.bot_owner_only and not event.bot_owner)\
-                        or (cmd_ins.owner_only and not (event.owner or event.bot_owner))\
-                        or (not cmd_ins.allow_pm and event.is_pm):
+            for cmd_ins in bot.manager.mention_handlers:
+                if cmd_ins.bot_owner_only and not event.bot_owner:
+                    continue
+                if cmd_ins.owner_only and not (event.owner or event.bot_owner):
+                    continue
+                if not cmd_ins.allow_pm and event.is_pm:
                     continue
 
                 await cmd_ins.handle(event)

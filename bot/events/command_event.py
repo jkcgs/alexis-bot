@@ -38,7 +38,7 @@ class CommandEvent(MessageEvent):
 
         data_db = self.config.get('cmd_status', '')
         avail = serialize_avail(data_db)
-        cmd = self.bot.cmds[self.cmdname]
+        cmd = self.bot.manager.get_cmd(self.cmdname)
         enabled_db = avail.get(cmd.name, '+' if cmd.default_enabled else '-')
         return enabled_db == '+'
 
@@ -53,7 +53,7 @@ class CommandEvent(MessageEvent):
         prefix = MessageEvent.get_prefix(message, bot)
         if message.content.startswith(prefix):
             cmdname = message.content[len(prefix):].split(' ')[0].split(':')[0]
-            return cmdname in bot.cmds
+            return bot.manager.has_cmd(cmdname)
         else:
             return False
 

@@ -124,7 +124,7 @@ class CommandConfig(Command):
             await cmd.answer('formato: $PX$NM <enable|disable> <comando>')
             return
 
-        if cmd.args[1] not in self.bot.cmds:
+        if not self.bot.manager.has_cmd(cmd.args[1]):
             await cmd.answer('el comando no existe')
             return
 
@@ -133,7 +133,7 @@ class CommandConfig(Command):
             return
 
         avail = serialize_avail(cmd.config.get('cmd_status', ''))
-        cmd_ins = self.bot.cmds[cmd.args[1]]
+        cmd_ins = self.bot.manager.get_cmd(cmd.args[1])
         current = avail.get(cmd_ins.name, '+' if cmd_ins.default_enabled else '-')
 
         if cmd.args[0] == 'enable':

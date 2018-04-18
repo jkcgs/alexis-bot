@@ -4,15 +4,15 @@ import aiohttp
 import discord
 import re
 
-from bot import Language, SingleLanguage, StaticConfig, Configuration
-from bot import defaults, get_database, init_db, parse_message, message_handler, log
+from bot import Language, SingleLanguage, StaticConfig, Configuration, Manager
+from bot import defaults, get_database, init_db, log
 from bot.utils import destination_repr
 
 
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.53~ref_cmdevent'
+    __version__ = '1.0.0-dev.53~ref_cmdevent+1'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -27,15 +27,13 @@ class AlexisBot(discord.Client):
         self.last_author = None
         self.initialized = False
         self.pat_self_mention = None
-        self.cmds = {}
+
         self.lang = {}
-        self.swhandlers = {}
-        self.cmd_instances = []
-        self.mention_handlers = []
-        self.deleted_messages = []
         self.tasks = []
+        self.deleted_messages = []
 
         self.log = log
+        self.manager = Manager(self)
         self.config = StaticConfig('config.yml')
 
         # Cliente HTTP disponible para los módulos
@@ -66,9 +64,8 @@ class AlexisBot(discord.Client):
 
         # Cargar instancias de las clases de comandos cargadas en bots.modules
         log.info('Cargando comandos...')
-        self.load_instances()
-
-        self._call_handlers_sync('on_loaded', force=True)
+        self.manager.load_instances()
+        self.manager.dispatch_sync('on_loaded', force=True)
 
         # Conectar con Discord
         try:
@@ -80,98 +77,6 @@ class AlexisBot(discord.Client):
             log.exception(ex)
             raise
 
-    def load_instances(self):
-        """Carga las instancias de las clases de comandos cargadas"""
-        import modules
-        self.cmd_instances = []
-        for c in modules.get_mods(self.config.get('ext_modpath', '')):
-            self.cmd_instances.append(self.load_command(c))
-
-        log.info('Se cargaron %i módulos', len(self.cmd_instances))
-        log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-        log.debug('Módulos cargados: ' + ', '.join([i.__class__.__name__ for i in self.cmd_instances]))
-
-    def unload_instance(self, name):
-        """
-        Saca de la memoria una instancia de un módulo, desactivando todos sus comandos y event handlers.
-        :param name: El nombre del módulo.
-        """
-        instance = None
-        for i in self.cmd_instances:
-            if i.__class__.__name__ == name:
-                instance = i
-
-        if instance is None:
-            return
-
-        log.debug('Desactivando módulo %s...', name)
-
-        # Unload commands
-        cmd_names = [n for n in [instance.name] + instance.aliases if n != '']
-        for cmd_name in cmd_names:
-            if cmd_name not in self.cmds:
-                continue
-            else:
-                del self.cmds[cmd_name]
-
-        # Unload startswith handlers
-        for swname in instance.swhandler:
-            if swname not in self.swhandlers:
-                continue
-            else:
-                del self.swhandlers[swname]
-
-        # Unload mention handlers
-        for mhandler in self.mention_handlers:
-            if mhandler.__class__.__name__ == name:
-                self.mention_handlers.remove(mhandler)
-
-        # Hackily unload task
-        for task in self.tasks:
-            if 'coro=<{}.task()'.format(name) in str(task):
-                log.debug('Cancelling task %s', str(task))
-                task.cancel()
-                self.tasks.remove(task)
-
-        # Remove from instances list
-        self.cmd_instances.remove(instance)
-        log.info('Módulo "%s" desactivado', name)
-
-    def load_command(self, cls):
-        """
-        Carga un módulo de comando en el bot
-        :param cls: Clase-módulo a cargar
-        :return: La instancia del módulo cargado
-        """
-
-        instance = cls(self)
-        if len(instance.db_models) > 0:
-            self.db.create_tables(instance.db_models, safe=True)
-
-        if isinstance(instance.default_config, dict):
-            self.config.load_defaults(instance.default_config)
-
-        # Comandos
-        for name in [instance.name] + instance.aliases:
-            if name != '':
-                self.cmds[name] = instance
-
-        # Handlers startswith
-        for swtext in instance.swhandler:
-            if swtext != '':
-                log.debug('Registrando sw_handler "%s"', swtext)
-                self.swhandlers[swtext] = instance
-
-        # Comandos que se activan con una mención
-        if isinstance(instance.mention_handler, bool) and instance.mention_handler:
-            self.mention_handlers.append(instance)
-
-        # Call task
-        if callable(getattr(instance, 'task', None)):
-            self.tasks.append(self.loop.create_task(instance.task()))
-
-        return instance
-
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""
 
@@ -181,7 +86,7 @@ class AlexisBot(discord.Client):
         self.pat_self_mention = re.compile('^<@!?{}>$'.format(self.user.id))
 
         self.initialized = True
-        await self._call_handlers('on_ready')
+        await self.manager.dispatch('on_ready')
 
     async def send_message(self, destination, content=None, **kwargs):
         """
@@ -195,7 +100,7 @@ class AlexisBot(discord.Client):
         """
         # Call pre_send_message handlers, append destination
         kwargs = {'destination': destination, 'content': content, **kwargs}
-        self._call_handlers_ref('pre_send_message', kwargs)
+        self.manager.dispatch_ref('pre_send_message', kwargs)
 
         # Log the message
         dest = destination_repr(kwargs['destination'])
@@ -266,97 +171,48 @@ class AlexisBot(discord.Client):
         await self.http_session.close()
         await self.http.close()
 
-    async def _call_handlers(self, name, **kwargs):
-        """
-        Llama a funciones "handlers" en los módulos cargados.
-        :param name: El nombre del handler
-        :param kwargs: Los parámetros del evento
-        """
-        if not self.initialized:
-            return
-
-        event = None
-        if name == 'on_message':
-            event = parse_message(kwargs.get('message'), self)
-
-        for x in self._get_handlers('pre_' + name):
-            kwargs['event'] = event
-            y = await x(**kwargs)
-
-            if y is not None and isinstance(y, bool) and not y:
-                return
-
-        if name == 'on_message':
-            await message_handler(kwargs.get('message'), self, event)
-
-        for z in self._get_handlers(name):
-            await z(**kwargs)
-
-    def _call_handlers_sync(self, name, force=False, **kwargs):
-        """
-        Llama a funciones "handlers" en los módulos cargados.
-        :param name: El nombre del handler
-        :param force: Llamar a los handlers aunque no se haya inicializado al bot
-        :param kwargs: Los parámetros del evento
-        """
-        if not self.initialized and not force:
-            return
-
-        for z in self._get_handlers(name):
-            z(**kwargs)
-
-    def _call_handlers_ref(self, name, kwargs):
-        if not self.initialized:
-            return
-
-        for z in self._get_handlers(name):
-            z(kwargs)
-
-    def _get_handlers(self, name):
-        return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
-
     """
     ===== EVENT HANDLERS =====
     """
 
     async def on_message(self, message):
-        await self._call_handlers('on_message', message=message)
+        await self.manager.dispatch('on_message', message=message)
 
     async def on_reaction_add(self, reaction, user):
-        await self._call_handlers('on_reaction_add', reaction=reaction, user=user)
+        await self.manager.dispatch('on_reaction_add', reaction=reaction, user=user)
 
     async def on_reaction_remove(self, reaction, user):
-        await self._call_handlers('on_reaction_remove', reaction=reaction, user=user)
+        await self.manager.dispatch('on_reaction_remove', reaction=reaction, user=user)
 
     async def on_reaction_clear(self, message, reactions):
-        await self._call_handlers('on_reaction_clear', message=message, reactions=reactions)
+        await self.manager.dispatch('on_reaction_clear', message=message, reactions=reactions)
 
     async def on_member_join(self, member):
-        await self._call_handlers('on_member_join', member=member)
+        await self.manager.dispatch('on_member_join', member=member)
 
     async def on_member_remove(self, member):
-        await self._call_handlers('on_member_remove', member=member)
+        await self.manager.dispatch('on_member_remove', member=member)
 
     async def on_member_update(self, before, after):
-        await self._call_handlers('on_member_update', before=before, after=after)
+        await self.manager.dispatch('on_member_update', before=before, after=after)
 
     async def on_message_delete(self, message):
-        await self._call_handlers('on_message_delete', message=message)
+        await self.manager.dispatch('on_message_delete', message=message)
 
     async def on_message_edit(self, before, after):
-        await self._call_handlers('on_message_edit', before=before, after=after)
+        await self.manager.dispatch('on_message_edit', before=before, after=after)
 
     async def on_server_join(self, server):
-        await self._call_handlers('on_server_join', server=server)
+        await self.manager.dispatch('on_server_join', server=server)
 
     async def on_server_remove(self, server):
-        await self._call_handlers('on_server_remove', server=server)
+        await self.manager.dispatch('on_server_remove', server=server)
 
     async def on_member_ban(self, member):
-        await self._call_handlers('on_member_ban', member=member)
+        await self.manager.dispatch('on_member_ban', member=member)
 
     async def on_member_unban(self, member):
-        await self._call_handlers('on_member_unban', member=member)
+        await self.manager.dispatch('on_member_unban', member=member)
 
     async def on_typing(self, channel, user, when):
-        await self._call_handlers('on_server_remove', channel=channel, user=user, when=when)
+        await self.manager.dispatch('on_server_remove', channel=channel, user=user, when=when)
