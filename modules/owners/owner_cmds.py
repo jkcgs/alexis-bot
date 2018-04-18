@@ -101,7 +101,7 @@ class ChangePrefix(Command):
             return
 
         if cmd.argc < 1:
-            msg = 'el prefijo actual es `$PX`.\nPuedes cambiarlo con $PX{} <prefijo> o "@{} <prefijo>"'
+            msg = 'el prefijo actual es `$PX`.\nPuedes cambiarlo con $PX{} <prefijo> o "{} <prefijo>"'
             await cmd.answer(msg.format(self.name, self.bot.user.mention))
             return
 
