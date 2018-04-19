@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime
+
 from bot.utils import serialize_avail, replace_everywhere
 from .message_event import MessageEvent
 
@@ -47,6 +49,29 @@ class CommandEvent(MessageEvent):
             self.__class__.__name__, self.cmdname, self.message.server,
             self.message.channel, self.message.author, self.text
         )
+
+    async def handle(self):
+        cmd = self.bot.manager[self.cmdname]
+        # Filtro de permisos y tiempo
+        if (cmd.bot_owner_only and not self.bot_owner) \
+                or (cmd.owner_only and not self.owner) \
+                or (not cmd.allow_pm and self.is_pm) \
+                or (not self.is_pm and not self.is_enabled()):
+            return
+        elif (cmd.user_delay > 0 and self.author.id in cmd.users_delay
+              and cmd.users_delay[self.author.id] + timedelta(0, cmd.user_delay) > datetime.now()
+              and not self.owner):
+            await self.answer('aún no puedes usar ese comando')
+            return
+        elif not self.is_pm and cmd.nsfw_only and 'nsfw' not in self.channel.name:
+            await self.answer('este comando sólo puede ser usado en un canal NSFW')
+            return
+        # Ejecutar el comando
+        else:
+            result = await cmd.handle(self)
+            fine = result is None or (isinstance(result, bool) and result)
+            if fine and cmd.user_delay > 0:
+                cmd.users_delay[self.author.id] = dt.now()
 
     @staticmethod
     def is_command(message, bot):

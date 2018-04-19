@@ -18,3 +18,14 @@ class BotMentionEvent(MessageEvent):
             self.args = message.content.replace('  ', ' ').split(' ')[1:]
             self.argc = len(self.args)
             self.text = ' '.join(self.args)
+
+    async def handle(self):
+        for cmd in self.bot.manager.mention_handlers:
+            if cmd.bot_owner_only and not self.bot_owner:
+                continue
+            if cmd.owner_only and not (self.owner or self.bot_owner):
+                continue
+            if not cmd.allow_pm and self.is_pm:
+                continue
+
+            await cmd.handle(self)

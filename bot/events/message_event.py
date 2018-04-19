@@ -1,14 +1,10 @@
 import discord
-import re
 
 from discord import Embed
 
 from bot.libs.configuration import ServerConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import pat_emoji, is_owner, pat_channel
-
-pat_user_mention = re.compile('^<@!?[0-9]+>$')
-pat_snowflake = re.compile('^\d{10,19}$')
+from bot.utils import pat_emoji, is_owner, pat_channel, pat_usertag, pat_snowflake
 
 
 class MessageEvent:
@@ -149,7 +145,7 @@ class MessageEvent:
         if u is not None:
             return u
 
-        if pat_user_mention.match(user):
+        if pat_usertag.match(user):
             st = 3 if user[2] == '!' else 2
             user = user[st:-1]
 
