@@ -21,4 +21,4 @@ class CmdFilter(Command):
 
         if kwargs.get('embed', None) is not None:
             embed = kwargs.get('embed')
-            kwargs.set('embed', replace_everywhere(embed, '$PX', prefix))
+            kwargs['embed'] = replace_everywhere(embed, '$PX', prefix)

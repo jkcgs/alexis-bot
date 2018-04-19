@@ -1,7 +1,9 @@
+import asyncio
 import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
+import aiohttp
 import discord
 
 from . import SingleLanguage
@@ -34,9 +36,12 @@ class Command:
         self.user_delay = 0
         self.users_delay = {}
         self.user_delay_error = 'aún no puedes usar este comando'
-
         self.db_models = []
-        self.http = bot.http_session
+
+        headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
+        self.http = aiohttp.ClientSession(
+            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
+        )
 
     def can_manage_roles(self, server):
         self_member = server.get_member(self.bot.user.id)
@@ -74,9 +79,9 @@ async def message_handler(message, bot, event):
     # Mandar PMs al log
     if event.is_pm and message.content != '':
         if event.own:
-            bot.log.info('[PM] (-> %s): %s', message.channel.user, event.text)
+            log.info('[PM] (-> %s): %s', message.channel.user, event.text)
         else:
-            bot.log.info('[PM] %s: %s', event.author, event.text)
+            log.info('[PM] %s: %s', event.author, event.text)
 
     # Command handler
     try:
@@ -86,7 +91,7 @@ async def message_handler(message, bot, event):
             if not event.self:
                 bot.last_author = message.author.id
 
-            bot.log.debug('[command] %s: %s', event.author, str(event))
+            log.debug('[command] %s: %s', event.author, str(event))
             cmd_ins = bot.manager[event.cmdname]
 
             # Filtro de permisos y tiempo
@@ -146,4 +151,4 @@ async def message_handler(message, bot, event):
             await event.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
         else:
             await event.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
-        bot.log.exception(e)
+        log.exception(e)

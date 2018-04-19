@@ -148,7 +148,7 @@ class RedditFollow(Command):
                     post_id = data['id']
                     if not exists:
                         Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
-                        self.bot.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
+                        self.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
                             subreddit=data['subreddit'], permalink=data['permalink']))
 
                         Redditor.update(posts=Redditor.posts + 1).where(
@@ -156,7 +156,7 @@ class RedditFollow(Command):
 
         except Exception as e:
             if not isinstance(e, RuntimeError):
-                self.bot.log.exception(e)
+                self.log.exception(e)
         finally:
             await asyncio.sleep(15)
 

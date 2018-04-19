@@ -1,6 +1,5 @@
 import platform
 import sys
-import aiohttp
 import discord
 
 from bot import Language, StaticConfig, Configuration, Manager
@@ -11,7 +10,7 @@ from bot.utils import destination_repr
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.53~ref_cmdevent+1'
+    __version__ = '1.0.0-dev.53~ref_cmdevent+2'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -31,12 +30,6 @@ class AlexisBot(discord.Client):
 
         self.manager = Manager(self)
         self.config = StaticConfig()
-
-        # Cliente HTTP disponible para los módulos
-        headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(AlexisBot.name, AlexisBot.__version__)}
-        self.http_session = aiohttp.ClientSession(
-            loop=self.loop, headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
-        )
 
     def init(self):
         """
@@ -148,9 +141,9 @@ class AlexisBot(discord.Client):
 
     async def close(self):
         super().close()
-        await self.http_session.close()
         await self.http.close()
         self.manager.cancel_tasks()
+        self.manager.close_http()
 
     """
     ===== EVENT HANDLERS =====

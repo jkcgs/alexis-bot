@@ -32,7 +32,7 @@ class Help(Command):
             await cmd.answer('no hay comandos disponibles')
             return
 
-        if cmd.is_cmd:
+        if not cmd.is_pm:
             await cmd.answer('te enviaré la info por PM!')
 
         pages = math.ceil(len(fields) / 25)
