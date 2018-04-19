@@ -58,7 +58,7 @@ class MacroSet(Command):
         description = ''
         embed_colour = Colour.default()
 
-        if self.bot.manager.has_cmd(name):
+        if name in self.bot.manager:
             await cmd.answer('no se puede crear un macro con el nombre de un comando')
             return
 
@@ -159,7 +159,7 @@ class MacroRename(Command):
             await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
             return
 
-        if self.bot.manager.has_cmd(cmd.args[1]):
+        if cmd.args[1] in self.bot.manager:
             await cmd.answer('no se puede nombrar un macro con el nombre de un comando')
             return
 

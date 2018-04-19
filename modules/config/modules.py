@@ -25,7 +25,7 @@ class Modules(Command):
                 await cmd.answer('no puedes manejar este módulo!')
                 return
 
-            if self.bot.manager.get_mod(name) is not None:
+            if self.bot.manager.has_mod(name):
                 await cmd.answer('módulo ya cargado')
                 return
 
@@ -41,7 +41,7 @@ class Modules(Command):
                 await cmd.answer('no puedes manejar este módulo!')
                 return
 
-            if self.bot.manager.get_mod(name) is None:
+            if not self.bot.manager.has_mod(name):
                 await cmd.answer('módulo no cargado')
                 return
 
@@ -54,7 +54,7 @@ class Modules(Command):
                 await cmd.answer('no puedes manejar este módulo!')
                 return
 
-            if self.bot.manager.get_mod(name) is None:
+            if not self.bot.manager.has_mod(name):
                 await cmd.answer('módulo no cargado')
                 return
 

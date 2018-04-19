@@ -175,6 +175,9 @@ class Manager:
 
         return None
 
+    def has_mod(self, name):
+        return self.get_mod(name) is not None
+
     def get_by_cmd(self, cmdname):
         for i in self.cmd_instances:
             if i.name == cmdname or cmdname in i.aliases:
@@ -200,6 +203,12 @@ class Manager:
                 return True
 
         return False
+
+    def __getitem__(self, item):
+        return self.get_cmd(item)
+
+    def __contains__(self, item):
+        return self.has_cmd(item)
 
     @staticmethod
     def get_mods(ext_path=''):

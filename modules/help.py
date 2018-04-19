@@ -17,7 +17,7 @@ class Help(Command):
         fields = []
 
         for i in self.bot.manager.cmds.keys():
-            ins = self.bot.manager.get_cmd(i)
+            ins = self.bot.manager[i]
             if ins.owner_only and not cmd.owner:
                 continue
             if ins.bot_owner_only and not cmd.bot_owner:

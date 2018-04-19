@@ -68,7 +68,7 @@ async def message_handler(message, bot, event):
                 bot.last_author = message.author.id
 
             bot.log.debug('[command] %s: %s', event.author, str(event))
-            cmd_ins = bot.manager.get_cmd(event.cmdname)
+            cmd_ins = bot.manager[event.cmdname]
 
             # Filtro de permisos y tiempo
             if (cmd_ins.bot_owner_only and not event.bot_owner) \
