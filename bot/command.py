@@ -78,7 +78,7 @@ async def message_handler(message, bot, event):
 
     # Mandar PMs al log
     if event.is_pm and message.content != '':
-        if event.own:
+        if event.self:
             log.info('[PM] (-> %s): %s', message.channel.user, event.text)
         else:
             log.info('[PM] %s: %s', event.author, event.text)
