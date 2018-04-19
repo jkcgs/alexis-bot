@@ -2,9 +2,8 @@ import platform
 import sys
 import aiohttp
 import discord
-import re
 
-from bot import Language, SingleLanguage, StaticConfig, Configuration, Manager
+from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, get_database, init_db, log
 from bot.utils import destination_repr
 
@@ -26,15 +25,13 @@ class AlexisBot(discord.Client):
         self.sv_config = None
         self.last_author = None
         self.initialized = False
-        self.pat_self_mention = None
 
         self.lang = {}
-        self.tasks = []
         self.deleted_messages = []
 
         self.log = log
         self.manager = Manager(self)
-        self.config = StaticConfig('config.yml')
+        self.config = StaticConfig()
 
         # Cliente HTTP disponible para los módulos
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(AlexisBot.name, AlexisBot.__version__)}
@@ -83,7 +80,6 @@ class AlexisBot(discord.Client):
         self.log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
         self.log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
-        self.pat_self_mention = re.compile('^<@!?{}>$'.format(self.user.id))
 
         self.initialized = True
         await self.manager.dispatch('on_ready')
@@ -151,25 +147,11 @@ class AlexisBot(discord.Client):
             self.log.exception(ex)
             return False
 
-    def get_lang(self, svid=None):
-        """
-        Genera una instancia de SingleLanguage para un servidor en específico o con el idioma predeterminado.
-        :param svid: El ID del servidor para obtener el idioma. Si es None, se devuelve una instancia con el idioma
-        predeterminado.
-        :return: La instancia de SingleLanguage con el idioma obtenido.
-        """
-        if svid is None:
-            lang_code = self.config['default_lang']
-        else:
-            svid = svid if not isinstance(svid, discord.Server) else svid.id
-            lang_code = self.sv_config.get(svid, 'lang', self.config['default_lang'])
-
-        return SingleLanguage(self.lang, lang_code)
-
     async def close(self):
         super().close()
         await self.http_session.close()
         await self.http.close()
+        self.manager.cancel_tasks()
 
     """
     ===== EVENT HANDLERS =====

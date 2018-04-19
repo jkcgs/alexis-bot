@@ -2,6 +2,9 @@ import traceback
 from datetime import datetime as dt
 from datetime import timedelta
 
+import discord
+
+from bot import SingleLanguage
 from bot.events import CommandEvent, BotMentionEvent
 from bot.libs.configuration import ServerConfiguration
 
@@ -46,6 +49,21 @@ class Command:
 
     def handle(self, cmd):
         pass
+
+    def get_lang(self, svid=None):
+        """
+        Genera una instancia de SingleLanguage para un servidor en específico o con el idioma predeterminado.
+        :param svid: El ID del servidor para obtener el idioma. Si es None, se devuelve una instancia con el idioma
+        predeterminado.
+        :return: La instancia de SingleLanguage con el idioma obtenido.
+        """
+        if svid is None:
+            lang_code = self.bot.config['default_lang']
+        else:
+            svid = svid if not isinstance(svid, discord.Server) else svid.id
+            lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'])
+
+        return SingleLanguage(self.bot.lang, lang_code)
 
 
 async def message_handler(message, bot, event):

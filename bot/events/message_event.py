@@ -36,7 +36,9 @@ class MessageEvent:
             self.server = message.server
             self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
-            self.lang = self.bot.get_lang(message.server.id)
+
+            lang_code = self.bot.sv_config.get(self.server.id, 'lang', self.bot.config['default_lang'])
+            self.lang = SingleLanguage(self.bot.lang, lang_code)
         else:
             self.lang = SingleLanguage(self.bot.lang, bot.config['default_lang'])
 

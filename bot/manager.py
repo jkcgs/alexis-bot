@@ -1,3 +1,4 @@
+import asyncio
 import glob
 import inspect
 import sys
@@ -13,6 +14,7 @@ class Manager:
         self.bot = bot
 
         self.cmds = {}
+        self.tasks = []
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
@@ -63,11 +65,11 @@ class Manager:
                 self.mention_handlers.remove(mhandler)
 
         # Hackily unload task
-        for task in self.bot.tasks:
+        for task in self.tasks:
             if 'coro=<{}.task()'.format(name) in str(task):
                 log.debug('Cancelling task %s', str(task))
                 task.cancel()
-                self.bot.tasks.remove(task)
+                self.tasks.remove(task)
 
         # Remove from instances list
         self.cmd_instances.remove(instance)
@@ -104,7 +106,8 @@ class Manager:
 
         # Call task
         if callable(getattr(instance, 'task', None)):
-            self.bot.tasks.append(self.bot.loop.create_task(instance.task()))
+            loop = asyncio.get_event_loop()
+            self.tasks.append(loop.create_task(instance.task()))
 
         return instance
 
@@ -203,6 +206,10 @@ class Manager:
                 return True
 
         return False
+
+    def cancel_tasks(self):
+        for task in self.tasks:
+            task.cancel()
 
     def __getitem__(self, item):
         return self.get_cmd(item)

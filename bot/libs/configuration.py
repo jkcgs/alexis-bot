@@ -14,7 +14,7 @@ class StaticConfig:
     """
     Administra un archivo de configuración YAML
     """
-    def __init__(self, path, autoload=False):
+    def __init__(self, path='config.yml', autoload=False):
         """
         Inicializa la clase.
         :param path: Ubicación del archivo YAML a gestionar
