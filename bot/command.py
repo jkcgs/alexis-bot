@@ -4,15 +4,16 @@ from datetime import timedelta
 
 import discord
 
-from bot import SingleLanguage
-from bot.events import CommandEvent, BotMentionEvent
-from bot.libs.configuration import ServerConfiguration
+from . import SingleLanguage
+from .logger import log
+from .events import CommandEvent, BotMentionEvent
+from .libs.configuration import ServerConfiguration
 
 
 class Command:
     def __init__(self, bot):
         self.bot = bot
-        self.log = self.bot.log
+        self.log = log
         self.name = ''
         self.aliases = []
         self.swhandler = []

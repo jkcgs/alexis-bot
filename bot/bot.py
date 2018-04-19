@@ -29,7 +29,6 @@ class AlexisBot(discord.Client):
         self.lang = {}
         self.deleted_messages = []
 
-        self.log = log
         self.manager = Manager(self)
         self.config = StaticConfig()
 
@@ -77,8 +76,8 @@ class AlexisBot(discord.Client):
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""
 
-        self.log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
-        self.log.info('------')
+        log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
+        log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
         self.initialized = True
@@ -103,7 +102,7 @@ class AlexisBot(discord.Client):
         msg = 'Sending message "{}" to {} '.format(kwargs['content'], dest)
         if isinstance(kwargs.get('embed'), discord.Embed):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
-        self.log.debug(msg)
+        log.debug(msg)
 
         # Send the actual message
         return await super(AlexisBot, self).send_message(**kwargs)
@@ -144,7 +143,7 @@ class AlexisBot(discord.Client):
             log.info('Configuración cargada')
             return True
         except Exception as ex:
-            self.log.exception(ex)
+            log.exception(ex)
             return False
 
     async def close(self):
