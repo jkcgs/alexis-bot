@@ -4,6 +4,7 @@ import inspect
 import sys
 from os import path
 
+from bot.utils import get_bot_root
 from .logger import log
 from .events import parse_event
 from .command import message_handler, Command
@@ -231,10 +232,10 @@ class Manager:
         classes = []
 
         # Listar módulos internos
-        mods_path = path.join(path.dirname(__file__), '..', 'modules')
+        mods_path = path.join(get_bot_root(), 'modules')
         _all = ['modules.' + f for f in Manager.get_mod_files(mods_path)]
 
-        local_ext = path.join(path.dirname(__file__), '..', 'external_modules')
+        local_ext = path.join(get_bot_root(), 'external_modules')
         if path.isdir(local_ext):
             _all += ['external_modules.' + f for f in Manager.get_mod_files(local_ext)]
 

@@ -1,5 +1,6 @@
 import discord
 import re
+from os import path
 from discord import Embed
 
 from bot.libs.configuration import ServerConfiguration
@@ -210,3 +211,7 @@ def replace_everywhere(content, search, replace):
         return str(content).replace(search, replace)
 
     return content
+
+
+def get_bot_root():
+    return path.abspath(path.join(path.dirname(__file__), '..'))

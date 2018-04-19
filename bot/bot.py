@@ -4,7 +4,7 @@ import discord
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, get_database, init_db, log
-from bot.utils import destination_repr
+from bot.utils import destination_repr, get_bot_root
 
 
 class AlexisBot(discord.Client):
@@ -38,6 +38,7 @@ class AlexisBot(discord.Client):
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
         log.info('Python %s en %s.', sys.version.replace('\n', ''), sys.platform)
+        log.info('Bot root path: %s', get_bot_root())
         log.info(platform.uname())
         log.info('------')
 
