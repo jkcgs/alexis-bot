@@ -121,8 +121,7 @@ class AlexisBot(discord.Client):
         """
         Ejecuta la conexión a la base de datos
         """
-        self.db = get_database()
-        init_db()
+        self.db = init_db()
         log.info('Conectado correctamente a la base de datos mediante %s', self.db.__class__.__name__)
 
     def load_config(self):
