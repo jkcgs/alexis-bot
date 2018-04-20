@@ -4,10 +4,11 @@ import inspect
 import sys
 from os import path
 
+from bot import CommandEvent, BotMentionEvent
 from bot.utils import get_bot_root
 from .logger import log
 from .events import parse_event
-from .command import message_handler, Command
+from .command import Command
 
 
 class Manager:
@@ -136,7 +137,7 @@ class Manager:
                 return
 
         if event_name == 'on_message':
-            await message_handler(kwargs.get('message'), self.bot, event)
+            await self.handle_message(kwargs.get('message'), event)
 
         for z in self.get_handlers(event_name):
             await z(**kwargs)
@@ -160,6 +161,48 @@ class Manager:
 
         for z in self.get_handlers(name):
             z(kwargs)
+
+    async def handle_message(self, message, event):
+        if not self.bot.initialized:
+            return
+
+        # Mandar PMs al log
+        if event.is_pm and message.content != '':
+            if event.self:
+                log.info('[PM] (-> %s): %s', message.channel.user, event.text)
+            else:
+                log.info('[PM] %s: %s', event.author, event.text)
+
+        # Command handler
+        try:
+            # Comando válido
+            if isinstance(event, (CommandEvent, BotMentionEvent)):
+                if isinstance(event, CommandEvent):
+                    # Actualizar id del último que usó un comando (omitir al mismo bot)
+                    if not event.self:
+                        self.bot.last_author = message.author.id
+                    log.debug('[command] %s: %s', event.author, str(event))
+
+                await event.handle()
+
+            # 'startswith' handlers
+            for swtext in self.swhandlers.keys():
+                swtextrep = swtext.replace('$PX', event.prefix)
+                if message.content.startswith(swtextrep):
+                    swhandler = self.bot.manager.swhandlers[swtext]
+                    if swhandler.bot_owner_only and not event.bot_owner:
+                        continue
+                    if swhandler.owner_only and not (event.owner or event.bot_owner):
+                        continue
+                    if not swhandler.allow_pm and event.is_pm:
+                        continue
+
+                    await swhandler.handle(event)
+                    if swhandler.swhandler_break:
+                        break
+
+        except Exception as e:
+            log.exception(e)
 
     def has_cmd(self, name):
         return name in self.cmds

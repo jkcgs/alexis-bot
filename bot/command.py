@@ -1,11 +1,9 @@
 import asyncio
 import aiohttp
-import traceback
 import discord
 
 from . import SingleLanguage
 from .logger import log
-from .events import CommandEvent, BotMentionEvent
 from .libs.configuration import ServerConfiguration
 
 
@@ -67,53 +65,3 @@ class Command:
             lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'])
 
         return SingleLanguage(self.bot.lang, lang_code)
-
-
-async def message_handler(message, bot, event):
-    if not bot.initialized:
-        return
-
-    # Mandar PMs al log
-    if event.is_pm and message.content != '':
-        if event.self:
-            log.info('[PM] (-> %s): %s', message.channel.user, event.text)
-        else:
-            log.info('[PM] %s: %s', event.author, event.text)
-
-    # Command handler
-    try:
-        # Comando válido
-        if isinstance(event, (CommandEvent, BotMentionEvent)):
-            if isinstance(event, CommandEvent):
-                # Actualizar id del último que usó un comando (omitir al mismo bot)
-                if not event.self:
-                    bot.last_author = message.author.id
-                log.debug('[command] %s: %s', event.author, str(event))
-
-            event.handle()
-
-        # 'startswith' handlers
-        for swtext in bot.manager.swhandlers.keys():
-            swtextrep = swtext.replace('$PX', event.prefix)
-            if message.content.startswith(swtextrep):
-                swhandler = bot.manager.swhandlers[swtext]
-                if swhandler.bot_owner_only and not event.bot_owner:
-                    continue
-                if swhandler.owner_only and not (event.owner or event.bot_owner):
-                    continue
-                if not swhandler.allow_pm and event.is_pm:
-                    continue
-
-                await swhandler.handle(event)
-                if swhandler.swhandler_break:
-                    break
-
-    except Exception as e:
-        if str(e) == 'BAD REQUEST (status code: 400)':
-            e = Exception('Command failed successfully')
-
-        if bot.config['debug']:
-            await event.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
-        else:
-            await event.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
-        log.exception(e)
