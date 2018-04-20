@@ -89,7 +89,7 @@ class ModLog(Command):
         )
 
     async def get_last_alog(self, guild_id):
-        x = await self.http.get(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id).url)
+        x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
         x = x['audit_log_entries']
         if len(x) == 0:
             return None

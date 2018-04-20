@@ -3,7 +3,7 @@ import sys
 import discord
 
 from bot import Language, StaticConfig, Configuration, Manager
-from bot import defaults, get_database, init_db, log
+from bot import defaults, init_db, log
 from bot.utils import destination_repr, get_bot_root
 
 
