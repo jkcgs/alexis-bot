@@ -130,7 +130,6 @@ class Manager:
             event = parse_event(kwargs.get('message'), self.bot)
 
         for x in self.get_handlers('pre_' + event_name):
-            kwargs['event'] = event
             y = await x(**kwargs)
 
             if y is not None and isinstance(y, bool) and not y:
