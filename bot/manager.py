@@ -254,9 +254,9 @@ class Manager:
         for task in self.tasks:
             task.cancel()
 
-    def close_http(self):
+    async def close_http(self):
         for i in self.cmd_instances:
-            i.http.close()
+            await i.http.close()
 
     def __getitem__(self, item):
         return self.get_cmd(item)

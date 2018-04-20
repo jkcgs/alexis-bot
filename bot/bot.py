@@ -144,7 +144,7 @@ class AlexisBot(discord.Client):
         super().close()
         await self.http.close()
         self.manager.cancel_tasks()
-        self.manager.close_http()
+        await self.manager.close_http()
 
     """
     ===== EVENT HANDLERS =====
