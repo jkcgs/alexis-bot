@@ -105,7 +105,7 @@ class RedditFollow(Command):
             if user.startswith('/u/'):
                 user = user[3:]
 
-            num_posts = get_user_posts(user)
+            num_posts = self.get_user_posts(user)
 
             if num_posts > 0:
                 text = '**/u/{name}** ha creado **{num}** post{s}.'
@@ -122,7 +122,7 @@ class RedditFollow(Command):
         try:
             for (subname, chans) in self.chans.items():
                 subchannels = [chanid for svid, chanid in chans]
-                posts = await get_posts(self.bot, subname)
+                posts = await self.get_posts(subname)
 
                 if len(posts) == 0:
                     continue
@@ -138,7 +138,7 @@ class RedditFollow(Command):
 
                 while data['id'] != post_id and not exists:
                     message = 'Nuevo post en **/r/{}**'.format(data['subreddit'])
-                    embed = post_to_embed(data)
+                    embed = self.post_to_embed(data)
 
                     for channel in subchannels:
                         chan = self.bot.get_channel(channel)
@@ -170,51 +170,48 @@ class RedditFollow(Command):
 
             self.chans[chan.subreddit].append((chan.serverid, chan.channelid))
 
+    def get_user_posts(self, user):
+        if not re.match('^[a-zA-Z0-9_-]*$', user):
+            return None
 
-def get_user_posts(user):
-    if not re.match('^[a-zA-Z0-9_-]*$', user):
-        return None
+        redditor, _ = Redditor.get_or_create(name=user.lower())
+        return redditor.posts
 
-    redditor, _ = Redditor.get_or_create(name=user.lower())
-    return redditor.posts
+    async def get_posts(self, sub, since=0):
+        url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
+        req = self.http.get(url)
+        async with req as r:
+            if not r.status == 200:
+                return []
 
+            posts = []
+            data = await r.json()
+            for post in data['data']['children']:
+                if since < post['data']['created']:
+                    posts.append(post['data'])
 
-async def get_posts(bot, sub, since=0):
-    url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
-    req = bot.http_session.get(url)
-    async with req as r:
-        if not r.status == 200:
-            return []
+            return posts
 
-        posts = []
-        data = await r.json()
-        for post in data['data']['children']:
-            if since < post['data']['created']:
-                posts.append(post['data'])
+    def post_to_embed(self, post):
+        embed = Embed()
+        embed.title = text_cut(post['title'], 256)
+        embed.set_author(name='/u/' + post['author'], url='https://www.reddit.com/user/' + post['author'])
+        embed.url = 'https://www.reddit.com' + post['permalink']
 
-        return posts
-
-
-def post_to_embed(post):
-    embed = Embed()
-    embed.title = text_cut(post['title'], 256)
-    embed.set_author(name='/u/' + post['author'], url='https://www.reddit.com/user/' + post['author'])
-    embed.url = 'https://www.reddit.com' + post['permalink']
-
-    if post['is_self']:
-        embed.description = text_cut(post['selftext'], 2048)
-    elif post['media']:
-        if 'preview' in post:
+        if post['is_self']:
+            embed.description = text_cut(post['selftext'], 2048)
+        elif post['media']:
+            if 'preview' in post:
+                embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
+            elif post['thumbnail'] != 'default':
+                embed.set_thumbnail(url=html.unescape(post['thumbnail']))
+            embed.description = "Link del multimedia: " + post['url']
+        elif 'preview' in post:
             embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
-        elif post['thumbnail'] != 'default':
+        elif post['thumbnail'] != '' and post['thumbnail'] != 'default':
             embed.set_thumbnail(url=html.unescape(post['thumbnail']))
-        embed.description = "Link del multimedia: " + post['url']
-    elif 'preview' in post:
-        embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
-    elif post['thumbnail'] != '' and post['thumbnail'] != 'default':
-        embed.set_thumbnail(url=html.unescape(post['thumbnail']))
 
-    return embed
+        return embed
 
 
 class Post(BaseModel):

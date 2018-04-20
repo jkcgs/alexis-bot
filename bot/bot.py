@@ -10,7 +10,7 @@ from bot.utils import destination_repr, get_bot_root
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.53~ref_cmdevent+2'
+    __version__ = '1.0.0-dev.54'
     name = 'AlexisBot'
 
     def __init__(self, **options):
