@@ -15,7 +15,6 @@ class Ping(Command):
         now = datetime.now()
         msg = await cmd.answer(['wena xoro', 'pong!'][int(random.random() >= .5)])
         if msg is None:
-            self.log.debug('msg is None')
             return
 
         delay = (datetime.now() - now).microseconds / 1000

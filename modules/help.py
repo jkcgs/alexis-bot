@@ -16,8 +16,8 @@ class Help(Command):
         cmds_verif = []
         fields = []
 
-        for i in self.bot.cmds.keys():
-            ins = self.bot.cmds[i]
+        for i in self.bot.manager.cmds.keys():
+            ins = self.bot.manager[i]
             if ins.owner_only and not cmd.owner:
                 continue
             if ins.bot_owner_only and not cmd.bot_owner:
@@ -32,7 +32,7 @@ class Help(Command):
             await cmd.answer('no hay comandos disponibles')
             return
 
-        if cmd.is_cmd:
+        if not cmd.is_pm:
             await cmd.answer('te enviaré la info por PM!')
 
         pages = math.ceil(len(fields) / 25)

@@ -4,9 +4,9 @@ from os import path, listdir, mkdir
 
 
 from bot.libs.configuration import StaticConfig
-from bot.utils import is_int
+from bot.utils import is_int, get_bot_root
 
-LANG_FOLDER = 'lang'
+LANG_FOLDER = path.join(get_bot_root(), 'lang')
 LANGS = ['en', 'es', 'es_CL']
 pat_nombre = re.compile('^[0-9a-zA-Z_\-]{3,20}$')
 

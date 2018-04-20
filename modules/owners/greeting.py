@@ -2,7 +2,7 @@ import random
 
 from discord import Embed
 
-from bot import Command, MessageCmd
+from bot import Command, MessageEvent
 from bot.libs.configuration import ServerConfiguration
 from bot.utils import is_int
 
@@ -25,7 +25,7 @@ class Greeting(Command):
             'greeting_max_length': 100
         }
 
-    async def handle(self, cmd: MessageCmd):
+    async def handle(self, cmd: MessageEvent):
         max_msgs = self.bot.config.get('greeting_max_messages', 10)
         max_length = self.bot.config.get('greeting_max_length', 100)
 

@@ -141,12 +141,14 @@ class RedditFollow(Command):
                     embed = post_to_embed(data)
 
                     for channel in subchannels:
-                        await self.bot.send_message(discord.Object(id=channel), content=message, embed=embed)
+                        chan = self.bot.get_channel(channel)
+                        if chan is not None:
+                            await self.bot.send_message(chan, content=message, embed=embed)
 
                     post_id = data['id']
                     if not exists:
                         Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
-                        self.bot.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
+                        self.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
                             subreddit=data['subreddit'], permalink=data['permalink']))
 
                         Redditor.update(posts=Redditor.posts + 1).where(
@@ -154,7 +156,7 @@ class RedditFollow(Command):
 
         except Exception as e:
             if not isinstance(e, RuntimeError):
-                self.bot.log.exception(e)
+                self.log.exception(e)
         finally:
             await asyncio.sleep(15)
 

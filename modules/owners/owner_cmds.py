@@ -2,8 +2,8 @@ import re
 
 import discord
 
-from bot import Command
-from bot import AlexisBot
+from bot import AlexisBot, Command
+from bot.events import is_bot_command
 from bot.utils import unserialize_avail, get_server_role, serialize_avail
 
 rx_snowflake = re.compile('^\d{10,19}$')
@@ -97,21 +97,19 @@ class ChangePrefix(Command):
         self.owner_only = True
 
     async def handle(self, cmd):
-        if (not cmd.is_cmd and not cmd.sw_mention) or (cmd.is_cmd and not self.right_cmd(cmd)):
+        if not is_bot_command(cmd):
             return
 
         if cmd.argc < 1:
-            msg = 'el prefijo actual es **{}** y puedes cambiarlo con $PX{} <prefijo> o con {} <prefijo>'
-            await cmd.answer(msg.format(cmd.config.get('command_prefix'), self.name, self.bot.user.mention))
+            msg = 'el prefijo actual es `$PX`.\nPuedes cambiarlo con $PX{} <prefijo> o "{} <prefijo>"'
+            await cmd.answer(msg.format(self.name, self.bot.user.mention))
             return
 
-        txt = cmd.args[0]
-
-        if len(txt) > 3:
+        if len(cmd.text) > 3:
             return
 
-        cmd.config.set('command_prefix', txt)
-        await cmd.answer('prefijo configurado como {}'.format(txt))
+        cmd.config.set('command_prefix', cmd.args[0])
+        await cmd.answer('prefijo configurado como {}'.format(cmd.args[0]))
 
 
 class CommandConfig(Command):
@@ -126,7 +124,7 @@ class CommandConfig(Command):
             await cmd.answer('formato: $PX$NM <enable|disable> <comando>')
             return
 
-        if cmd.args[1] not in self.bot.cmds:
+        if cmd.args[1] not in self.bot.manager:
             await cmd.answer('el comando no existe')
             return
 
@@ -135,7 +133,7 @@ class CommandConfig(Command):
             return
 
         avail = serialize_avail(cmd.config.get('cmd_status', ''))
-        cmd_ins = self.bot.cmds[cmd.args[1]]
+        cmd_ins = self.bot.manager[cmd.args[1]]
         current = avail.get(cmd_ins.name, '+' if cmd_ins.default_enabled else '-')
 
         if cmd.args[0] == 'enable':

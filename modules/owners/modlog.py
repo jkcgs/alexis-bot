@@ -6,7 +6,7 @@ import discord
 import peewee
 from discord.http import Route
 
-from bot import Command, AlexisBot, MessageCmd
+from bot import Command, AlexisBot, MessageEvent
 from discord import Embed
 
 from bot.libs.configuration import BaseModel, ServerConfiguration
@@ -120,7 +120,7 @@ class ModLog(Command):
 
     @staticmethod
     async def send_modlog(bot, serverid='', message='', embed=None):
-        if isinstance(bot, MessageCmd):
+        if isinstance(bot, MessageEvent):
             serverid = bot.message.channel.id
             bot = bot.bot
         elif not isinstance(bot, AlexisBot):

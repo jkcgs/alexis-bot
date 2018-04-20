@@ -1,5 +1,6 @@
 from bot import Command
 from bot.libs.configuration import ServerConfiguration
+from bot.utils import replace_everywhere
 
 
 class CmdFilter(Command):
@@ -14,8 +15,10 @@ class CmdFilter(Command):
 
         svconfig = ServerConfiguration(self.bot.sv_config, svid)
         prefix = svconfig.get('command_prefix', self.bot.config['command_prefix'])
-        if prefix == '':
-            return
-
+        kwargs['content'] = kwargs['content'].replace('$PX', prefix)
         if kwargs.get('content', '').startswith(prefix):
             kwargs['content'] = kwargs['content'][len(prefix):]
+
+        if kwargs.get('embed', None) is not None:
+            embed = kwargs.get('embed')
+            kwargs['embed'] = replace_everywhere(embed, '$PX', prefix)

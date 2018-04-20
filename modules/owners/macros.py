@@ -58,7 +58,7 @@ class MacroSet(Command):
         description = ''
         embed_colour = Colour.default()
 
-        if name in self.bot.cmds:
+        if name in self.bot.manager:
             await cmd.answer('no se puede crear un macro con el nombre de un comando')
             return
 
@@ -159,7 +159,7 @@ class MacroRename(Command):
             await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
             return
 
-        if cmd.args[1] in self.bot.cmds:
+        if cmd.args[1] in self.bot.manager:
             await cmd.answer('no se puede nombrar un macro con el nombre de un comando')
             return
 
@@ -270,7 +270,7 @@ class MacroUse(Command):
 
     async def handle(self, cmd):
         # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
-        if self.bot.last_author is None or not cmd.own:
+        if self.bot.last_author is None or not cmd.self:
             self.bot.last_author = cmd.author.id
 
         # Obtener los argumentos del macro

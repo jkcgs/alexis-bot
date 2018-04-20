@@ -9,7 +9,7 @@ class LangFilter(Command):
         dest = kwargs.get('destination')
         svid = dest.server.id if hasattr(dest, 'server') else None
 
-        lang = self.bot.get_lang(svid)
+        lang = self.get_lang(svid)
         if kwargs.get('content', '') != '':
             kwargs['content'] = lang.format(kwargs['content'], kwargs.get('locales', None))
         if kwargs.get('embed', None) is not None:

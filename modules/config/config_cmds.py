@@ -121,7 +121,7 @@ class ReloadCmd(Command):
         else:
             msg = 'configuración recargada correctamente'
 
-        nmods = len([i.load_config() for i in self.bot.cmd_instances if callable(getattr(i, 'load_config', None))])
+        nmods = len([i.load_config() for i in self.bot.manager.cmd_instances if callable(getattr(i, 'load_config', None))])
         if nmods > 0:
             msg += ', incluyendo {} módulo{}'.format(nmods, ['s', ''][int(nmods == 1)])
 
