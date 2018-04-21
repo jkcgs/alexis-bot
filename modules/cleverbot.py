@@ -29,7 +29,7 @@ class CleverbotHandler(Command):
             self.log.debug('CleverWrap cargado')
 
     async def handle(self, cmd):
-        if isinstance(cmd, BotMentionEvent) and cmd.starts_with and len(cmd.text) < 4:
+        if not (isinstance(cmd, BotMentionEvent) and cmd.starts_with and len(cmd.text) > 3):
             return
 
         if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '1':
