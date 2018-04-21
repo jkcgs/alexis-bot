@@ -5,7 +5,7 @@ from bot.utils import get_server_role
 
 
 class AutoRole(Command):
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     __author__ = 'makzk'
     cfg_name = 'autoroles_ids'
 
@@ -97,7 +97,7 @@ class AutoRole(Command):
 
             loop.create_task(upd())
 
-            for member in cmd.server.members:
+            for member in list(cmd.server.members):
                 await self.give_roles(member)
                 i += 1
 
@@ -122,7 +122,7 @@ class AutoRole(Command):
 
             loop.create_task(upd())
 
-            for member in cmd.server.members:
+            for member in list(cmd.server.members):
                 await self.take_roles(member)
                 i += 1
 
