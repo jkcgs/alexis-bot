@@ -1,9 +1,11 @@
+import asyncio
+
 from bot import Command
 from bot.utils import get_server_role
 
 
 class AutoRole(Command):
-    __version__ = '0.0.1'
+    __version__ = '1.0.0'
     __author__ = 'makzk'
     cfg_name = 'autoroles_ids'
 
@@ -13,6 +15,7 @@ class AutoRole(Command):
         self.aliases = ['autorol']
         self.help = 'Da un rol a todos los usuarios nuevos y existentes'
         self.owner_only = True
+        self.allow_pm = False
 
     async def handle(self, cmd):
         if not self.can_manage_roles(cmd.server):
@@ -26,7 +29,7 @@ class AutoRole(Command):
             cmd.args.append('list')
 
         if cmd.args[0] in ['add', 'set', 'remove'] and cmd.argc < 2:
-            await cmd.answer('formato: $CMD (add|set|remove|auto) (rol,id)')
+            await cmd.answer('formato: $CMD (add|set|remove|give) (rol,id)')
             return
 
         if cmd.args[0] == 'list':
@@ -74,15 +77,83 @@ class AutoRole(Command):
                 else:
                     cmd.config.remove(AutoRole.cfg_name, role.id)
                     await cmd.answer('rol eliminado')
-        elif cmd.args[0] == 'auto':
-            await cmd.answer('wip')
+        elif cmd.args[0] == 'give':
+            if len(roles) == 0:
+                await cmd.answer('no hay roles para dar automáticamente')
+                return
+
+            msg = await cmd.answer('asignando roles...')
+
+            total = len(cmd.server.members)
+            loop = asyncio.get_event_loop()
+            i = 0
+
+            async def upd():
+                await self.bot.edit_message(msg, '{}, asignando roles... {}/{}'.format(cmd.author_name, i, total))
+
+                if i < total:
+                    await asyncio.sleep(3)
+                    loop.create_task(upd())
+
+            loop.create_task(upd())
+
+            for member in cmd.server.members:
+                await self.give_roles(member)
+                i += 1
+
+            await self.bot.edit_message(msg, '{}, asignando roles... listo!'.format(cmd.author_name))
+        elif cmd.args[0] == 'take':
+            if len(roles) == 0:
+                await cmd.answer('no hay roles para asignados automáticamente')
+                return
+
+            msg = await cmd.answer('quitando roles...')
+
+            total = len(cmd.server.members)
+            loop = asyncio.get_event_loop()
+            i = 0
+
+            async def upd():
+                await self.bot.edit_message(msg, '{}, quitando roles... {}/{}'.format(cmd.author_name, i, total))
+
+                if i < total:
+                    await asyncio.sleep(3)
+                    loop.create_task(upd())
+
+            loop.create_task(upd())
+
+            for member in cmd.server.members:
+                await self.take_roles(member)
+                i += 1
+
+            await self.bot.edit_message(msg, '{}, quitando roles... listo!'.format(cmd.author_name))
+        else:
+            await cmd.answer('formato: $CMD (add|set|remove|give) (rol,id)')
 
     async def on_member_join(self, member):
-        cfg = self.config_mgr(member.server.id)
-        roles = [get_server_role(member.server, r) for r in cfg.config.get_list(AutoRole.cfg_name)]
-        roles = [r for r in roles if r is not None]
+        await self.give_roles(member)
+
+    def get_roles(self, server):
+        cfg = self.config_mgr(server.id)
+        roles = [get_server_role(server, r) for r in cfg.get_list(AutoRole.cfg_name)]
+        return [r for r in roles if r is not None]
+
+    async def give_roles(self, member):
+        roles = self.get_roles(member.server)
 
         if len(roles) == 0:
+            self.log.debug('no autoroles in this server')
             return
 
-        await self.bot.add_roles(member, roles)
+        # self.log.debug('giving role(s) %s to %s', [r.name for r in roles], member)
+        await self.bot.add_roles(member, *roles)
+
+    async def take_roles(self, member):
+        roles = self.get_roles(member.server)
+
+        if len(roles) == 0:
+            self.log.debug('no autoroles in this server')
+            return
+
+        # self.log.debug('taking role(s) %s from %s', [r.name for r in roles], member)
+        await self.bot.remove_roles(member, *roles)
