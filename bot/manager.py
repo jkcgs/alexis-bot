@@ -188,7 +188,7 @@ class Manager:
             for swtext in self.swhandlers.keys():
                 swtextrep = swtext.replace('$PX', event.prefix)
                 if message.content.startswith(swtextrep):
-                    swhandler = self.bot.manager.swhandlers[swtext]
+                    swhandler = self.swhandlers[swtext]
                     if swhandler.bot_owner_only and not event.bot_owner:
                         continue
                     if swhandler.owner_only and not (event.owner or event.bot_owner):
@@ -236,7 +236,7 @@ class Manager:
         for cls in classes:
             if cls.__name__ == name:
                 log.debug('Cargando módulo "%s"...', name)
-                ins = self.bot.load_module(cls)
+                ins = self.load_module(cls)
                 if hasattr(ins, 'on_loaded'):
                     log.debug('Llamando on_loaded para "%s"', name)
                     ins.on_loaded()

@@ -15,9 +15,10 @@ class Modules(Command):
         self.bot_owner_only = True
 
     async def handle(self, cmd):
+        mgr = self.bot.manager
         name = '' if cmd.argc == 0 else (cmd.args[0][1:] if cmd.args[0][0] in ['+', '-', '~', '!'] else cmd.args[0])
         if name == '':
-            await cmd.answer('Módulos cargados:\n```{}```'.format(', '.join(self.bot.manager.get_mod_names())))
+            await cmd.answer('Módulos cargados:\n```{}```'.format(', '.join(mgr.get_mod_names())))
             return
 
         if cmd.args[0][0] == '+':
@@ -25,11 +26,11 @@ class Modules(Command):
                 await cmd.answer('no puedes manejar este módulo!')
                 return
 
-            if self.bot.manager.has_mod(name):
+            if mgr.has_mod(name):
                 await cmd.answer('módulo ya cargado')
                 return
 
-            if await self.bot.manager.activate_mod(name):
+            if await mgr.activate_mod(name):
                 await cmd.answer('módulo cargado')
             else:
                 await cmd.answer('módulo no encontrado')
@@ -41,11 +42,11 @@ class Modules(Command):
                 await cmd.answer('no puedes manejar este módulo!')
                 return
 
-            if not self.bot.manager.has_mod(name):
+            if not mgr.has_mod(name):
                 await cmd.answer('módulo no cargado')
                 return
 
-            self.bot.manager.unload_instance(name)
+            mgr.unload_instance(name)
             await cmd.answer('módulo desactivado')
             return
 
@@ -54,12 +55,12 @@ class Modules(Command):
                 await cmd.answer('no puedes manejar este módulo!')
                 return
 
-            if not self.bot.manager.has_mod(name):
+            if not mgr.has_mod(name):
                 await cmd.answer('módulo no cargado')
                 return
 
-            self.bot.manager.unload_instance(name)
-            if await self.bot.manager.activate_mod(name):
+            mgr.unload_instance(name)
+            if await mgr.activate_mod(name):
                 await cmd.answer('módulo reiniciado')
             else:
                 await cmd.answer('el módulo no pudo ser reactivado')
@@ -67,9 +68,9 @@ class Modules(Command):
             return
 
         if cmd.args[0][0] == '!':
-            module = self.bot.manager.get_by_cmd(name)
+            module = mgr.get_by_cmd(name)
         else:
-            module = self.bot.manager.get_mod(name)
+            module = mgr.get_mod(name)
 
         if module is None:
             await cmd.answer('módulo no encontrado')
