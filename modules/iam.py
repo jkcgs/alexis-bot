@@ -45,7 +45,7 @@ class IAm(Command):
             return False
 
         if role >= cmd.server.me.top_role:
-            await cmd.answer('no puedo asignar este rol, consulta a un miembro del staff')
+            await cmd.answer('no me es posible asignar este rol')
             return False
 
         try:
