@@ -176,6 +176,9 @@ def deltatime_to_str(deltatime):
     if s > 0:
         result.append(str(s) + ' segundo{}'.format('' if s == 1 else 's'))
 
+    if len(result) == 0:
+        result = ['ahora']
+
     return ', '.join(result)
 
 
