@@ -1,10 +1,15 @@
+from datetime import datetime
+
 from discord import Embed
 
 from bot import Command
-from bot.utils import format_date
+from bot.utils import format_date, deltatime_to_str
 
 
 class ServerInfo(Command):
+    __version__ = '1.1.0'
+    __author__ = 'makzk'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'serverinfo'
@@ -29,16 +34,20 @@ class ServerInfo(Command):
             await cmd.answer('servidor no encontrado')
             return
 
-        embed = Embed()
-        embed.add_field(name='Nombre', value=server.name)
-        embed.add_field(name='ID', value=server.id)
-        embed.add_field(name='Miembros', value=str(server.member_count))
-        embed.add_field(name='Bots', value=str(len([m for m in server.members if m.bot])))
-        embed.add_field(name='Emojis', value=str(len(server.emojis)))
-        embed.add_field(name='Dueño/a', value=str(server.owner))
-        embed.add_field(name='Región de voz', value=server.region)
-        embed.add_field(name='Creado', value=format_date(server.created_at))
-        embed.set_thumbnail(url=server.icon_url)
+        created_diff = deltatime_to_str(datetime.now() - server.created_at)
+        bot_count = len([m for m in server.members if m.bot])
+        bot_word = ['bots', 'bot'][bool(bot_count == 0)]
+        emoji_word = ['emojis', 'emoji'][bool(len(server.emojis) == 0)]
+
+        embed = Embed(title='Información del servidor')
+        cont = '**Nombre**: {}\n'.format(server.name)
+        cont += '**Dueño**: {}\n'.format(server.owner)
+        cont += '**Creado**: {} \n(*hace {}*)\n\n'.format(format_date(server.created_at), created_diff)
+        cont += 'Tiene **{} miembros**, *{} {}* y *{} {}*.\n'.format(
+            server.member_count, bot_count, bot_word, len(server.emojis), emoji_word
+        )
+        cont += '**Región de voz**: {}\n'.format(server.region)
+        cont += '**ID**: {}'.format(server.id)
 
         other = []
         if server.large:
@@ -53,6 +62,10 @@ class ServerInfo(Command):
             other.append('requiere autentificación en dos pasos')
 
         if len(other) > 0:
-            embed.set_footer(text='Otros: {}'.format(', '.join(other)))
+            cont += '\n\n**Otros**: {}'.format(', '.join(other))
 
-        await cmd.answer('información de {}'.format(server.id), embed=embed)
+        embed.set_thumbnail(url=server.icon_url)
+        embed.description = cont
+        embed.set_footer(text='Solicitado por {}'.format(cmd.author_name))
+
+        await cmd.answer(embed, withname=False)
