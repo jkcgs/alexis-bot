@@ -1,7 +1,7 @@
 import discord
 import re
 from os import path
-from discord import Embed
+from discord import Embed, Colour
 
 from bot.libs.configuration import ServerConfiguration
 
@@ -13,6 +13,11 @@ pat_subreddit = re.compile('^[a-zA-Z0-9_\-]{2,25}$')
 pat_emoji = re.compile('<a?(:([a-zA-Z0-9\-_]+):)([0-9]+)>')
 pat_normal_emoji = re.compile('^:[a-zA-Z\-_]+:$')
 pat_snowflake = re.compile('^\d{10,19}$')
+pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
+
+colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
+               'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
+               'lighter_grey', 'dark_grey', 'light_grey', 'darker_grey']
 
 
 def is_int(val):
@@ -219,3 +224,43 @@ def replace_everywhere(content, search, replace):
 
 def get_bot_root():
     return path.abspath(path.join(path.dirname(__file__), '..'))
+
+
+def get_colour(value):
+    if re.match(pat_colour, value):
+        if value.startswith("#"):
+            value = value[1:]
+        return Colour(int(value, 16))
+    else:
+        embed_colour = value.lower().replace(' ', '_')
+        if embed_colour in colour_list:
+            return getattr(Colour, embed_colour)()
+        else:
+            return None
+
+
+def str_to_embed(txt):
+    if txt == '':
+        raise RuntimeError('Invalid text to create an embed')
+
+    subargs = txt.split('|')
+    embed = Embed()
+
+    if len(subargs) > 0 and subargs[0].strip() != '':
+        embed.title = subargs[0].strip()
+
+    if len(subargs) > 1 and subargs[1].strip() != '':
+        embed.description = subargs[1].strip()
+
+    if len(subargs) > 2 and subargs[2].strip() != '':
+        embed.set_image(url=subargs[2].strip())
+
+    if len(subargs) > 3 and subargs[3].strip() != '':
+        embed_colour = get_colour(subargs[3].strip())
+        if embed_colour is not None:
+            embed.colour = embed_colour
+
+    if embed.title == '' and embed.description == '' and embed.image['url'] == '':
+        return None
+
+    return embed

@@ -5,26 +5,8 @@ import peewee
 from discord import Embed, Colour
 
 from bot import Command
-from bot.utils import is_int
+from bot.utils import is_int, get_colour, colour_list
 from bot.libs.configuration import BaseModel
-
-pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
-colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
-               'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
-               'lighter_grey', 'dark_grey', 'light_grey', 'darker_grey']
-
-
-def get_colour(value):
-    if re.match(pat_colour, value):
-        if value.startswith("#"):
-            value = value[1:]
-        return Colour(int(value, 16))
-    else:
-        embed_colour = value.lower().replace(' ', '_')
-        if embed_colour in colour_list:
-            return getattr(Colour, embed_colour)()
-        else:
-            return None
 
 
 class MacroSet(Command):
@@ -91,10 +73,6 @@ class MacroSet(Command):
                 if embed_colour is None:
                     await cmd.answer('Color inválido')
                     return
-
-                self.log.debug('colour: %s %s', embed_colour, embed_colour.value)
-            else:
-                self.log.debug('no subargs>3, %s %s', len(subargs), str(subargs))
 
             if image_url == '' and title == '' and description == '':
                 await cmd.answer('al menos la imagen, el titulo o la descripción deben ser ingresados')
