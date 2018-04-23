@@ -5,7 +5,7 @@ import peewee
 from discord import Embed, Colour
 
 from bot import Command
-from bot.utils import is_int, get_colour, colour_list
+from bot.utils import is_int, get_colour, format_date
 from bot.libs.configuration import BaseModel
 
 
@@ -286,6 +286,30 @@ class MacroUse(Command):
                 await cmd.answer(embed=embed)
         except EmbedMacro.DoesNotExist:
             pass
+
+
+class MacroRank(Command):
+    __version__ = '1.0.0'
+    __author__ = 'makzk'
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'macrorank'
+        self.help = 'Muestra un ranking de los macros usados en el servidor actual'
+        self.allow_pm = False
+
+    async def handle(self, cmd):
+        sortage = 'asc' if cmd.argc == 1 and cmd.args[0] in ['inv', 'inverse'] else 'desc'
+        result = EmbedMacro.select().where(EmbedMacro.server == cmd.server.id).order_by(
+            getattr(EmbedMacro.used_count, sortage)()).limit(10)
+
+        if len(result) == 0:
+            await cmd.answer('no se encontraron macros')
+            return
+
+        result = ['- {} ({}, creado: {})'.format(r.name, r.used_count, format_date(r.created)) for r in result]
+
+        await cmd.answer('```{}```'.format('\n'.join(result)))
 
 
 def safe_format(strp, args):
