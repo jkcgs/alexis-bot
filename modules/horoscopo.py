@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from discord import Embed
 
@@ -15,6 +16,7 @@ class Horoscopo(Command):
         self.name = 'horoscopo'
         self.help = 'Muestra el horóscopo para un determinado signo'
         self.horoscopo = None
+        self.update_step = 0
 
     async def handle(self, cmd):
         if self.horoscopo is None:
@@ -44,12 +46,22 @@ class Horoscopo(Command):
         return embed
 
     async def task(self):
+        """
+        Los datos se actualizarán en el minuto 0, 1 y 2 de cada hora
+        :return:
+        """
         await self.bot.wait_until_ready()
-        self.log.debug('Cargando información de horóscopo...')
-        async with self.http.get(Horoscopo.api_url) as r:
-            self.horoscopo = await r.json()
-            self.log.debug('Información de horóscopo cargada')
+        now = datetime.now()
+        if now.minute == self.update_step and 0 <= self.update_step < 3:
+            self.log.debug('Cargando información de horóscopo...')
+            async with self.http.get(Horoscopo.api_url) as r:
+                self.horoscopo = await r.json()
+                self.log.debug('Información de horóscopo cargada')
+
+            self.update_step += 1
+            if self.update_step > 3:
+                self.update_step = 0
 
         if not self.bot.is_closed:
-            await asyncio.sleep(14400)  # 4h así como por ser
+            await asyncio.sleep(30)
             self.bot.loop.create_task(self.task())
