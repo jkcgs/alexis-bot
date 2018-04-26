@@ -7,7 +7,7 @@ from bot import Command
 
 
 class Horoscopo(Command):
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     __author__ = 'makzk'
     api_url = 'https://api.cadcc.cl/tyaas/'
 
