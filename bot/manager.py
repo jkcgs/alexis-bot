@@ -26,6 +26,7 @@ class Manager:
         self.cmd_instances = []
         for c in Manager.get_mods(self.bot.config.get('ext_modpath', '')):
             self.cmd_instances.append(self.load_module(c))
+        self.sort_instances()
 
         log.info('Se cargaron %i módulos', len(self.cmd_instances))
         log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
@@ -76,6 +77,9 @@ class Manager:
         # Remove from instances list
         self.cmd_instances.remove(instance)
         log.info('Módulo "%s" desactivado', name)
+
+    def sort_instances(self):
+        self.cmd_instances = sorted(self.cmd_instances, key=lambda i: i.priority)
 
     def load_module(self, cls):
         """
@@ -245,6 +249,7 @@ class Manager:
                     await ins.on_ready()
 
                 self.cmd_instances.append(ins)
+                self.sort_instances()
                 log.debug('Módulo "%s" cargado', name)
                 return True
 

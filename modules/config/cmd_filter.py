@@ -8,17 +8,12 @@ class CmdFilter(Command):
         super().__init__(bot)
 
     def pre_send_message(self, kwargs):
-        dest = kwargs.get('destination')
+        dest = kwargs['destination']
         svid = dest.server.id if hasattr(dest, 'server') else None
         if svid is None:
             return
 
-        svconfig = ServerConfiguration(self.bot.sv_config, svid)
-        prefix = svconfig.get('command_prefix', self.bot.config['command_prefix'])
-        kwargs['content'] = kwargs['content'].replace('$PX', prefix)
-        if kwargs.get('content', '').startswith(prefix):
-            kwargs['content'] = kwargs['content'][len(prefix):]
-
-        if kwargs.get('embed', None) is not None:
-            embed = kwargs.get('embed')
-            kwargs['embed'] = replace_everywhere(embed, '$PX', prefix)
+        if kwargs['locales'] is not None:
+            kwargs['content'] = replace_everywhere(kwargs['content'], kwargs['locales'])
+            if kwargs['embed'] is not None:
+                kwargs['embed'] = replace_everywhere(kwargs['embed'], kwargs['locales'])

@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot.libs.configuration import ServerConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import pat_emoji, is_owner, pat_channel, pat_usertag, pat_snowflake
+from bot.utils import pat_emoji, is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix
 
 
 class MessageEvent:
@@ -52,7 +52,8 @@ class MessageEvent:
             kwargs['embed'] = content
             content = ''
 
-        content = content.replace('$AU', self.author_name)
+        kwargs['locales']['$AU'] = self.author_name
+        kwargs['locales']['$PX'] = self.prefix
 
         if withname:
             if content != '':
@@ -191,9 +192,4 @@ class MessageEvent:
 
     @staticmethod
     def get_prefix(message, bot):
-        prefix = bot.config['command_prefix']
-        if message.server is not None:
-            prefix = bot.sv_config.get(message.server.id, 'command_prefix', prefix)
-
-        return prefix
-
+        return get_prefix(bot, None if message.server is None else message.server.id)

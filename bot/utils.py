@@ -199,7 +199,12 @@ def destination_repr(destination):
                                           destination.server.id)
 
 
-def replace_everywhere(content, search, replace):
+def replace_everywhere(content, search, replace=None):
+    if isinstance(search, dict):
+        for k, v in search.items():
+            content = replace_everywhere(content, k, v)
+        return content
+
     if isinstance(content, str):
         content = content.replace(search, replace)
 
@@ -264,3 +269,11 @@ def str_to_embed(txt):
         return None
 
     return embed
+
+
+def get_prefix(bot, serverid=None):
+    if serverid is None:
+        return bot.config['command_prefix']
+    else:
+        svconfig = ServerConfiguration(bot.sv_config, serverid)
+        return svconfig.get('command_prefix', bot.config['command_prefix'])

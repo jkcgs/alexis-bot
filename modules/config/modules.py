@@ -5,12 +5,13 @@ from bot import Command
 
 
 class Modules(Command):
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     __author__ = 'makzk'
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'modules'
+        self.aliases = ['module']
         self.help = 'Gestión de módulos'
         self.bot_owner_only = True
 
@@ -90,5 +91,6 @@ class Modules(Command):
         embed.add_field(name='Mention Handler', value=(', '.join(module.mention_handler or []) or '(ninguno)'))
         embed.add_field(name='Owner Only', value=str(module.owner_only))
         embed.add_field(name='Delay', value=('No' if module.user_delay == 0 else (str(module.user_delay) + 's')))
+        embed.add_field(name='Prioridad', value=module.priority)
         embed.add_field(name='Ubicación', value=inspect.getfile(module.__class__))
         await cmd.answer(embed, withname=False)

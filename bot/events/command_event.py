@@ -28,12 +28,12 @@ class CommandEvent(MessageEvent):
         self.text = ' '.join(self.args)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
-        content = replace_everywhere(content, '$CMD', '$PX$NM')
-        content = replace_everywhere(content, '$NM', self.cmdname)
-        if kwargs.get('embed', None) is not None:
-            kwargs['embed'] = replace_everywhere(kwargs.get('embed'), '$CMD', '$PX$NM')
-            kwargs['embed'] = replace_everywhere(kwargs.get('embed'), '$NM', self.cmdname)
+        if 'locales' not in kwargs:
+            kwargs['locales'] = {}
 
+        kwargs['event'] = self
+        kwargs['locales']['$CMD'] = '$PX' + self.cmdname
+        kwargs['locales']['$NM'] = self.cmdname
         return await super().answer(content, to_author, withname, **kwargs)
 
     def is_enabled(self):

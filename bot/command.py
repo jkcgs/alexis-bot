@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import discord
 
+from bot.utils import get_prefix
 from . import SingleLanguage
 from .logger import log
 from .libs.configuration import ServerConfiguration
@@ -27,6 +28,7 @@ class Command:
         self.format = ''  # TODO
         self.default_enabled = True
         self.default_config = None
+        self.priority = 100
 
         self.user_delay = 0
         self.users_delay = {}
@@ -65,3 +67,25 @@ class Command:
             lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'])
 
         return SingleLanguage(self.bot.lang, lang_code)
+
+    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
+        """
+        Llamada al bot de send_message que agrega parámetros de reemplazo de textos
+        :param destination: Dónde enviar un mensaje, como discord.Channel, discord.User, discord.Object, entre otros.
+        :param content: El contenido textual a enviar
+        :param tts: El mensaje es TTS (text to speech).
+        :param embed: Enviar un embed con el mensaje.
+        :param locales: Mensajes a reemplazar en el contenido y embed.
+        :param event: El evento que origina el mensaje. Se usa para entregárselo a los respectivos handlers.
+        :return:
+        """
+        if locales is None:
+            locales = {}
+
+        px = get_prefix(destination.id if isinstance(content, discord.Server) else None)
+        locales['$PX'] = px
+        if event is not None:
+            locales['$NM'] = event.cmdname
+            locales['$CMD'] = px + event.cmdname
+
+        await self.bot.send_message(destination, content, tts=tts, embed=embed, locales=locales, event=event)

@@ -4,13 +4,13 @@ import discord
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
-from bot.utils import destination_repr, get_bot_root
+from bot.utils import destination_repr, get_bot_root, replace_everywhere
 
 
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.54'
+    __version__ = '1.0.0-dev.55'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -77,28 +77,43 @@ class AlexisBot(discord.Client):
         self.initialized = True
         await self.manager.dispatch('on_ready')
 
-    async def send_message(self, destination, content=None, **kwargs):
+    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
         """
         Sobrecarga la llamada original de discord.Client para enviar mensajes para accionar otras llamadas
         como handlers de modificación de mensajes y registros del bot. Soporta los mismos parámetros del
         método original.
         :param destination: Dónde enviar un mensaje, como discord.Channel, discord.User, discord.Object, entre otros.
         :param content: El contenido textual a enviar
-        :param kwargs: El resto de parámetros del método original.
+        :param tts: El mensaje es TTS (text to speech).
+        :param embed: Enviar un embed con el mensaje.
+        :param locales: Mensajes a reemplazar en el contenido y embed.
+        :param event: El evento que origina el mensaje. Se usa para entregárselo a los respectivos handlers.
         :return:
         """
+
         # Call pre_send_message handlers, append destination
-        kwargs = {'destination': destination, 'content': content, **kwargs}
+        if locales is None:
+            locales = {}
+
+        kwargs = {'destination': destination, 'content': content, 'tts': tts,
+                  'embed': embed, 'locales': locales, 'event': event}
         self.manager.dispatch_ref('pre_send_message', kwargs)
+
+        # Handle locales
+        if kwargs['locales'] is not None:
+            kwargs['content'] = replace_everywhere(kwargs['content'], kwargs['locales'])
+            if kwargs['embed'] is not None:
+                kwargs['embed'] = replace_everywhere(kwargs['embed'], kwargs['locales'])
 
         # Log the message
         dest = destination_repr(kwargs['destination'])
-        msg = 'Sending message "{}" to {} '.format(kwargs['content'], dest)
-        if isinstance(kwargs.get('embed'), discord.Embed):
-            msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
+        msg = 'Sending message "{}" to {} '.format(content, dest)
+        if isinstance(embed, discord.Embed):
+            msg += ' (with embed: {})'.format(embed.to_dict())
         log.debug(msg)
 
         # Send the actual message
+        del kwargs['locales'], kwargs['event']
         return await super(AlexisBot, self).send_message(**kwargs)
 
     async def delete_message(self, message):
