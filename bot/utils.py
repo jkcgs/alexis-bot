@@ -202,12 +202,12 @@ def destination_repr(destination):
 def replace_everywhere(content, search, replace=None):
     if isinstance(search, dict):
         for k, v in search.items():
-            content = replace_everywhere(content, k, v)
+            content = replace_everywhere(content, k, str(v))
         return content
 
+    replace = str(replace)
     if isinstance(content, str):
         content = content.replace(search, replace)
-
     if isinstance(content, Embed):
         if content.title != Embed.Empty:
             content.title = content.title.replace(search, replace)
