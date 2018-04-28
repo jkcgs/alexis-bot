@@ -87,8 +87,8 @@ class Modules(Command):
         )
 
         embed.add_field(name='Comando(s)', value=cmds)
-        embed.add_field(name='SW Handler', value=(', '.join(module.mention_handler or []) or '(ninguno)'))
-        embed.add_field(name='Mention Handler', value=(', '.join(module.mention_handler or []) or '(ninguno)'))
+        embed.add_field(name='SW Handler', value=(', '.join(module.swhandler or []) or '(ninguno)'))
+        embed.add_field(name='Mention Handler', value=module.mention_handler)
         embed.add_field(name='Owner Only', value=str(module.owner_only))
         embed.add_field(name='Delay', value=('No' if module.user_delay == 0 else (str(module.user_delay) + 's')))
         embed.add_field(name='Prioridad', value=module.priority)

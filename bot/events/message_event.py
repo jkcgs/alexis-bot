@@ -52,6 +52,9 @@ class MessageEvent:
             kwargs['embed'] = content
             content = ''
 
+        if 'locales' not in kwargs:
+            kwargs['locales'] = {}
+
         kwargs['locales']['$AU'] = self.author_name
         kwargs['locales']['$PX'] = self.prefix
 
