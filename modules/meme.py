@@ -8,7 +8,7 @@ furl = 'https://raw.githubusercontent.com/caarlos0-graveyard/msfonts/master/font
 
 class Meme(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -91,10 +91,10 @@ class Meme(Command):
         # Draw shadow
         i = 2
         x, y = xy
-        draw.multiline_text((x+i, y+i), text, font=self.font, align='center', fill='black')
-        draw.multiline_text((x+i, y-i), text, font=self.font, align='center', fill='black')
-        draw.multiline_text((x-i, y-i), text, font=self.font, align='center', fill='black')
-        draw.multiline_text((x-i, y+i), text, font=self.font, align='center', fill='black')
+        draw.multiline_text((x+i, y+i), text, font=selfont, align='center', fill='black')
+        draw.multiline_text((x+i, y-i), text, font=selfont, align='center', fill='black')
+        draw.multiline_text((x-i, y-i), text, font=selfont, align='center', fill='black')
+        draw.multiline_text((x-i, y+i), text, font=selfont, align='center', fill='black')
 
         # Draw text itself
         draw.multiline_text(xy, text, font=selfont, align='center')
