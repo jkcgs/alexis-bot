@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot.libs.configuration import ServerConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import pat_emoji, is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix
+from bot.utils import pat_emoji, is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix, no_tags
 
 
 class MessageEvent:
@@ -106,28 +106,7 @@ class MessageEvent:
         return is_owner(self.bot, user, self.message.server)
 
     def no_tags(self, users=True, channels=True, emojis=True):
-        txt = self.text
-
-        # tags de usuarios
-        if users:
-            for mention in self.message.mentions:
-                mtext = mention.mention
-                if mention.name != mention.display_name:
-                    mtext = mtext.replace('@', '@!')
-
-                txt = txt.replace(mtext, mention.display_name)
-
-        # tags de canales
-        if channels:
-            for mention in self.message.channel_mentions:
-                txt = txt.replace(mention.mention, '#' + mention.name)
-
-        # emojis custom
-        if emojis:
-            for m in pat_emoji.finditer(txt):
-                txt = txt.replace(m.group(0), m.group(1))
-
-        return txt
+        return no_tags(self.message, users, channels, emojis)
 
     async def get_user(self, user, member_only=False):
         """

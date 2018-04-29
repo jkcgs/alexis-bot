@@ -277,3 +277,28 @@ def get_prefix(bot, serverid=None):
     else:
         svconfig = ServerConfiguration(bot.sv_config, serverid)
         return svconfig.get('command_prefix', bot.config['command_prefix'])
+
+
+def no_tags(message, users=True, channels=True, emojis=True):
+    txt = message.content
+
+    # tags de usuarios
+    if users:
+        for mention in message.mentions:
+            mtext = mention.mention
+            if mention.name != mention.display_name:
+                mtext = mtext.replace('@', '@!')
+
+            txt = txt.replace(mtext, mention.display_name)
+
+    # tags de canales
+    if channels:
+        for mention in message.channel_mentions:
+            txt = txt.replace(mention.mention, '#' + mention.name)
+
+    # emojis custom
+    if emojis:
+        for m in pat_emoji.finditer(txt):
+            txt = txt.replace(m.group(0), m.group(1))
+
+    return txt
