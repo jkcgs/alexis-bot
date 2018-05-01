@@ -67,7 +67,7 @@ class Horoscopo(Command):
             self.log.debug('Información de horóscopo cargada')
 
             self.update_step += 1
-            if self.update_step > 3:
+            if self.update_step > 2:
                 self.update_step = 0
 
         if not self.bot.is_closed:

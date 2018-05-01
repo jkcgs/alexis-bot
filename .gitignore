@@ -7,6 +7,7 @@ database.db
 logs/
 data.json
 external_modules/
+modules/impact.ttf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
