@@ -8,7 +8,7 @@ from bot.libs.configuration import ServerConfiguration
 
 pat_tag = re.compile('^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')
 pat_usertag = re.compile('^<@!?(\d{10,19})>$')
-pat_channel = re.compile('^<#\d{10,19}>$')
+pat_channel = re.compile('^<#(\d{10,19})>$')
 pat_subreddit = re.compile('^[a-zA-Z0-9_\-]{2,25}$')
 pat_emoji = re.compile('<a?(:([a-zA-Z0-9\-_]+):)([0-9]+)>')
 pat_normal_emoji = re.compile('^:[a-zA-Z\-_]+:$')
@@ -279,22 +279,23 @@ def get_prefix(bot, serverid=None):
         return svconfig.get('command_prefix', bot.config['command_prefix'])
 
 
-def no_tags(message, users=True, channels=True, emojis=True):
-    txt = message.content
+def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
+    if isinstance(txt, discord.Message):
+        txt = txt.content
 
-    # tags de usuarios
+    # emojis custom
     if users:
-        for mention in message.mentions:
-            mtext = mention.mention
-            if mention.name != mention.display_name:
-                mtext = mtext.replace('@', '@!')
+        for m in pat_usertag.finditer(txt):
+            if bot is None:
+                txt = txt.replace(m.group(0), m.group(1))
+            else:
+                user = bot.get_user_info(m.group(1))
+                txt.replace(m.group(0), user.display_name if user is not None else m.group(1))
 
-            txt = txt.replace(mtext, mention.display_name)
-
-    # tags de canales
+    # emojis custom
     if channels:
-        for mention in message.channel_mentions:
-            txt = txt.replace(mention.mention, '#' + mention.name)
+        for m in pat_channel.finditer(txt):
+            txt = txt.replace(m.group(0), m.group(1))
 
     # emojis custom
     if emojis:

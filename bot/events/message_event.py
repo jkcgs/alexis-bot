@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot.libs.configuration import ServerConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import pat_emoji, is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix, no_tags
+from bot.utils import is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix, no_tags
 
 
 class MessageEvent:
@@ -106,7 +106,7 @@ class MessageEvent:
         return is_owner(self.bot, user, self.message.server)
 
     def no_tags(self, users=True, channels=True, emojis=True):
-        return no_tags(self.message, users, channels, emojis)
+        return no_tags(self.message, self.bot, users, channels, emojis)
 
     async def get_user(self, user, member_only=False):
         """

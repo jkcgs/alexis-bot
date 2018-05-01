@@ -1,7 +1,7 @@
 import traceback
 from datetime import timedelta, datetime
 
-from bot.utils import serialize_avail, replace_everywhere
+from bot.utils import serialize_avail, replace_everywhere, no_tags
 from bot.logger import log
 from .message_event import MessageEvent
 
@@ -45,6 +45,9 @@ class CommandEvent(MessageEvent):
         cmd = self.bot.manager[self.cmdname]
         enabled_db = avail.get(cmd.name, '+' if cmd.default_enabled else '-')
         return enabled_db == '+'
+
+    def no_tags(self, users=True, channels=True, emojis=True):
+        return no_tags(self.text, self.bot, users, channels, emojis)
 
     def __str__(self):
         return '[{} name="{}", channel="{}#{}", author="{}" text="{}"]'.format(

@@ -2,19 +2,27 @@ from io import BytesIO
 from os import path
 from PIL import Image, ImageFont, ImageDraw
 from bot import Command
+from bot.utils import pat_usertag
 
 furl = 'https://raw.githubusercontent.com/caarlos0-graveyard/msfonts/master/fonts/impact.ttf'
 
 
 class Meme(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.1'
+    __version__ = '1.0.2'
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'meme'
         self.help = 'Genera un meme en base a la imagen de un usuario'
-        self.format = 'formato: $CMD <usuario> | <texto_abajo> **ó** $CMD <usuario> | <texto_arriba> | <texto_abajo>'
+        self.format = 'formatos:\n' \
+                      '```' \
+                      '$CMD <texto_abajo> (usará tu avatar)\n' \
+                      '$CMD [usuario] | <texto_abajo>\n' \
+                      '$CMD <usuario> | <texto_arriba> | <texto_abajo>\n' \
+                      '$CMD <@mención> [|] <texto_abajo>\n' \
+                      '$CMD <@mención> [|] <texto_arriba> | <texto_abajo>' \
+                      '```'
         self.isize = 512
         self.mpath = path.join(path.dirname(path.realpath(__file__)), 'impact.ttf')
         self.font = None
@@ -39,19 +47,30 @@ class Meme(Command):
         self.font_smaller = ImageFont.truetype(self.mpath, size=int(self.isize/14))
 
     async def handle(self, cmd):
-        args = [f.strip() for f in cmd.no_tags().split('|')]
-        if len(args) < 2:
+        if cmd.argc == 0:
             await cmd.answer(self.format)
             return
 
-        user = await cmd.get_user(cmd.text.split('|')[0].strip())
+        if pat_usertag.match(cmd.args[0]):
+            args = [f.strip() for f in ' '.join(cmd.no_tags().split(' ')[1:]).split('|')]
+            if args[0] == '':
+                del args[0]
+            args.insert(0, cmd.args[0])
+        else:
+            args = [f.strip() for f in cmd.no_tags().split('|')]
 
-        if user is None:
-            await cmd.answer('usuario no encontrado')
-            return
+        if len(args) > 1:
+            user = await cmd.get_user(args[0].strip())
 
-        upper = args[1].upper() if len(args) > 2 else None
-        lower = (args[2] if len(args) > 2 else args[1]).upper()
+            if user is None:
+                await cmd.answer('usuario no encontrado')
+                return
+            upper = args[1].upper() if len(args) > 2 else None
+            lower = (args[2] if len(args) > 2 else args[1]).upper()
+        else:
+            user = cmd.author
+            upper = None
+            lower = args[0].upper()
 
         avatar_url = user.avatar_url or user.default_avatar_url
         await cmd.typing()
