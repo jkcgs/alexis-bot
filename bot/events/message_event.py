@@ -66,7 +66,7 @@ class MessageEvent:
         dest = self.message.author if to_author else self.message.channel
         return await self.bot.send_message(dest, content, **kwargs)
 
-    async def answer_embed(self, msg, delete_trigger=False, withname=True):
+    async def answer_embed(self, msg, title=None, *, delete_trigger=False, withname=True):
         if delete_trigger:
             try:
                 await self.bot.delete_message(self.message)
@@ -75,6 +75,8 @@ class MessageEvent:
 
         if not isinstance(msg, Embed):
             msg = Embed(description=msg)
+            if title is not None:
+                msg.title = title
 
         if withname:
             msg.set_footer(text='para ' + self.author_name)
