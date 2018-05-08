@@ -1,3 +1,4 @@
+import asyncio
 import platform
 import sys
 import discord
@@ -10,7 +11,7 @@ from bot.utils import destination_repr, get_bot_root, replace_everywhere
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.55'
+    __version__ = '1.0.0-dev.56'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -62,7 +63,8 @@ class AlexisBot(discord.Client):
             log.info('Conectando...')
             self.run(self.config['token'])
         except discord.errors.LoginFailure:
-            raise RuntimeError('El token de Discord es incorrecto!')
+            log.error('El token de Discord es incorrecto!')
+            raise
         except Exception as ex:
             log.exception(ex)
             raise
@@ -154,11 +156,15 @@ class AlexisBot(discord.Client):
             log.exception(ex)
             return False
 
-    async def close(self):
+    def close(self):
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        loop = asyncio.get_event_loop()
+
         super().close()
-        await self.http.close()
+        loop.run_until_complete(self.http.close())
         self.manager.cancel_tasks()
-        await self.manager.close_http()
+        self.manager.close_http()
+
 
     """
     ===== EVENT HANDLERS =====

@@ -256,12 +256,14 @@ class Manager:
         return False
 
     def cancel_tasks(self):
-        for task in self.tasks:
-            task.cancel()
+        if not self.bot.loop.is_closed():
+            for task in self.tasks:
+                task.cancel()
 
-    async def close_http(self):
+    def close_http(self):
+        loop = asyncio.get_event_loop()
         for i in self.cmd_instances:
-            await i.http.close()
+            loop.create_task(i.http.close())
 
     def __getitem__(self, item):
         return self.get_cmd(item)
