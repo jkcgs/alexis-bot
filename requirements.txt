@@ -8,3 +8,4 @@ lxml==4.2.1
 peewee==3.2.3
 requests==2.18.4
 ruamel.yaml==0.15.37
+pytz==2018.4

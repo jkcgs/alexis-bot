@@ -1,4 +1,5 @@
 import asyncio
+import pytz
 from datetime import datetime
 
 from discord import Embed
@@ -16,7 +17,7 @@ class Horoscopo(Command):
         self.name = 'horoscopo'
         self.help = 'Muestra el horóscopo para un determinado signo.'
         self.horoscopo = None
-        self.update_step = 0
+        self.update_day = None
 
     async def handle(self, cmd):
         if self.horoscopo is None:
@@ -32,6 +33,11 @@ class Horoscopo(Command):
             await self.update()
             await cmd.answer('datos cargados')
             return
+
+        curr = datetime.now(pytz.timezone('Chile/Continental'))
+        if self.horoscopo is None or self.update_day is None or self.update_day != curr.day:
+            await cmd.typing()
+            await self.update()
 
         signo = self.get_sign(cmd.args[0])
         if signo is None:
@@ -54,26 +60,6 @@ class Horoscopo(Command):
                     return sign
             return None
 
-    async def task(self):
-        """
-        Los datos se actualizarán en el minuto 0, 1 y 2 de cada hora
-        :return:
-        """
-        await self.bot.wait_until_ready()
-        now = datetime.now()
-        if now.minute == self.update_step and 0 <= self.update_step < 3:
-            self.log.debug('Cargando información de horóscopo...')
-            await self.update()
-            self.log.debug('Información de horóscopo cargada')
-
-            self.update_step += 1
-            if self.update_step > 2:
-                self.update_step = 0
-
-        if not self.bot.is_closed:
-            await asyncio.sleep(30)
-            self.bot.loop.create_task(self.task())
-
     def make_embed(self, signo):
         signo = self.get_sign(signo)
         embed = Embed(title='Horóscopo - {}'.format(self.horoscopo['titulo']))
@@ -89,4 +75,6 @@ class Horoscopo(Command):
         self.log.debug('Cargando datos del horóscopo...')
         async with self.http.get(Horoscopo.api_url) as r:
             self.horoscopo = await r.json()
+            curr = datetime.now(pytz.timezone('Chile/Continental'))
+            self.update_day = curr.day
             self.log.debug('Datos del horóscopo cargados.')
