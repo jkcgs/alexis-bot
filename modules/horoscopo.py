@@ -74,7 +74,11 @@ class Horoscopo(Command):
     async def update(self):
         self.log.debug('Cargando datos del horóscopo...')
         async with self.http.get(Horoscopo.api_url) as r:
-            self.horoscopo = await r.json()
+            data = await r.json()
             curr = datetime.now(pytz.timezone('Chile/Continental'))
-            self.update_day = curr.day
-            self.log.debug('Datos del horóscopo cargados.')
+            if self.horoscopo is None or self.horoscopo['titulo'] != data['titulo']:
+                self.horoscopo = data
+                self.update_day = curr.day
+                self.log.debug('Datos del horóscopo cargados.')
+            else:
+                self.log.debug('No se encontraron datos actualizados')
