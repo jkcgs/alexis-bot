@@ -1,4 +1,3 @@
-import asyncio
 import pytz
 from datetime import datetime
 
@@ -8,7 +7,7 @@ from bot import Command
 
 
 class Horoscopo(Command):
-    __version__ = '1.0.2'
+    __version__ = '1.0.3'
     __author__ = 'makzk'
     api_url = 'https://api.cadcc.cl/tyaas/'
 
