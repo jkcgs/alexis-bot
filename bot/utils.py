@@ -1,3 +1,5 @@
+import datetime
+
 import discord
 import re
 from os import path
@@ -14,6 +16,8 @@ pat_emoji = re.compile('<a?(:([a-zA-Z0-9\-_]+):)([0-9]+)>')
 pat_normal_emoji = re.compile('^:[a-zA-Z\-_]+:$')
 pat_snowflake = re.compile('^\d{10,19}$')
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
+pat_delta = re.compile('^([0-9]+[smhd])+$')
+pat_delta_each = re.compile('([0-9]+[smhd])+')
 
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
                'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
@@ -187,6 +191,20 @@ def deltatime_to_str(deltatime):
     return ', '.join(result)
 
 
+def timediff_parse(timediff):
+    timediff = timediff.lower()
+    ds = {'s': 0, 'm': 0, 'h': 0, 'd': 0}
+    times = pat_delta_each.findall(timediff)
+
+    for t in times:
+        if t[-1] not in 'smhd':
+            t += 'm'
+
+        ds[t[-1]] += int(t[:-1])
+
+    return datetime.timedelta(seconds=ds['s'], minutes=ds['m'], hours=ds['h'], days=ds['d'])
+
+
 def format_date(date):
     return date.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -283,7 +301,6 @@ def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
     if isinstance(txt, discord.Message):
         txt = txt.content
 
-    # emojis custom
     if users:
         for m in pat_usertag.finditer(txt):
             if bot is None:
@@ -292,12 +309,10 @@ def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
                 user = bot.get_user_info(m.group(1))
                 txt.replace(m.group(0), user.display_name if user is not None else m.group(1))
 
-    # emojis custom
     if channels:
         for m in pat_channel.finditer(txt):
             txt = txt.replace(m.group(0), m.group(1))
 
-    # emojis custom
     if emojis:
         for m in pat_emoji.finditer(txt):
             txt = txt.replace(m.group(0), m.group(1))
