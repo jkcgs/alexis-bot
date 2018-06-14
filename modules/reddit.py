@@ -137,7 +137,9 @@ class RedditFollow(Command):
                 except Post.DoesNotExist:
                     exists = False
 
-                redditor, _ = Redditor.get_or_create(name=data['author'].lower())
+                redditor = None
+                if 'author' in data:
+                    redditor, _ = Redditor.get_or_create(name=data['author'].lower())
 
                 while data['id'] != post_id and not exists:
                     message = 'Nuevo post en **/r/{}**'.format(data['subreddit'])
@@ -154,8 +156,9 @@ class RedditFollow(Command):
                         self.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
                             subreddit=data['subreddit'], permalink=data['permalink']))
 
-                        Redditor.update(posts=Redditor.posts + 1).where(
-                            Redditor.name == data['author'].lower()).execute()
+                        if redditor is not None:
+                            Redditor.update(posts=Redditor.posts + 1).where(
+                                Redditor.name == data['author'].lower()).execute()
 
         except Exception as e:
             if not isinstance(e, RuntimeError):
@@ -196,9 +199,10 @@ class RedditFollow(Command):
             return posts
 
     def post_to_embed(self, post):
+        author = '(unknown author)' if 'author' not in post else ('/u/' + post['author'])
         embed = Embed()
         embed.title = text_cut(post['title'], 256)
-        embed.set_author(name='/u/' + post['author'], url='https://www.reddit.com/user/' + post['author'])
+        embed.set_author(name=author, url='https://www.reddit.com/user/' + post['author'])
         embed.url = 'https://www.reddit.com' + post['permalink']
 
         if post['is_self']:
