@@ -12,13 +12,14 @@ from bot.utils import pat_channel, pat_subreddit, text_cut
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.0'
+    __version__ = '1.1.1'
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'reddit'
+        self.aliases = ['redditor']
         self.help = 'Sigue un subreddit y envía los nuevos posts a un canal'
-        self.db_models = [Post, ChannelFollow]
+        self.db_models = [Redditor, Post, ChannelFollow]
         self.chans = {}
         self.allow_pm = False
         self.owner_only = True
@@ -27,8 +28,13 @@ class RedditFollow(Command):
         self.load_channels()
 
     async def handle(self, cmd):
+        if cmd.cmdname == 'redditor':
+            cmd.args = ['posts'] + cmd.args
+            cmd.argc = len(cmd.args)
+            cmd.cmdname = 'reddit'
+
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM (set|remove|list)')
+            await cmd.answer('formato: $PX$NM (set|remove|list|posts)')
             return
 
         if cmd.args[0] == 'set' or cmd.args[0] == 'remove':
@@ -93,8 +99,25 @@ class RedditFollow(Command):
                 await cmd.answer('no hay subs por seguir')
             else:
                 await cmd.answer('subreddits a seguir:\n{}'.format('\n'.join(resp)))
+        elif cmd.args[0] == 'posts':
+            if cmd.argc < 2:
+                await cmd.answer('formato: $PX$NM posts <redditor>')
+                return
+
+            user = cmd.args[1]
+            if user.startswith('/u/'):
+                user = user[3:]
+
+            num_posts = self.get_user_posts(user)
+
+            if num_posts > 0:
+                text = '**/u/{name}** ha creado **{num}** post{s}.'
+                await cmd.answer(text.format(name=user, num=num_posts, s=['s', ''][bool(num_posts == 1)]))
+            else:
+                text = '**/u/{name}** no ha creado ningún post.'.format(name=user)
+                await cmd.answer(text)
         else:
-            await cmd.answer('formato: $PX$NM (set|remove|list)')
+            await cmd.answer('formato: $PX$NM (set|remove|list|posts)')
 
     async def task(self):
         post_id = ''
@@ -114,6 +137,8 @@ class RedditFollow(Command):
                 except Post.DoesNotExist:
                     exists = False
 
+                redditor, _ = Redditor.get_or_create(name=data['author'].lower())
+
                 while data['id'] != post_id and not exists:
                     message = 'Nuevo post en **/r/{}**'.format(data['subreddit'])
                     embed = self.post_to_embed(data)
@@ -128,6 +153,9 @@ class RedditFollow(Command):
                         Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
                         self.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
                             subreddit=data['subreddit'], permalink=data['permalink']))
+
+                        Redditor.update(posts=Redditor.posts + 1).where(
+                            Redditor.name == data['author'].lower()).execute()
 
         except Exception as e:
             if not isinstance(e, RuntimeError):
@@ -144,6 +172,13 @@ class RedditFollow(Command):
                 self.chans[chan.subreddit] = []
 
             self.chans[chan.subreddit].append((chan.serverid, chan.channelid))
+
+    def get_user_posts(self, user):
+        if not re.match('^[a-zA-Z0-9_-]*$', user):
+            return None
+
+        redditor, _ = Redditor.get_or_create(name=user.lower())
+        return redditor.posts
 
     async def get_posts(self, sub, since=0):
         url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
@@ -186,6 +221,11 @@ class Post(BaseModel):
     id = peewee.CharField()
     permalink = peewee.CharField(null=True)
     over_18 = peewee.BooleanField(default=False)
+
+
+class Redditor(BaseModel):
+    name = peewee.TextField()
+    posts = peewee.IntegerField(default=0)
 
 
 class ChannelFollow(BaseModel):
