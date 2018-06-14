@@ -12,7 +12,7 @@ from bot.utils import pat_channel, pat_subreddit, text_cut
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.1'
+    __version__ = '1.1.2'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -142,7 +142,8 @@ class RedditFollow(Command):
                     redditor, _ = Redditor.get_or_create(name=data['author'].lower())
 
                 while data['id'] != post_id and not exists:
-                    message = 'Nuevo post en **/r/{}**'.format(data['subreddit'])
+                    subname = data.get('subreddit') or data.get('display_name')
+                    message = 'Nuevo post en **/r/{}**'.format(subname)
                     embed = self.post_to_embed(data)
 
                     for channel in subchannels:
@@ -154,7 +155,7 @@ class RedditFollow(Command):
                     if not exists:
                         Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
                         self.log.info('Nuevo post en /r/{subreddit}: {permalink}'.format(
-                            subreddit=data['subreddit'], permalink=data['permalink']))
+                            subreddit=subname, permalink=data['permalink']))
 
                         if redditor is not None:
                             Redditor.update(posts=Redditor.posts + 1).where(
