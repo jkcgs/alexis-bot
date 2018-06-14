@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from pytz import reference
 
 from discord import Embed
 
@@ -10,7 +11,7 @@ from bot.utils import pat_delta, timediff_parse, no_tags, deltatime_to_str, form
 
 class RemindMe(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -26,7 +27,8 @@ class RemindMe(Command):
                 if last is None:
                     await evt.answer('no tienes un recordatorio activo.')
                 else:
-                    await evt.answer('tienes un recordatorio activo! "{}"'.format(last.description))
+                    await evt.answer('tienes un recordatorio activo! "{}". Usa `$CMD cancel` para cancelarlo.'.format(
+                        last.description))
             else:
                 if evt.args[0] == 'cancel':
                     if last is None:
@@ -41,7 +43,7 @@ class RemindMe(Command):
             return
 
         if last is not None:
-            await evt.answer('ya tienes un recordatorio activo: "{}". Usa `$CMD cancel para cancelarlo`.'.format(
+            await evt.answer('ya tienes un recordatorio activo: "{}". Usa `$CMD cancel` para cancelarlo.'.format(
                 last.description))
             return
 
@@ -78,7 +80,9 @@ class RemindMe(Command):
                 user = await self.bot.get_user_info(event.userid)
                 if user is not None:
                     emb = Embed(title='RemindMe!', description=event.description)
-                    emb.set_footer(text='Creada: {}'.format(format_date(event.created)))
+                    emb.set_footer(text='Creada: {}'.format(
+                        format_date(event.created))
+                    )
                     await self.bot.send_message(user, embed=emb)
 
                 event.sent = True

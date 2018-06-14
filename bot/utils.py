@@ -206,7 +206,7 @@ def timediff_parse(timediff):
 
 
 def format_date(date):
-    return date.strftime('%Y-%m-%d %H:%M:%S')
+    return date.strftime('%Y-%m-%d %H:%M:%S %z')
 
 
 def destination_repr(destination):

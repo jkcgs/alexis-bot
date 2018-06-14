@@ -12,7 +12,7 @@ from bot.utils import pat_channel, pat_subreddit, text_cut
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.2'
+    __version__ = '1.1.3'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -200,11 +200,16 @@ class RedditFollow(Command):
             return posts
 
     def post_to_embed(self, post):
-        author = '(unknown author)' if 'author' not in post else ('/u/' + post['author'])
+        author = '(unknown author)'
+        author_url = 'https://www.reddit.com/'
+        if 'author' in post:
+            author = '/u/' + post['author']
+            author_url += 'user/' + post['author']
+
         embed = Embed()
         embed.title = text_cut(post['title'], 256)
-        embed.set_author(name=author, url='https://www.reddit.com/user/' + post['author'])
         embed.url = 'https://www.reddit.com' + post['permalink']
+        embed.set_author(name=author, url=author_url)
 
         if post['is_self']:
             embed.description = text_cut(post['selftext'], 2048)
