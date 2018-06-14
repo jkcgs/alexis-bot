@@ -145,6 +145,8 @@ class RedditFollow(Command):
                     subname = data.get('subreddit') or data.get('display_name')
                     message = 'Nuevo post en **/r/{}**'.format(subname)
                     embed = self.post_to_embed(data)
+                    if embed is None:
+                        continue
 
                     for channel in subchannels:
                         chan = self.bot.get_channel(channel)
@@ -205,6 +207,9 @@ class RedditFollow(Command):
         if 'author' in post:
             author = '/u/' + post['author']
             author_url += 'user/' + post['author']
+
+        if 'permalink' not in post:
+            return None
 
         embed = Embed()
         embed.title = text_cut(post['title'], 256)

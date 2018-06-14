@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import discord
 import re
@@ -206,7 +207,11 @@ def timediff_parse(timediff):
 
 
 def format_date(date):
-    return date.strftime('%Y-%m-%d %H:%M:%S %z')
+    offset = time.strftime('%Z')
+    if len(offset) > 5:
+        offset = time.strftime('%z')
+
+    return date.strftime('%Y-%m-%d %H:%M:%S ') + offset
 
 
 def destination_repr(destination):
