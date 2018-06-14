@@ -146,7 +146,7 @@ class RedditFollow(Command):
                     message = 'Nuevo post en **/r/{}**'.format(subname)
                     embed = self.post_to_embed(data)
                     if embed is None:
-                        continue
+                        break
 
                     for channel in subchannels:
                         chan = self.bot.get_channel(channel)
