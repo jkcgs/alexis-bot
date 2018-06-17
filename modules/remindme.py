@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime
-from pytz import reference
 
 from discord import Embed
 
@@ -11,7 +10,7 @@ from bot.utils import pat_delta, timediff_parse, no_tags, deltatime_to_str, form
 
 class RemindMe(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.1'
+    __version__ = '1.0.2'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -34,8 +33,8 @@ class RemindMe(Command):
                     if last is None:
                         await evt.answer('no tienes un recordatorio activo.')
                     else:
-                        evt.sent = True
-                        evt.save()
+                        last.sent = True
+                        last.save()
                         await evt.answer('recordatorio cancelado.')
                 else:
                     await evt.answer('formato: $CMD <tiempo> <mensaje>')
