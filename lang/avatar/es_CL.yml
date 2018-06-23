@@ -1,3 +1,4 @@
 avatar-help: "Envia el ávatar del usuario que envió el comando o del usuario mencionado"
 user-avatar: "Avatar de {user}"
 user-avatar-no: "Avatar de {user} (no tiene xd)"
+avatar-ext-link: "Haz click aquí para verla externamente"

@@ -1,3 +1,4 @@
 avatar-help: "Sends command executer's avatar or from the named user's one"
 user-avatar: "{user}'s avatar"
 user-avatar-no: "{user}'s avatar (doesn't have one)"
+avatar-ext-link: "Click here to open it externally"

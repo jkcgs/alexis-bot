@@ -19,6 +19,8 @@ class Avatar(Command):
 
         has_avatar = user.avatar_url != ''
         avatar_url = user.avatar_url if has_avatar else user.default_avatar_url
+        ext_url = avatar_url.replace('.webp', '.png')
 
         text = '$[user-avatar]' if has_avatar else '$[user-avatar-no]'
-        await cmd.answer(embed=img_embed(avatar_url, text), locales={'user': user.display_name})
+        embed = img_embed(avatar_url, text, '[$[avatar-ext-link]]({})'.format(ext_url))
+        await cmd.answer(embed=embed, locales={'user': user.display_name})

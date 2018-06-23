@@ -101,11 +101,13 @@ def member_has_role(member, role):
     return False
 
 
-def img_embed(url, title=''):
+def img_embed(url, title='', description=''):
     embed = Embed()
     embed.set_image(url=url)
     if title != '':
         embed.title = title
+    if description != '':
+        embed.description = description
     return embed
 
 
