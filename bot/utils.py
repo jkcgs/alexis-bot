@@ -65,18 +65,20 @@ def is_owner(bot, member, server):
     return False
 
 
-def get_server_role(server, role):
+def get_server_role(server, role, case_sensitive=True):
     """
     Obtiene la instancia de un rol de un servidor
     :param server: La instancia de servidor en la que se buscará
     :param role: El nombre o ID del rol
+    :param case_sensitive: Implica si el nombre debe coincidir con las mayúsculas de manera exacta o no
     :return: La instancia del rol, o None si no ha sido encontrado
     """
     if not isinstance(server, discord.Server):
         raise RuntimeError('"server" argument must be a discord.Server instance')
 
     for role_ins in server.roles:
-        if role_ins.name == role or role_ins.id == role:
+        if (not case_sensitive and role_ins.name.lower() == role.lower()) \
+                or role_ins.name == role or role_ins.id == role:
             return role_ins
 
     return None

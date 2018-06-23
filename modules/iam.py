@@ -35,7 +35,7 @@ class IAm(Command):
                 await cmd.answer('roles disponibles: ' + (', '.join(roles)))
                 return False
 
-        role = get_server_role(cmd.server, cmd.text)
+        role = get_server_role(cmd.server, cmd.text, False)
         if role is None or role.id not in roles:
             await cmd.answer('ese rol no está disponible')
             return False
@@ -73,7 +73,7 @@ class IAmNot(Command):
             return
 
         roles = cmd.config.get_list(cfg_roles)
-        role = get_server_role(cmd.server, cmd.text)
+        role = get_server_role(cmd.server, cmd.text, False)
 
         if role is None:
             await cmd.answer('rol no disponible')
