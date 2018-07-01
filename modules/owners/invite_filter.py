@@ -72,10 +72,8 @@ class InviteFilter(Command):
 
     async def on_message(self, message):
         evt = MessageEvent(message, self.bot)
-        if evt.self:
+        if evt.owner or evt.self:
             return
-        # if evt.owner or evt.self:
-        #    return
 
         filter_enabled = evt.config.get(self.cfg_filter_status, '0') == '1'
         if not filter_enabled or evt.author.id in evt.config.get_list(self.cfg_filter_list):
