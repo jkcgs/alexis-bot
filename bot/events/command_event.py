@@ -10,12 +10,6 @@ class CommandEvent(MessageEvent):
     def __init__(self, message, bot):
         super().__init__(message, bot)
 
-        # Prefix retrieval
-        prefix = MessageEvent.get_prefix(message, bot)
-        if not self.text.startswith(prefix):
-            raise RuntimeError('The message is not a command')
-        self.prefix = prefix
-
         # Command definition
         self.allargs = message.content.replace('  ', ' ').split(' ')
         cmd_parts = self.allargs[0][len(self.prefix):].split(':')
@@ -94,3 +88,9 @@ class CommandEvent(MessageEvent):
         else:
             return False
 
+    @property
+    def prefix(self):
+        prefix = MessageEvent.get_prefix(self.message, self.bot)
+        if not self.text.startswith(prefix):
+            raise RuntimeError('The message is not a command')
+        return prefix

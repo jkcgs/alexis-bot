@@ -21,22 +21,14 @@ class MessageEvent:
         self.self = message.author.id == bot.user.id
         self.text = message.content
         self.bot_owner = message.author.id in bot.config['bot_owners']
-        self.owner = is_owner(bot, message.author, message.server)
-        self.prefix = MessageEvent.get_prefix(message, bot)
 
         self.server = None
-        self.server_member = None
         self.config = None
+        self._lang = None
 
         if not self.is_pm:
             self.server = message.server
-            self.server_member = message.server.get_member(self.bot.user.id)
             self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
-
-            lang_code = self.bot.sv_config.get(self.server.id, 'lang', self.bot.config['default_lang'])
-            self.lang = SingleLanguage(self.bot.lang, lang_code)
-        else:
-            self.lang = SingleLanguage(self.bot.lang, bot.config['default_lang'])
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """
@@ -169,6 +161,33 @@ class MessageEvent:
 
     def lng(self, name, **kwargs):
         return self.lang.get(name, **kwargs)
+
+    @property
+    def prefix(self):
+        return MessageEvent.get_prefix(self.message, self.bot)
+
+    @property
+    def owner(self):
+        if self.server is None:
+            return False
+        return is_owner(self.bot, self.author, self.server)
+
+    @property
+    def server_member(self):
+        if self.server is None:
+            return None
+        return self.server.get_member(self.bot.user.id)
+
+    @property
+    def lang(self):
+        if self._lang is None:
+            if self.server is None:
+                self._lang = SingleLanguage(self.bot.lang, self.bot.config['default_lang'])
+            else:
+                lang_code = self.bot.sv_config.get(self.server.id, 'lang', self.bot.config['default_lang'])
+                self._lang = SingleLanguage(self.bot.lang, lang_code)
+
+        return self._lang
 
     def __str__(self):
         return '[{}  channel="{}#{}" author="{}" text="{}"]'.format(
