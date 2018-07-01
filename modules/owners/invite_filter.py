@@ -1,5 +1,7 @@
 import re
 
+from discord import Embed
+
 from bot import Command, MessageEvent
 
 
@@ -9,8 +11,7 @@ class InviteFilter(Command):
 
     cfg_filter_status = 'invite_filter_enabled'
     cfg_filter_list = 'invite_filter_list'
-    pat_invite = re.compile('discord(?:app\.com|\.gg)(/invite/)?(?:(?!.*[Ii10OolL]).'
-                            '[a-zA-Z0-9]{5,6}|[a-zA-Z0-9\-]{2,32})')
+    pat_invite = re.compile('discord(?:app\.com|\.gg)(/invite)?/[a-zA-Z0-9]+')
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -71,14 +72,20 @@ class InviteFilter(Command):
 
     async def on_message(self, message):
         evt = MessageEvent(message, self.bot)
-        if evt.owner or evt.self:
+        if evt.self:
             return
+        # if evt.owner or evt.self:
+        #    return
 
         filter_enabled = evt.config.get(self.cfg_filter_status, '0') == '1'
-
         if not filter_enabled or evt.author.id in evt.config.get_list(self.cfg_filter_list):
-            self.log.debug('[filter] in list')
             return
 
-        if self.pat_invite.search(message.content):
-            await self.bot.delete_message(message)
+        invite = self.pat_invite.search(message.content)
+        if invite:
+            self.log.debug('deleting invite in %s: %s by %s', message.server, invite[0], message.author)
+            await self.bot.delete_message_silent(message)
+
+            embed = Embed(title='Invite automáticamente eliminado')
+            embed.description = '{}\nPor {} en {}'.format(invite[0], message.author.mention, message.channel.mention)
+            await self.bot.send_modlog(message.server, embed=embed)

@@ -2,6 +2,7 @@ import asyncio
 import platform
 import sys
 import discord
+from discord import Embed, Server
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
@@ -28,6 +29,7 @@ class AlexisBot(discord.Client):
 
         self.lang = {}
         self.deleted_messages = []
+        self.deleted_messages_nolog = []
 
         self.manager = Manager(self)
         self.config = StaticConfig()
@@ -133,6 +135,45 @@ class AlexisBot(discord.Client):
 
         if len(self.deleted_messages) > 20:
             del self.deleted_messages[0]
+
+    async def delete_message_silent(self, message):
+        """
+        Elimina un mensaje, y además registra los IDs de los últimos 20 mensajes guardados.
+        Adicionalmente, agregará el mensaje a una lista de mensajes que no deben ser logueados, para el correspondiente
+        módulo.
+        :param message: El mensaje a eliminar
+        """
+
+        try:
+            self.deleted_messages_nolog.append(message.id)
+            await self.delete_message(message)
+        except discord.Forbidden as e:
+            del self.deleted_messages_nolog[-1]
+            raise e
+
+        if len(self.deleted_messages_nolog) > 20:
+            del self.deleted_messages_nolog[0]
+
+    async def send_modlog(self, server, message=None, embed=None):
+        if not isinstance(server, Server):
+            raise RuntimeError('server must be a discord.Server instance')
+
+        if (message is None or message == '') and embed is None:
+            raise RuntimeError('message or embed arguments are required')
+
+        if embed is not None and not isinstance(embed, Embed):
+            raise RuntimeError('embed must be a discord.Embed instance')
+
+        chanid = self.sv_config.get(server.id, 'join_send_channel')
+        if chanid == '':
+            return
+
+        chan = self.get_channel(chanid)
+        if chan is None:
+            log.debug('[modlog] canal no encontrado (svid %s chanid %s)', server.id, chanid)
+            return
+
+        await self.send_message(chan, message, embed=embed)
 
     def connect_db(self):
         """

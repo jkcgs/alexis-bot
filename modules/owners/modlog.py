@@ -6,7 +6,7 @@ import discord
 import peewee
 from discord.http import Route
 
-from bot import Command, AlexisBot, MessageEvent
+from bot import Command, AlexisBot, MessageEvent, utils
 from discord import Embed
 
 from bot.libs.configuration import BaseModel, ServerConfiguration
@@ -22,26 +22,23 @@ class ModLog(Command):
         super().__init__(bot)
 
     async def on_member_join(self, member):
-        await ModLog.send_modlog(
-            self.bot, member.server.id,
-            'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
+        await self.bot.send_modlog(
+            member.server, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
             embed=ModLog.gen_embed(member, more=True))
 
     async def on_member_remove(self, member):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
-        await ModLog.send_modlog(
-            self.bot, member.server.id,
-            'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor. Estuvo por {dt}.'.format(
-                mid=member.id, name=str(member), dt=dt))
+        await self.bot.send_modlog(member.server,
+                                   'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor. Estuvo por {dt}.'.format(
+                                    mid=member.id, name=str(member), dt=dt))
 
     async def on_message_delete(self, message):
         if message.server is None or message.author.id == self.bot.user.id:
             return
 
-        config = ServerConfiguration(self.bot.sv_config, message.server.id)
-        footer = 'Enviado: ' + ModLog.parsedate(message.timestamp)
+        footer = 'Enviado: ' + utils.format_date(message.timestamp)
         if message.edited_timestamp is not None:
-            footer += ', editado: ' + ModLog.parsedate(message.edited_timestamp)
+            footer += ', editado: ' + utils.format_date(message.edited_timestamp)
 
         embed = Embed(description='(sin texto)' if message.content == '' else message.content)
         embed.set_footer(text=footer)
@@ -64,7 +61,10 @@ class ModLog(Command):
 
         msg = '**{}** ha borrado su mensaje en el canal {}'
         if message.id in self.bot.deleted_messages:
-            if config.get('log_deleted_by_self', '0') == '1':
+            if message.id in self.bot.deleted_messages_nolog:
+                self.bot.deleted_messages_nolog.remove(message.id)
+                return
+            else:
                 msg = 'He borrado un mensaje de **{}** en el canal {}'
         else:
             try:
@@ -82,11 +82,8 @@ class ModLog(Command):
             except discord.Forbidden:
                 msg = 'Se ha borrado'
 
-        await ModLog.send_modlog(
-            self.bot, message.server.id,
-            msg.format(message.author.display_name, message.channel.mention),
-            embed=embed
-        )
+        await self.bot.send_modlog(
+            message.server, msg.format(message.author.display_name, message.channel.mention), embed=embed)
 
     async def get_last_alog(self, guild_id):
         x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
@@ -119,37 +116,12 @@ class ModLog(Command):
         return [u.name for u in xd]
 
     @staticmethod
-    async def send_modlog(bot, serverid='', message='', embed=None):
-        if isinstance(bot, MessageEvent):
-            serverid = bot.message.channel.id
-            bot = bot.bot
-        elif not isinstance(bot, AlexisBot):
-            raise RuntimeError('bot must be an Alexis or MessageCmd instance')
-
-        if (message is None or message == '') and embed is None:
-            raise RuntimeError('message or embed arguments are required')
-
-        if embed is not None and not isinstance(embed, Embed):
-            raise RuntimeError('embed must be a discord.Embed instance')
-
-        chanid = bot.sv_config.get(serverid, ModLog.chan_config_name)
-        if chanid == '':
-            return
-
-        chan = bot.get_channel(chanid)
-        if chan is None:
-            log.debug('canal no encontrado (svid %s chanid %s)', serverid, chanid)
-            return
-
-        await bot.send_message(chan, message, embed=embed)
-
-    @staticmethod
     def gen_embed(member, more=False):
         embed = Embed()
         embed.add_field(name='Nombre', value=str(member))
         embed.add_field(name='Nick', value=member.nick if member.nick is not None else 'Ninguno :c')
-        embed.add_field(name='Usuario creado el', value=ModLog.parsedate(member.created_at))
-        embed.add_field(name='Se unió al server el', value=ModLog.parsedate(member.joined_at))
+        embed.add_field(name='Usuario creado el', value=utils.format_date(member.created_at))
+        embed.add_field(name='Se unió al server el', value=utils.format_date(member.joined_at))
         embed.add_field(name='Estancia en el server',
                         value=deltatime_to_str(datetime.now() - member.joined_at), inline=False)
 
@@ -169,10 +141,6 @@ class ModLog(Command):
             embed.add_field(name='Delta server join', value=deltatime_to_str(member.joined_at - member.created_at))
 
         return embed
-
-    @staticmethod
-    def parsedate(the_date):
-        return the_date.strftime('%Y-%m-%d %H:%M:%S')
 
 
 class UserCommand(Command):
