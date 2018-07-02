@@ -9,7 +9,7 @@ class BotStatus(Command):
         self.count = 0
 
     async def on_ready(self):
-        self.bot.schedule(self.task_other, 15)
+        self.bot.schedule(self.task_other, 30)
 
     async def task_other(self):
         status = ''
