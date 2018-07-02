@@ -206,6 +206,23 @@ class AlexisBot(discord.Client):
         self.manager.cancel_tasks()
         self.manager.close_http()
 
+    async def run_task(self, task, time=0):
+        try:
+            await task()
+        except Exception as e:
+            if not isinstance(e, RuntimeError):
+                self.log.exception(e)
+        finally:
+            await asyncio.sleep(time)
+
+        self.schedule(task, time)
+
+    def schedule(self, task, time=0):
+        if time <= 0:
+            raise RuntimeError('Task interval time must be positive')
+
+        if not self.is_closed:
+            self.loop.create_task(self.run_task(task, time))
 
     """
     ===== EVENT HANDLERS =====
