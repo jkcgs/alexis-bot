@@ -91,6 +91,6 @@ class CommandEvent(MessageEvent):
     @property
     def prefix(self):
         prefix = MessageEvent.get_prefix(self.message, self.bot)
-        if not self.text.startswith(prefix):
+        if self.text.startswith(prefix) is None:
             raise RuntimeError('The message is not a command')
         return prefix
