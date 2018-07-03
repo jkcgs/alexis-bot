@@ -2,6 +2,7 @@ import discord
 
 from bot import Command
 from bot.utils import is_int
+from bot import categories
 
 
 class Ban(Command):
@@ -9,6 +10,7 @@ class Ban(Command):
         super().__init__(bot)
         self.name = 'realban'
         self.help = 'Banear a un usuario'
+        self.category = categories.MODERATION
         self.allow_pm = False
         self.owner_only = True
 

@@ -1,7 +1,7 @@
 from io import BytesIO
 from os import path
 from PIL import Image
-from bot import Command
+from bot import Command, categories
 from bot.utils import parse_tag
 
 
@@ -11,6 +11,7 @@ class ShipperUwU(Command):
         self.name = 'ship'
         self.help = 'Forma parejas entre dos usuarios'
         self.allow_pm = False
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         if cmd.argc != 2:

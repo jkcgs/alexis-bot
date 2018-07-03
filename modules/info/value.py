@@ -1,6 +1,6 @@
 import bs4
 
-from bot import Command
+from bot import Command, categories
 import re
 
 
@@ -27,6 +27,7 @@ class Value(Command):
         self.name = 'value'
         self.aliases = ['valor', 'uf', 'utm']
         self.help = 'Entrega datos de conversión de divisas'
+        self.category = categories.INFORMATION
         self.default_config = {
             'sbif_apikey': ''
         }

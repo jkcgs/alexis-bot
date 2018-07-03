@@ -1,4 +1,4 @@
-from bot import Command, StaticConfig
+from bot import Command, StaticConfig, categories
 from discord import Embed
 import random
 
@@ -16,6 +16,7 @@ class Slots(Command):
         self.help = 'Juega al Tragamonedas favorito de tu abuela'
         self.owner_only = False
         self.enabled = True
+        self.category = categories.FUN
         self.config = StaticConfig.get_config('slots', defaults)
 
     async def handle(self, cmd):

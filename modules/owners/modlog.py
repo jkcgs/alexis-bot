@@ -6,7 +6,7 @@ import discord
 import peewee
 from discord.http import Route
 
-from bot import Command, AlexisBot, MessageEvent, utils
+from bot import Command, AlexisBot, MessageEvent, utils, categories
 from discord import Embed
 
 from bot.libs.configuration import BaseModel, ServerConfiguration
@@ -149,6 +149,7 @@ class UserCommand(Command):
         self.name = 'user'
         self.aliases = [bot.config['command_prefix'] + 'user']
         self.help = 'Entrega información sobre un usuario'
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if cmd.cmdname == self.aliases[0] and not cmd.owner:
@@ -174,6 +175,7 @@ class ModLogChannel(Command):
         self.help = 'Determina el canal de registros de moderación'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc != 1:
@@ -202,6 +204,7 @@ class UserNoteCmd(Command):
         self.db_models = [UserNote]
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 1:

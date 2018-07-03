@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 import urllib.parse as urlparse
 from discord import Embed
 
@@ -9,6 +9,7 @@ class Weather(Command):
         self.name = 'weather'
         self.aliases = ['clima']
         self.help = 'Entrega información del clima'
+        self.category = categories.INFORMATION
         self.urlbase = 'http://api.openweathermap.org/data/2.5/weather?q='
         self.default_config = {
             'weatherapi_key': ''

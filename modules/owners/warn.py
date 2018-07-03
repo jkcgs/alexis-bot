@@ -4,7 +4,7 @@ import discord
 import peewee
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import is_int
 from bot.libs.configuration import BaseModel
 
@@ -18,6 +18,7 @@ class Warn(Command):
         self.allow_pm = False
         self.owner_only = True
         self.db_models = [UserWarn]
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if len(cmd.args) < 2:
@@ -66,6 +67,7 @@ class Warns(Command):
         self.aliases = ['warnings']
         self.help = 'Muestra el número de advertencias que tiene el usuario'
         self.allow_pm = False
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:
@@ -95,6 +97,7 @@ class ClearWarns(Command):
         self.help = 'Elimina las advertencias del usuario'
         self.allow_pm = False
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:
@@ -124,6 +127,7 @@ class DeleteWarn(Command):
         self.help = 'Elimina una advertencia de un usuario, según el número de warn del comando $PXwarnlist'
         self.allow_pm = False
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if len(cmd.args) < 2:
@@ -162,6 +166,7 @@ class WarnList(Command):
         self.help = 'Muestra las últimas advertencias o el número de advertencias que tiene el usuario'
         self.allow_pm = False
         self.owner_only = True
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:
@@ -216,6 +221,7 @@ class WarnRank(Command):
         self.name = 'warnrank'
         self.help = 'Muestra un ránking de advertencias'
         self.allow_pm = False
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         e = UserWarn.select(UserWarn.serverid, UserWarn.userid, UserWarn.timestamp, UserWarn.reason,

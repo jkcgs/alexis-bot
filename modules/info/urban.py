@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 from urllib import parse as urlparse
 from discord import Embed
 
@@ -11,6 +11,7 @@ class Urban(Command):
         self.name = 'urban'
         self.aliases = ['ub']
         self.help = 'Obtiene una definición desde UrbanDictionary'
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         text = cmd.text if cmd.text != '' else 'weon'

@@ -6,6 +6,7 @@ from bot.utils import get_prefix
 from . import SingleLanguage
 from .logger import log
 from .libs.configuration import ServerConfiguration
+from . import categories
 
 
 class Command:
@@ -17,15 +18,16 @@ class Command:
         self.swhandler = []
         self.swhandler_break = False
         self.mention_handler = False
-        self.help = '$[missing-help]'
+        self.help = '$[help-not-available]'
+        self.pm_error = '$[disallowed-via-pm]'
+        self.owner_error = '$[command-not-authorized]'
+        self.format = '$[help-format-not-available]'
+        self.category = categories.OTHER
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
         self.nsfw_only = False  # TODO
-        self.pm_error = '$[disallowed-via-pm]'
         self.bot_owner_only = False
         self.owner_only = False
-        self.owner_error = 'no puedes usar este comando'
-        self.format = ''  # TODO
         self.default_enabled = True
         self.default_config = None
         self.priority = 100

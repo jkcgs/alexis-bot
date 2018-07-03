@@ -2,7 +2,7 @@ import re
 
 from discord import Embed
 
-from bot import Command, MessageEvent
+from bot import Command, MessageEvent, categories
 
 
 class InviteFilter(Command):
@@ -17,6 +17,7 @@ class InviteFilter(Command):
         super().__init__(bot)
         self.name = 'invitefilter'
         self.help = 'Filtra invites a otros servidores de discord'
+        self.category = categories.STAFF
         self.owner_only = True
 
     async def handle(self, cmd):

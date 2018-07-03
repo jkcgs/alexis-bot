@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 import random
 
 
@@ -10,6 +10,7 @@ class Respects(Command):
         self.name = 'respects'
         self.aliases = ['f']
         self.help = 'Muestra que el usuario que ejecuta el comando ha dado respetos'
+        self.category = categories.FUN
 
     async def handle(self, cmd):
         msg = '**$AU** ha pedido respetos '

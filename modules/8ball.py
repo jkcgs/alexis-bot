@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 from discord import Embed
 import random
 
@@ -14,6 +14,7 @@ class EightBall(Command):
         self.name = '8ball'
         self.aliases = ['bola8', '8']
         self.help = '$[8b-help]'
+        self.category = categories.FUN
 
     async def handle(self, cmd):
         text = cmd.text if cmd.text != '' else '$[8b-default-question]'

@@ -1,6 +1,6 @@
 import json
 
-from bot import Command, BotMentionEvent
+from bot import Command, BotMentionEvent, categories
 from cleverwrap import CleverWrap
 
 
@@ -13,6 +13,7 @@ class CleverbotHandler(Command):
         self.name = 'c'
         self.allow_pm = False
         self.mention_handler = True
+        self.category = categories.FUN
         self.cbot = None
         self.default_config = {
             'cleverbot_apikey': ''
@@ -67,6 +68,7 @@ class ToggleConversation(Command):
         self.name = 'toggleconversation'
         self.help = 'Activa/desactiva la conversación con el bot'
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not CleverbotHandler.check:

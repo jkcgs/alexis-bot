@@ -3,7 +3,7 @@ import json
 import asyncio
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 
 
 class NextSteamSale(Command):
@@ -15,6 +15,7 @@ class NextSteamSale(Command):
         self.aliases = ['steamsale']
         self.help = '$[nss-help]'
         self.sale = None
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if self.sale is None:

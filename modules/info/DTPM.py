@@ -3,7 +3,7 @@ import re
 from bs4 import BeautifulSoup
 
 from discord import Embed
-from bot import Command
+from bot import Command, categories
 
 pat_stop = re.compile('^[Pp][a-zA-Z][0-9]+$')
 pat_rec = re.compile('^[a-zA-Z]?[0-9]{2,3}$')
@@ -17,6 +17,7 @@ class DTPM(Command):
         self.name = 'transantiago'
         self.aliases = ['ts']
         self.help = 'Muestra próximas llegadas de buses a un paradero de Transantiago'
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if cmd.argc < 1:

@@ -1,5 +1,5 @@
 import random
-from bot import Command
+from bot import Command, categories
 
 
 class Choose(Command):
@@ -7,6 +7,7 @@ class Choose(Command):
         super().__init__(bot)
         self.name = 'choose'
         self.help = 'Elige un elemento al azar de una lista separada por el símbolo "|"'
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         options = cmd.text.split("|")

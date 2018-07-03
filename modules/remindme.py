@@ -3,7 +3,7 @@ from datetime import datetime
 
 from discord import Embed
 
-from bot import Command, BaseModel
+from bot import Command, BaseModel, categories
 from peewee import DateTimeField, TextField, BooleanField
 from bot.utils import pat_delta, timediff_parse, no_tags, deltatime_to_str, format_date
 
@@ -17,6 +17,7 @@ class RemindMe(Command):
         self.name = 'remindme'
         self.help = 'Te ayuda a recordar algo'
         self.db_models = [RemindMeEvent]
+        self.category = categories.UTILITY
 
     async def handle(self, evt):
         last = RemindMeEvent.get_or_none((RemindMeEvent.userid == evt.author.id) & (RemindMeEvent.sent == False))

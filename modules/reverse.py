@@ -1,6 +1,6 @@
 import random
 
-from bot import Command
+from bot import Command, categories
 
 
 class Reverse(Command):
@@ -8,6 +8,7 @@ class Reverse(Command):
         super().__init__(bot)
         self.name = 'reverse'
         self.help = 'Revierte el texto enviado'
+        self.category = categories.UTILITY
 
     async def handle(self, cmd):
         text = cmd.no_tags() if cmd.text != '' else 'formato: {}{} <texto>'.format(cmd.prefix, cmd.cmdname)

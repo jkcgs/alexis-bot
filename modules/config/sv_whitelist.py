@@ -1,12 +1,13 @@
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 
 
 class ServerWhitelist(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'leaveserver'
+        self.category = categories.SETTINGS
         self.bot_owner_only = True
 
     async def handle(self, cmd):
@@ -75,6 +76,7 @@ class ServersList(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'serverslist'
+        self.category = categories.SETTINGS
         self.bot_owner_only = True
 
     async def handle(self, cmd):

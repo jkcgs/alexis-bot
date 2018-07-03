@@ -1,6 +1,6 @@
 import random
 
-from bot import Command
+from bot import Command, categories
 
 
 class Flipcoin(Command):
@@ -9,6 +9,7 @@ class Flipcoin(Command):
         self.name = 'flipcoin'
         self.aliases = ['coinflip', 'coin', 'moneda']
         self.help = 'Lanza una moneda y muestra el resultado'
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         prob = random.random()

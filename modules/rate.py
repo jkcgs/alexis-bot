@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 import random
 import hashlib
 
@@ -13,6 +13,7 @@ class Rate(Command):
         super().__init__(bot)
         self.name = 'rate'
         self.help = 'Evalúa algo'
+        self.category = categories.FUN
 
     async def handle(self, cmd):
         text = [cmd.text, cmd.author_name][int(cmd.text == '')]

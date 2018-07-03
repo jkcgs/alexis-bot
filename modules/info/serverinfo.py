@@ -2,7 +2,7 @@ from datetime import datetime
 
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import format_date, deltatime_to_str
 
 
@@ -14,6 +14,7 @@ class ServerInfo(Command):
         super().__init__(bot)
         self.name = 'serverinfo'
         self.aliases = ['server']
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if cmd.argc == 0:

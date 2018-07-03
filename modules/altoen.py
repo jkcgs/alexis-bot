@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 import urllib.parse as urlparse
 
 from bot.utils import img_embed
@@ -12,6 +12,7 @@ class AltoEn(Command):
         super().__init__(bot)
         self.name = 'altoen'
         self.help = 'Muestra una imagen basada en el logo "ALTO EN"'
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:

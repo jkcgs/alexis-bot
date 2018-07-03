@@ -1,7 +1,7 @@
 import inspect
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 
 
 class Modules(Command):
@@ -13,6 +13,7 @@ class Modules(Command):
         self.name = 'modules'
         self.aliases = ['module']
         self.help = 'Gestión de módulos'
+        self.category = categories.SETTINGS
         self.bot_owner_only = True
 
     async def handle(self, cmd):

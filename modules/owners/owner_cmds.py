@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from bot import AlexisBot, Command
+from bot import AlexisBot, Command, categories
 from bot.events import is_bot_command
 from bot.utils import unserialize_avail, get_server_role, serialize_avail
 
@@ -16,6 +16,7 @@ class InfoCmd(Command):
         self.name = 'info'
         self.aliases = ['version']
         self.help = 'Muestra la información del bot'
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         info_msg = "```\nAutores: {}\nVersión: {}```"
@@ -30,6 +31,7 @@ class ClearReactions(Command):
         self.aliases = ['clr']
         self.help = 'Elimina las reacciones de uno o más mensajes'
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 1:
@@ -95,6 +97,7 @@ class ChangePrefix(Command):
         self.aliases = ['changeprefix']
         self.help = 'Cambia el prefijo para los comandos'
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not is_bot_command(cmd):
@@ -116,8 +119,9 @@ class CommandConfig(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'cmd'
-        self.help = 'Cambia la configuración de algún comando'
+        self.help = 'Permite activar o desactivar algún comando'
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 2:
@@ -164,6 +168,7 @@ class OwnerRoles(Command):
         self.name = 'ownerrole'
         self.help = 'Cambia la configuración de roles de propietario'
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 1:
@@ -231,16 +236,17 @@ class SetLanguage(Command):
         self.name = 'setlanguage'
         self.aliases = ['setlang', 'lang']
         self.help = 'Determina el idioma del bot'
+        self.category = categories.STAFF
         self.allow_pm = False
         self.owner_only = True
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            await cmd.answer(cmd.lng('current-lang', lang=cmd.config.get('lang')))
+            await cmd.answer('$[current-lang]', locales={'LANG': cmd.config.get('lang')})
             return
 
         if not self.bot.lang.has(cmd.text):
-            await cmd.answer(cmd.lng('lang-not-available'))
+            await cmd.answer('$[lang-not-available]')
             return
 
         cmd.config.set('lang', cmd.text)

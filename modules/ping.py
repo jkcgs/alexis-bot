@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from bot import Command
+from bot import Command, categories
 
 
 class Ping(Command):
@@ -9,6 +9,7 @@ class Ping(Command):
         super().__init__(bot)
         self.name = 'ping'
         self.help = 'Responde al comando *ping*'
+        self.category = categories.UTILITY
         self.user_delay = 5
 
     async def handle(self, cmd):

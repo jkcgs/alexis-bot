@@ -1,0 +1,4 @@
+lang-not-available: "language not available"
+current-lang: "current language: **LANG**"
+lang-set-to: "language set to **LANG**"
+lang-cmd-help: "sets bot language for current server"

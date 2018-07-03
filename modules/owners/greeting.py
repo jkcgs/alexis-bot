@@ -2,7 +2,7 @@ import random
 
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 from bot.libs.configuration import ServerConfiguration
 from bot.utils import is_int
 
@@ -20,6 +20,7 @@ class Greeting(Command):
         self.aliases = ['goodbye']
         self.help = '$[greeting-help]'
         self.owner_only = True
+        self.category = categories.STAFF
         self.default_config = {
             'greeting_max_messages': 10,
             'greeting_max_length': 100

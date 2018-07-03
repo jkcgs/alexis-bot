@@ -1,6 +1,6 @@
 import discord
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import member_has_role, get_server_role
 
 cfg_roles = 'iam_roles'
@@ -13,6 +13,7 @@ class IAm(Command):
         self.help = 'Permite asignarte un rol'
         self.allow_pm = False
         self.user_delay = 60
+        self.category = categories.UTILITY
         self.default_config = {
             'iam_roles_limit': 20
         }
@@ -66,6 +67,7 @@ class IAmNot(Command):
         self.help = 'Quita un rol asignado con $PXiam'
         self.allow_pm = False
         self.user_delay = 10
+        self.category = categories.UTILITY
 
     async def handle(self, cmd):
         if cmd.argc == 0:
@@ -105,6 +107,7 @@ class IAmRoles(Command):
         self.help = 'Gestión de roles del comando $PXiam'
         self.allow_pm = False
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not self.can_manage_roles(cmd.server):

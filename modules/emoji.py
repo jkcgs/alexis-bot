@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 from discord import Embed
 from bot.utils import pat_emoji, pat_normal_emoji
 import re
@@ -9,6 +9,7 @@ class Emoji(Command):
         super().__init__(bot)
         self.name = 'emoji'
         self.help = 'Envía la imagen en grande de un emoji custom'
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         if len(cmd.args) != 1:

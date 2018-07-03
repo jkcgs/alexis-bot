@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 from bot.utils import img_embed
 
 
@@ -10,6 +10,7 @@ class Avatar(Command):
         super().__init__(bot)
         self.name = 'avatar'
         self.help = '$[avatar-help]'
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         user = cmd.author if cmd.argc == 0 else await cmd.get_user(cmd.text)

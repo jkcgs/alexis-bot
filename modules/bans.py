@@ -3,7 +3,7 @@ import random
 from discord import Embed
 from datetime import datetime
 
-from bot import Command, BaseModel
+from bot import Command, BaseModel, categories
 from bot.utils import is_int
 
 
@@ -15,6 +15,7 @@ class BanCmd(Command):
         self.allow_pm = False
         self.pm_error = '$[ban-pm-error]'
         self.db_models = [Ban]
+        self.category = categories.FUN
 
         self.user_delay = 10
 
@@ -80,6 +81,7 @@ class Bans(Command):
         self.help = '$[bans-help]'
         self.allow_pm = False
         self.pm_error = '$[bans-pm-error]'
+        self.category = categories.FUN
 
     async def handle(self, cmd):
         if len(cmd.args) != 1:
@@ -122,6 +124,7 @@ class SetBans(Command):
         self.allow_pm = False
         self.pm_error = '$[setbans-pm-error]'
         self.owner_only = True
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 2 or not is_int(cmd.args[-1]):
@@ -156,6 +159,7 @@ class BanRank(Command):
         self.help = '$[banrank-help]'
         self.allow_pm = False
         self.pm_error = '$[setbans-pm-error]'
+        self.category = categories.FUN
 
     async def handle(self, cmd):
         bans = Ban.select().where(Ban.server == cmd.message.channel.server.id).order_by(Ban.bans.desc())

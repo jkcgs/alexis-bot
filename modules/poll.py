@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 from discord import Embed
 
 import json
@@ -10,6 +10,7 @@ class Ping(Command):
         self.name = 'poll'
         self.aliases = ['encuesta', 'strawpoll']
         self.help = 'Crea una encuesta en strawpoll.me . Separa el título y las opciones con " | "'
+        self.category = categories.UTILITY
         self.default_enabled = False
 
     async def handle(self, cmd):

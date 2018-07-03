@@ -1,6 +1,6 @@
 import discord
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import pat_channel, pat_snowflake, str_to_embed
 
 
@@ -14,6 +14,7 @@ class BotSendMessage(Command):
         self.help = 'Envía un mensaje en el nombre del bot'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 2 or not pat_channel.match(cmd.args[0]):
@@ -48,6 +49,7 @@ class BotEditMessage(Command):
         self.help = 'Edita un mensaje enviado por el bot'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 3 or not pat_channel.match(cmd.args[0]) or not pat_snowflake.match(cmd.args[1]):

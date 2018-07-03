@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from bot import Command
+from bot import Command, categories
 
 pat_mention = re.compile('^<@!?[0-9]+>$')
 
@@ -14,6 +14,7 @@ class Kick(Command):
         self.help = 'Kickea a un usuario'
         self.allow_pm = False
         self.owner_only = True
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if cmd.argc < 1:

@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 from random import choice
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import img_embed
 
 
@@ -12,6 +12,7 @@ class Danbooru(Command):
         self.aliases = ['danb']
         self.help = 'Busca imágenes en el imageboard danbooru (animé y hentai)'
         self.nsfw_only = True
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         await cmd.typing()

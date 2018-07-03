@@ -3,7 +3,7 @@ from datetime import datetime
 
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import pat_channel, format_date
 from bot.libs.configuration import ServerConfig
 
@@ -20,6 +20,7 @@ class Sismos(Command):
         self.help = 'Muestra alertas sobre sismos en Chile y dispone de un comando para listar los últimos sismos'
         self.last_events = None
         self.last_update = None
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if self.last_events is None:

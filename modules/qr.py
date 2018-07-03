@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import img_embed
 
 
@@ -9,6 +9,7 @@ class QRCode(Command):
         super().__init__(bot)
         self.name = 'qr'
         self.help = 'Entrega un código QR del texto enviado'
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         if cmd.text == '':

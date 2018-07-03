@@ -2,11 +2,10 @@ import asyncio
 import html
 import re
 
-import discord
 import peewee
 from discord import Embed
 
-from bot import Command, BaseModel
+from bot import Command, BaseModel, categories
 from bot.utils import pat_channel, pat_subreddit, text_cut
 
 
@@ -23,6 +22,7 @@ class RedditFollow(Command):
         self.chans = {}
         self.allow_pm = False
         self.owner_only = True
+        self.category = categories.STAFF
 
     def on_loaded(self):
         self.load_channels()

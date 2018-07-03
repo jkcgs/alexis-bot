@@ -3,7 +3,7 @@ from datetime import datetime
 
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 
 
 class Horoscopo(Command):
@@ -17,6 +17,7 @@ class Horoscopo(Command):
         self.help = 'Muestra el horóscopo para un determinado signo.'
         self.horoscopo = None
         self.update_day = None
+        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if self.horoscopo is None:

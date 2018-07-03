@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 from xml.etree.ElementTree import fromstring as parsexml
 from random import choice
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import img_embed
 
 
@@ -13,6 +13,7 @@ class Rule34(Command):
         self.aliases = ['r34']
         self.help = 'Busca imágenes en rule34.xxx'
         self.nsfw_only = True
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         await cmd.typing()

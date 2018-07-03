@@ -2,7 +2,7 @@ import re
 
 import discord
 
-from bot import Command
+from bot import Command, categories
 
 pat_code = re.compile('^[a-zA-Z0-9]{8,20}$')
 api_base = 'https://correos.owo.cl/{}'
@@ -16,6 +16,7 @@ class Correos(Command):
         super().__init__(bot)
         self.name = 'correos'
         self.help = 'Tracking para el sistema de envíos de Correos de Chile'
+        self.category = categories.INFORMATION
 
     async def handle(self, evt):
         if evt.argc == 0:

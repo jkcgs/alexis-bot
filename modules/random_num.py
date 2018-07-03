@@ -1,6 +1,6 @@
 import random
 
-from bot import Command
+from bot import Command, categories
 
 
 class RandomNum(Command):
@@ -9,6 +9,7 @@ class RandomNum(Command):
         self.name = 'random'
         self.aliases = ['rand']
         self.help = 'Elige un número al azar'
+        self.category = categories.UTILITY
 
     async def handle(self, cmd):
         nmin = 1

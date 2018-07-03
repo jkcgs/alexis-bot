@@ -1,6 +1,6 @@
 from discord import Embed
 
-from bot import Command
+from bot import Command, categories
 from bot.libs.configuration import ServerConfig
 
 
@@ -15,6 +15,7 @@ class LockBot(Command):
         self.help = 'Bloquea o desbloquea al bot para que no lo puedan usar los sucios mortales'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def pre_on_message(self, message, event):
         if event.is_pm or event.owner:
@@ -98,6 +99,7 @@ class LockedChans(Command):
         self.name = 'lockedlist'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         chans = cmd.config.get_list(cfg_locked)

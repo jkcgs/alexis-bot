@@ -1,6 +1,6 @@
 import asyncio
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import get_server_role
 
 
@@ -16,6 +16,7 @@ class AutoRole(Command):
         self.help = 'Da un rol a todos los usuarios nuevos y existentes'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not self.can_manage_roles(cmd.server):
@@ -142,18 +143,14 @@ class AutoRole(Command):
         roles = self.get_roles(member.server)
 
         if len(roles) == 0:
-            self.log.debug('no autoroles in this server')
             return
 
-        # self.log.debug('giving role(s) %s to %s', [r.name for r in roles], member)
         await self.bot.add_roles(member, *roles)
 
     async def take_roles(self, member):
         roles = self.get_roles(member.server)
 
         if len(roles) == 0:
-            self.log.debug('no autoroles in this server')
             return
 
-        # self.log.debug('taking role(s) %s from %s', [r.name for r in roles], member)
         await self.bot.remove_roles(member, *roles)

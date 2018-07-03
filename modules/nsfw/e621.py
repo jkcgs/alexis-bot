@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 from random import choice
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import img_embed
 
 
@@ -11,6 +11,7 @@ class E621(Command):
         self.name = 'e621'
         self.help = 'Busca imágenes en e621 (imageboard furry)'
         self.nsfw_only = True
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         await cmd.typing()

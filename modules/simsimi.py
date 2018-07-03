@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from bot import Command, log
+from bot import Command, log, categories
 
 
 class SimSimiException(Exception):
@@ -47,6 +47,7 @@ class SimSimiCmd(Command):
         self.name = 'simsimi'
         self.aliases = ['s']
         self.help = 'Habla con SimSimi'
+        self.category = categories.FUN
         self.user_delay = 5
         self.allow_pm = False
         self.enabled = True

@@ -1,7 +1,7 @@
 from io import BytesIO
 from os import path
 from PIL import Image, ImageFont, ImageDraw
-from bot import Command
+from bot import Command, categories
 from bot.utils import pat_usertag
 
 furl = 'https://raw.githubusercontent.com/caarlos0-graveyard/msfonts/master/fonts/impact.ttf'
@@ -15,6 +15,7 @@ class Meme(Command):
         super().__init__(bot)
         self.name = 'meme'
         self.help = 'Genera un meme en base a la imagen de un usuario'
+        self.category = categories.IMAGES
         self.format = 'formatos:\n' \
                       '```' \
                       '$CMD <texto_abajo> (usará tu avatar)\n' \

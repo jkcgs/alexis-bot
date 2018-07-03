@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 
 
 class Fullwidth(Command):
@@ -9,6 +9,7 @@ class Fullwidth(Command):
         self.name = 'fullwidth'
         self.aliases = ['full']
         self.help = 'Convierte los carácteres soportados a fullwidth y responde con el texto resultante'
+        self.category = categories.UTILITY
 
     async def handle(self, cmd):
         text = [cmd.no_tags(), 'QUE WEA COXINO KLO'][int(cmd.text == '')].replace(' ', '   ')

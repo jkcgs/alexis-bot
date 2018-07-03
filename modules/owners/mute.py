@@ -6,7 +6,7 @@ from datetime import datetime as dt
 import discord
 import peewee
 
-from bot import Command, utils
+from bot import Command, utils, categories
 from bot.libs.configuration import BaseModel
 
 
@@ -25,6 +25,7 @@ class Mute(Command):
         self.owner_only = True
         self.db_models = [MutedUser]
         self.allow_pm = False
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if cmd.argc < 1:
@@ -226,6 +227,7 @@ class Unmute(Command):
         self.help = 'Quita el mute de usuarios'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if len(cmd.args) != 1:
@@ -267,6 +269,7 @@ class SetMutedRole(Command):
         self.help = 'Determina el nombre del rol del mute'
         self.owner_only = True
         self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if len(cmd.args) != 1:

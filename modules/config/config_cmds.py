@@ -2,7 +2,7 @@ import sys
 
 from discord import Game
 
-from bot import Command, StaticConfig
+from bot import Command, StaticConfig, categories
 from bot.utils import is_float, is_int, split_list
 
 
@@ -12,6 +12,7 @@ class ConfigCmd(Command):
         self.name = 'config'
         self.help = 'Administración de configuración'
         self.bot_owner_only = True
+        self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         if cmd.argc < 2 or (cmd.args[0] != 'get' and cmd.argc < 3):
@@ -114,6 +115,7 @@ class ReloadCmd(Command):
         self.name = 'reload'
         self.help = 'Recarga la configuración'
         self.bot_owner_only = True
+        self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         if not self.bot.load_config():
@@ -133,7 +135,8 @@ class ShutdownCmd(Command):
         super().__init__(bot)
         self.name = 'shutdown'
         self.help = 'Detiene el proceso del bot'
-        self.cmd_owner_only = True
+        self.bot_owner_only = True
+        self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         self.bot.config['shutdown_channel'] = cmd.message.channel.id
@@ -157,6 +160,7 @@ class SetStatus(Command):
         self.name = 'status'
         self.help = 'Determina el status del bot'
         self.bot_owner_only = True
+        self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         status = '' if len(cmd.args) < 1 else cmd.text

@@ -4,7 +4,7 @@ from datetime import datetime
 import peewee
 from discord import Embed, Colour
 
-from bot import Command
+from bot import Command, categories
 from bot.utils import is_int, get_colour, format_date
 from bot.libs.configuration import BaseModel
 
@@ -14,6 +14,7 @@ class MacroSet(Command):
         super().__init__(bot)
         self.name = 'set'
         self.help = 'Define un embed macro'
+        self.category = categories.STAFF
         self.db_models = [EmbedMacro]
 
     async def handle(self, cmd):
@@ -97,6 +98,7 @@ class MacroUnset(Command):
         super().__init__(bot)
         self.name = 'unset'
         self.help = 'Elimina un macro'
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not cmd.is_pm and not cmd.owner:
@@ -125,6 +127,7 @@ class MacroRename(Command):
         super().__init__(bot)
         self.name = 'rename'
         self.help = 'Renombra un macro'
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not cmd.is_pm and not cmd.owner:
@@ -165,6 +168,7 @@ class MacroSetColour(Command):
         self.name = 'setcolour'
         self.aliases = ['setcolor']
         self.help = 'Actualiza el color de un macro embed'
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         if not cmd.is_pm and not cmd.owner:
@@ -201,6 +205,7 @@ class MacroList(Command):
         self.name = 'list'
         self.help = 'Muestra una lista de los nombres de los macros guardados'
         self.rx_mention = re.compile('^<@!?[0-9]+>$')
+        self.category = categories.UTILITY
 
     async def handle(self, cmd):
         await cmd.typing()
@@ -297,6 +302,7 @@ class MacroRank(Command):
         self.name = 'macrorank'
         self.help = 'Muestra un ranking de los macros usados en el servidor actual'
         self.allow_pm = False
+        self.category = categories.UTILITY
 
     async def handle(self, cmd):
         sortage = 'asc' if cmd.argc == 1 and cmd.args[0] in ['inv', 'inverse'] else 'desc'

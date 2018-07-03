@@ -1,6 +1,6 @@
 import random
 from bot.libs.configuration import yaml
-from bot import Command, StaticConfig
+from bot import Command, StaticConfig, categories
 from bot.utils import img_embed
 
 default_pats = 'https://gist.github.com/jkcgs/137a28dc01b3e8538a253652f44eaf09/' \
@@ -13,6 +13,7 @@ class Pat(Command):
         super().__init__(bot)
         self.name = 'pat'
         self.help = 'Te envía una imagen de animé de una caricia en la cabeza y algo más'
+        self.category = categories.IMAGES
         self.config = None
 
     async def handle(self, cmd):

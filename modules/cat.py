@@ -1,4 +1,4 @@
-from bot import Command, utils
+from bot import Command, utils, categories
 
 
 class Cat(Command):
@@ -9,6 +9,7 @@ class Cat(Command):
         self.name = 'cat'
         self.aliases = ['gato', 'gatito', 'neko']
         self.help = 'Entrega un gato'
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         try:
@@ -32,6 +33,7 @@ class Dog(Command):
         self.name = 'dog'
         self.aliases = ['perro', 'perrito', 'doggo']
         self.help = 'Entrega un perro'
+        self.category = categories.IMAGES
 
     async def handle(self, cmd):
         try:

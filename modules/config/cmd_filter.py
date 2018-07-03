@@ -1,5 +1,4 @@
 from bot import Command
-from bot.libs.configuration import ServerConfiguration
 from bot.utils import replace_everywhere
 
 

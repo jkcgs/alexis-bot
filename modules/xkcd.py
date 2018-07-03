@@ -1,4 +1,4 @@
-from bot import Command
+from bot import Command, categories
 from discord import Embed
 import random
 import requests
@@ -9,6 +9,7 @@ class XKCD(Command):
         super().__init__(bot)
         self.name = 'xkcd'
         self.help = 'Muestra un comic xkcd.'
+        self.category = categories.FUN
         self.xkcd_current = requests.get('https://xkcd.com/info.0.json').json()
         self.xkcd_comic = []
 

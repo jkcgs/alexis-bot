@@ -5,7 +5,7 @@ import peewee
 import emoji
 from discord import Emoji, Object, Embed
 
-from bot import Command
+from bot import Command, categories
 from bot.libs.configuration import BaseModel
 
 default_count = 10
@@ -24,6 +24,7 @@ class StarboardHook(Command):
         self.owner_only = True
         self.name = 'starboard'
         self.help = 'Administrar el starboard'
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
         args = [] if cmd.argc == 0 else cmd.args[1:]
