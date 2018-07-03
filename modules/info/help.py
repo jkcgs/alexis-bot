@@ -65,6 +65,6 @@ class Help(Command):
                 content = '```{}```'.format(', '.join(cmd_list))
                 if i == 0:
                     content = '$[help-category-{}-description]'.format(k) + content
-                embed.add_field(name=name_l.format(k), value=content)
+                embed.add_field(name=name_l.format(k), value=content, inline=False)
 
         await cmd.answer(embed)
