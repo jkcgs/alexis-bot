@@ -11,7 +11,7 @@ class InviteFilter(Command):
 
     cfg_filter_status = 'invite_filter_enabled'
     cfg_filter_list = 'invite_filter_list'
-    pat_invite = re.compile('discord(?:app\.com|\.gg)(/invite)?/[a-zA-Z0-9]+')
+    pat_invite = re.compile('(?:https?://)?discord(?:app\.com/invite|.gg)/[a-zA-Z0-9]+')
 
     def __init__(self, bot):
         super().__init__(bot)
