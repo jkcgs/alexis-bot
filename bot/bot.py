@@ -12,7 +12,7 @@ from bot.utils import destination_repr, get_bot_root, replace_everywhere
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.60'
+    __version__ = '1.0.0-dev.61'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -207,6 +207,11 @@ class AlexisBot(discord.Client):
         self.manager.close_http()
 
     async def run_task(self, task, time=0):
+        """
+        Runs a task on a given interval
+        :param task: The task function
+        :param time: The time in seconds to repeat the task
+        """
         try:
             await task()
         except Exception as e:
@@ -215,9 +220,15 @@ class AlexisBot(discord.Client):
         finally:
             await asyncio.sleep(time)
 
-        self.schedule(task, time)
+        if not self.is_closed:
+            self.schedule(task, time)
 
     def schedule(self, task, time=0):
+        """
+        Adds a task to the loop to be run every *time* seconds.
+        :param task: The task function
+        :param time: The time in seconds to repeat the task
+        """
         if time <= 0:
             raise RuntimeError('Task interval time must be positive')
 

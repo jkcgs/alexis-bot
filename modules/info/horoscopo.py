@@ -1,13 +1,15 @@
+import discord
+import peewee
 import pytz
 from datetime import datetime
 
 from discord import Embed
 
-from bot import Command, categories
+from bot import Command, categories, BaseModel
 
 
 class Horoscopo(Command):
-    __version__ = '1.0.3'
+    __version__ = '1.1.0'
     __author__ = 'makzk'
     api_url = 'https://api.cadcc.cl/tyaas/'
 
@@ -15,6 +17,8 @@ class Horoscopo(Command):
         super().__init__(bot)
         self.name = 'horoscopo'
         self.help = 'Muestra el horóscopo para un determinado signo.'
+        self.format = '$CMD [suscribir] <signo>'
+        self.db_models = [SuscriptorHoroscopo]
         self.horoscopo = None
         self.update_day = None
         self.category = categories.INFORMATION
@@ -25,13 +29,35 @@ class Horoscopo(Command):
             return
 
         if cmd.argc == 0:
-            await cmd.answer('formato: $CMD <signo>')
+            await cmd.answer('formato: $CMD [suscribir] <signo>')
             return
 
         if cmd.args[0] in ['update', 'reload'] and cmd.bot_owner:
             await cmd.typing()
             await self.update()
             await cmd.answer('datos cargados')
+            return
+
+        if cmd.args[0] == 'suscribir':
+            if cmd.argc < 2:
+                await cmd.answer('formato: $CMD suscribir <signo>')
+                return
+
+            try:
+                suscrip = SuscriptorHoroscopo.get(SuscriptorHoroscopo.userid == cmd.author.id)
+                await cmd.answer('ya estás suscrito/a al horóscopo de **{}**'.format(suscrip.signo.title()))
+                return
+            except SuscriptorHoroscopo.DoesNotExist:
+                pass
+
+            signo = cmd.args[1]
+            if self.get_sign(signo) is None:
+                await cmd.answer('signo incorrecto')
+                return
+
+            SuscriptorHoroscopo.create(userid=cmd.author.id, signo=signo)
+            await cmd.answer('ahora estás suscrito/a al horóscopo de **{}**'.format(signo.title()))
+
             return
 
         curr = datetime.now(pytz.timezone('Chile/Continental'))
@@ -47,7 +73,7 @@ class Horoscopo(Command):
         await cmd.answer(self.make_embed(signo))
 
     async def on_ready(self):
-        await self.update()
+        self.bot.schedule(self.update, 180)
 
     def get_sign(self, name):
         if isinstance(name, dict):
@@ -62,6 +88,9 @@ class Horoscopo(Command):
 
     def make_embed(self, signo):
         signo = self.get_sign(signo)
+        if signo is None:
+            return None
+
         embed = Embed(title='Horóscopo - {}'.format(self.horoscopo['titulo']))
         embed.description = '**{}** (*{}*)\n\n'.format(signo['nombre'], signo['fechaSigno'])
         embed.description += '**Amor**: {}\n'.format(signo['amor'])
@@ -80,5 +109,35 @@ class Horoscopo(Command):
                 self.horoscopo = data
                 self.update_day = curr.day
                 self.log.debug('Datos del horóscopo cargados.')
+                self.bot.loop.create_task(self.send_update())
             else:
                 self.log.debug('No se encontraron datos actualizados')
+
+    async def send_update(self):
+        last_date = self.config_mgr('all').get('horoscopo_last')
+        if last_date == self.horoscopo['titulo']:
+            return
+
+        suscriptores = SuscriptorHoroscopo.select()
+        for suscriptor in suscriptores:
+            embed = self.make_embed(suscriptor.signo)
+            if embed is None:
+                SuscriptorHoroscopo.delete_instance(suscriptor)
+                continue
+
+            user = await self.bot.get_user_info(suscriptor.userid)
+            if user is None:
+                SuscriptorHoroscopo.delete_instance(suscriptor)
+                continue
+
+            try:
+                await self.bot.send_message(content='¡Actualización de horóscopo!', embed=embed, destination=user)
+            except discord.Forbidden:
+                pass
+
+        self.config_mgr('all').set('horoscopo_last', self.horoscopo['titulo'])
+
+
+class SuscriptorHoroscopo(BaseModel):
+    userid = peewee.TextField()
+    signo = peewee.TextField()
