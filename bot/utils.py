@@ -196,6 +196,26 @@ def deltatime_to_str(deltatime):
     return ', '.join(result)
 
 
+def deltatime_to_str_short(deltatime):
+    result = []
+    if deltatime.days > 0:
+        result.append(str(deltatime.days) + 'd')
+    m, s = divmod(deltatime.seconds, 60)
+    h, m = divmod(m, 60)
+
+    if h > 0:
+        result.append(str(h) + 'h')
+    if m > 0:
+        result.append(str(m) + 'm')
+    if s > 0:
+        result.append(str(s) + 's')
+
+    if len(result) == 0:
+        result = ['now']
+
+    return ''.join(result)
+
+
 def timediff_parse(timediff):
     timediff = timediff.lower()
     ds = {'s': 0, 'm': 0, 'h': 0, 'd': 0}

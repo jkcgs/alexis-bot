@@ -1,6 +1,8 @@
 import asyncio
 import platform
 import sys
+from datetime import datetime
+
 import discord
 from discord import Embed, Server
 
@@ -12,7 +14,7 @@ from bot.utils import destination_repr, get_bot_root, replace_everywhere
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.61'
+    __version__ = '1.0.0-dev.62'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -26,6 +28,7 @@ class AlexisBot(discord.Client):
         self.sv_config = None
         self.last_author = None
         self.initialized = False
+        self.start_time = None
 
         self.lang = {}
         self.deleted_messages = []
@@ -44,6 +47,8 @@ class AlexisBot(discord.Client):
         log.info('Bot root path: %s', get_bot_root())
         log.info(platform.uname())
         log.info('------')
+
+        self.start_time = datetime.now()
 
         # Cargar configuración
         self.load_config()
@@ -216,7 +221,7 @@ class AlexisBot(discord.Client):
             await task()
         except Exception as e:
             if not isinstance(e, RuntimeError):
-                self.log.exception(e)
+                log.exception(e)
         finally:
             await asyncio.sleep(time)
 
