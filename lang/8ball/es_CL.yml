@@ -1,10 +1,18 @@
-8b-affirmative: Si|Si, obvio|Sip :3|si weon oh|sipo ta bn eso|:thumbsup:|demah po
+8b-affirmative: 'Si|Si, obvio|Sip :3|si weon oh|sipo ta bn eso|:thumbsup:|demah po'
 8b-default-answer: si po jajaj XD
 8b-default-question: seré weón?
 8b-help: Responde a alguna pregunta
-8b-negative: 'No|nopo|nopo wn no digai esa wea|nuu uwu|no va a poder ser|nopo ta mal eso|:thumbsdown:'
-8b-probably: Tal vez|Probablemente|la respuesta está en tu corazón|la respuesta a todo es jesús
+8b-negative: >-
+  No|nopo|nopo wn no digai esa wea|nuu uwu|no va a poder ser|nopo ta mal
+  eso|:thumbsdown:
+8b-probably: >-
+  Tal vez|Probablemente|la respuesta está en tu corazón|la respuesta a todo es
+  jesús
 8b-title-answer: Respuesta
 8b-title-question: Pregunta
-8b-unknown: No lo sé|no cacho|ni idea|hable más fuerte que traigo una toalla|pero si no soy na adivino po chuchetumare|como chucha queri q sepa eso
-8b-wont-answer: No responderé a eso|jaja xd|mira yo opino lo siguiente|muy buena pregunta la verdad|no preguntis weas xfa
+8b-unknown: >-
+  No lo sé|no cacho|ni idea|hable más fuerte que traigo una toalla|pero si no
+  soy na adivino po chuchetumare|como chucha queri q sepa eso
+8b-wont-answer: >-
+  No responderé a eso|jaja xd|mira yo opino lo siguiente|muy buena pregunta la
+  verdad|no preguntis weas xfa

@@ -1,10 +1,14 @@
-8b-affirmative: Si|Si, obvio|Sip :3|Completamente|Si, está bien|:thumbsup:|¡Por supuesto!
+8b-affirmative: 'Si|Si, obvio|Sip :3|Completamente|Si, está bien|:thumbsup:|¡Por supuesto!'
 8b-default-answer: Completamente
 8b-default-question: ¿Soy idiota?
 8b-help: Responde a alguna pregunta
-8b-negative: 'No|Nope|De ninguna manera|Eso no va a pasar|Eso no es posible|No!!!|:thumbsdown:'
+8b-negative: >-
+  No|Nope|De ninguna manera|Eso no va a pasar|Eso no es
+  posible|No!!!|:thumbsdown:
 8b-probably: Tal vez|Probablememte|La respuesta está en tu corazón
 8b-title-answer: Respuesta
 8b-title-question: Pregunta
 8b-unknown: No lo sé|No tengo idea|Hable más fuerte que traigo una toalla
-8b-wont-answer: No responderé a eso|Jaja XD|Yo opino lo siguiente|Esa es una muy buena pregunta|No preguntes esas cosas, por favor
+8b-wont-answer: >-
+  No responderé a eso|Jaja XD|Yo opino lo siguiente|Esa es una muy buena
+  pregunta|No preguntes esas cosas, por favor

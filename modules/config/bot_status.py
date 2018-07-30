@@ -16,9 +16,10 @@ class BotStatus(Command):
 
     async def task_other(self):
         status_list = [
-            lambda: 'Version {}'.format(AlexisBot.__version__),
-            lambda: 'Add with !invite',
-            lambda: 'Use !help for available commands',
+            lambda: 'discord.cl/bot',
+            lambda: 'version {}'.format(AlexisBot.__version__),
+            lambda: 'add with !invite',
+            lambda: '!help = avail. commands',
             lambda: '{} guilds'.format(len(self.bot.servers)),
             lambda: '{} users'.format(len(set([u.id for u in self.bot.get_all_members() if not u.bot]))),
             lambda: 'with {} bots'.format(len(set([u.id for u in self.bot.get_all_members() if u.bot]))),
