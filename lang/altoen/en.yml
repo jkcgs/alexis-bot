@@ -1,0 +1,3 @@
+altoen-help: Shows a picture based on the "ALTO EN" food stamps for Chilean food.
+altoen-format: $CMD <text>
+altoen-too-long: 'text too long, 25 characters maximum'

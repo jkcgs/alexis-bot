@@ -1,0 +1,3 @@
+altoen-help: Muestra una imagen basada en los stickers "ALTO EN" de comida en Chile.
+altoen-format: $CMD <texto>
+altoen-too-long: 'texto muy largo, 25 carácteres máximo'
