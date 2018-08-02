@@ -6,6 +6,9 @@ from bot import categories
 
 
 class Help(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.0'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'help'
@@ -20,8 +23,9 @@ class Help(Command):
             if ins is None or (ins.owner_only and not cmd.owner) or (ins.bot_owner_only and not cmd.bot_owner):
                 await cmd.answer('comando no disponible')
             else:
-                embed = Embed(title='$PXhelp', description=ins.help)
-                embed.add_field(name='$[help-format-title]', value=ins.format, inline=False)
+                format_cont = ins.format.replace('$CMD', cmd.prefix + cmd.args[0])
+                embed = Embed(title='$PX' + cmd.args[0], description=ins.help)
+                embed.add_field(name='$[help-format-title]', value=format_cont, inline=False)
                 embed.set_footer(text='$[help-footer-for]')
                 await cmd.answer(embed, withname=False)
 

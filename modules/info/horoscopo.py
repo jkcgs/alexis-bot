@@ -9,7 +9,7 @@ from bot import Command, categories, BaseModel
 
 
 class Horoscopo(Command):
-    __version__ = '1.1.0'
+    __version__ = '1.2.0'
     __author__ = 'makzk'
     api_url = 'https://api.cadcc.cl/tyaas/'
 
@@ -17,11 +17,12 @@ class Horoscopo(Command):
         super().__init__(bot)
         self.name = 'horoscopo'
         self.help = 'Muestra el horóscopo para un determinado signo.'
-        self.format = '$CMD [suscribir] <signo>'
+        self.format = '`$CMD [suscribir] <signo>` - `$CMD desuscribir`'
         self.db_models = [SuscriptorHoroscopo]
+        self.category = categories.INFORMATION
+
         self.horoscopo = None
         self.update_day = None
-        self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if self.horoscopo is None:
@@ -29,7 +30,7 @@ class Horoscopo(Command):
             return
 
         if cmd.argc == 0:
-            await cmd.answer('formato: $CMD [suscribir] <signo>')
+            await cmd.answer('$[format]: ' + self.format)
             return
 
         if cmd.args[0] in ['update', 'reload'] and cmd.bot_owner:
@@ -40,7 +41,7 @@ class Horoscopo(Command):
 
         if cmd.args[0] == 'suscribir':
             if cmd.argc < 2:
-                await cmd.answer('formato: $CMD suscribir <signo>')
+                await cmd.answer('$[format]: ' + self.format)
                 return
 
             try:
@@ -57,6 +58,20 @@ class Horoscopo(Command):
 
             SuscriptorHoroscopo.create(userid=cmd.author.id, signo=signo)
             await cmd.answer('ahora estás suscrito/a al horóscopo de **{}**'.format(signo.title()))
+
+            return
+
+        if cmd.args[0] == 'desuscribir':
+            if cmd.argc < 1:
+                await cmd.answer('formato: $CMD desuscribir')
+            else:
+                try:
+                    suscrip = SuscriptorHoroscopo.get(SuscriptorHoroscopo.userid == cmd.author.id)
+                    name = suscrip.signo.title()
+                    SuscriptorHoroscopo.delete_instance(suscrip)
+                    await cmd.answer('has eliminado tu suscripción al horóscopo de **{}**'.format(name))
+                except SuscriptorHoroscopo.DoesNotExist:
+                    await cmd.answer('no tienes una suscripción activa al horóscopo')
 
             return
 
@@ -101,17 +116,14 @@ class Horoscopo(Command):
         return embed
 
     async def update(self):
-        self.log.debug('Cargando datos del horóscopo...')
         async with self.http.get(Horoscopo.api_url) as r:
             data = await r.json()
             curr = datetime.now(pytz.timezone('Chile/Continental'))
             if self.horoscopo is None or self.horoscopo['titulo'] != data['titulo']:
                 self.horoscopo = data
                 self.update_day = curr.day
-                self.log.debug('Datos del horóscopo cargados.')
+                self.log.debug('Datos del horóscopo actualizados.')
                 self.bot.loop.create_task(self.send_update())
-            else:
-                self.log.debug('No se encontraron datos actualizados')
 
     async def send_update(self):
         last_date = self.config_mgr('all').get('horoscopo_last')
