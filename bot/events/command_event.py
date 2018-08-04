@@ -21,7 +21,7 @@ class CommandEvent(MessageEvent):
         self.argc = len(self.args)
         self.text = ' '.join(self.args)
 
-    async def answer(self, content='', to_author=False, withname=True, **kwargs):
+    async def answer(self, content='', to_author=False, withname=False, **kwargs):
         if 'locales' not in kwargs:
             kwargs['locales'] = {}
 

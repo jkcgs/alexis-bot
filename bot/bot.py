@@ -14,7 +14,7 @@ from bot.utils import destination_repr, get_bot_root, replace_everywhere
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.62'
+    __version__ = '1.0.0-dev.63'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -43,7 +43,7 @@ class AlexisBot(discord.Client):
         :return:
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
-        log.info('Python %s en %s.', sys.version.replace('\n', ''), sys.platform)
+        log.info('Python %s in %s.', sys.version.replace('\n', ''), sys.platform)
         log.info('Bot root path: %s', get_bot_root())
         log.info(platform.uname())
         log.info('------')
@@ -53,24 +53,24 @@ class AlexisBot(discord.Client):
         # Cargar configuración
         self.load_config()
         if self.config.get('token', '') == '':
-            raise RuntimeError('No se ha definido el tóken de Discord. Debe estar en e')
+            raise RuntimeError('Discord bot token not defined. It should be in config.yml file.')
 
         # Cargar base de datos
-        log.info('Conectando con la base de datos...')
+        log.info('Connecting to the database...')
         self.connect_db()
         self.sv_config = Configuration()
 
         # Cargar instancias de las clases de comandos cargadas en bots.modules
-        log.info('Cargando comandos...')
+        log.info('Loading commands...')
         self.manager.load_instances()
         self.manager.dispatch_sync('on_loaded', force=True)
 
         # Conectar con Discord
         try:
-            log.info('Conectando...')
+            log.info('Connecting to Discord...')
             self.run(self.config['token'])
         except discord.errors.LoginFailure:
-            log.error('El token de Discord es incorrecto!')
+            log.error('Invalid Discord token!')
             raise
         except Exception as ex:
             log.exception(ex)
@@ -79,7 +79,7 @@ class AlexisBot(discord.Client):
     async def on_ready(self):
         """Esto se ejecuta cuando el bot está conectado y listo"""
 
-        log.info('Conectado como "%s", ID %s', self.user.name, self.user.id)
+        log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
         log.info('------')
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
@@ -175,7 +175,7 @@ class AlexisBot(discord.Client):
 
         chan = self.get_channel(chanid)
         if chan is None:
-            log.debug('[modlog] canal no encontrado (svid %s chanid %s)', server.id, chanid)
+            log.debug('[modlog] Channel not found (svid %s chanid %s)', server.id, chanid)
             return
 
         await self.send_message(chan, message, embed=embed)

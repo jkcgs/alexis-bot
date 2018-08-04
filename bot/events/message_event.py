@@ -58,7 +58,7 @@ class MessageEvent:
         dest = self.message.author if to_author else self.message.channel
         return await self.bot.send_message(dest, content, **kwargs)
 
-    async def answer_embed(self, msg, title=None, *, delete_trigger=False, withname=True):
+    async def answer_embed(self, msg, title=None, *, delete_trigger=False, withname=True, **kwargs):
         if delete_trigger:
             try:
                 await self.bot.delete_message(self.message)
@@ -71,9 +71,9 @@ class MessageEvent:
                 msg.title = title
 
         if withname:
-            msg.set_footer(text='para ' + self.author_name)
+            msg.set_footer(text=self.lang.format('$[answer-for]', locales={'author': self.author_name}))
 
-        await self.answer(embed=msg, withname=False)
+        await self.answer(embed=msg, withname=False, **kwargs)
 
     async def typing(self):
         """

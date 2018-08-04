@@ -1,12 +1,14 @@
-user-not-found: "usuario no encontrado"
-format: "formato"
-disallowed-via-pm: "este comando no se puede usar via PM"
-command-not-authorized: "No puedes utilizar este comando"
-yes: "si"
-no: "no"
-name: "Nombre"
-start-date: "Fecha de inicio"
-end-date: "Fecha de término"
-data-not-available: "datos no disponibles"
-channel-not-found: "canal no encontrado"
-channel-saved: "canal guardado"
+user-not-found: usuario no encontrado
+format: formato
+disallowed-via-pm: este comando no se puede usar via PM
+command-not-authorized: No puedes utilizar este comando
+'yes': si
+'no': 'no'
+name: Nombre
+start-date: Fecha de inicio
+end-date: Fecha de término
+data-not-available: datos no disponibles
+channel-not-found: canal no encontrado
+channel-saved: canal guardado
+answer-for: 'Para {author}'
+command-not-available: Comando no disponible

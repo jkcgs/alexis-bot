@@ -8,7 +8,7 @@ class Cat(Command):
         super().__init__(bot)
         self.name = 'cat'
         self.aliases = ['gato', 'gatito', 'neko']
-        self.help = 'Entrega un gato'
+        self.help = '$[animal-cats-help]'
         self.category = categories.IMAGES
 
     async def handle(self, cmd):
@@ -17,11 +17,11 @@ class Cat(Command):
             async with self.http.get(Cat.url) as r:
                 if r.status == 200:
                     data = await r.json()
-                    await cmd.answer(embed=utils.img_embed(data['file'], 'aquí está tu gatito :3'))
+                    await cmd.answer(embed=utils.img_embed(data['file'], '$[animal-cats-title]'))
                     return
         except Exception as e:
             self.log.error(e)
-            await cmd.answer('no pude encontrar un gatito uwu')
+            await cmd.answer('$[animal-cats-error]')
 
 
 # porque puedo
@@ -32,7 +32,7 @@ class Dog(Command):
         super().__init__(bot)
         self.name = 'dog'
         self.aliases = ['perro', 'perrito', 'doggo']
-        self.help = 'Entrega un perro'
+        self.help = '$[animal-dogs-help]'
         self.category = categories.IMAGES
 
     async def handle(self, cmd):
@@ -41,8 +41,8 @@ class Dog(Command):
             async with self.http.get(Dog.url) as r:
                 if r.status == 200:
                     data = await r.json()
-                    await cmd.answer(embed=utils.img_embed(data['message'], 'aquí está tu doggo :3'))
+                    await cmd.answer(embed=utils.img_embed(data['message'], '$[animal-dogs-title]'))
                     return
         except Exception as e:
             self.log.error(e)
-            await cmd.answer('no pude encontrar un doggo :c')
+            await cmd.answer('$[animal-dogs-error]')
