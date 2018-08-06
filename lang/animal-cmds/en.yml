@@ -1,0 +1,6 @@
+animal-cats-help: Retrieves a random cat from random.cat
+animal-cats-title: "Here's your kitten \U0001F63A"
+animal-cats-error: 'Could not fetch a cat :('
+animal-dogs-help: Retrieves a random dog from dog.ceo
+animal-dogs-title: "Here's your doggo \U0001F415"
+animal-dogs-error: 'Could not fetch a dog :('

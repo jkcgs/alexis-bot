@@ -1,0 +1,7 @@
+random-choose-help: Elije un elemento aleatorio de una lísta separada por el carácter `|`.
+random-choose-answer: 'Elijo **{answer}**'
+random-choose-not-enough: Debe haber al menos 2 opciones. Usa `|` para separar opciones.
+random-coin-help: Lanza una moneda
+random-coin-head: Cara.
+random-coin-tails: Sello.
+random-coin-side: 'Canto. Si, cayó de canto. Aunque no lo creas.'
