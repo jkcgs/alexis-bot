@@ -7,7 +7,7 @@ from bot import Command, MessageEvent, categories
 
 class InviteFilter(Command):
     __author__ = 'makzk'
-    __version__ = '0.0.1'
+    __version__ = '1.0.0'
 
     cfg_filter_status = 'invite_filter_enabled'
     cfg_filter_list = 'invite_filter_list'
@@ -73,7 +73,7 @@ class InviteFilter(Command):
 
     async def on_message(self, message):
         evt = MessageEvent(message, self.bot)
-        if evt.owner or evt.self:
+        if evt.owner or evt.self or evt.is_pm:
             return
 
         filter_enabled = evt.config.get(self.cfg_filter_status, '0') == '1'

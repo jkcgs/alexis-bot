@@ -29,6 +29,8 @@ class MessageEvent:
         if not self.is_pm:
             self.server = message.server
             self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
+        else:
+            self.config = ServerConfiguration(self.bot.sv_config, 'all')
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """

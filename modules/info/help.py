@@ -54,7 +54,8 @@ class Help(Command):
         if cmd.owner:
             embed.description += ' $[help-description-owner]'
 
-        for k in categories.names:
+        cat_values = [getattr(categories, val) for val in dir(categories) if not val.startswith('__')]
+        for k in cat_values:
             if k not in commands or len(commands[k]) < 1:
                 continue
 
