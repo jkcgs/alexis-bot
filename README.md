@@ -9,7 +9,7 @@ thanks to it's modular design.
 #### Self-host
 The bot is made on Python with discord.py. To host it, you can follow these instructions:
 
-1. You need **Python 3.5+** (Python 3.6+ is recommended) with `pip` installed. The `virtualenv` tool is optional but recommended.
+1. You need **Python 3.5 or Python 3.6 (recommended)** with `pip` installed. The `virtualenv` tool is optional but recommended.
 2. Clone this repo and change to the project directory (e.g., `cd alexis-bot`).
 3. Make a virtualenv with `virtualenv .venv` (if you have it) and activate it.
 4. Install dependencies: `pip install -r requirements.txt`

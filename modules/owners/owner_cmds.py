@@ -242,7 +242,8 @@ class SetLanguage(Command):
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            await cmd.answer('$[current-lang]', locales={'LANG': cmd.config.get('lang')})
+            self.log.debug('lang updated to %s for server %s', cmd.config.get('lang'), cmd.server)
+            await cmd.answer('$[current-lang]', locales={'lang': cmd.config.get('lang')})
             return
 
         if not self.bot.lang.has(cmd.text):
