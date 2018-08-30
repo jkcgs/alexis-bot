@@ -7,17 +7,22 @@ pat_currency = re.compile('[a-zA-Z]{3}')
 baseurl = 'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE' \
           '&from_currency={}&to_currency={}&apikey={}'
 baseurl_sbif = 'https://api.sbif.cl/api-sbifv3/recursos_api/{}?apikey={}&formato=json'
-cryptomemes = ['btc', 'xmr', 'eth', 'ltc']
+
+baseurl_orionx = 'https://ymxh3ju7n5.execute-api.us-east-1.amazonaws.com/client/graphql'
+
+localsbif = ['uf', 'utm']
+cryptomemes = ['btc', 'xmr', 'eth', 'ltc', 'xlm', 'xrp', 'bch', 'dash', 'doge']
+cryptoclp = ['cha', 'luk']
 
 
 class Value(Command):
     __author__ = 'makzk'
-    __version__ = '0.0.1'
+    __version__ = '1.0.0'
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'value'
-        self.aliases = ['uf', 'utm'] + cryptomemes
+        self.aliases = localsbif + cryptomemes + cryptoclp
         self.help = 'Entrega datos de conversión de divisas'
         self.format = '!value [cantidad] <divisa1> <divisa2>'
         self.format_shortcut = '$CMD [cantidad] <divisa2>'
@@ -27,18 +32,16 @@ class Value(Command):
             'currency_apikey': ''
         }
 
-        self.div_handlers = {
-            'UTM': self.handler_utm,
-            'UF': self.handler_uf
-        }
-
-        self.div_defaults = {
-            'UTM': 'CLP',
-            'UF': 'CLP'
-        }
+        self.div_handlers = {}
 
         for m in cryptomemes:
-            self.div_defaults[m.upper()] = 'USD'
+            self.div_handlers[m.upper()] = (self.convert_crypto, 'USD')
+
+        for m in localsbif:
+            self.div_handlers[m.upper()] = (self.sbif, 'CLP')
+
+        for m in cryptoclp:
+            self.div_handlers[m.upper()] = (self.orionx, 'CLP')
 
     async def handle(self, cmd):
         div_from = 'USD'
@@ -47,8 +50,8 @@ class Value(Command):
 
         if cmd.cmdname != self.name:
             div_from = cmd.cmdname.rstrip('2').upper()
-            if div_from in self.div_defaults.keys():
-                div_to = self.div_defaults[div_from]
+            if div_from in self.div_handlers.keys():
+                _, div_to = self.div_handlers[div_from]
 
             if cmd.argc >= 1:
                 if is_float(cmd.args[0]):
@@ -65,11 +68,11 @@ class Value(Command):
                     return
 
                 div_from = cmd.args[0].upper()
-                if div_from not in self.div_defaults.keys():
+                if div_from not in self.div_handlers.keys():
                     await cmd.answer('formato incorrecto [3]. Formato: `{}`'.format(self.format))
                     return
 
-                div_to = self.div_defaults[div_from]
+                _, div_to = self.div_handlers[div_from]
 
             elif cmd.argc == 2:
                 if (is_float(cmd.args[0]) and not is_float(cmd.args[1])) \
@@ -81,11 +84,11 @@ class Value(Command):
                         await cmd.answer('formato incorrecto [4]. Formato: `{}`'.format(self.format))
                         return
 
-                    if div_from not in self.div_defaults.keys():
+                    if div_from not in self.div_handlers.keys():
                         await cmd.answer('formato incorrecto [5]. Formato: `{}`'.format(self.format))
                         return
 
-                    div_to = self.div_defaults[div_from]
+                    _, div_to = self.div_handlers[div_from]
                 else:
                     div_from = cmd.args[0]
                     div_to = cmd.args[1]
@@ -107,10 +110,7 @@ class Value(Command):
             div_to = div_to.upper()
 
             await cmd.typing()
-            if div_from in self.div_handlers.keys():
-                result = await self.div_handlers[div_from](div_to, mult)
-            else:
-                result = await self.handler(div_from, div_to, mult)
+            result = await self.handler(div_from, div_to, mult)
         except DivRetrievalError as e:
             await cmd.answer('error: ' + str(e))
             return
@@ -120,19 +120,19 @@ class Value(Command):
         await cmd.answer('{mult} {dfrom} = **{result}** {to}'.format(
             dfrom=div_from, to=div_to, mult=mult, result=result))
 
-    async def handler_utm(self, dv_to, mult):
-        val = await self.sbif('UTM')
-        return await self.handler('CLP', dv_to, mult * val)
-
-    async def handler_uf(self, dv_to, mult):
-        val = await self.sbif('UF')
-        return await self.handler('CLP', dv_to, mult * val)
-
+    """
+    Handles different types of currency supported by the different APIs connected here
+    """
     async def handler(self, dv_from, dv_to, mult):
+        if dv_from in self.div_handlers:
+            handler, default_to = self.div_handlers[dv_from]
+            val = await handler(dv_from)
+            return await self.handler(default_to, dv_to, mult * val)
+
         if dv_from == dv_to:
             return mult
-        else:
-            return await self.convert(dv_from, dv_to) * mult
+
+        return await self.convert(dv_from, dv_to) * mult
 
     #
     # Services readers
@@ -172,6 +172,9 @@ class Value(Command):
 
                 return value
 
+    async def convert_crypto(self, meme):
+        return await self.convert(meme, 'USD')
+
     async def sbif(self, api):
         # TODO: Cache
         attempts = 0
@@ -198,6 +201,21 @@ class Value(Command):
                     raise DivRetrievalError('no pude obtener los datos de divisas (UF) D:')
 
                 return value
+
+    async def orionx(self, meme):
+        q = [{
+            "query": "query getMarketStatsHome($x:ID){market(code:$x){lastTrade{price}}}",
+            "variables": {"x": meme + "CLP"}
+        }]
+
+        self.log.debug('Loading url %s for %s', baseurl_orionx, meme + "CLP")
+        async with self.http.post(baseurl_orionx, json=q, headers={'fingerprint': 'xd'}) as r:
+            try:
+                data = await r.json()
+                return data[0]['data']['market']['lastTrade']['price']
+            except KeyError:
+                raise DivRetrievalError('Datos no disponibles')
+        return 0
 
     def valid_currency(self, curr):
         if not isinstance(curr, str):
