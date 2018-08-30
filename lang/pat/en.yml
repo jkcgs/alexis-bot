@@ -1,0 +1,5 @@
+pat-help: Sends you an anime pat gif
+pat-format: $CMD <@user>
+pat-to-user-2: '{user_to}, {user_from} gave you a pat :3'
+pat-to-user: '{user_from}, have a pat :3'
+pat-to-bot: 'hey, don''t! O////O'

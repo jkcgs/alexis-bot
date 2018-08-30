@@ -1,0 +1,5 @@
+pat-help: Te envía un gif de animé de una palmada en la cabeza
+pat-format: $CMD <@usuario>
+pat-to-user-2: '{user_to}, {user_from} te ha dado una palmadita'
+pat-to-user: '{user_from}, toma una palmadita :3'
+pat-to-bot: 'oye no! D:'
