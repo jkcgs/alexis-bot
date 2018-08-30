@@ -40,10 +40,6 @@ class Value(Command):
         for m in cryptomemes:
             self.div_defaults[m.upper()] = 'USD'
 
-        self.div_decimals = {
-            'CLP': 0
-        }
-
     async def handle(self, cmd):
         div_from = 'USD'
         div_to = 'EUR'
@@ -119,7 +115,7 @@ class Value(Command):
             await cmd.answer('error: ' + str(e))
             return
 
-        precision = self.div_decimals.get(div_to, 2 if result >= 0.01 else 5)
+        precision = 5 if result < 1 else 2
         result = '{:.{prec}f}'.format(result, prec=precision)
         await cmd.answer('{mult} {dfrom} = **{result}** {to}'.format(
             dfrom=div_from, to=div_to, mult=mult, result=result))
