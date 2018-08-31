@@ -1,0 +1,5 @@
+poll-help: Creates a poll at strawpoll.me
+poll-format: '$CMD <title> | <option1> | <option2> | ... | [optionN] (at least 2 options)'
+poll-error-options: You need at least 2 options!
+poll-error-max: 'Up to {max} options are allowed'
+poll-options: Options
