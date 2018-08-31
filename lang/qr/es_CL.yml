@@ -1,0 +1,2 @@
+qr-help: Muestra la imagen de un código QR para un text dado
+qr-format: $CMD <texto>

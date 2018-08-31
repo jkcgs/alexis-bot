@@ -1,0 +1,5 @@
+random-help: Entrega un número entero aleatorio en un rango dado
+random-error-number-only: Solo se permiten números
+random-single-answer: >-
+  Tu número aleatorio entre {num1} y {num2}, LO CREAS O NO, es **{result}**
+  :open_mouth:

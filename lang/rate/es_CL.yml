@@ -1,0 +1,8 @@
+rate-help: Evalúa algo
+rate-special1: 'Entre 1 y 100, a {user} le doy :$'
+rate-special2: ufff me jui cortao
+rate-special-ew: saca esta weá porfa
+rate-special-self: "lo mejor, obvio \U0001F60E"
+rate-random-error: qué chucha
+rate-answer: 'A {thing} le doy {rate} de 100'
+rate-format: $CMD <texto o @usuario>

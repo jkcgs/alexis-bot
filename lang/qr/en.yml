@@ -1,0 +1,2 @@
+qr-help: Creates a QR code image for a given text
+qr-format: $CMD <text>

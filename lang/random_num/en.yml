@@ -1,0 +1,5 @@
+random-help: Chooses a random integer number between a given range
+random-error-number-only: Only integer numbers are allowed
+random-single-answer: >-
+  Your random number between {num1} and {num2}, BELIEVE IT OR NOT, is
+  **{result}** :open_mouth:

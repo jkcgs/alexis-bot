@@ -1,0 +1,8 @@
+rate-help: Evalúa algo
+rate-special1: 'Entre 1 y 100, a {user} le doy :wink:'
+rate-special2: No tengo memoria volátil suficiente para evaluar a dicho sujeto.
+rate-special-ew: "\U0001F922"
+rate-special-self: "Lo mejor \U0001F60E"
+rate-random-error: Qué es esto.
+rate-answer: 'A {thing} le doy {rate} de 100'
+rate-format: $CMD <texto o @usuario>
