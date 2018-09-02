@@ -1,0 +1,17 @@
+reddit-help: Allows you to create a subreddit feed in a channel
+reddit-format: $CMD <set|remove|list|posts>
+reddit-format-set: '$CMD <set|remove> <subreddit> [#channel=current]'
+reddit-error-sub-name: Invalid subreddit name
+reddit-error-channel-not-found: Channel not found in this server
+reddit-sub-added: 'Feed created for the {sub} subreddit in that channel'
+reddit-error-sub-already-added: There's already a feed for that sub in that channel
+reddit-sub-removed: The feed for that sub was removed from the channel
+reddit-no-following-subs: There are no subreddit feeds in this server
+reddit-format-posts: $CMD posts <redditor>
+reddit-user-posts-count: 'There are {num} post{s} registered for **/u/{redditor}**'
+reddit-user-no-posts: 'There are no posts registered for **/u/{redditor}**'
+reddit-message-title: 'New post in **/r/{sub}**'
+reddit-unknown-author: Unknown author
+reddit-media-link: Multimedia link
+reddit-error-not-followed: ''
+reddit-feeds-title: ''
