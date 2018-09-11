@@ -1,0 +1,2 @@
+reverse-format: $CMD <text>
+reverse-help: Reverts the text the user sends

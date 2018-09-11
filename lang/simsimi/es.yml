@@ -1,0 +1,6 @@
+simsimi-help: Hablar a SimSimi
+simsimi-not-available: 'No disponible :('
+simsimi-no-apikeys: No hay API keys disponibles.
+simsimi-no-answer: No sé.
+simsimi-no-apicalls: No quedan llamadas a API disponibles.
+simsimi-error: 'La cosa dio un error: {error}'
