@@ -19,7 +19,7 @@ class CleverbotHandler(Command):
             'cleverbot_apikey': ''
         }
 
-    def on_loaded(self):
+    async def on_ready(self):
         config_key = self.bot.config.get('cleverbot_apikey', '')
         if config_key == '':
             CleverbotHandler.check = False

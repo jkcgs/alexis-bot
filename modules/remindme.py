@@ -15,59 +15,61 @@ class RemindMe(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'remindme'
-        self.help = 'Te ayuda a recordar algo'
+        self.help = '$[remindme-help]'
+        self.usage = '$[remindme-usage]'
         self.db_models = [RemindMeEvent]
         self.category = categories.UTILITY
+        self.default_config = {
+            'remindme_text_limit': 150
+        }
 
     async def handle(self, evt):
+        text_limit = self.bot.config.get('remindme_text_limit', 150)
         last = RemindMeEvent.get_or_none((RemindMeEvent.userid == evt.author.id) & (RemindMeEvent.sent == False))
 
         if evt.argc < 2:
             if evt.argc == 0:
                 if last is None:
-                    await evt.answer('no tienes un recordatorio activo.')
+                    await evt.answer('$[remindme-no-active]')
                 else:
-                    await evt.answer('tienes un recordatorio activo! "{}". Usa `$CMD cancel` para cancelarlo.'.format(
-                        last.description))
+                    await evt.answer('$[remindme-already-active]')
             else:
                 if evt.args[0] == 'cancel':
                     if last is None:
-                        await evt.answer('no tienes un recordatorio activo.')
+                        await evt.answer('$[remindme-no-active]')
                     else:
                         last.sent = True
                         last.save()
-                        await evt.answer('recordatorio cancelado.')
+                        await evt.answer('$[remindme-cancelled]')
                 else:
-                    await evt.answer('formato: $CMD <tiempo> <mensaje>')
+                    await evt.answer('$[format]: $[remindme-usage]')
 
             return
 
         if last is not None:
-            await evt.answer('ya tienes un recordatorio activo: "{}". Usa `$CMD cancel` para cancelarlo.'.format(
-                last.description))
+            await evt.answer('$[remindme-already-active]')
             return
 
         if not pat_delta.match(evt.args[0]):
-            await evt.answer('tiempo de recordatorio incorrecto. El formato es NM1NM2(...), por ejemplo, '
-                             '1d, 3h30m, 3m15s, 30m, etc')
+            await evt.answer('$[remindme-error-time]')
             return
 
         dt = timediff_parse(evt.args[0])
         if dt.total_seconds() < 10 or dt.total_seconds() > 315705600:
-            await evt.answer('el tiempo de recordatorio debe estar entre 10 segundos y 10 años')
+            await evt.answer('$[remindme-error-limit]')
             return
 
         text = no_tags(' '.join(evt.args[1:]), self.bot, emojis=False).replace('\n', ' ')
-        if len(text) > 150:
-            await evt.answer('el texto del recordatorio sólo puede tener hasta 150 carácteres')
+        if len(text) > text_limit:
+            await evt.answer('$[remindme-error-text-limit]', locales={'max': text_limit, 'amount': len(text)})
             return
 
         time = datetime.now() + dt
         RemindMeEvent.create(userid=evt.author.id, description=text, alerttime=time)
 
-        await evt.answer('se te enviará un recordatorio con tu descripción ingresada en {delta} ({datetime})'.format(
-            delta=deltatime_to_str(dt), datetime=format_date(time)
-        ))
+        await evt.answer('$[remindme-success]', locales={
+            'delta': deltatime_to_str(dt), 'datetime': format_date(time)
+        })
 
     async def task(self):
         await self.bot.wait_until_ready()
@@ -80,7 +82,7 @@ class RemindMe(Command):
                 user = await self.bot.get_user_info(event.userid)
                 if user is not None:
                     emb = Embed(title='RemindMe!', description=event.description)
-                    emb.set_footer(text='Creada: {}'.format(
+                    emb.set_footer(text='$[remindme-footer] '.format(
                         format_date(event.created))
                     )
                     await self.bot.send_message(user, embed=emb)

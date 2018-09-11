@@ -54,7 +54,10 @@ class NextSteamSale(Command):
             'remaininghours': remaining_time[1]
         })
 
-    async def task(self):
+    async def on_ready(self):
+        self.bot.schedule(self.update_info, 43200)
+
+    async def update_info(self):
         try:
             self.log.debug('Cargando información de próxima oferta de Steam...')
             async with self.http.get(NextSteamSale.url) as s:
@@ -65,11 +68,3 @@ class NextSteamSale(Command):
         except Exception as err:
             self.log.error(err)
             raise err
-        finally:
-            if not self.bot.is_closed:
-                await asyncio.sleep(43200)  # 12h
-                self.bot.loop.create_task(self.task())
-            
-
-
-

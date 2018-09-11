@@ -52,7 +52,10 @@ class Sismos(Command):
         embed.set_footer(text='Última actualización: {}'.format(format_date(self.last_update)))
         await cmd.answer(embed)
 
-    async def task(self):
+    async def on_ready(self):
+        self.bot.schedule(self.update_info, 20)
+
+    async def update_info(self):
         await self.bot.wait_until_ready()
         first = self.last_events is None
         if first:
@@ -90,10 +93,6 @@ class Sismos(Command):
                             content='Alerta de sismo!',
                             embed=Sismos.make_embed(self.last_events[0])
                         )
-
-        if not self.bot.is_closed:
-            await asyncio.sleep(20)
-            self.bot.loop.create_task(self.task())
 
     @staticmethod
     def make_embed(data):
