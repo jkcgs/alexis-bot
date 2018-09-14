@@ -21,7 +21,7 @@ class Help(Command):
         if cmd.argc > 0:
             ins = self.bot.manager.get_cmd(cmd.args[0])
             if ins is None or (ins.owner_only and not cmd.owner) or (ins.bot_owner_only and not cmd.bot_owner):
-                await cmd.answer('comando no disponible')
+                await cmd.answer('$[command-not-available]')
             else:
                 format_cont = ins.format.replace('$CMD', cmd.prefix + cmd.args[0])
                 embed = Embed(title='$PX' + cmd.args[0], description=ins.help)

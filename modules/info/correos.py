@@ -44,7 +44,7 @@ class Correos(Command):
                 if data['error'] == 404:
                     await evt.answer('$[correos-code-notfound]')
                 else:
-                    await evt.answer('$[correos'.format(data['message']))
+                    await evt.answer('$[correos-error]', locales={'error': data['message']})
 
                 return
 
