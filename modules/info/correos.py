@@ -5,7 +5,7 @@ import discord
 from bot import Command, categories
 
 pat_code = re.compile('^[a-zA-Z0-9]{8,20}$')
-api_base = 'https://correos.owo.cl/{}'
+api_base = 'https://api.owo.cl/correos/{}'
 
 
 class Correos(Command):
@@ -15,12 +15,13 @@ class Correos(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'correos'
-        self.help = 'Tracking para el sistema de envíos de Correos de Chile'
+        self.help = '$[correos-help]'
+        self.format = '$[correos-format]'
         self.category = categories.INFORMATION
 
     async def handle(self, evt):
         if evt.argc == 0:
-            await evt.answer('formato: $CMD <código>')
+            await evt.answer('$[format]: $[correos-format]')
             return
 
         if not evt.is_pm:
@@ -29,11 +30,11 @@ class Correos(Command):
             except discord.Forbidden:
                 pass
 
-            await evt.answer('el comando **$CMD** solo puede ser ejecutado vía PM')
+            await evt.answer('$[correos-error-pm]')
             return
 
         if not pat_code.match(evt.args[0]):
-            await evt.answer('código incorrecto')
+            await evt.answer('$[correos-invalid-code]')
             return
 
         await evt.typing()
@@ -41,12 +42,12 @@ class Correos(Command):
             data = await req.json()
             if 'error' in data:
                 if data['error'] == 404:
-                    await evt.answer('código no encontrado')
+                    await evt.answer('$[correos-code-notfound]')
                 else:
-                    await evt.answer('error: {}'.format(data['message']))
+                    await evt.answer('$[correos'.format(data['message']))
 
                 return
 
             last_entry = data['entries'][0]
-            desc = '{} *({})*\n**Lugar**: {}'.format(last_entry['status'], last_entry['datetime'], last_entry['place'])
-            await evt.answer_embed(desc, 'Estado envío')
+            desc = '{} *({})*\n**$[correos-location]**: {}'.format(last_entry['status'], last_entry['datetime'], last_entry['place'])
+            await evt.answer_embed(desc, '$[correos-title]')

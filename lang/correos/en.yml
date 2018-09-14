@@ -1,0 +1,8 @@
+correos-help: Tracking information for Correos de Chile
+correos-format: $CMD <tracking_code>
+correos-error-pm: This command can only be executed vía PM.
+correos-invalid-code: Invalid tracking code.
+correos-code-notfound: Information not available for this code.
+correos-error-message: 'Error: {error}'
+correos-location: Location
+correos-title: Delivery status

@@ -1,0 +1,8 @@
+correos-help: Información de rastreo de envíos de Correos de Chile
+correos-format: $CMD <codigo_de_rastreo>
+correos-error-pm: Este comando sólo puede ser ejecutado vía mensaje privado.
+correos-invalid-code: Código de rastreo incorrecto.
+correos-code-notfound: No hay información disponible para este código.
+correos-error-message: 'Error: {error}'
+correos-location: Ubicación
+correos-title: Estado del envío
