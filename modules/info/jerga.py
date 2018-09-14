@@ -11,7 +11,7 @@ class Jerga(Command):
         super().__init__(bot)
         self.name = 'jerga'
         self.aliases = ['dc']
-        self.help = 'Obtiene una definición desde Diccionario Chileno'
+        self.help = '$[jerga-help]'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
@@ -25,12 +25,15 @@ class Jerga(Command):
                 div_definition = soup.find_all('div', class_='definition')
                 resultado = ""
                 if len(div_definition) == 0:
-                    await cmd.answer('la palabra no existe en Diccionario Chileno')
+                    await cmd.answer('$[jerga-not-found]')
                     return
 
                 for i in range(len(div_definition)):
                     pgraph = div_definition[i].find_all('p')
-                    resultado = resultado + "**" + str(i+1) + ".- " + str(pgraph[0]).strip('<p>\n\t\t').strip('\t</p>').replace('<br/>\r\n','\n') + "**\n*\"" + str(pgraph[1]).strip('<p>\n<i>').strip('</i>\n</p>').replace('<br/>\r\n','\n') + "\"*\n\n"
+                    resultado = resultado + "**" + str(i+1) + ".- " + \
+                        str(pgraph[0]).strip('<p>\n\t\t').strip('\t</p>').replace('<br/>\r\n', '\n') + "**\n*\"" + \
+                        str(pgraph[1]).strip('<p>\n<i>').strip('</i>\n</p>').replace('<br/>\r\n', '\n') + "\"*\n\n"
+
                 embed = Embed()
                 embed.title = text
                 embed.url = Jerga.url + text_url
