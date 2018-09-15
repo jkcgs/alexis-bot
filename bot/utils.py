@@ -179,16 +179,16 @@ def serialize_avail(avails):
 def deltatime_to_str(deltatime):
     result = []
     if deltatime.days > 0:
-        result.append(str(deltatime.days) + ' día{}'.format('' if deltatime.days == 1 else 's'))
+        result.append(str(deltatime.days) + ' $[day{}]'.format('' if deltatime.days == 1 else 's'))
     m, s = divmod(deltatime.seconds, 60)
     h, m = divmod(m, 60)
 
     if h > 0:
-        result.append(str(h) + ' hora{}'.format('' if h == 1 else 's'))
+        result.append(str(h) + ' $[hour{}]'.format('' if h == 1 else 's'))
     if m > 0:
-        result.append(str(m) + ' minuto{}'.format('' if m == 1 else 's'))
+        result.append(str(m) + ' $[minute{}]'.format('' if m == 1 else 's'))
     if s > 0:
-        result.append(str(s) + ' segundo{}'.format('' if s == 1 else 's'))
+        result.append(str(s) + ' $[second{}]'.format('' if s == 1 else 's'))
 
     if len(result) == 0:
         result = ['ahora']

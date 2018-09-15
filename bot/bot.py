@@ -110,9 +110,10 @@ class AlexisBot(discord.Client):
 
         # Handle locales
         if kwargs['locales'] is not None:
-            kwargs['content'] = replace_everywhere(kwargs['content'], kwargs['locales'])
+            kwargs['content'] = kwargs['event'].lang.format(replace_everywhere(kwargs['content'], kwargs['locales']))
             if kwargs['embed'] is not None:
                 kwargs['embed'] = replace_everywhere(kwargs['embed'], kwargs['locales'])
+                kwargs['event'].lang.format(kwargs['embed'])
 
         # Log the message
         dest = destination_repr(kwargs['destination'])

@@ -20,7 +20,7 @@ class Language:
             self.load()
 
     def load(self):
-        log.info('Cargando archivos de idioma...')
+        log.info('Loading language files...')
 
         self.lib = {}
         p = path.join(self.path, "**{s}*.yml".format(s=path.sep))
@@ -46,7 +46,7 @@ class Language:
 
                     self.lib[lang][k] = str(v)
 
-        log.info('Cargado{s} %i archivo{s}'.format(s=['s', ''][int(fcount == 1)]), fcount)
+        log.info('Loaded %i file{s}'.format(s=['s', ''][int(fcount == 1)]), fcount)
 
     def get(self, name, __lang=None, **kwargs):
         if __lang is None:
@@ -65,9 +65,13 @@ class Language:
             try:
                 text = text.format(**kwargs)
             except KeyError:
-                log.warn('No se pudo formatear el texto "%s" con las variables %s', text, kwargs)
+                log.warn('Could not format the "%s" text with the %s variables', text, kwargs)
 
         return text
+
+    def get_list(self, name, separator='|', __lang=None, **kwargs):
+        val = self.get(name, __lang, **kwargs)
+        return [f.strip() for f in val.split(separator) if f.strip() != '']
 
     def has(self, lang):
         return lang in self.lib
@@ -80,6 +84,9 @@ class SingleLanguage:
 
     def get(self, name, **kwargs):
         return self.instance.get(name, self.lang, **kwargs)
+
+    def get_list(self, name, separator='|', **kwargs):
+        return self.instance.get_list(name, separator, self.lang, **kwargs)
 
     def format(self, message, locales=None):
         if isinstance(message, str):

@@ -42,7 +42,7 @@ class NextSteamSale(Command):
             remaining_time.insert(1, "00:00:00")
             e.add_field(name='$[nss-remaining-time]', value='$[nss-sales-have-begun]', inline=False)
         else:
-            e.add_field(name='$[nss-remaining-time]', value='$[nss-remaining-time-value]' , inline=False)
+            e.add_field(name='$[nss-remaining-time]', value='$[nss-remaining-time-value]', inline=False)
 
         await cmd.answer(embed=e, locales={
             'startdate': start_date[0],
@@ -59,7 +59,7 @@ class NextSteamSale(Command):
 
     async def update_info(self):
         try:
-            self.log.debug('Cargando información de próxima oferta de Steam...')
+            self.log.debug('Loading next Steam sale information...')
             async with self.http.get(NextSteamSale.url) as s:
                 content = await s.text()
                 soup = BeautifulSoup(content, 'html.parser')

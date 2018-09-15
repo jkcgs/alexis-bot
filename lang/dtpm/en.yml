@@ -1,0 +1,10 @@
+dtpm-help: Displays next bus arrivals to a Transantiago bus stop.
+dtpm-format: '$CMD <bus_stop> [bus_line]'
+dtpm-error-invalid-stop: Invalid bus stop
+dtpm-error-invalid-line: Invalid bus line
+dtpm-error: 'Error: *{error}*'
+dtpm-error-not-found: 'Error: no information found for this bus stop, or it doesn''t exist.'
+dtpm-no-arrivals: No next arrivals found for this line
+dtpm-estimated-time: 'Estimated arrival time: **{time}** (plate: *{plate}*)'
+dtpm-next-arrivals: 'Next arrivals for stop {stop}'
+dtpm-error-raised: An error ocurred while fetching the information.

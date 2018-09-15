@@ -12,3 +12,12 @@ channel-not-found: channel not found
 channel-saved: channel saved
 answer-for: 'To {author}'
 command-not-available: Command not available
+day: day
+days: days
+hour: hour
+hours: hours
+minute: minute
+minutes: minutes
+second: second
+seconds: seconds
+now: now

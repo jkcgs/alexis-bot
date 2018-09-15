@@ -1,0 +1,10 @@
+dtpm-help: Muestra próximas llegadas de buses a un paradero de Transantiago.
+dtpm-format: '$CMD <parada> [recorrido]'
+dtpm-error-invalid-stop: Formato de parada de bus incorrecto
+dtpm-error-invalid-line: Formato de recorrido incorrecto
+dtpm-error: 'Error: *{error}*'
+dtpm-error-not-found: 'Error: no se encontró información o el paradero no existe.'
+dtpm-no-arrivals: No hay llegadas próximas para ese recorrido.
+dtpm-estimated-time: 'Tiempo estimado de llegada: **{time}** (patente: *{plate}*)'
+dtpm-next-arrivals: 'Próximas llegadas paradero {stop}'
+dtpm-error-raised: Ocurrió un error al obtener la información.

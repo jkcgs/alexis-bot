@@ -1,0 +1,3 @@
+jerga-help: Fetches a definition from the Diccionario Chileno (Spanish only)
+jerga-not-found: Word not available at Diccionario Chileno
+jerga-footer: 'Taken from {site}'

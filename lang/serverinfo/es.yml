@@ -1,0 +1,21 @@
+serverinfo-format: $CMD <nombre de servidor o ID>
+serverinfo-not-found: Servidor no encontrado.
+serverinfo-title: Información de servidor
+serverinfo-name: '**Nombre**'
+serverinfo-owner: '**Dueño**'
+serverinfo-created: '**Creado**'
+serverinfo-members: >-
+  tiene **{memberscount} miembros**, *{botcount} {botword}* y *{emojicount}
+  {emojiword}*.
+serverinfo-bot: bot
+serverinfo-bots: bots
+serverinfo-emoji: emoji
+serverinfo-emojis: emojis
+serverinfo-since: '*desde {creationdiff}*'
+serverinfo-voice-region: '**Región de voz**'
+serverinfo-feature-bigserver: servidor grande
+serverinfo-feature-vipregions: regiones de voz VIP
+serverinfo-feature-vanity: URL personalizada
+serverinfo-feature-splash: imagen de fondo en invite
+serverinfo-2fa: require autentificación en dos pasos
+serverinfo-other: '**Otros**'
