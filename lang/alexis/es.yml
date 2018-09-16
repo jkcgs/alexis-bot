@@ -21,3 +21,4 @@ minutes: minutos
 second: segundo
 seconds: segundos
 now: ahora
+error: 'Error: {errortext}'

@@ -21,3 +21,4 @@ minutes: minutes
 second: second
 seconds: seconds
 now: now
+error: 'Error: {errortext}'

@@ -1,0 +1,12 @@
+value-help: >-
+  Currencies information and conversion. Includes some cryptocurrencies
+  information.
+value-format: '$CMD [amount] <currency-from> <currency-to>'
+value-error-currency: Invalid currency.
+value-error-answer: Unexpected answer.
+value-error-unavailable: Currency value is not available.
+value-error-sbif-key: SBIF API key not set up.
+value-error-sbif: Could not retrieve data from Chile's SBIF.
+value-error-data-not-available: Data not available.
+value-format-short: '$CMD [amount] [currency-to]'
+value-error-apikey: Main conversion API doesn't have its api key setup.
