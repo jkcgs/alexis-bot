@@ -1,0 +1,8 @@
+urban-help: Displays an Urban Dictionary definition
+urban-format: '$CMD [word]'
+urban-error-fetch: Could not fetch the information from Urban Dictionary.
+urban-cont-by: by
+urban-cont-definition: '**Definition**'
+urban-cont-example: '**Example**'
+urban-cont-tags: '**Tags**'
+urban-default-word: lmao
