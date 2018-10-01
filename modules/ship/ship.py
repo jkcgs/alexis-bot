@@ -9,20 +9,21 @@ class ShipperUwU(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ship'
-        self.help = 'Forma parejas entre dos usuarios'
+        self.help = '$[ship-help]'
+        self.format = '$[ship-format]'
         self.allow_pm = False
         self.category = categories.IMAGES
 
     async def handle(self, cmd):
         if cmd.argc != 2:
-            await cmd.answer('formato: $CMD @usuario1 @usuario2')
+            await cmd.answer('$[format]: $[ship-format]')
             return
 
         # obtener menciones en el mismo orden en el que se escribieron
         item1 = await get_details(cmd, cmd.args[0])
         item2 = await get_details(cmd, cmd.args[1])
         if item1 is None or item2 is None:
-            await cmd.answer('formato: $CMD @usuario1 @usuario2')
+            await cmd.answer('$[format]: $[ship-format]')
             return
 
         item1_name, item1_url = item1
@@ -30,18 +31,18 @@ class ShipperUwU(Command):
 
         # verificar que los usuarios no son iguales po jaja
         if item1_url == item2_url:
-            await cmd.answer('sabías que para formar una pareja necesitas a dos personas? :3')
+            await cmd.answer('$[ship-err-same]')
             return
 
         await cmd.typing()
-        self.log.debug('Generando imagen...')
+        self.log.debug('Generating picture...')
 
         # Descargar avatares
         async with self.http.get(item1_url) as resp:
-            self.log.debug('Descargando avatar usuario 1 - %s', item1_url)
+            self.log.debug('Downloading user1 avatar - %s', item1_url)
             user1_avatar = await resp.read()
         async with self.http.get(item2_url) as resp:
-            self.log.debug('Descargando avatar usuario 2 - %s', item2_url)
+            self.log.debug('Downloading user2 avatar - %s', item2_url)
             user2_avatar = await resp.read()
 
         # Abrir avatares y cambiar su tamaño
@@ -61,12 +62,12 @@ class ShipperUwU(Command):
         temp = BytesIO()
         result.save(temp, format='PNG')
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
-        self.log.debug('Imagen lista!')
+        self.log.debug('Image ready!')
 
         # Generar nombre del ship y enviar con la imagen
         ship_name = item1_name[0:int(len(item1_name) / 2)] + item2_name[int(len(item2_name) / 2):]
-        await self.bot.send_file(cmd.message.channel, temp, filename='ship.png',
-                                 content='Formando la pareja: **{}**'.format(ship_name))
+        msg = cmd.lang.format('$[ship-msg]', locales={'ship_name': ship_name})
+        await self.bot.send_file(cmd.message.channel, temp, filename='ship.png', content=msg)
 
 
 async def get_details(cmd, text):

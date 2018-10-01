@@ -1,0 +1,4 @@
+ship-help: Ships two users and creates a picture with the users' avatars.
+ship-format: $CMD @user1 @user2
+ship-err-same: 'Did you now that you need two people to ship them? :3'
+ship-msg: 'Lovely shipping: **{ship_name}**'
