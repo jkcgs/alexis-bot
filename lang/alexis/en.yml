@@ -22,3 +22,4 @@ second: second
 seconds: seconds
 now: now
 error: 'Error: {errortext}'
+command-delayed: You still can't use this command

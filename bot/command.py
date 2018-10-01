@@ -34,7 +34,7 @@ class Command:
 
         self.user_delay = 0
         self.users_delay = {}
-        self.user_delay_error = 'aún no puedes usar este comando'
+        self.user_delay_error = '$[command-delayed]'
         self.db_models = []
 
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
@@ -57,10 +57,9 @@ class Command:
 
     def get_lang(self, svid=None):
         """
-        Genera una instancia de SingleLanguage para un servidor en específico o con el idioma predeterminado.
-        :param svid: El ID del servidor para obtener el idioma. Si es None, se devuelve una instancia con el idioma
-        predeterminado.
-        :return: La instancia de SingleLanguage con el idioma obtenido.
+        Creates a SingleLanguage instance for a server specific or default language.
+        :param svid: The server ID to get the language. If it's None, the default language is used.
+        :return: The SingleLanguage instance with the determined language.
         """
         if svid is None:
             lang_code = self.bot.config['default_lang']
@@ -69,25 +68,3 @@ class Command:
             lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'])
 
         return SingleLanguage(self.bot.lang, lang_code)
-
-    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
-        """
-        Llamada al bot de send_message que agrega parámetros de reemplazo de textos
-        :param destination: Dónde enviar un mensaje, como discord.Channel, discord.User, discord.Object, entre otros.
-        :param content: El contenido textual a enviar
-        :param tts: El mensaje es TTS (text to speech).
-        :param embed: Enviar un embed con el mensaje.
-        :param locales: Mensajes a reemplazar en el contenido y embed.
-        :param event: El evento que origina el mensaje. Se usa para entregárselo a los respectivos handlers.
-        :return:
-        """
-        if locales is None:
-            locales = {}
-
-        px = get_prefix(destination.id if isinstance(content, discord.Server) else None)
-        locales['$PX'] = px
-        if event is not None:
-            locales['$NM'] = event.cmdname
-            locales['$CMD'] = px + event.cmdname
-
-        await self.bot.send_message(destination, content, tts=tts, embed=embed, locales=locales, event=event)
