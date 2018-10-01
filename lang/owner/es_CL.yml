@@ -1,0 +1,38 @@
+info-help: Muestra la información del bot
+info-authors: Autores
+info-version: Versión
+clr-help: Elimina las reacciones de uno o más mensajes
+clr-format: '$CMD [#canal=actual] <id_mensaje1> ... <id_mensajeN>'
+clr-err-ids: Por favor ingresa formatos de IDs compatibles.
+clr-err-any-singular: No se pudo limpiar las reacciones del mensaje
+clr-err-any: No se pudo limpiar las reacciones de ningún mensaje
+clr-err-not-found: El mensaje no pudo ser encontrado
+clr-err-some-not-found: Algunos mensajes no pudieron ser encontrados
+clr-err-single-not-found: 'El mensaje {message_id} no pudo ser encontrado.'
+clr-err-some-deleted: Se eliminaron las reacciones de algunos mensajes
+clr-success: Reacciones eliminadas correctamente
+prefix-help: 'Cambia el prefijo para los comandos (predeterminado: `!`)'
+prefix-current: >-
+  El prefijo actual es `$PX`.\nPuedes cambiarlo con $PX{command_name} <prefijo>
+  o "{self_mention} <prefijo>"
+prefix-set: 'Prefijo configurado como `{new_prefix}`.'
+cmd-help: Permite activar o desactivar algún comando.
+cmd-format: >-
+  $CMD <enable|disable> <comando> - $CMD (+/-)<comando> (ejemplo: `$CMD -ping`
+  para desactivar el comando *ping*).
+cmd-not-found: El comando no existe.
+cmd-not-allowed: No puedes cambiar el ajuste para este comando.
+cmd-already-enabled: El comando ya está activado.
+cmd-enabled: Comando activado correctamente.
+cmd-already-disabled: El comando ya está desactivado.
+cmd-disabled: Comando desactivado correctamente.
+owr-help: Cambia la configuración de roles de propietario.
+owr-format: '$CMD <set/add/remove/list> [rol/roles...]'
+owr-role-not-found: Rol no encontrado.
+owr-already-owner: El rol ya es de owner.
+owr-set: 'El rol de owner ahora es **{role_name}**.'
+owr-added: 'Rol **{role_name}** agregado como owner.'
+owr-not-owner: Ese rol no es de owner.
+owr-removed: 'El rol **{role_name}** ya no es owner.'
+owr-title: 'Roles owner:'
+owr-usr: usuario

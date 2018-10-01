@@ -1,5 +1,5 @@
-modlog-new-user: '¡New user! <@{mid}> ID: **{mid}**'
-modlog-user-left: 'The user <@{mid}> ("{name}", {mid}) left, and stayed by {dt}.'
+modlog-new-user: 'New user! <@{mid}> ID: **{mid}**'
+modlog-user-left: 'The user <@{mid}> ("{username}", {mid}) left, and stayed by {dt}.'
 modlog-msg-sent: Sent
 modlog-msg-edited: edited
 modlog-no-text: no text

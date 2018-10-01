@@ -1,0 +1,38 @@
+info-help: Displays bot information
+info-authors: Authors
+info-version: Version
+clr-help: Removes one or more messages' reactions.
+clr-format: '$CMD [#channel=current] <id_message1> ... <id_messageN>'
+clr-err-ids: Please send compatible IDs.
+clr-err-any-singular: Could not clear message's reactions.
+clr-err-any: Could not clear any message's reactions.
+clr-err-not-found: Message could not be found.
+clr-err-some-not-found: Some messages could not be found
+clr-err-single-not-found: 'Message {message_id} could not be found.'
+clr-err-some-deleted: The reactions of some messages could be clear.
+clr-success: Reactions removed successfully.
+prefix-help: 'Changes comands prefix (default: `!`)'
+prefix-current: >-
+  Current prefix is `$PX`.\nYou can change it with $PX{command_name} <prefix> or
+  "{self_mention} <prefix>"
+prefix-set: 'Prefix set to `{new_prefix}`.'
+cmd-help: Allows to enable or disable a command.
+cmd-format: >-
+  $CMD <enable|disable> <command> - $CMD (+/-)<command> (example: `$CMD -ping`
+  to disable the *ping* command).
+cmd-not-found: That command does not exist.
+cmd-not-allowed: You can't change this command.
+cmd-already-enabled: That command is already enabled.
+cmd-enabled: Command successfully enabled.
+cmd-already-disabled: That command is already disabled.
+cmd-disabled: Command successfully disabled.
+owr-help: Changes owner roles settings.
+owr-format: '$CMD <set/add/remove/list> [rol/roles...]'
+owr-role-not-found: Role not found.
+owr-already-owner: That role is already marked as owner.
+owr-set: 'Owner role set to **{role_name}**.'
+owr-added: 'Role **{role_name}** marked as owner.'
+owr-not-owner: That's not an owner role.
+owr-removed: 'The **{role_name}** role is now removed as owner.'
+owr-title: 'Owner roles:'
+owr-usr: user

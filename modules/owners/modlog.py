@@ -28,7 +28,7 @@ class ModLog(Command):
     async def on_member_remove(self, member):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
         await self.bot.send_modlog(member.server, '$[modlog-user-left]',
-                                   locales={'mid': member.id, 'name': str(member), 'dt': dt})
+                                   locales={'mid': member.id, 'username': str(member), 'dt': dt})
 
     async def on_message_delete(self, message):
         if message.server is None or message.author.id == self.bot.user.id:

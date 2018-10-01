@@ -1,4 +1,4 @@
-lang-not-available: idioma no disponible
-current-lang: 'idioma actual: **{lang}**'
-lang-set-to: 'idioma **{lang}** seleccionado'
-lang-cmd-help: cambia el idioma del bot para el servidor actual
+lang-not-available: Idioma no disponible.
+current-lang: 'Idioma actual: **{lang}**'
+lang-set-to: 'Idioma **{lang}** seleccionado.'
+lang-cmd-help: Cambia el idioma del bot para la guild actual.

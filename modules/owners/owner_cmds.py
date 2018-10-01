@@ -15,11 +15,11 @@ class InfoCmd(Command):
         super().__init__(bot)
         self.name = 'info'
         self.aliases = ['version']
-        self.help = 'Muestra la información del bot'
+        self.help = '$[info-help]'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
-        info_msg = "```\nAutores: {}\nVersión: {}```"
+        info_msg = "```\n$[info-authors]: {}\n$[info-version]: {}```"
         info_msg = info_msg.format(AlexisBot.__author__, AlexisBot.__version__)
         await cmd.answer(info_msg)
 
@@ -29,13 +29,13 @@ class ClearReactions(Command):
         super().__init__(bot)
         self.name = 'clearreactions'
         self.aliases = ['clr']
-        self.help = 'Elimina las reacciones de uno o más mensajes'
+        self.help = '$[clr-help]'
         self.owner_only = True
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM [#canal=actual] <id_mensaje1> ... <id_mensajeN>')
+            await cmd.answer('$[format]: $[clr-format]')
             return
 
         await cmd.typing()
@@ -48,7 +48,7 @@ class ClearReactions(Command):
 
         filtered_len = len([f for f in cmd.args if rx_snowflake.match(f)])
         if cmd.argc != filtered_len:
-            await cmd.answer('Por favor ingresa formatos de IDs compatibles')
+            await cmd.answer('$[clr-err-ids]')
             return
 
         success_count = 0
@@ -64,29 +64,32 @@ class ClearReactions(Command):
                 not_found.append(arg)
 
         if success_count == 0:
-            msg_suffix = 'del mensaje' if cmd.argc == 1 else 'de ningún mensaje'
-            msg = 'no se pudo limpiar las reacciones ' + msg_suffix
+            msg = ['$[clr-err-any]', '$[clr-err-any-singular]'][cmd.argc == 1]
+            locales = {}
             if len(not_found) > 0:
                 if cmd.argc == 1:
-                    msg += ': el mensaje no pudo ser encontrado'
+                    msg += ': $[clr-err-not-found]'
                 elif len(not_found) > 1:
-                    msg += ': algunos mensajes no pudieron ser encontrados '
+                    msg += ': $[clr-err-some-not-found] '
                     msg += '({})'.format(', '.join(not_found))
                 else:
-                    msg += ': el mensaje {} no pudo ser encontrado'.format(not_found[0])
-            await cmd.answer()
+                    msg += ': $[clr-err-single-not-found]'
+                    locales['message_id'] = not_found[0]
+            await cmd.answer(msg, locales=locales)
         elif success_count < cmd.argc:
-            msg = 'se eliminaron las reacciones de algunos mensajes'
+            msg = '$[clr-err-some-deleted]'
+            locales = {}
 
             if len(not_found) > 1:
-                msg += ': no se encontraron algunos mensajes '
+                msg += ': $[clr-err-some-not-found] '
                 msg += '({})'.format(', '.join(not_found))
             else:
-                msg += ': el mensaje {} no pudo ser encontrado'.format(not_found[0])
+                msg += ': clr-err-single-not-found'
+                locales['message_id'] = not_found[0]
 
-            await cmd.answer(msg)
+            await cmd.answer(msg, locales=locales)
         else:
-            await cmd.answer('reacciones eliminadas correctamente')
+            await cmd.answer('$[clr-success]')
 
 
 class ChangePrefix(Command):
@@ -95,7 +98,7 @@ class ChangePrefix(Command):
         self.mention_handler = True
         self.name = 'prefix'
         self.aliases = ['changeprefix']
-        self.help = 'Cambia el prefijo para los comandos'
+        self.help = '$[prefix-help]'
         self.owner_only = True
         self.category = categories.STAFF
 
@@ -104,36 +107,37 @@ class ChangePrefix(Command):
             return
 
         if cmd.argc < 1:
-            msg = 'el prefijo actual es `$PX`.\nPuedes cambiarlo con $PX{} <prefijo> o "{} <prefijo>"'
-            await cmd.answer(msg.format(self.name, self.bot.user.mention))
+            await cmd.answer('$[prefix-current]',
+                             locales={'command_name': self.name, 'self_mention': self.bot.user.mention})
             return
 
         if len(cmd.text) > 3:
             return
 
         cmd.config.set('command_prefix', cmd.args[0])
-        await cmd.answer('prefijo configurado como {}'.format(cmd.args[0]))
+        await cmd.answer('$[prefix-set]', locales={'new_prefix': cmd.args[0]})
 
 
 class CommandConfig(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'cmd'
-        self.help = 'Permite activar o desactivar algún comando'
+        self.help = '$[cmd-help]'
+        self.format = '$[cmd-format]'
         self.owner_only = True
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 2:
-            await cmd.answer('formato: $PX$NM <enable|disable> <comando>')
+            await cmd.answer('$[format]: $[cmd-format]')
             return
 
         if cmd.args[1] not in self.bot.manager:
-            await cmd.answer('el comando no existe')
+            await cmd.answer('$[cmd-not-found]')
             return
 
         if cmd.args[1] == self.name:
-            await cmd.answer('no puedes cambiar el ajuste para este comando')
+            await cmd.answer('$[cmd-not-allowed]')
             return
 
         avail = serialize_avail(cmd.config.get('cmd_status', ''))
@@ -142,37 +146,38 @@ class CommandConfig(Command):
 
         if cmd.args[0] == 'enable':
             if current == '+':
-                await cmd.answer('el comando ya está activado')
+                await cmd.answer('$[cmd-already-enabled]')
                 return
             else:
                 avail[cmd_ins.name] = '+'
                 cmd.config.set('cmd_status', unserialize_avail(avail))
-                await cmd.answer('comando activado correctamente')
+                await cmd.answer('$[cmd-enabled]')
                 return
         elif cmd.args[0] == 'disable':
             if current == '-':
-                await cmd.answer('el comando ya está desactivado')
+                await cmd.answer('$[cmd-already-disabled]')
                 return
             else:
                 avail[cmd_ins.name] = '-'
                 cmd.config.set('cmd_status', unserialize_avail(avail))
-                await cmd.answer('comando desactivado correctamente')
+                await cmd.answer('$[cmd-disabled]')
                 return
         else:
-            await cmd.answer('este subcomando no existe')
+            await cmd.answer('$[format]: $[cmd-format]')
 
 
 class OwnerRoles(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ownerrole'
-        self.help = 'Cambia la configuración de roles de propietario'
+        self.help = '$[owr-help]'
+        self.format = '$[owr-format]'
         self.owner_only = True
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <set/add/remove/list> [rol/roles...]')
+            await cmd.answer('$[format]: $[owr-format]')
             return
 
         await cmd.typing()
@@ -181,39 +186,39 @@ class OwnerRoles(Command):
 
         if cmd.args[0] in ['set', 'add', 'remove']:
             if cmd.argc < 2:
-                await cmd.answer('formato: $PX$NM <comando> [rol/roles...]')
+                await cmd.answer('$[format]: $[owr-format]')
                 return
 
             cmd_role = ' '.join(cmd.args[1:])
             role = get_server_role(cmd.message.server, cmd_role)
             if role is None and cmd_role not in owner_roles:
-                await cmd.answer('el rol no fue encontrado')
+                await cmd.answer('$[owr-role-not-found]')
                 return
 
             if cmd.args[0] == 'set':
                 if role is None:  # doble check
-                    await cmd.answer('el rol no fue encontrado')
+                    await cmd.answer('$[owr-role-not-found]')
                     return
 
                 cmd.config.set('owner_roles', role.id)
-                await cmd.answer('el rol de owner ahora es **{}**'.format(role.name))
+                await cmd.answer('$[owr-set]', locales={'role_name': role.name})
             elif cmd.args[0] == 'add':
                 if role.id in owner_roles:
-                    await cmd.answer('El rol ya es de owner')
+                    await cmd.answer('$[owr-already-owner]')
                     return
 
                 cmd.config.set('owner_roles', '\n'.join(owner_roles + [role.id]))
-                await cmd.answer('rol **{}** agregado como de owner'.format(role.name))
+                await cmd.answer('$[owr-added]', locales={'role_name': role.name})
             elif cmd.args[0] == 'remove':
                 if role.id not in owner_roles:
-                    await cmd.answer('Ese rol no es de owner')
+                    await cmd.answer('$[owr-not-owner]')
                     return
 
                 owner_roles.remove(role.id)
                 cmd.config.set('owner_roles', '\n'.join(owner_roles))
-                await cmd.answer('el rol **{}** ahora ya no es owner'.format(role.name))
+                await cmd.answer('$[owr-removed]', locales={'role_name': role.name})
         elif cmd.args[0] == 'list':
-            msg = 'Roles owner: '
+            msg = '$[owr-title] '
             msg_list = []
             for roleid in owner_roles:
                 srole = get_server_role(cmd.message.server, roleid)
@@ -222,12 +227,12 @@ class OwnerRoles(Command):
                 else:
                     member = cmd.message.server.get_member(roleid)
                     if member is not None:
-                        msg_list.append('usuario:' + member.display_name)
+                        msg_list.append('$[owr-usr]:' + member.display_name)
                     else:
                         msg_list.append('id:' + roleid)
             await cmd.answer(msg + ', '.join(msg_list))
         else:
-            await cmd.answer('no existe este subcomando')
+            await cmd.answer('$[owr-format]')
 
 
 class SetLanguage(Command):
@@ -235,14 +240,14 @@ class SetLanguage(Command):
         super().__init__(bot)
         self.name = 'setlanguage'
         self.aliases = ['setlang', 'lang']
-        self.help = 'Determina el idioma del bot'
+        self.help = '$[lang-cmd-help]'
         self.category = categories.STAFF
         self.allow_pm = False
         self.owner_only = True
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            self.log.debug('lang updated to %s for server %s', cmd.config.get('lang'), cmd.server)
+            self.log.debug('Lang updated to %s for server %s', cmd.config.get('lang'), cmd.server)
             await cmd.answer('$[current-lang]', locales={'lang': cmd.config.get('lang')})
             return
 
