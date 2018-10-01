@@ -1,0 +1,41 @@
+modlog-new-user: '¡Nuevo usuario! <@{mid}> ID: **{mid}**'
+modlog-user-left: 'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor. Estuvo por {dt}.'
+modlog-msg-sent: Enviado
+modlog-msg-edited: editado
+modlog-no-text: sin texto
+modlog-file-name: Nombre del archivo
+modlog-attatched: Archivos adjuntos
+modlog-attached-other: Otros archivos adjuntos
+modlog-attached-single: Archivo adjunto
+modlog-attached-other-single: Otro archivo adjunto
+modlog-user-deleted-msg: '**{username}** ha borrado su mensaje en el canal {channel_name}.'
+modlog-bot-deleted-msg: 'He borrado un mensaje de **{username}** en el canal {channel_name}.'
+modlog-user-deleted-other: >-
+  **{deleter_name}** ha borrado un mensaje de **{username}** en el canal
+  {channel_name}.
+modlog-somehow-deleted-msg: 'Se ha borrado un mensaje de **{username}** en el canal {channel_name}.'
+modlog-e-name: Nombre
+modlog-e-nick: Nick
+modlog-e-user-created: Usuario creado el
+modlog-e-user-join: Se unió al server el
+modlog-e-stance: Estancia en el server
+modlog-no-nick: Ninguno.
+modlog-e-notes: Notas
+modlog-e-names: Nombres
+modlog-e-age: Edad de la cuenta
+modlog-no-notes: (sin notas)
+modlog-channel-help: Determina el canal de registros de moderación
+modlog-channel-format: '$CMD <#canal>'
+modlog-channel-err-off: Por favor ingresa un canal u "off" como valor.
+modlog-channel-off: Información y registro de usuarios desactivado.
+modlog-channel-set: 'Canal de información de usuarios actualizado a <#{channel_id}>'
+modlog-note-err-length: El tamaño de la nota de usuario no debe exceder los 1000 carácteres.
+modlog-note-help: Define una nota para el usuario.
+modlog-note-set: Nota de usuario definida.
+modlog-username-changed: 'El usuario "*{prev_name}*" ha cambiado su nombre a "**{new_name}**.'
+modlog-username-changed-nick: >-
+  El usuario "*{prev_name}*" ha cambiado su nombre a "**{new_name}** (nick
+  actual: "{nick}").
+modlog-cmd-help: Entrega información sobre un usuario.
+modlog-cmd-title: 'Acerca de **{user_id}**'
+modlog-cmd-format: $CMD <@usuario | id_usuario>

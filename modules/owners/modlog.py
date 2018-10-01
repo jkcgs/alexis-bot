@@ -1,4 +1,3 @@
-import random
 import re
 from datetime import datetime
 
@@ -6,10 +5,10 @@ import discord
 import peewee
 from discord.http import Route
 
-from bot import Command, AlexisBot, MessageEvent, utils, categories
+from bot import Command, utils, categories
 from discord import Embed
 
-from bot.libs.configuration import BaseModel, ServerConfiguration
+from bot.libs.configuration import BaseModel
 from bot.logger import log
 from bot.utils import deltatime_to_str
 
@@ -23,49 +22,49 @@ class ModLog(Command):
 
     async def on_member_join(self, member):
         await self.bot.send_modlog(
-            member.server, 'Nuevo usuario! <@{mid}> ID: **{mid}**'.format(mid=member.id),
-            embed=ModLog.gen_embed(member, more=True))
+            member.server, '$[modlog-new-user]',
+            embed=ModLog.gen_embed(member, more=True), locales={'mid': member.id})
 
     async def on_member_remove(self, member):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
-        await self.bot.send_modlog(member.server,
-                                   'El usuario <@{mid}> ("{name}", {mid}) dejó el servidor. Estuvo por {dt}.'.format(
-                                    mid=member.id, name=str(member), dt=dt))
+        await self.bot.send_modlog(member.server, '$[modlog-user-left]',
+                                   locales={'mid': member.id, 'name': str(member), 'dt': dt})
 
     async def on_message_delete(self, message):
         if message.server is None or message.author.id == self.bot.user.id:
             return
 
-        footer = 'Enviado: ' + utils.format_date(message.timestamp)
+        footer = '$[modlog-msg-sent]: ' + utils.format_date(message.timestamp)
         if message.edited_timestamp is not None:
-            footer += ', editado: ' + utils.format_date(message.edited_timestamp)
+            footer += ', $[modlog-msg-edited]: ' + utils.format_date(message.edited_timestamp)
 
-        embed = Embed(description='(sin texto)' if message.content == '' else message.content)
+        embed = Embed(description='($[modlog-no-text])' if message.content == '' else message.content)
         embed.set_footer(text=footer)
         if len(message.attachments) > 0:
             with_img = False
             if 'width' in message.attachments[0] is not None:
                 fn_value = '[{}]({})'.format(message.attachments[0]['filename'], message.attachments[0]['url'])
                 embed.set_image(url=message.attachments[0]['url'])
-                embed.add_field(name='Nombre del archivo', value=fn_value)
+                embed.add_field(name='$[modlog-file-name]', value=fn_value)
                 with_img = True
 
             if with_img and len(message.attachments) > 1 or not with_img:
                 i = 1 if with_img else 0
                 x = ['[{}]({})'.format(f['filename'], f['url']) for f in message.attachments[i:]]
                 t = [
-                        ['Archivos adjuntos', 'Otros archivos adjuntos'],
-                        ['Archivo adjunto', 'Otro archivo adjunto']
+                        ['$[modlog-attatched]', '$[modlog-attached-other]'],
+                        ['$[modlog-attached-single]', '$[modlog-attached-other-single]']
                     ][int(len(x) == 1)][i]
                 embed.add_field(name=t, value=', '.join(x))
 
-        msg = '**{}** ha borrado su mensaje en el canal {}'
+        msg = '$[modlog-user-deleted-msg]'
+        locales = {'username': message.author.display_name, 'channel_name': message.channel.mention}
         if message.id in self.bot.deleted_messages:
             if message.id in self.bot.deleted_messages_nolog:
                 self.bot.deleted_messages_nolog.remove(message.id)
                 return
             else:
-                msg = 'He borrado un mensaje de **{}** en el canal {}'
+                msg = '$[modlog-bot-deleted-msg]'
         else:
             try:
                 last = await self.get_last_alog(message.server.id)
@@ -73,17 +72,17 @@ class ModLog(Command):
                         last['target_id'] == message.author.id:
                     who = last['user_id']
                     if who == self.bot.user.id:
-                        msg = 'He borrado un mensaje de **{}** en el canal {}'
+                        msg = '$[modlog-bot-deleted-msg]'
                     else:
                         u = message.server.get_member(who)
                         u = '<@' + who + '>' if u is None else u.display_name
 
-                        msg = '**' + u + '** ha borrado un mensaje de **{}** en el canal {}'
+                        locales['deleter_name'] = u
+                        msg = '$[modlog-user-deleted-other]'
             except discord.Forbidden:
-                msg = 'Se ha borrado'
+                msg = '$[modlog-somehow-deleted-msg]'
 
-        await self.bot.send_modlog(
-            message.server, msg.format(message.author.display_name, message.channel.mention), embed=embed)
+        await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales)
 
     async def get_last_alog(self, guild_id):
         x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
@@ -118,11 +117,11 @@ class ModLog(Command):
     @staticmethod
     def gen_embed(member, more=False):
         embed = Embed()
-        embed.add_field(name='Nombre', value=str(member))
-        embed.add_field(name='Nick', value=member.nick if member.nick is not None else 'Ninguno :c')
-        embed.add_field(name='Usuario creado el', value=utils.format_date(member.created_at))
-        embed.add_field(name='Se unió al server el', value=utils.format_date(member.joined_at))
-        embed.add_field(name='Estancia en el server',
+        embed.add_field(name='$[modlog-e-name]', value=str(member))
+        embed.add_field(name='$[modlog-e-nick]', value=member.nick if member.nick is not None else '$[modlog-no-nick]')
+        embed.add_field(name='$[modlog-e-user-created]', value=utils.format_date(member.created_at))
+        embed.add_field(name='$[modlog-e-user-join]', value=utils.format_date(member.joined_at))
+        embed.add_field(name='$[modlog-e-stance]',
                         value=deltatime_to_str(datetime.now() - member.joined_at), inline=False)
 
         if member.avatar_url != '':
@@ -136,9 +135,9 @@ class ModLog(Command):
             if len(names) == 0:
                 names = [member.name]
 
-            embed.add_field(name='Notas', value=n if n != '' else '(sin notas)')
-            embed.add_field(name='Nombres ', value=', '.join(names))
-            embed.add_field(name='Delta server join', value=deltatime_to_str(member.joined_at - member.created_at))
+            embed.add_field(name='$[modlog-e-notes]', value=n if n != '' else '$[modlog-no-notes]')
+            embed.add_field(name='$[modlog-e-names]', value=', '.join(names))
+            embed.add_field(name='$[modlog-e-age]', value=deltatime_to_str(member.joined_at - member.created_at))
 
         return embed
 
@@ -148,7 +147,7 @@ class UserCommand(Command):
         super().__init__(bot)
         self.name = 'user'
         self.aliases = [bot.config['command_prefix'] + 'user']
-        self.help = 'Entrega información sobre un usuario'
+        self.help = '$[modlog-cmd-help]'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
@@ -160,47 +159,48 @@ class UserCommand(Command):
         else:
             user = await cmd.get_user(cmd.text, member_only=True)
             if user is None:
-                await cmd.answer('usuario no encontrado')
+                await cmd.answer('$[user-not-found]')
                 return
 
         with_notes = cmd.cmdname == self.aliases[0] and cmd.owner
         embed = ModLog.gen_embed(user, with_notes)
-        await cmd.answer('acerca de **{}**'.format(user.id), embed=embed)
+        await cmd.answer('$[modlog-cmd-title]', embed=embed, locales={'user_id': user.id})
 
 
 class ModLogChannel(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'logchannel'
-        self.help = 'Determina el canal de registros de moderación'
+        self.help = '$[modlog-channel-help]'
+        self.format = '$[modlog-cmd-format'
         self.owner_only = True
         self.allow_pm = False
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc != 1:
-            await cmd.answer('formato: $PX$NM <#canal>')
+            await cmd.answer('$[format]: $[modlog-channel-format]')
             return
 
         chan = cmd.args[0]
         if chan != 'off' and not ModLog.rx_channel.match(chan):
-            await cmd.answer('por favor ingresa un canal u "off" como valor')
+            await cmd.answer('$[modlog-channel-err-off]')
             return
 
         value = '' if chan == 'off' else chan[2:-1]
         cmd.config.set(ModLog.chan_config_name, value)
 
         if value == '':
-            await cmd.answer('información de usuarios desactivada')
+            await cmd.answer('$[modlog-channel-off]')
         else:
-            await cmd.answer('canal de información de usuarios actualizado a <#{}>'.format(value))
+            await cmd.answer('$[modlog-channel-set]', locales={'channel_id': value})
 
 
 class UserNoteCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'usernote'
-        self.help = 'Define una nota para el usuario'
+        self.help = '$[modlog-note-help]'
         self.db_models = [UserNote]
         self.owner_only = True
         self.allow_pm = False
@@ -212,17 +212,16 @@ class UserNoteCmd(Command):
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
         if member is None:
-            await cmd.answer('usuario no encontrado')
+            await cmd.answer('$[user-not-found]')
             return
 
         note = ' '.join(cmd.args[1:])
         if len(note) > 1000:
-            await cmd.answer('nooo, len(note) <= 1000')
+            await cmd.answer('$[modlog-note-err-length]')
             return
 
         ModLog.set_note(member, ' '.join(cmd.args[1:]))
-        await cmd.answer(
-            random.choice(['ok', 'ya', 'bueno', 'ta bn eso', 'xd', 'sip bn dixo', ':ok_hand:', ':thumbs_up']))
+        await cmd.answer('$[modlog-note-set]')
 
 
 class UpdateUsername(Command):
@@ -236,11 +235,11 @@ class UpdateUsername(Command):
         if self.updating or self.updated:
             return
 
-        self.log.debug('Actualizando usuarios...')
+        self.log.debug('Updating users\' names...')
         c = self.all()
 
         if c is not None:
-            self.log.debug('Usuarios actualizados: %i', c)
+            self.log.debug('Users updated: %i', c)
 
     async def on_member_join(self, member):
         if not self.updating:
@@ -260,10 +259,14 @@ class UpdateUsername(Command):
             if channel is None:
                 channel = discord.Object(id=channel)
 
-            disp = ' (nick actual: "{}")'.format(after.display_name) if after.display_name != after.name else ''
-            await self.bot.send_message(channel, 'El usuario "*{}*" ha cambiado su nombre a "**{}**"{}.'.format(
-                before.name, after.name, disp
-            ))
+                if after.display_name != after.name:
+                    await self.bot.send_message(
+                        channel, '$[modlog-username-changed-nick]',
+                        locales={'prev_name': before.name, 'new_name': after.name, 'nick': after.display_name})
+                else:
+                    await self.bot.send_message(
+                        channel, '$[modlog-username-changed]',
+                        locales={'prev_name': before.name, 'new_name': after.name})
 
     def all(self):
         if self.updating or self.updated:
@@ -307,8 +310,8 @@ class UpdateUsername(Command):
         u = r.get() if r.count() > 0 else None
 
         if r.count() == 0 or u.name != user.name:
-            old = '(ninguno)' if u is None else u.name
-            log.debug('Actualizando usuario "%s" -> "%s" id %s', old, user.name, user.id)
+            old = '(none)' if u is None else u.name
+            log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
             UserNameReg.create(userid=user.id, name=user.name)
             return True
 

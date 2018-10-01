@@ -26,8 +26,6 @@ class CommandEvent(MessageEvent):
             kwargs['locales'] = {}
 
         kwargs['event'] = self
-        kwargs['locales']['$CMD'] = '$PX' + self.cmdname
-        kwargs['locales']['$NM'] = self.cmdname
         return await super().answer(content, to_author, withname, **kwargs)
 
     def is_enabled(self):

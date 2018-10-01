@@ -153,7 +153,7 @@ class AlexisBot(discord.Client):
         if len(self.deleted_messages_nolog) > 20:
             del self.deleted_messages_nolog[0]
 
-    async def send_modlog(self, server, message=None, embed=None):
+    async def send_modlog(self, server, message=None, embed=None, locales={}):
         if not isinstance(server, Server):
             raise RuntimeError('server must be a discord.Server instance')
 
@@ -172,7 +172,7 @@ class AlexisBot(discord.Client):
             log.debug('[modlog] Channel not found (svid %s chanid %s)', server.id, chanid)
             return
 
-        await self.send_message(chan, message, embed=embed)
+        await self.send_message(chan, message, embed=embed, locales=locales)
 
     def connect_db(self):
         """

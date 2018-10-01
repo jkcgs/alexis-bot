@@ -1,0 +1,37 @@
+modlog-new-user: '¡New user! <@{mid}> ID: **{mid}**'
+modlog-user-left: 'The user <@{mid}> ("{name}", {mid}) left, and stayed by {dt}.'
+modlog-msg-sent: Sent
+modlog-msg-edited: edited
+modlog-no-text: no text
+modlog-file-name: File name
+modlog-attatched: Attached files
+modlog-attached-other: Other attached files
+modlog-attached-single: Attached file
+modlog-attached-other-single: Other attached file
+modlog-user-deleted-msg: '**{username}** deleted own''s message from {channel_name}.'
+modlog-bot-deleted-msg: 'I deleted a **{username}**''s message from the {channel_name} channel.'
+modlog-user-deleted-other: '**{deleter_name}** deleted a **{username}**''s message from {channel_name}.'
+modlog-somehow-deleted-msg: 'A **{username}**''s message has been deleted from {channel_name}.'
+modlog-e-name: Name
+modlog-e-nick: Nick
+modlog-e-user-created: User created in
+modlog-e-user-join: User joined in
+modlog-e-stance: Server stance time
+modlog-no-nick: None.
+modlog-e-notes: Notes
+modlog-e-names: Names
+modlog-e-age: Account age
+modlog-no-notes: (no notes)
+modlog-channel-help: Sets the log channel
+modlog-channel-format: '$CMD <#channel>'
+modlog-channel-err-off: 'Please send the log channel, or "off" as value.'
+modlog-channel-off: Log output disabled.
+modlog-channel-set: 'Log channel updated to <#{channel_id}>'
+modlog-note-err-length: User note can't exceed 1000 characters.
+modlog-note-help: Sets a note for an user.
+modlog-note-set: User note set.
+modlog-username-changed: 'User "*{prev_name}*" changed name to "**{new_name}**.'
+modlog-username-changed-nick: 'User "*{prev_name}*" changed name to "**{new_name}** (current nick: "{nick}").'
+modlog-cmd-help: Displays users' information.
+modlog-cmd-title: 'About **{user_id}**'
+modlog-cmd-format: $CMD <@mention | userid>

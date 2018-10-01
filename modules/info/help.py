@@ -50,6 +50,7 @@ class Help(Command):
             commands[ins.category].append(k + suffix)
 
         embed = Embed(title='$[help-title]')
+        embed.set_footer(text='$[help-footer-for]')
         embed.description = '$[help-description]'
         if cmd.owner:
             embed.description += ' $[help-description-owner]'
