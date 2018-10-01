@@ -1,0 +1,34 @@
+macros-help: Define un macro (mensaje reutilizable mediante comandos).
+macros-format: >-
+  $CMD <nombre> <valor> (para macros sólo texto) - $CMD <nombre>
+  [url_imagen]|[título]|[descripción]|[color_embed] (para macros embed) - Para
+  los macros embed, el primer parámetro es ignorado si se envía una imagen
+  adjunta al comando. Para agregar un macro embed sólo con url, agrega un pipe
+  (|) al final. Ejemplo: `$CMD <nombre> <url> |`
+macros-err-cmd-name: No se puede crear un macro con el nombre de un comando.
+macros-err-name-length: El nombre del macro puede tener hasta 100 carácteres.
+macros-invalid-colour: Color inválido.
+macros-missing-fields: 'Al menos la imagen, el titulo o la descripción deben ser ingresados.'
+macros-created: 'Macro **{macro_name}** creado.'
+macros-updated: 'Macro **{macro_name}** actualizado.'
+macros-unset-help: Elimina un macro.
+macros-unset-format: $CMD <nombre>
+macros-deleted: 'Macro **{macro_name}** eliminado.'
+macros-not-exists: 'El macro **{macro_name}** no existe.'
+macros-rename-help: Renombra un macro.
+macros-rename-format: $CMD <nombre> <nuevo_nombre>
+macros-err-rename-cmd: No se puede nombrar un macro con el nombre de un comando.
+macros-err-rename-exists: Ya existe un macro con el nuevo nombre.
+macros-renamed: Macro renombrado.
+macros-setcolour-help: Actualiza el color de un macro embed.
+macros-setcolour-format: $CMD <nombre> <color=default>.
+macros-setcolour-format-ext: >-
+  El color puede ser en formato #RRGGBB o uno de los siguientes nombres:
+  {colours_list}.
+macros-colour-updated: 'Color de macro **{macro_name}** actualizado.'
+macros-list-help: Muestra una lista de los nombres de los macros guardados.
+macros-list-singular: 'Hay {macros_count} macro:'
+macros-list: 'Hay {macros_count} macros:'
+macros-rank-help: Muestra un ranking de los macros usados en el servidor actual.
+macros-none-found: No se encontraron macros.
+macros-rank-created: creado

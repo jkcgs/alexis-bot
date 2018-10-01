@@ -1,0 +1,34 @@
+macros-help: Creates a macro (reusable message using commands).
+macros-format: >-
+  $CMD <name> <value> (text only macros) - $CMD <name>
+  [image_url]|[title]|[description]|[embed_colour] (embed macros) - For embed
+  macros, the first parameter is ignored if an attached picture is sent with the
+  command. To add an embed macro with just an URL, add a pipe (|) to the end.
+  Example: `$CMD <name> <url> |`
+macros-err-cmd-name: Can't create a macro with a command's name.
+macros-err-name-length: The macro's name can't have more than 100 characters.
+macros-invalid-colour: Invalid colour.
+macros-missing-fields: 'At least the image, title or description must be sent.'
+macros-created: 'Macro **{name}** created.'
+macros-updated: 'Macro **{name}** updated.'
+macros-unset-help: Deletes a macro.
+macros-unset-format: $CMD <name>
+macros-deleted: 'Macro **{name}** deleted.'
+macros-not-exists: 'Macro **{name}** does not exist.'
+macros-rename-help: Renames a macro.
+macros-rename-format: $CMD <name> <new_name>
+macros-err-rename-cmd: You can't name a macro with a command's name.
+macros-err-rename-exists: There's already a macro with that name.
+macros-renamed: Macro renamed.
+macros-setcolour-help: Updates de colour of an embed macro.
+macros-setcolour-format: $CMD <name> <colour=default>.
+macros-setcolour-format-ext: >-
+  The colour can be in the #RRGGBB format or one of the following colours:
+  {colours_list}.
+macros-colour-updated: 'The colour of the **{name}** macro has been updated.'
+macros-list-help: Displays a list of the created macros.
+macros-list-singular: 'There is {macros_count} macro:'
+macros-list: 'There are {macros_count} macros:'
+macros-rank-help: Displays a rank of the used macros in this server.
+macros-none-found: No macros found
+macros-rank-created: created
