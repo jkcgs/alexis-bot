@@ -1,0 +1,16 @@
+autorole-help: Da un rol a todos los usuarios nuevos y existentes.
+autorole-format: $CMD (add|set|remove|give) (nombre_rol|id_rol)
+autorole-error-cant: 'Comando deshabilitado, no es posible manejar roles en este servidor'
+autorole-list-single: 'El rol automáticamente asignado es: {role}'
+autorole-list: 'Roles automáticamente asignados: {roles}'
+autorole-list-none: No hay ningún rol asignado automáticamente.
+autorole-not-found: Rol no encontrado.
+autorole-already-added: Ese rol ya está agregado.
+autorole-cant-assign: No me es posible asignar este rol y por lo tanto no lo puedes agregar.
+autorole-added: Rol agregado.
+autorole-not-assigned: Ese rol no está asignado.
+autorole-removed: Rol eliminado.
+autorole-none-available: No hay roles para ser asignados automáticamente.
+autorole-assigning: Asignando roles...
+autorole-ready: ¡Listo!
+autorole-removing: Quitando roles...
