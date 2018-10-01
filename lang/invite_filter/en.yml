@@ -1,0 +1,14 @@
+ifilter-help: Filter invite links to other Discord guilds
+ifilter-enabled: enabled
+ifilter-disabled: disabled
+ifilter-status: 'The filter is **{status}**.'
+ifilter-changed: 'The filter is now **{status}**.'
+ifilter-format: '$CMD toggle, $CMD (allow|disallow) <user>'
+ifilter-user-not-found: User not found.
+ifilter-not-needed: You don't need to allow yourself to skip the filter.
+ifilter-err-owner: It's not necessary to allow an owner to skip the filter.
+ifilter-already-allowed: This user is already allowed to skip the filter.
+ifilter-added: User added.
+ifilter-not-allowed: This user is not allowed to skip the filter.
+ifilter-removed: User removed.
+ifilter-message: Invite link automatically deleted

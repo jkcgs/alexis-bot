@@ -1,0 +1,14 @@
+realban-help: Bans a user.
+realban-format: '$CMD <id, mention> [days-message-removal (0-7)] [reason]'
+realban-user-not-found: User not found.
+realban-cant-bot: You can't ban me.
+realban-cant-self: You can't ban yourself.
+realban-error-days: The number of deletion of messages must be between 0 and 7 (days).
+realban-error-denied: I don't have permissions to ban that user!
+realban-msg: 'Hello! Sadly, you have been banned from **{server_name}**.'
+realban-msg-with-reason: >-
+  Hello! Sadly, you have been banned from **{server_name}** due to:
+  **{ban_reason}**
+realban-answer: '¡The user **{username}** has been banned!'
+realban-answer-with-reason: '¡The user **{}** has been banned! Reason: **{ban_reason}**'
+realban-error-perms: I could not ban the user due to lack of permissions!

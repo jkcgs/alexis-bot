@@ -1,0 +1,6 @@
+slots-help: Juega al tragamonedas favorito de tu abuela.
+slots-error-notloaded: Este comando aún no está disponible.
+slots-win-1-3: 'Has perdido, lo siento.'
+slots-win-2-3: ¡Casi lo tienes!
+slots-win-3-3: '¡Has ganado, felicidades! :confetti_ball:'
+slots-play: '**{user}** tiró la palanca...'

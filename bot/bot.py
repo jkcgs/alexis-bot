@@ -14,7 +14,7 @@ from bot.utils import destination_repr, get_bot_root, replace_everywhere
 class AlexisBot(discord.Client):
     __author__ = 'ibk (github.com/santisteban), makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.64'
+    __version__ = '1.0.0-dev.66'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -107,16 +107,11 @@ class AlexisBot(discord.Client):
         kwargs = {'destination': destination, 'content': content, 'tts': tts,
                   'embed': embed, 'locales': locales, 'event': event}
         self.manager.dispatch_ref('pre_send_message', kwargs)
-
-        # Handle locales
-        if kwargs['locales'] is not None:
-            kwargs['content'] = replace_everywhere(kwargs['content'], kwargs['locales'])
-            if kwargs['embed'] is not None:
-                kwargs['embed'] = replace_everywhere(kwargs['embed'], kwargs['locales'])
+        log.debug('post pre_send text: %s', (kwargs.get('embed', None) or Embed()).to_dict())
 
         # Log the message
         dest = destination_repr(kwargs['destination'])
-        msg = 'Sending message "{}" to {} '.format(content, dest)
+        msg = 'Sending message "{}" to {} '.format(kwargs['content'], dest)
         if isinstance(embed, discord.Embed):
             msg += ' (with embed: {})'.format(embed.to_dict())
         log.debug(msg)

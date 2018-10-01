@@ -1,0 +1,7 @@
+booru-help: Busca imágenes en imageboards de danbooru y sus variaciones (NSFW).
+booru-format: >-
+  $CMD [list | tipo_búsqueda] <texo_búsqueda> (también puedes usar
+  $PX<tipo_búsqueda> <texto_búsqueda>)
+booru-list: 'Tipos de búsqueda disponibles: {types}'
+booru-no-results: Sin resultados.
+booru-results-footer: 'Resultados de {site}'

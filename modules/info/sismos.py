@@ -17,51 +17,55 @@ class Sismos(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'sismos'
-        self.help = 'Muestra alertas sobre sismos en Chile y dispone de un comando para listar los últimos sismos'
+        self.help = '$[sismos-help]'
+        self.format = '$[sismos-format]'
         self.last_events = None
         self.last_update = None
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if self.last_events is None:
-            await cmd.answer('la información no ha sido cargada')
+            await cmd.answer('$[sismos-not-loaded]')
             return
 
         if len(self.last_events) == 0:
-            await cmd.answer('no se obtuvieron registros de eventos sísmicos')
+            await cmd.answer('$[sismos-no-last]')
             return
 
         if cmd.argc > 0:
-            if cmd.args[0] in ['ultimo', 'último']:
-                await cmd.answer('datos del último sismo', embed=Sismos.make_embed(self.last_events[0]))
+            if cmd.args[0] in cmd.lang.get_list('sismos-last-cmds'):
+                await cmd.answer('$[sismos-last]', embed=Sismos.make_embed(self.last_events[0]))
                 return
-            elif cmd.args[0] == 'canal' and cmd.owner:
+            elif cmd.owner and cmd.args[0] in cmd.lang.get_list('sismos-channel-cmds'):
                 if cmd.argc < 2 or not pat_channel.match(cmd.args[1]):
-                    await cmd.answer('formato: $CMD canal [canal]')
+                    await cmd.answer('$[format]: $[sismos-channel-format]')
                     return
                 else:
                     cmd.config.set(Sismos.cfg_channel_name, cmd.args[1][2:-1])
-                    await cmd.answer('el canal de alertas ahora es {}'.format(cmd.args[1]))
+                    await cmd.answer('$[sismos-channel-set]', locales={'channel': cmd.args[1]})
                     return
 
         sismos_list = ['- [{:.1f}º] [{}]({}) ({} km)'.format(
             f['magnitudes'][0]['magnitud'], f['geoReferencia'], f['enlace'], f['profundidad']
         ) for f in self.last_events[:5]]
 
-        embed = Embed(title='Últimos sismos', description='\n'.join(sismos_list))
-        embed.set_footer(text='Última actualización: {}'.format(format_date(self.last_update)))
-        await cmd.answer(embed)
+        embed = Embed(title='$[sismos-last-earthquakes]', description='\n'.join(sismos_list))
+        embed.set_footer(text='$[sismos-last-update]')
+        await cmd.answer(embed, locales={'update': format_date(self.last_update)})
 
-    async def task(self):
+    async def on_ready(self):
+        self.bot.schedule(self.update_info, 20)
+
+    async def update_info(self):
         await self.bot.wait_until_ready()
         first = self.last_events is None
         if first:
-            self.log.debug('Recuperando información de sismos por primera vez...')
+            self.log.debug('Loading earthquakes information...')
 
         async with self.http.get(Sismos.api_url) as r:
             data = await r.json()
             if first:
-                self.log.debug('Información de sismos recuperada. Se cargaron {} registros.'.format(len(data)))
+                self.log.debug('Earthquakes information loaded. {} entries loaded.'.format(len(data)))
 
             if self.last_events is None or len(self.last_events) == 0 or data[0]['id'] != self.last_events[0]['id']:
 
@@ -87,25 +91,21 @@ class Sismos(Command):
 
                         await self.bot.send_message(
                             destination=chan,
-                            content='Alerta de sismo!',
+                            content='$[sismos-alert-title]',
                             embed=Sismos.make_embed(self.last_events[0])
                         )
-
-        if not self.bot.is_closed:
-            await asyncio.sleep(20)
-            self.bot.loop.create_task(self.task())
 
     @staticmethod
     def make_embed(data):
         mag = data['magnitudes'][0]
-        embed = Embed(title='Sismo de grado {} {}'.format(mag['magnitud'], mag['medida']))
+        embed = Embed(title='$[sismos-grade] {} {}'.format(mag['magnitud'], mag['medida']))
         embed.description = data['geoReferencia'] + '\n\n'
-        embed.description += '**Fecha**: {}\n'.format(data['fechaLocal'])
-        embed.description += '**Ubicación**: lat {latitud}º, long {longitud}º\n'.format(**data)
-        embed.description += '**Profundidad**: {} km'.format(data['profundidad'])
+        embed.description += '$[sismos-date]: {}\n'.format(data['fechaLocal'])
+        embed.description += '$[sismos-location]: lat {latitud}º, long {longitud}º\n'.format(**data)
+        embed.description += '$[sismos-depth]: {} km'.format(data['profundidad'])
         embed.url = data['enlace']
 
         if data['preliminar']:
-            embed.title += ' (preliminar)'
+            embed.title += ' $[sismos-preliminary]'
 
         return embed

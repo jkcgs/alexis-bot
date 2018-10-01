@@ -1,6 +1,6 @@
-user-not-found: usuario no encontrado
-format: formato
-disallowed-via-pm: este comando no se puede usar via PM
+user-not-found: Usuario no encontrado
+format: Formato
+disallowed-via-pm: Este comando no se puede usar via PM
 command-not-authorized: No puedes utilizar este comando
 'yes': si
 'no': 'no'
@@ -12,3 +12,13 @@ channel-not-found: canal no encontrado
 channel-saved: canal guardado
 answer-for: 'Para {author}'
 command-not-available: Comando no disponible
+day: día
+days: días
+hour: hora
+hours: horas
+minute: minuto
+minutes: minutos
+second: segundo
+seconds: segundos
+now: ahora
+error: 'Error: {errortext}'

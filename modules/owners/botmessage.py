@@ -11,20 +11,20 @@ class BotSendMessage(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'message'
-        self.help = 'Envía un mensaje en el nombre del bot'
+        self.help = '$[botmsg-help]'
+        self.format = '$[botmsg-format]'
         self.owner_only = True
         self.allow_pm = False
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 2 or not pat_channel.match(cmd.args[0]):
-            await cmd.answer('formato: $CMD <canal> <mensaje>\n'
-                             'El formato de *mensaje* es `texto mensaje | titulo | description | imagen | color`')
+            await cmd.answer('$[format]: $[botmsg-format]')
             return
 
         chan = self.bot.get_channel(cmd.args[0][2:-1])
         if chan is None or chan.server.id != cmd.server.id:
-            await cmd.answer('canal no encontrado')
+            await cmd.answer('$[botmsg-channel-not-found]')
             return
 
         try:
@@ -36,7 +36,7 @@ class BotSendMessage(Command):
 
             await self.bot.send_message(content=args[0], destination=chan, embed=embed)
         except discord.Forbidden:
-            await cmd.answer('no pude enviar el mensaje al canal seleccionado')
+            await cmd.answer('$[botmsg-error-perms]')
 
 
 class BotEditMessage(Command):
@@ -46,25 +46,24 @@ class BotEditMessage(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'edit'
-        self.help = 'Edita un mensaje enviado por el bot'
+        self.help = '$[botmsg-edit-help]'
         self.owner_only = True
         self.allow_pm = False
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 3 or not pat_channel.match(cmd.args[0]) or not pat_snowflake.match(cmd.args[1]):
-            await cmd.answer('formato: $CMD <canal> <id_mensaje> <nuevo_mensaje>\n'
-                             'El formato de nuevo_mensaje es `texto mensaje | titulo | description | imagen | color`')
+            await cmd.answer('$[format]: $[botmsg-format]')
             return
 
         chan = self.bot.get_channel(cmd.args[0][2:-1])
         if chan is None or chan.server.id != cmd.server.id:
-            await cmd.answer('canal no encontrado')
+            await cmd.answer('$[botmsg-channel-not-found]')
             return
 
         msg = await self.bot.get_message(chan, cmd.args[1])
         if msg is None:
-            await cmd.answer('mensaje no encontrado')
+            await cmd.answer('$[botmsg-not-found]')
             return
 
         text = ' '.join(cmd.args[1:])

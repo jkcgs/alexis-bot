@@ -45,7 +45,7 @@ class Pat(Command):
             'user_from': cmd.author.display_name
         })
 
-    async def task(self):
+    async def on_ready(self):
         self.log.debug('[Pat] Loading pats...')
         if not StaticConfig.exists('pats'):
             self.log.debug('Loading remote default pats')

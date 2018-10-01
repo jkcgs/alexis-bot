@@ -1,0 +1,20 @@
+remindme-help: Allows to create a reminder for a certain moment.
+remindme-no-active: You don't have an active reminder.
+remindme-already-active: >-
+  You already have an active reminder. Use `$CMD` to see it, or use `$CMD
+  cancel` to cancel it.
+remindme-cancelled: Reminder cancelled.
+remindme-usage: >-
+  $CMD <time> <message>. The time format is:
+  `<amount1><unit1><amount2><unit2>...<amountN><unitN>`, for example, 1d, 3h30m,
+  3m15s, 30m.
+remindme-error-time: >-
+  Wrong time. The time format is:
+  `<amount1><unit1><amount2><unit2>...<amountN><unitN>`, for example, 1d, 3h30m,
+  3m15s, 30m.
+remindme-error-limit: The time can only be between 10 seconds and 10 years.
+remindme-error-text-limit: >-
+  The reminder message can only be up to {max} characters. You've typed
+  {amount}.
+remindme-success: 'Reminder saved successfully. You''ll be reminded in {delta} ({datetime}).'
+remindme-footer: 'Created: {date}'

@@ -1,0 +1,19 @@
+sismos-help: >-
+  Shows earthquakes alerts for Chile and has a command to display the last
+  earthquakes.
+sismos-format: '$CMD [last | channel]'
+sismos-last-cmds: last
+sismos-last: Last earthquake information
+sismos-no-last: No last earthquake information found
+sismos-not-loaded: Information not loaded yet
+sismos-channel-cmds: channel
+sismos-channel-format: '$CMD channel [#channel]'
+sismos-channel-set: 'Earthquakes alerts channel set to {channel}'
+sismos-last-earthquakes: Last earthquakes
+sismos-last-update: 'Last update: {update}'
+sismos-alert-title: Earthquake alert!
+sismos-grade: Earthquake grade
+sismos-date: '**Date**'
+sismos-location: '**Location**'
+sismos-depth: '**Depth**'
+sismos-preliminary: (preliminary)

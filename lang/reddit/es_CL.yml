@@ -1,0 +1,17 @@
+reddit-help: Te permite seguir los posts de un subreddit
+reddit-format: $CMD <set|remove|list|posts>
+reddit-format-set: '$CMD <set|remove> <subreddit> [#canal=actual]'
+reddit-error-sub-name: Nombre de subreddit incorrecto
+reddit-error-channel-not-found: Canal no encontrado en este servidor
+reddit-sub-added: 'Los nuevos posts de {sub} ahora aparecerán en el canal'
+reddit-error-sub-already-added: Ya se están siguiendo los nuevos posts de ese sub en el canal
+reddit-sub-removed: Ya no se seguirán los posts de ese sub en el canal
+reddit-no-following-subs: No hay subreddits seguidos en este servidor
+reddit-format-posts: $CMD posts <redditor>
+reddit-user-posts-count: 'Hay {num} post{s} registrados para **/u/{redditor}**'
+reddit-user-no-posts: 'No se han registrado posts de **/u/{redditor}**'
+reddit-message-title: 'Nuevo post en **/r/{sub}**'
+reddit-unknown-author: Autor desconocido
+reddit-media-link: Link multimedia
+reddit-error-not-followed: There is no feed created for that subreddit in the selected channel
+reddit-feeds-title: Subreddit feeds

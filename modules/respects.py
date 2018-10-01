@@ -1,23 +1,23 @@
 from bot import Command, categories
 import random
 
+hearts = ['heart', 'hearts', 'yellow_heart', 'green_heart', 'blue_heart', 'purple_heart']
+
 
 class Respects(Command):
-    hearts = ['heart', 'hearts', 'yellow_heart', 'green_heart', 'blue_heart', 'purple_heart']
-
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'respects'
         self.aliases = ['f']
-        self.help = 'Muestra que el usuario que ejecuta el comando ha dado respetos'
+        self.help = '$[respects-help]'
         self.category = categories.FUN
 
     async def handle(self, cmd):
-        msg = '**$AU** ha pedido respetos '
-        if cmd.text != '':
-            msg += 'por **{}**'.format(cmd.text)
-
+        hearts_m = ''
         for x in range(random.randint(1, 3)):
-            msg += ' :' + random.choice(Respects.hearts) + ':'
+            hearts_m = ' :' + random.choice(hearts) + ':'
 
-        await cmd.answer(msg, withname=False)
+        if cmd.text != '':
+            await cmd.answer('$[respects-paid-to]', withname=False, locales={'thing': cmd.text, 'hearts': hearts_m})
+        else:
+            await cmd.answer('$[respects-paid]', withname=False, locales={'hearts': hearts_m})

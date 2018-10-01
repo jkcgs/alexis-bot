@@ -1,0 +1,3 @@
+respects-help: Muestra que un usuario ha dado sus respetos por algo o alguien
+respects-paid-to: '**$AU** ha dado sus repetos por **{thing}** {hearts}'
+respects-paid: '**$AU** ha dado sus respetos {hearts}'

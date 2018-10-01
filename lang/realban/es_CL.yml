@@ -1,0 +1,14 @@
+realban-help: Banear a un usuario.
+realban-format: '$CMD <id, mención> [días-eliminar-mensajes (0-7)] [razón]'
+realban-user-not-found: Usuario no encontrado.
+realban-cant-bot: como me vas a banear a mi! owo
+realban-cant-self: de verdad querías banearte a ti mismo? xd
+realban-error-days: El tiempo de eliminación de mensajes debe ser entre 0 y 7 (días).
+realban-error-denied: ¡No tengo permiso para banear al usuario!
+realban-msg: '¡Hola! Lamentablemente has sido expulsad@ del servidor **{server_name}**.'
+realban-msg-with-reason: >-
+  ¡Hola! Lamentablemente has sido expulsad@ del servidor **{server_name}**
+  debido a: **{ban_reason}**
+realban-answer: '¡El usuario **{username}** ha sido baneado!'
+realban-answer-with-reason: '¡El usuario **{}** ha sido baneado! Razón: **{ban_reason}**'
+realban-error-perms: ¡No pude banear al usuario debido a falta de permisos!

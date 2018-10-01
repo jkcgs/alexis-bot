@@ -1,0 +1,19 @@
+sismos-help: >-
+  Muestra alertas de sismos para Chile, y dispone de un comando para ver
+  información de los últimos sismos.
+sismos-format: '$CMD [último | canal]'
+sismos-last-cmds: ultimo|último
+sismos-last: Información del último sismo
+sismos-no-last: No hay información del último sismo disponible
+sismos-not-loaded: La información no ha sido cargada aún
+sismos-channel-cmds: canal|channel
+sismos-channel-format: '$CMD canal [#channel]'
+sismos-channel-set: 'El canal de alertas de sismos ahora es {channel}'
+sismos-last-earthquakes: Últimos sismos
+sismos-last-update: 'Última actualización: {update}'
+sismos-alert-title: ¡Alerta de sismo!
+sismos-grade: Sismo grado
+sismos-date: '**Fecha**'
+sismos-location: '**Ubicación**'
+sismos-depth: '**Profundidad**'
+sismos-preliminary: (preliminar)
