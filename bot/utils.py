@@ -103,13 +103,19 @@ def member_has_role(member, role):
     return False
 
 
-def img_embed(url, title='', description=''):
+def img_embed(url, title='', description='', footer=''):
     embed = Embed()
     embed.set_image(url=url)
-    if title != '':
+
+    if title:
         embed.title = title
-    if description != '':
+
+    if description:
         embed.description = description
+
+    if footer:
+        embed.set_footer(text=footer)
+
     return embed
 
 

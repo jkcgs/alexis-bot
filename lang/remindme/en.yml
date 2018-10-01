@@ -17,4 +17,4 @@ remindme-error-text-limit: >-
   The reminder message can only be up to {max} characters. You've typed
   {amount}.
 remindme-success: 'Reminder saved successfully. You''ll be reminded in {delta} ({datetime}).'
-remindme-footer: 'Created:'
+remindme-footer: 'Created: {date}'

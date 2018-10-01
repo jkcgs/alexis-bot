@@ -19,4 +19,4 @@ remindme-error-text-limit: >-
 remindme-success: >-
   Recordatorio guardado correctamente. Se te enviará un mensaje en {delta}
   ({datetime}).
-remindme-footer: 'Creada:'
+remindme-footer: 'Creada: {date}'

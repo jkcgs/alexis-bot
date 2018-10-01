@@ -107,17 +107,11 @@ class AlexisBot(discord.Client):
         kwargs = {'destination': destination, 'content': content, 'tts': tts,
                   'embed': embed, 'locales': locales, 'event': event}
         self.manager.dispatch_ref('pre_send_message', kwargs)
-
-        # Handle locales
-        if kwargs['locales'] is not None:
-            kwargs['content'] = kwargs['event'].lang.format(replace_everywhere(kwargs['content'], kwargs['locales']))
-            if kwargs['embed'] is not None:
-                kwargs['embed'] = replace_everywhere(kwargs['embed'], kwargs['locales'])
-                kwargs['event'].lang.format(kwargs['embed'])
+        log.debug('post pre_send text: %s', (kwargs.get('embed', None) or Embed()).to_dict())
 
         # Log the message
         dest = destination_repr(kwargs['destination'])
-        msg = 'Sending message "{}" to {} '.format(content, dest)
+        msg = 'Sending message "{}" to {} '.format(kwargs['content'], dest)
         if isinstance(embed, discord.Embed):
             msg += ' (with embed: {})'.format(embed.to_dict())
         log.debug(msg)

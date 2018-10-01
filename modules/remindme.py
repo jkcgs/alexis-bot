@@ -82,10 +82,8 @@ class RemindMe(Command):
                 user = await self.bot.get_user_info(event.userid)
                 if user is not None:
                     emb = Embed(title='RemindMe!', description=event.description)
-                    emb.set_footer(text='$[remindme-footer] '.format(
-                        format_date(event.created))
-                    )
-                    await self.bot.send_message(user, embed=emb)
+                    emb.set_footer(text='$[remindme-footer]')
+                    await self.bot.send_message(user, embed=emb, locales={'date': format_date(event.created)})
 
                 event.sent = True
                 event.save()

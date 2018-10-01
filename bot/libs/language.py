@@ -93,6 +93,8 @@ class SingleLanguage:
             locales = locales or {}
             for m in pat_lang_placeholder.finditer(message):
                 message = message.replace(m.group(0), self.get(m.group(1), **locales))
+
+            return self.format(message) if pat_lang_placeholder.search(message) else message
         elif isinstance(message, Embed):
             if message.title != Embed.Empty:
                 message.title = self.format(message.title, locales)
@@ -102,12 +104,12 @@ class SingleLanguage:
                 message.set_footer(text=self.format(message.footer.text, locales), icon_url=message.footer.icon_url)
 
             for idx, field in enumerate(message.fields):
-                message.set_field_at(
-                    idx, name=self.format(
-                        field.name, locales), value=self.format(field.value, locales), inline=field.inline)
+                message.set_field_at(idx,
+                                     name=self.format(field.name, locales),
+                                     value=self.format(field.value, locales),
+                                     inline=field.inline)
+            return message
         elif message is None:
             return None
         else:
             return self.format(str(message), locales)
-
-        return message
