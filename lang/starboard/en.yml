@@ -1,21 +1,23 @@
-starboard-help: ''
-starboard-channel-set: ''
-starboard-disabled: ''
-starboard-count-status: ''
-starboard-err-count: ''
-starboard-count-set: ''
-starboard-emoji-list: ''
-starboard-emoji-format: ''
-starboard-emoji-set: ''
-starboard-emoji-deleted: ''
-starboard-nsfw-enabled: ''
-starboard-nsfw-disabled: ''
-starboard-nsfw-on: ''
-starboard-nsfw-status: ''
-starboard-nsfw-off: ''
-starboard-nsfw-set-enabled: ''
-starboard-nsfw-set-disabled: ''
-starboard-nsfw-format: ''
-starboard-format: ''
-starboard-reactions: ''
-starboard-none: ''
+starboard-help: Allows to manage the starboard.
+starboard-channel-set: 'Starboard channel changed to <#{channel_id}>'
+starboard-disabled: 'Starboard disabled! To enable it again, use the "channel" subcommand.'
+starboard-count-status: 'Required reaction count: {count}'
+starboard-err-count: 'Use a number between 1 y 1000, inclusive.'
+starboard-count-set: 'Required reactions count set to: **{count}**.'
+starboard-emoji-list: 'Emojis: {emojis}'
+starboard-emoji-format: $CMD emoji <space sepparated emojis> (up to 10 emojis)
+starboard-emoji-set: 'Emojis set to: {emojis}'
+starboard-emoji-deleted: 'Starboard emojis unset (now, any emoji counts).'
+starboard-nsfw-enabled: 'enabled :speak_no_evil:'
+starboard-nsfw-disabled: 'disabled :dolphin:'
+starboard-nsfw-on: enable|yes|on
+starboard-nsfw-status: 'Starboard para canales NSFW:'
+starboard-nsfw-off: disable|off|no
+starboard-nsfw-set-enabled: 'Starboard for NSFW enabled :flushed:'
+starboard-nsfw-set-disabled: 'Starboard for NSFW disabled :two_hearts:'
+starboard-nsfw-format: '$CMD nsfw [on|off]'
+starboard-format: >-
+  $PX{command_name} <subcommand> <opts>.\nSubcommands: channel, disable, count,
+  emojis, delemojis, nfsw.
+starboard-reactions: Reactions
+starboard-none: None

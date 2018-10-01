@@ -14,7 +14,7 @@ class Warn(Command):
         super().__init__(bot)
         self.name = 'warn'
         self.aliases = ['warning']
-        self.help = 'Advertir a un usuario'
+        self.help = '$[warn-help]'
         self.allow_pm = False
         self.owner_only = True
         self.db_models = [UserWarn]
