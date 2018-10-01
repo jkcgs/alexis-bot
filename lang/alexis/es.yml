@@ -1,6 +1,6 @@
-user-not-found: usuario no encontrado
-format: formato
-disallowed-via-pm: este comando no puede ser utilizado via PM
+user-not-found: Usuario no encontrado
+format: Formato
+disallowed-via-pm: Este comando no puede ser utilizado via PM
 command-not-authorized: No puedes utilizar este comando
 'yes': si
 'no': 'no'
