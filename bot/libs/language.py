@@ -54,9 +54,9 @@ class Language:
 
         if __lang not in self.lib:
             text = __lang + '_' + name
-        elif name not in self.lib[__lang]:
+        elif name not in self.lib[__lang] or self.lib[__lang][name] == '':
             if __lang == self.default:
-                text = __lang + '_' + name
+                text = '[{}:{}]'.format(__lang, name)
             else:
                 text = self.get(name, self.default)
         else:

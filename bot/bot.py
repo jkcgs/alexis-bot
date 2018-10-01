@@ -107,7 +107,6 @@ class AlexisBot(discord.Client):
         kwargs = {'destination': destination, 'content': content, 'tts': tts,
                   'embed': embed, 'locales': locales, 'event': event}
         self.manager.dispatch_ref('pre_send_message', kwargs)
-        log.debug('post pre_send text: %s', (kwargs.get('embed', None) or Embed()).to_dict())
 
         # Log the message
         dest = destination_repr(kwargs['destination'])
