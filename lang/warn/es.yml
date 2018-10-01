@@ -1,1 +1,36 @@
 warn-help: Advertir a un usuario
+warn-format: '$CMD <id, mención> <razón>'
+warn-err-bot: ¡No puedes darme una advertencia!
+warn-err-self: ¡No puedes auto-advertirte!
+warn-msg: >-
+  ¡Hola! Se te ha dado una advertencia en el servidor **{server_name}** por
+  *{reason}*.
+warn-now-single: 'Ahora tienes {count} advertencia.'
+warn-now: 'Ahora tienes {count} advertencias.'
+warn-answer: 'A **{username}** se le ha dado una advertencia. Razón: **{reason}**.'
+warn-answer-count: 'Ahora tiene {count} advertencias.'
+warn-answer-count-single: 'Ahora tiene {count} advertencia.'
+warns-help: Muestra el número de advertencias que tiene el usuario.
+warns-format: '$CMD <id, mención>'
+warns-has: '**{username}** tiene {count} advertencias.'
+warns-has-single: '**{username}** tiene una advertencia.'
+warns-hasnt: '**{username}** no tiene advertencias.'
+clrw-help: Elimina las advertencias del usuario
+clrw-format: '$CMD <id, mención>'
+clrw-hasnt: El usuario no tiene advertencias.
+clrw-cleared: 'Advertencias eliminadas para **{username}**'
+delw-help: >-
+  Elimina una advertencia de un usuario, según el número de warn del comando
+  `$PXwarnlist`.
+delw-format: '$CMD <id, mención> <índice>'
+delw-err-index: El índice debe ser un número entero mayor que cero.
+delw-err-out-of-bounds: Índice de advertencia fuera de rango.
+delw-deleted: Advertencia eliminada.
+warnlist-help: >-
+  Muestra las últimas advertencias o el número de advertencias que tiene el
+  usuario.
+warnlist-last: Últimas advertencias
+warnrank-help: Muestra un ránking de advertencias por usuarios.
+warnrank-none: No hay registros de advertencias.
+warnrank-last: último
+warnrank-title: Ranking de advertencias

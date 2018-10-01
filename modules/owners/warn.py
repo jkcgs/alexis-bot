@@ -22,7 +22,7 @@ class Warn(Command):
 
     async def handle(self, cmd):
         if len(cmd.args) < 2:
-            await cmd.answer('formato: $PX$NM <id, mención> <razón>')
+            await cmd.answer('$[format]: $[warn-format]')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
@@ -30,33 +30,33 @@ class Warn(Command):
         await cmd.typing()
 
         if member is None:
-            await cmd.answer('no se encontró al usuario')
+            await cmd.answer('$[user-not-found]')
             return
 
         if member.id == self.bot.user.id:
-            await cmd.answer('oye pero no po si no hice nada')
+            await cmd.answer('$[warn-err-bot]')
             return
 
         if member.id == cmd.author.id:
-            await cmd.answer('jajajajajajajaj ya.')
+            await cmd.answer('$[warn-err-self]')
             return
 
         reason = ' '.join(cmd.args[1:])
         UserWarn.create(serverid=server.id, userid=member.id, reason=reason)
         num = get_member_warns(member).count()
-        adv = ['advertencias', 'advertencia'][bool(num == 1)]
+        adv = ['$[warn-now]', '$[warn-now-single]'][num == 1]
 
         # Enviar PM con el aviso de la advertencia
         try:
-            await self.bot.send_message(member, 'Hola! Se te ha dado una advertencia en el servidor **{}** por *{}*. '
-                                                'Ahora tienes {} {}.'.format(server.name, reason, num, adv))
+            await self.bot.send_message(member, '$[warn-msg] {}'.format(adv),
+                                        locales={'server_name': server.name, 'reason': reason, 'count': num})
         except discord.errors.Forbidden as e:
             self.log.exception(e)
 
         # Avisar por el canal donde se envió el comando
-        msg = 'a **{}** se le ha dado una advertencia por: **{}**! Ahora tiene {} {}.'.format(
-            member.display_name, reason, num, adv)
-        await cmd.answer(msg)
+        adv = ['$[warn-answer-count]', '$[warn-answer-count-single]'][num == 1]
+        msg = '$[warn-answer] {}.'.format(adv)
+        await cmd.answer(msg, locales={'username': member.display_name, 'reason': reason, 'count': num})
         # await ModLog.send_modlog(cmd, message=msg)
 
 
@@ -65,28 +65,30 @@ class Warns(Command):
         super().__init__(bot)
         self.name = 'warns'
         self.aliases = ['warnings']
-        self.help = 'Muestra el número de advertencias que tiene el usuario'
+        self.help = '$[warns-help]'
         self.allow_pm = False
         self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <id, mención>')
+            await cmd.answer('$[format]: $[warns-format]')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
         await cmd.typing()
 
         if member is None:
-            await cmd.answer('no se encontró al usuario')
+            await cmd.answer('$[user-not-found]')
             return
 
         num = get_member_warns(member).count()
-        adv = ['advertencias', 'advertencia'][bool(num == 1)]
         if num > 0:
-            await cmd.answer('**{}** tiene {} {}.'.format(member.display_name, num, adv))
+            if num == 1:
+                await cmd.answer('$[warns-has-single]', locales={'username': member.display_name})
+            else:
+                await cmd.answer('$[warns-has]', locales={'username': member.display_name, 'count': num})
         else:
-            await cmd.answer('**{}** no tiene advertencias :3'.format(member.display_name, num, adv))
+            await cmd.answer('$[warns-hasnt]', locales={'username': member.display_name})
 
 
 class ClearWarns(Command):
@@ -94,29 +96,29 @@ class ClearWarns(Command):
         super().__init__(bot)
         self.name = 'clearwarns'
         self.aliases = ['clearwarnings', 'unwarn']
-        self.help = 'Elimina las advertencias del usuario'
+        self.help = '$[clrw-format]'
         self.allow_pm = False
         self.owner_only = True
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <id, mención>')
+            await cmd.answer('$[format]: $[clrw-format]')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
         await cmd.typing()
 
         if member is None:
-            await cmd.answer('no se encontró al usuario')
+            await cmd.answer('$[user-not-found]')
             return
 
         if get_member_warns(member).count() == 0:
-            await cmd.answer('el usuario no tiene advertencias')
+            await cmd.answer('$[clrw-hasnt]')
             return
 
         UserWarn.delete().where(UserWarn.serverid == cmd.message.server.id, UserWarn.userid == member.id).execute()
-        await cmd.answer('advertencias eliminadas para **{}**'.format(member.display_name))
+        await cmd.answer('$[clrw-cleared]', locales={'username': member.display_name})
 
 
 class DeleteWarn(Command):
@@ -124,39 +126,39 @@ class DeleteWarn(Command):
         super().__init__(bot)
         self.name = 'deletewarn'
         self.aliases = ['delwarn']
-        self.help = 'Elimina una advertencia de un usuario, según el número de warn del comando $PXwarnlist'
+        self.help = '$[delw-help]'
         self.allow_pm = False
         self.owner_only = True
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if len(cmd.args) < 2:
-            await cmd.answer('formato: $PX$NM <id, mención> <índice>')
+            await cmd.answer('$[delw-format]: $[delw-format]')
             return
 
         if not is_int(cmd.args[1]) or int(cmd.args[1]) < 1:
-            await cmd.answer('el índice debe ser un número entero mayor que cero')
+            await cmd.answer('$[delw-err-index]')
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
         await cmd.typing()
 
         if member is None:
-            await cmd.answer('no se encontró al usuario')
+            await cmd.answer('$[user-not-found]')
             return
 
         if get_member_warns(member).count() == 0:
-            await cmd.answer('el usuario no tiene advertencias')
+            await cmd.answer('$[clrw-hasnt]')
             return
 
         idx = int(cmd.args[1])
         warns = list(get_member_warns(member).order_by(UserWarn.timestamp.desc()))
         if len(warns) < idx:
-            await cmd.answer('índice de advertencia fuera de rango')
+            await cmd.answer('$[delw-err-out-of-bounds]')
             return
 
         UserWarn.delete_instance(warns[idx-1])
-        await cmd.answer('advertencia eliminada')
+        await cmd.answer('$[delw-deleted]')
 
 
 class WarnList(Command):
@@ -172,7 +174,7 @@ class WarnList(Command):
         if len(cmd.args) < 1:
             warns = UserWarn.select().order_by(UserWarn.timestamp.desc()).limit(5)
             if warns.count() == 0:
-                await cmd.answer('no hay advertencias registradas')
+                await cmd.answer('$[clrw-hasnt]')
                 return
 
             warnlist = []
@@ -186,22 +188,21 @@ class WarnList(Command):
 
                 warnlist.append('`[{}]` {}: {}'.format(fdate, u, warn.reason))
 
-            await cmd.answer(Embed(title='Últimas advertencias', description='\n'.join(warnlist)))
+            await cmd.answer(Embed(title='$[warnlist-last]', description='\n'.join(warnlist)))
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
         await cmd.typing()
 
         if member is None:
-            await cmd.answer('no se encontró al usuario')
+            await cmd.answer('$[user-not-found]')
             return
 
         warns = get_member_warns(member).order_by(UserWarn.timestamp.desc())
         num = warns.count()
-        adv = ['advertencias', 'advertencia'][bool(num == 1)]
 
         if num == 0:
-            await cmd.answer('**{}** no tiene advertencias :3'.format(member.display_name))
+            await cmd.answer('$[warns-hasnt]', locales={'username': member.display_name})
             return
 
         warnlist = []
@@ -209,17 +210,19 @@ class WarnList(Command):
             fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             warnlist.append('`[{} - {}]` {}'.format(i+1, fdate, warn.reason))
 
-        msg = '**{}** tiene {} {}.'.format(member.display_name, num, adv)
         emb = Embed()
         emb.description = '\n'.join(warnlist)
-        await cmd.answer(msg, embed=emb)
+        if num == 1:
+            await cmd.answer('$[warns-has]', embed=emb, locales={'username': member.display_name, 'count': num})
+        else:
+            await cmd.answer('$[warns-has-single]', embed=emb, locales={'username': member.display_name})
 
 
 class WarnRank(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'warnrank'
-        self.help = 'Muestra un ránking de advertencias'
+        self.help = '$[warnrank-help]'
         self.allow_pm = False
         self.category = categories.INFORMATION
 
@@ -230,7 +233,7 @@ class WarnRank(Command):
             .order_by(peewee.fn.COUNT(UserWarn.userid).desc())
 
         if e.count() == 0:
-            await cmd.answer('no hay registros de warns')
+            await cmd.answer('$[warnrank-none]')
             return
 
         msg = []
@@ -242,9 +245,9 @@ class WarnRank(Command):
             else:
                 u = u.display_name
 
-            msg.append('{} - {} (último: {}, "{}")'.format(xd.num_warns, u, d, xd.reason))
+            msg.append('{} - {} ($[warnrank-last]: {}, "{}")'.format(xd.num_warns, u, d, xd.reason))
 
-        await cmd.answer(Embed(title='Ranking de advertencias', description='\n'.join(msg)))
+        await cmd.answer(Embed(title='$[warnrank-title]', description='\n'.join(msg)))
         return
 
 
