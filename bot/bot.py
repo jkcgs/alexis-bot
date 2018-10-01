@@ -19,8 +19,8 @@ class AlexisBot(discord.Client):
 
     def __init__(self, **options):
         """
-        Inicializa la configuración, el log, una sesión aiohttp y atributos de la clase.
-        :param options: Las opciones correspondientes de discord.Client
+        Initializes configuration, logging, an aiohttp session and class attributes.
+        :param options: The discord.Client options
         """
         super().__init__(**options)
 
@@ -39,7 +39,7 @@ class AlexisBot(discord.Client):
 
     def init(self):
         """
-        Carga la configuración, se conecta a la base de datos, y luego se conecta con Discord.
+        Loads configuration, connects to database, and then connects to Discord.
         :return:
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
@@ -50,22 +50,22 @@ class AlexisBot(discord.Client):
 
         self.start_time = datetime.now()
 
-        # Cargar configuración
+        # Load configuration
         self.load_config()
         if self.config.get('token', '') == '':
             raise RuntimeError('Discord bot token not defined. It should be in config.yml file.')
 
-        # Cargar base de datos
+        # Load database
         log.info('Connecting to the database...')
         self.connect_db()
         self.sv_config = Configuration()
 
-        # Cargar instancias de las clases de comandos cargadas en bots.modules
+        # Load command classes and instances from bots.modules
         log.info('Loading commands...')
         self.manager.load_instances()
         self.manager.dispatch_sync('on_loaded', force=True)
 
-        # Conectar con Discord
+        # Connect to Discord
         try:
             log.info('Connecting to Discord...')
             self.run(self.config['token'])
@@ -77,7 +77,7 @@ class AlexisBot(discord.Client):
             raise
 
     async def on_ready(self):
-        """Esto se ejecuta cuando el bot está conectado y listo"""
+        """This is executed when the bot is ready"""
 
         log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
         log.info('------')
@@ -88,15 +88,14 @@ class AlexisBot(discord.Client):
 
     async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
         """
-        Sobrecarga la llamada original de discord.Client para enviar mensajes para accionar otras llamadas
-        como handlers de modificación de mensajes y registros del bot. Soporta los mismos parámetros del
-        método original.
-        :param destination: Dónde enviar un mensaje, como discord.Channel, discord.User, discord.Object, entre otros.
-        :param content: El contenido textual a enviar
-        :param tts: El mensaje es TTS (text to speech).
-        :param embed: Enviar un embed con el mensaje.
-        :param locales: Mensajes a reemplazar en el contenido y embed.
-        :param event: El evento que origina el mensaje. Se usa para entregárselo a los respectivos handlers.
+        Override original discord.Client method to send messages, to fire other calls
+        like event handlers, message filters and bot logging. Allows original method's parameters.
+        :param destination: Where to send the message, e.g. discord.Channel, discord.User, discord.Object.
+        :param content: Textual content to send
+        :param tts: Enable TTS (text to speech).
+        :param embed: Send an embed with the message.
+        :param locales: Strings to replace on the message and embed.
+        :param event: Original event that triggers the message. Used to deliver it to handlers.
         :return:
         """
 
@@ -121,8 +120,8 @@ class AlexisBot(discord.Client):
 
     async def delete_message(self, message):
         """
-        Elimina un mensaje, y además registra los IDs de los últimos 20 mensajes guardados
-        :param message: El mensaje a eliminar
+        Deletes a message and registers the last 20 messages' IDs.
+        :param message: The message to delete
         """
         self.deleted_messages.append(message.id)
 
@@ -137,10 +136,9 @@ class AlexisBot(discord.Client):
 
     async def delete_message_silent(self, message):
         """
-        Elimina un mensaje, y además registra los IDs de los últimos 20 mensajes guardados.
-        Adicionalmente, agregará el mensaje a una lista de mensajes que no deben ser logueados, para el correspondiente
-        módulo.
-        :param message: El mensaje a eliminar
+        Deletes a message and registers the last 20 messages' IDs.
+        It also adds the message to a no-track list, for the corresponding modules.
+        :param message: The message to delete
         """
 
         try:
@@ -176,21 +174,21 @@ class AlexisBot(discord.Client):
 
     def connect_db(self):
         """
-        Ejecuta la conexión a la base de datos
+        Executes the connection to the database
         """
         self.db = init_db()
-        log.info('Conectado correctamente a la base de datos mediante %s', self.db.__class__.__name__)
+        log.info('Successfully conected to database using %s', self.db.__class__.__name__)
 
     def load_config(self):
         """
-        Carga la configuración estática y de idioma
-        :return: Un valor booleano dependiente del éxito de la carga de los datos.
+        Loads static and language configuration
+        :return: A boolean depending on the operation's result.
         """
         try:
-            log.info('Cargando configuración...')
+            log.info('Loading configuration...')
             self.config.load(defaults.config)
             self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
-            log.info('Configuración cargada')
+            log.info('Configuration loaded')
             return True
         except Exception as ex:
             log.exception(ex)

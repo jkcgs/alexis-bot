@@ -19,21 +19,21 @@ def yesno(default_yes=True):
 
 def carpetas():
     if not path.exists(LANG_FOLDER) or not path.isdir(LANG_FOLDER):
-        raise RuntimeError('la carpeta "{}" no existe'.format(LANG_FOLDER))
+        raise RuntimeError('Folder "{}" does not exist'.format(LANG_FOLDER))
 
     if not path.isdir(LANG_FOLDER):
-        raise RuntimeError('"{}" no es una carpeta'.format(LANG_FOLDER))
+        raise RuntimeError('"{}" is not a folder'.format(LANG_FOLDER))
 
     return [f for f in listdir(LANG_FOLDER) if path.isdir(path.join(LANG_FOLDER, f))]
 
 
 def crear_carpeta(nombre):
     if nombre in carpetas():
-        print('La carpeta ya existe')
+        print('Folder already exists')
         return None
 
     mkdir(path.join(LANG_FOLDER, nombre))
-    print('Carpeta creada')
+    print('Folder created')
 
 
 def cargar_idiomas(carpeta, crear=False):
@@ -41,7 +41,7 @@ def cargar_idiomas(carpeta, crear=False):
         if crear:
             crear_carpeta(carpeta)
         else:
-            print('La carpeta no existe')
+            print('Folder does not exist')
             return None
 
     langs = {}
@@ -56,7 +56,7 @@ def cargar_idiomas(carpeta, crear=False):
 
 def strings(carpeta):
     if carpeta not in carpetas():
-        print('La carpeta no existe')
+        print('Folder does not exist')
 
     idiomas = cargar_idiomas(carpeta)
     return [f for f in list(idiomas[LANGS[0]].config.keys()) if isinstance(f, str)]
@@ -64,21 +64,21 @@ def strings(carpeta):
 
 if __name__ == '__main__':
     n_carpetas = carpetas()
-    print('Carpetas actuales: ', n_carpetas)
+    print('Current folders: ', n_carpetas)
 
     n_carpeta = '+'
     while not pat_nombre.match(n_carpeta):
-        print('Ingresa el nombre de carpeta (si no existe, se creará)\n')
+        print('Input the folder\'s name (if it doesn\'t exist, it will be created)\n')
         n_carpeta = input('> ')
         if not pat_nombre.match(n_carpeta):
-            print('Por favor, ingresa entre 3 y 20 letras, números, guiones y guiones bajos.')
+            print('Please, type between 3 y 20 characters, numbers, hyphens and underscores.')
 
     if n_carpeta not in n_carpetas:
-        print('La carpeta no existe, ¿crearla?')
+        print('The folder does not exist. Create it?')
         respuesta = yesno()
 
         if not respuesta:
-            print('ok saliendo')
+            print('OK, exiting.')
             sys.exit(0)
         else:
             mkdir(path.join(LANG_FOLDER, n_carpeta))
@@ -87,13 +87,13 @@ if __name__ == '__main__':
         h_langs = cargar_idiomas(n_carpeta)
         strs = strings(n_carpeta)
         if len(strs) == 0:
-            print('No hay strings para esta carpeta.')
-            print('Ingresa el nombre de string para crearlo.')
+            print('There are no strings for this folder.')
+            print('Input the string name to create it.')
         else:
             print('Strings: ', ', '.join(['({}) {}'.format(i+1, f) for i, f in enumerate(strs)]))
-            print('Ingresa el nombre de un string o el número del string. Si no existe se creará.')
+            print('Input the name or number of the string. If it does not exist, it will be created.')
 
-        print('Para salir, no ingreses nada y pulsa <ENTER>.')
+        print('To exit, leave it blank and press <ENTER>.')
         n_string = input('> ').strip()
 
         if n_string == '':
@@ -101,44 +101,44 @@ if __name__ == '__main__':
 
         if is_int(n_string):
             if len(strs) == 0:
-                print('Por favor ingresa el nombre de un string para crearlo.')
+                print('Please, input the string name to create it.')
                 continue
 
             num = int(n_string)
             if num <= 0:
-                print('Por favor, ingresa un número válido')
+                print('Please input a valid number')
                 continue
 
             if num-1 >= len(strs):
-                print('El número está fuera de los índices')
+                print('The number is out of bounds.')
                 continue
 
             n_string = strs[num-1]
-            print('String seleccionado:', n_string)
+            print('Selected string:', n_string)
         elif n_string not in strs and len(strs) > 0:
-            print('El string no existe, crearlo?')
+            print('The string does not exist. Create it?')
             if not yesno():
                 continue
 
         if n_string in strs:
-            print('Valores actuales del string para los idiomas:')
+            print('Current values for the string in languages:')
             for l in LANGS:
                 h_lang = h_langs[l]
-                print('{}: {}'.format(l, h_lang[n_string] if n_string in h_lang else '(string no encontrado)'))
+                print('{}: {}'.format(l, h_lang[n_string] if n_string in h_lang else '(string not found)'))
 
         prev = ''
         for l in LANGS:
             exists = n_string in h_langs[l]
-            prox = ' (deja vacío para dejar el valor actual)' if exists else (
-                ' (deja vacío para usar el string anterior)' if prev != '' else '')
+            prox = ' (leave empty to keep the current value)' if exists else (
+                ' (leave empty to keep the previous value)' if prev != '' else '')
 
             val = ''
             while val == '':
-                val = input('Ingresa el valor para el idioma "{}"{}:\n> '.format(l, prox)).strip()
+                val = input('Input the value for the "{}" language{}:\n> '.format(l, prox)).strip()
 
                 if val == '':
                     if not exists and prev == '':
-                        print('Debes ingresar un valor')
+                        print('You must input a value')
                     else:
                         val = h_langs[l][n_string] if exists else prev
 
