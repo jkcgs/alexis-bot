@@ -1,0 +1,17 @@
+horoscopo-help: Muestra el horóscopo para un determinado signo.
+horoscopo-format: '$CMD [suscribir] <signo>` - `$CMD desuscribir`'
+horoscopo-unavailable: No hay información del horóscopo disponible.
+horoscopo-loaded: Datos cargados.
+horoscopo-subscribed: 'Ahora estás suscrito/a al horóscopo de **{sign_name}**.'
+horoscopo-invalid-sign: Signo incorrecto.
+horoscopo-already-subscribed: 'Ya estás suscrito/a al horóscopo de **{sign_name}**.'
+horoscopo-removed: 'Has eliminado tu suscripción al horóscopo de **{sign_name}**.'
+horoscopo-not-subscribed: No tienes una suscripción activa al horóscopo.
+horoscopo-title: Horóscopo
+horoscopo-e-love: Amor
+horoscopo-e-health: Salud
+horoscopo-e-money: Dinero
+horoscopo-e-colour: Colour
+horoscopo-e-number: Número
+horoscopo-e-footer: Horóscopo de la Tía Yoly (TYaaS)
+horoscopo-update: ¡Actualización de horóscopo!
