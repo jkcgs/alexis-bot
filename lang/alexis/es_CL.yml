@@ -8,10 +8,10 @@ name: Nombre
 start-date: Fecha de inicio
 end-date: Fecha de término
 data-not-available: datos no disponibles
-channel-not-found: canal no encontrado
-channel-saved: canal guardado
+channel-not-found: Canal no encontrado.
+channel-saved: Canal guardado.
 answer-for: 'Para {author}'
-command-not-available: Comando no disponible
+command-not-available: Comando no disponible.
 day: día
 days: días
 hour: hora

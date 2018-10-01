@@ -8,8 +8,8 @@ name: Name
 start-date: Start date
 end-date: End date
 data-not-available: data not available
-channel-not-found: channel not found
-channel-saved: channel saved
+channel-not-found: Channel not found.
+channel-saved: Channel saved.
 answer-for: 'To {author}'
 command-not-available: Command not available
 day: day
