@@ -29,6 +29,7 @@ class BotStatus(Command):
         ]
 
         status = status_list[self.count]()
+        self.log.debug('Changing status to "%s"', status)
         await self.bot.change_presence(game=Game(name=status))
 
         self.count += 1

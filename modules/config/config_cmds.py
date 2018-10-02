@@ -10,20 +10,20 @@ class ConfigCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'config'
-        self.help = 'Administración de configuración'
+        self.help = '$[config-admin]'
         self.bot_owner_only = True
         self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         if cmd.argc < 2 or (cmd.args[0] != 'get' and cmd.argc < 3):
-            await cmd.answer('$PX$NM (get|set|add|remove) (name) [value]')
+            await cmd.answer('$[config-format]')
             return
 
         if cmd.subcmd == '':
             cfg = self.bot.config
         else:
             if not StaticConfig.exists(cmd.subcmd):
-                await cmd.answer('esa configuración no existe')
+                await cmd.answer('$[config-not-exists]')
                 return
             cfg = StaticConfig.get_config(cmd.subcmd)
 
@@ -31,30 +31,30 @@ class ConfigCmd(Command):
         name = cmd.args[1]
 
         if name not in cfg:
-            await cmd.answer('no existe un valor con ese nombre')
+            await cmd.answer('$[config-value-not-exists]')
             return
 
         val = cfg[name]
 
         if arg == 'get':
             if name not in cfg:
-                await cmd.answer('esa configuración no existe')
+                await cmd.answer('$[config-not-exists]')
                 return
 
             if isinstance(val, list):
                 if len(val) == 0:
-                    await cmd.answer('la lista "{}" está vacía'.format(name))
+                    await cmd.answer('$[config-empty-list]', locales={'list_name': name})
                 else:
-                    await cmd.answer('valores de "{}":'.format(name))
+                    await cmd.answer('$[config-list-values]:', locales={'list_name': name})
                     items = ['- ' + str(f) for f in val]
                     for chunk in split_list(items, 1800):
                         cont = '\n'.join(chunk)
                         await cmd.answer('```{}```'.format(cont))
             else:
-                await cmd.answer('valor de "{}": **{}**'.format(name, str(val)))
+                await cmd.answer('$[config-value]', locales={'config_name': name, 'config_value': str(val)})
         elif arg == 'set':
             if isinstance(val, list):
-                await cmd.answer('"{}" es una lista, para manejar sus valores, utiliza "add" o "remove"')
+                await cmd.answer('$[config-err-list]', locales={'list_name': name})
                 return
 
             argvalue = ' '.join(cmd.args[2:])
@@ -64,83 +64,79 @@ class ConfigCmd(Command):
                 elif argvalue.lower() in ['1', 'true', 'yes', 'enabled', 'on']:
                     argvalue = True
                 else:
-                    await cmd.answer('el valor de "{}" sólo acepta valores booleanos. Prueba con 0 o 1.'.format(name))
+                    await cmd.answer('$[config-err-bool]', locales={'config_name': name})
                     return
             elif isinstance(val, float):
                 if not is_float(argvalue):
-                    await cmd.answer('el valor de "{}" sólo acepta decimales'.format(name))
+                    await cmd.answer('$[config-err-float]', locales={'config_name': name})
                     return
                 else:
                     argvalue = float(argvalue)
             elif isinstance(val, int):
                 if not is_int(argvalue):
-                    await cmd.answer('el valor de "{}" sólo acepta números enteros'.format(name))
+                    await cmd.answer('$[config-err-int]', locales={'config_name': name})
                     return
                 else:
                     argvalue = int(argvalue)
 
             self.bot.config[name] = argvalue
-            await cmd.answer('valor de "{}" actualizado'.format(name))
+            await cmd.answer('$[config-value-changed]', locales={'config_name': name})
         elif arg == 'add' or arg == 'remove':
             if not isinstance(val, list):
-                await cmd.answer('"{}" no es una lista, para manejar sus valor, utiliza el subcomando "set"')
+                await cmd.answer('$[config-err-not-list]', locales={'config_name': name})
                 return
 
             argvalue = ' '.join(cmd.args[2:])
             if arg == 'add':
                 if argvalue in val:
-                    await cmd.answer('ese valor ya está en la lista')
+                    await cmd.answer('$[config-err-list-already]')
                     return
 
                 val.append(argvalue)
                 self.bot.config[name] = val
-                await cmd.answer('valor agregado a la lista')
+                await cmd.answer('$[config-list-added]')
                 return
             elif arg == 'remove':
                 if argvalue not in val:
-                    await cmd.answer('ese valor no está en la lista')
+                    await cmd.answer('$[config-list-not-in]')
                     return
 
                 val.remove(argvalue)
                 self.bot.config[name] = val
-                await cmd.answer('valor eliminado de la lista')
+                await cmd.answer('$[config-list-removed]')
                 return
         else:
-            await cmd.answer('comando incorrecto')
+            await cmd.answer('$[config-err-sub]')
 
 
 class ReloadCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'reload'
-        self.help = 'Recarga la configuración'
+        self.help = '$[config-reload-help]'
         self.bot_owner_only = True
         self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         if not self.bot.load_config():
-            msg = 'no se pudo recargar la configuración'
-        else:
-            msg = 'configuración recargada correctamente'
+            await cmd.answer('$[config-reload-err]')
+            return
 
         nmods = len([i.load_config() for i in self.bot.manager.cmd_instances if callable(getattr(i, 'load_config', None))])
-        if nmods > 0:
-            msg += ', incluyendo {} módulo{}'.format(nmods, ['s', ''][int(nmods == 1)])
-
-        await cmd.answer(msg)
+        await cmd.answer('$[config-reloaded]', locales={'rel_mods': nmods})
 
 
 class ShutdownCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'shutdown'
-        self.help = 'Detiene el proceso del bot'
+        self.help = '$[config-shutdown-help]'
         self.bot_owner_only = True
         self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         self.bot.config['shutdown_channel'] = cmd.message.channel.id
-        await cmd.answer('chao loh vimo')
+        await cmd.answer('$[config-goodbye]')
         await self.bot.logout()
         sys.exit(0)
 
@@ -158,11 +154,11 @@ class SetStatus(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'status'
-        self.help = 'Determina el status del bot'
+        self.help = '$[config-status-help]'
         self.bot_owner_only = True
         self.category = categories.SETTINGS
 
     async def handle(self, cmd):
         status = '' if len(cmd.args) < 1 else cmd.text
         await self.bot.change_presence(game=Game(name=status))
-        await cmd.answer('k')
+        await cmd.answer('$[config-status-ok]')

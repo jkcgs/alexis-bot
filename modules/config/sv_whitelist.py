@@ -7,22 +7,23 @@ class ServerWhitelist(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'leaveserver'
+        self.help = '$[leaveserver-help]'
         self.category = categories.SETTINGS
         self.bot_owner_only = True
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            await cmd.answer('formato: $PX$NM <server_id>')
+            await cmd.answer('$[format]: $[leaveserver-format]')
             return
 
         server = self.bot.get_server(cmd.args[0])
         if server is None:
-            await cmd.answer('server no encontrado')
+            await cmd.answer('$[leaveserver-guild-not-found]')
             return
 
         await self.bot.leave_server(server)
         try:
-            await cmd.answer('dejé el server "{}" ({})'.format(server.name, server.id))
+            await cmd.answer('$[leaveserver-left]', locales={'guild_name': server.name, 'guild_id': server.id})
         except Exception as e:
             self.log.exception(e)
 
@@ -33,28 +34,27 @@ class ServerWhitelist(Command):
         if not self.bot.config.get('whitelist_autoleave', False):
             return
 
-        self.log.debug('estoy en %s servers', len(self.bot.servers))
+        self.log.debug('I\'m in %s servers', len(self.bot.servers))
         wlist = self.bot.config.get('whitelist_servers', [])
         servers = [sv for sv in self.bot.servers if sv.id not in wlist and int(sv.id) not in wlist]
-        self.log.debug('%s servers en la whitelist', len(wlist))
-        self.log.debug('%s servers que no están en la whitelist', len(servers))
+        self.log.debug('%s servers in the whitelist', len(wlist))
+        self.log.debug('%s servers not on the whitelist', len(servers))
         for server in servers:
-            self.log.debug('La guild "%s" (%s) no está en la whitelist, bye bye', server.name, server.id)
+            self.log.debug('The guild "%s" (%s) is not on the whitelist, bye bye', server.name, server.id)
             await self.bot.leave_server(server)
 
     async def on_server_join(self, server):
         if not self.bot.config.get('whitelist', False):
-            self.log.debug('whitelist not enabled')
             return
 
         wlist = self.bot.config.get('whitelist_servers', [])
         wcontact = self.bot.config.get('whitelist_contact', '')
 
         if server.id in wlist or int(server.id) in wlist:
-            self.log.debug('Entré a "%s" (%s) :3', server.name, server.id)
+            self.log.debug('I joined "%s" (%s) :3', server.name, server.id)
             return
 
-        msg = 'Hola! Gracias por agregarme a esta guild, pero no se me ha permitido ingresar, aún. ' \
+        msg = '$[leaveserver-bye] ' \
               'Para ello, debes entrar a discord.gg/chile y '
         if wcontact == '':
             msg += 'consultar con admin. Saludos!'
@@ -63,12 +63,16 @@ class ServerWhitelist(Command):
 
         if server.default_channel is not None:
             try:
-                await self.bot.send_message(server.default_channel, msg)
+                if wcontact == '':
+                    await self.bot.send_message(server.default_channel, '$[leaveserver-bye] $[leaveserver-admin]')
+                else:
+                    await self.bot.send_message(server.default_channel, '$[leaveserver-bye] $[leaveserver-owner]',
+                                                locales={'owner_id': wcontact})
             except Exception as e:
-                self.log.error('No pude enviar un mensaje de despedida a "%s" (%s)'.format(server.name, server.id))
+                self.log.error('I could not say goodbye to "%s" (%s)'.format(server.name, server.id))
                 self.log.exception(e)
 
-        self.log.debug('La guild "%s" (%s) no está en la whitelist, bye bye', server.name, server.id)
+        self.log.debug('The guild "%s" (%s) is not on the whitelist, bye bye', server.name, server.id)
         await self.bot.leave_server(server)
 
 
@@ -81,10 +85,10 @@ class ServersList(Command):
 
     async def handle(self, cmd):
         if len(self.bot.servers) == 0:
-            await cmd.answer('no estoy en ningún servidor uwu')
+            await cmd.answer('$[serverslist-none]')
             return
 
-        await cmd.answer('estoy en los siguientes servidores:')
+        await cmd.answer('$[serverslist-msg]')
 
         resp_list = ''
         for server in self.bot.servers:
@@ -98,6 +102,6 @@ class ServersList(Command):
             else:
                 resp_list = '{}\n{}'.format(resp_list, item)
 
-        # Enviar lista restante
+        # Send remaining list
         if resp_list != '':
             await cmd.answer(Embed(description=resp_list), withname=False)
