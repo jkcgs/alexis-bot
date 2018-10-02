@@ -12,7 +12,7 @@ class Pat(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'pat'
-        self.help = 'Te envía una imagen de animé de una caricia en la cabeza y algo más'
+        self.help = '$[pat-help]'
         self.category = categories.IMAGES
         self.config = None
 

@@ -30,7 +30,7 @@ class IAm(Command):
                 await cmd.answer('$[iam-no-roles]')
                 return False
             else:
-                # Convertir lista de IDs de roles a nombres, filtrar roles no disponibles
+                # Convert roles ID list to names, filter not available roles
                 roles = [get_server_role(cmd.server, r) for r in roles]
                 roles = [r.name for r in roles if r is not None]
                 await cmd.answer('$[iam-roles-list]', locales={'roles': ', '.join(roles)})
@@ -124,13 +124,13 @@ class IAmRoles(Command):
                 await cmd.answer('$[iam-no-roles]')
                 return
             else:
-                # Convertir lista de IDs de roles a su nombre, mostrar "ND:(id)" si no está disponible.
+                # Convert roles ID list to their name, show "ND:(id)" if it's not available.
                 roles = [get_server_role(cmd.server, r) or r for r in roles]
                 roles = [(r.name if isinstance(r, discord.Role) else 'ND:' + r) for r in roles]
                 await cmd.answer('$[iam-roles-list]', locales={'roles': ', '.join(roles)})
                 return
 
-        # shorthands: agrega un argumento al comando y elimina los símbolos
+        # shorthands: using + and - to add and remove roles
         if cmd.text.startswith('+'):
             cmd.argc += 1
             cmd.args.insert(0, 'add')

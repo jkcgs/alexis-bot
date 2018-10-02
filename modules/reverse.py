@@ -8,7 +8,7 @@ class Reverse(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'reverse'
-        self.help = 'Revierte el texto enviado'
+        self.help = '$[reverse-help]'
         self.category = categories.UTILITY
 
     async def handle(self, cmd):

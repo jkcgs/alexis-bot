@@ -114,7 +114,7 @@ class StarboardHook(Command):
             return
 
         config = self.config_mgr(reaction.message.server.id)
-        # Cargar reacciones admitidas
+        # Load allowed reactions
         emojis = config.get(cfg_starboard_emojis)
         reaction_triggers = []
         if emojis != '':
@@ -127,7 +127,7 @@ class StarboardHook(Command):
                     reaction_triggers.append(react)
             reaction_triggers = reaction_filtered
 
-        # Obtener el canal de starboard
+        # Get the starboard channel
         channelid = config.get(cfg_starboard_channel)
         if channelid == '':
             return
@@ -139,11 +139,11 @@ class StarboardHook(Command):
         else:
             count_trigger = int(ct_config)
 
-        # Ignorar mensaje si es del mismo canal del starboard o del mismo bot
+        # Ignore messages on the starboard channel or from the bot itself
         if channelid == msg.channel.id or msg.author.id == self.bot.user.id:
             return
 
-        # Ignorar mensaje si es de un canal NSFW
+        # Ignore NSFW channels if they are ignored
         if 'nsfw' in msg.channel.name.lower() and config.get(cfg_starboard_nsfw, '0') == '0':
             return
 

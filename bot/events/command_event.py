@@ -66,7 +66,7 @@ class CommandEvent(MessageEvent):
                 await self.answer(cmd.nsfw_only_error)
                 return
             else:
-                # Ejecutar el comando
+                # Run the command
                 result = await cmd.handle(self)
                 fine = result is None or (isinstance(result, bool) and result)
                 if fine and cmd.user_delay > 0:

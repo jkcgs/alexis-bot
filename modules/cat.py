@@ -24,7 +24,6 @@ class Cat(Command):
             await cmd.answer('$[animal-cats-error]')
 
 
-# porque puedo
 class Dog(Command):
     url = 'https://dog.ceo/api/breeds/image/random'
 

@@ -19,7 +19,7 @@ class ShipperUwU(Command):
             await cmd.answer('$[format]: $[ship-format]')
             return
 
-        # obtener menciones en el mismo orden en el que se escribieron
+        # Get mentions in the same order as they were sent
         item1 = await get_details(cmd, cmd.args[0])
         item2 = await get_details(cmd, cmd.args[1])
         if item1 is None or item2 is None:
@@ -29,7 +29,7 @@ class ShipperUwU(Command):
         item1_name, item1_url = item1
         item2_name, item2_url = item2
 
-        # verificar que los usuarios no son iguales po jaja
+        # Check if users are not the same
         if item1_url == item2_url:
             await cmd.answer('$[ship-err-same]')
             return
@@ -37,7 +37,7 @@ class ShipperUwU(Command):
         await cmd.typing()
         self.log.debug('Generating picture...')
 
-        # Descargar avatares
+        # Download profile pictures
         async with self.http.get(item1_url) as resp:
             self.log.debug('Downloading user1 avatar - %s', item1_url)
             user1_avatar = await resp.read()
@@ -45,26 +45,26 @@ class ShipperUwU(Command):
             self.log.debug('Downloading user2 avatar - %s', item2_url)
             user2_avatar = await resp.read()
 
-        # Abrir avatares y cambiar su tamaño
+        # Open and resize pictures
         user1_img = Image.open(BytesIO(user1_avatar)).resize((512, 512), Image.ANTIALIAS)
         user2_img = Image.open(BytesIO(user2_avatar)).resize((512, 512), Image.ANTIALIAS)
 
-        # Abrir el corazón <3
+        # Open the heart <3
         heart_img = Image.open(path.join(path.dirname(path.realpath(__file__)), 'heart.png'))
 
-        # Crear imagen resultante
+        # Create picture
         result = Image.new('RGBA', (1536, 512))
         result.paste(user1_img, (0, 0))
         result.paste(heart_img, (512, 0))
         result.paste(user2_img, (1024, 0))
 
-        # Guardar imagen en un array
+        # Save picture in memory
         temp = BytesIO()
         result.save(temp, format='PNG')
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
         self.log.debug('Image ready!')
 
-        # Generar nombre del ship y enviar con la imagen
+        # Create ship name and send picture
         ship_name = item1_name[0:int(len(item1_name) / 2)] + item2_name[int(len(item2_name) / 2):]
         msg = cmd.lang.format('$[ship-msg]', locales={'ship_name': ship_name})
         await self.bot.send_file(cmd.message.channel, temp, filename='ship.png', content=msg)

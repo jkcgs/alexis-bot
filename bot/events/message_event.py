@@ -34,13 +34,11 @@ class MessageEvent:
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """
-        Envía un mensaje al canal desde donde se originó el mensaje
-        :param content: El contenido del mensaje. Si es una instancia de discord.Embed, se convierte en un Embed
-        :param to_author: Si se define como True, se envía directamente a quien envió el mensaje, en vez del canal desde
-        donde se envió.
-        :param withname: Establece si se agrega el nombre del usuario a quien se le responde al principio del mensaje en
-        el formato "<display_name>, ...". Si el mensaje no lleva contenido, no se agrega la coma, ni un punto.
-        :param kwargs: Parámetros adicionales a pasar a la función send_message de discord.Client
+        Sends a message where the event was created
+        :param content: The message content. If it's a discord.Embed, then it's used as the embed parameter.
+        :param to_author: If set to True, it's will be sent to the author instead of the event's channel.
+        :param withname: Sets if the message will contain the author's name as prefix.
+        :param kwargs: Additional parameters to pass to send_message method.
         """
         if isinstance(content, Embed):
             kwargs['embed'] = content
@@ -78,15 +76,15 @@ class MessageEvent:
 
     async def typing(self):
         """
-        Envía el estado "Escribiendo..." al canal desde el cual se recibió el mensaje.
+        Sends the "typing..." status to the event's channel.
         """
         await self.bot.send_typing(self.message.channel)
 
     def member_by_id(self, user_id):
         """
-        (Sólo para mensajes en guild) Entrega un miembro del servidor, según el ID de usuario
-        :param user_id: El ID del usuario a buscar.
-        :return: El discord.Member del servidor. Si no se encontró, retorna None
+        (Only for guild messages) Returns the guild member, given an user ID
+        :param user_id: The user's ID to lookup.
+        :return: The guild's discord.Member. Returns None if it was not found.
         """
         if self.is_pm:
             return None
@@ -105,10 +103,11 @@ class MessageEvent:
 
     async def get_user(self, user, member_only=False):
         """
-        Obtiene un usuario según su nombre, una mención, su ID o su nombre con discriminador de Discord.
-        :param user:
-        :param member_only:
-        :return:
+        Fetch a user given a name, mention, it's ID or the user#discriminator string.
+        :param user: The user referecence string.
+        :param member_only: Guild members only.
+        :return: If the event came from a guild, then a discord.Member is returned. Else, a discord.User is returned.
+        In any case, if the user could not be found, None is returned.
         """
         if self.is_pm:
             raise RuntimeError('You can\'t get users information on PMs')
@@ -138,9 +137,9 @@ class MessageEvent:
 
     def find_channel(self, channel):
         """
-        Encuentra un canal según su nombre, #nombre, mención o ID, para un mensaje desde una guild.
-        :param channel: El nombre, #nombre, mención o ID del canal a buscar
-        :return: El discord.Channel. Si no se encontró, se devuelve None.
+        Looks up for a channel given it's name, #name, channel tag or ID, for an event originated from a guild.
+        :param channel: The channel reference string
+        :return: The discord.Channel. If not found, None is returned.
         """
         if self.is_pm:
             return None

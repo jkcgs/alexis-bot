@@ -46,14 +46,14 @@ class Warn(Command):
         num = get_member_warns(member).count()
         adv = ['$[warn-now]', '$[warn-now-single]'][num == 1]
 
-        # Enviar PM con el aviso de la advertencia
+        # Tell user via PM about the warn
         try:
             await self.bot.send_message(member, '$[warn-msg] {}'.format(adv),
                                         locales={'server_name': server.name, 'reason': reason, 'count': num})
         except discord.errors.Forbidden as e:
             self.log.exception(e)
 
-        # Avisar por el canal donde se envió el comando
+        # Answer to the command with warn information
         adv = ['$[warn-answer-count]', '$[warn-answer-count-single]'][num == 1]
         msg = '$[warn-answer] {}.'.format(adv)
         await cmd.answer(msg, locales={'username': member.display_name, 'reason': reason, 'count': num})

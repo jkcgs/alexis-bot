@@ -26,7 +26,7 @@ class Rate(Command):
                 hashi = hashlib.md5()
                 hashi.update(m.id.encode('utf-8'))
                 hid = hashi.hexdigest()
-                # no si no es niuna weá transfuga wn sólo estoy ocultando los ids de los locos especiales jaj
+
                 if hid in Rate.special1:
                     await cmd.answer('$[rate-special1]', locales={'user': text})
                 elif hid in Rate.special2:

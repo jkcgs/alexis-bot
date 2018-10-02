@@ -8,7 +8,7 @@ from bot.utils import is_int, get_bot_root
 
 LANG_FOLDER = path.join(get_bot_root(), 'lang')
 LANGS = ['en', 'es', 'es_CL']
-pat_nombre = re.compile('^[0-9a-zA-Z_\-]{3,20}$')
+pat_name = re.compile('^[0-9a-zA-Z_\-]{3,20}$')
 
 
 def yesno(default_yes=True):
@@ -17,7 +17,7 @@ def yesno(default_yes=True):
     return 'y' == (resp if resp != '' else ('y' if default_yes else 'n'))
 
 
-def carpetas():
+def folders():
     if not path.exists(LANG_FOLDER) or not path.isdir(LANG_FOLDER):
         raise RuntimeError('Folder "{}" does not exist'.format(LANG_FOLDER))
 
@@ -27,26 +27,26 @@ def carpetas():
     return [f for f in listdir(LANG_FOLDER) if path.isdir(path.join(LANG_FOLDER, f))]
 
 
-def crear_carpeta(nombre):
-    if nombre in carpetas():
+def create_folder(name):
+    if name in folders():
         print('Folder already exists')
         return None
 
-    mkdir(path.join(LANG_FOLDER, nombre))
+    mkdir(path.join(LANG_FOLDER, name))
     print('Folder created')
 
 
-def cargar_idiomas(carpeta, crear=False):
-    if carpeta not in carpetas():
-        if crear:
-            crear_carpeta(carpeta)
+def load_langs(folder, create=False):
+    if folder not in folders():
+        if create:
+            create_folder(folder)
         else:
             print('Folder does not exist')
             return None
 
     langs = {}
     for l in LANGS:
-        langpath = path.join(LANG_FOLDER, carpeta, l + '.yml')
+        langpath = path.join(LANG_FOLDER, folder, l + '.yml')
         with open(langpath, 'a+') as f:
             f.close()
             langs[l] = StaticConfig(langpath, True)
@@ -54,38 +54,38 @@ def cargar_idiomas(carpeta, crear=False):
     return langs
 
 
-def strings(carpeta):
-    if carpeta not in carpetas():
+def strings(folder):
+    if folder not in folders():
         print('Folder does not exist')
 
-    idiomas = cargar_idiomas(carpeta)
-    return [f for f in list(idiomas[LANGS[0]].config.keys()) if isinstance(f, str)]
+    languages = load_langs(folder)
+    return [f for f in list(languages[LANGS[0]].config.keys()) if isinstance(f, str)]
 
 
 if __name__ == '__main__':
-    n_carpetas = carpetas()
-    print('Current folders: ', n_carpetas)
+    n_folders = folders()
+    print('Current folders: ', n_folders)
 
-    n_carpeta = '+'
-    while not pat_nombre.match(n_carpeta):
+    n_folder = '+'
+    while not pat_name.match(n_folder):
         print('Input the folder\'s name (if it doesn\'t exist, it will be created)\n')
-        n_carpeta = input('> ')
-        if not pat_nombre.match(n_carpeta):
+        n_folder = input('> ')
+        if not pat_name.match(n_folder):
             print('Please, type between 3 y 20 characters, numbers, hyphens and underscores.')
 
-    if n_carpeta not in n_carpetas:
+    if n_folder not in n_folders:
         print('The folder does not exist. Create it?')
-        respuesta = yesno()
+        answer = yesno()
 
-        if not respuesta:
+        if not answer:
             print('OK, exiting.')
             sys.exit(0)
         else:
-            mkdir(path.join(LANG_FOLDER, n_carpeta))
+            mkdir(path.join(LANG_FOLDER, n_folder))
 
     while True:
-        h_langs = cargar_idiomas(n_carpeta)
-        strs = strings(n_carpeta)
+        h_langs = load_langs(n_folder)
+        strs = strings(n_folder)
         if len(strs) == 0:
             print('There are no strings for this folder.')
             print('Input the string name to create it.')
