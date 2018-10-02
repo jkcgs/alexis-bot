@@ -94,6 +94,6 @@ class Modules(Command):
         await cmd.answer(embed, withname=False, locales={
             'mod_name': module.__class__.__name__,
             'mod_version': getattr(module, '__version__', '0.0.0'),
-            'mod_author': getattr(module, '__author__', '*(sin autor)*'),
+            'mod_author': getattr(module, '__author__', '$[module-no-author]'),
             'mod_help': module.help
         })

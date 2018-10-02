@@ -27,7 +27,7 @@ class Kick(Command):
             await cmd.answer('$[user-not-found]')
             return
 
-        # Kickear al usuario
+        # Kick the user
         try:
             await self.bot.kick(to_kick)
         except discord.Forbidden:
@@ -36,7 +36,7 @@ class Kick(Command):
 
         reason = ' '.join(cmd.args[1:]) if cmd.argc > 1 else ''
 
-        # Avisar al usuario (no bots) que fue kickeado
+        # Tell the user about the kick
         try:
             if not to_kick.bot:
                 if reason:

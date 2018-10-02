@@ -23,3 +23,4 @@ config-shutdown-help: Stops the bot process.
 config-goodbye: Good bye!
 config-status-help: Sets the bot status.
 config-status-ok: Ready.
+config-back: I'm back!

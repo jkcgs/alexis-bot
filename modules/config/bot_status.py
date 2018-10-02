@@ -19,7 +19,7 @@ class BotStatus(Command):
             lambda: 'discord.cl/bot',
             lambda: 'version {}'.format(AlexisBot.__version__),
             lambda: 'add with !invite',
-            lambda: '!help = avail. commands',
+            lambda: '!help = commands',
             lambda: '{} guilds'.format(len(self.bot.servers)),
             lambda: '{} users'.format(len(set([u.id for u in self.bot.get_all_members() if not u.bot]))),
             lambda: 'with {} bots'.format(len(set([u.id for u in self.bot.get_all_members() if u.bot]))),

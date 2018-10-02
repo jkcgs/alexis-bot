@@ -19,3 +19,4 @@ module-e-delay: Retraso
 module-e-priority: Prioridad
 module-e-path: Ubicación
 module-e-no: 'No'
+module-no-author: '*(sin autor)*'

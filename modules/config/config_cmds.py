@@ -146,7 +146,7 @@ class ShutdownCmd(Command):
             if chan is None:
                 return
 
-            await self.bot.send_message(chan, 'volví :3')
+            await self.bot.send_message(chan, '$[config-back]')
             self.bot.config['shutdown_channel'] = ''
 
 

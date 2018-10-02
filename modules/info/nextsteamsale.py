@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import json
-import asyncio
 from discord import Embed
 
 from bot import Command, categories

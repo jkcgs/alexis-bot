@@ -19,3 +19,4 @@ module-e-delay: Delay
 module-e-priority: Priority
 module-e-path: Location
 module-e-no: 'No'
+module-no-author: '*(no author)*'

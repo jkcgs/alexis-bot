@@ -144,7 +144,7 @@ class Horoscopo(Command):
                 continue
 
             try:
-                await self.bot.send_message(content='¡Actualización de horóscopo!', embed=embed, destination=user)
+                await self.bot.send_message(content='$[horoscopo-update]', embed=embed, destination=user)
             except discord.Forbidden:
                 pass
 

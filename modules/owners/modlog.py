@@ -273,7 +273,7 @@ class UpdateUsername(Command):
 
         self.updating = True
 
-        # Obtener el último nombre de usuario de cada usuario
+        # Retrieve every last user name
         # SELECT * FROM usernamereg t1 WHERE timestamp = (
         #   SELECT MAX(timestamp) FROM t1 WHERE t1.timestamp = usernamereg.timestamp
         # ) ORDER BY timestamp DESC
@@ -286,12 +286,12 @@ class UpdateUsername(Command):
                  UserNameReg.timestamp.desc()
              )}
 
-        # Filtrar por nombres de usuario no registrados (nuevos)
+        # Filter by unregistered users
         k = [{'userid': m.id, 'name': m.name}
              for m in self.bot.get_all_members() if m.id not in j or j[m.id] != m.name]
         k = [i for n, i in enumerate(k) if i not in k[n + 1:]]  # https://stackoverflow.com/a/9428041
 
-        # Registrar nuevos nombres de usuario
+        # Register new users' names
         with self.bot.db.atomic():
             for idx in range(0, len(k), 100):
                 UserNameReg.insert_many(k[idx:idx + 100]).execute()

@@ -53,7 +53,7 @@ class Ban(Command):
             await cmd.answer('$[realban-error-denied]')
             return
 
-        # Enviar PM con el aviso del ban
+        # Tell about the ban to the user via PM
         try:
             if reason == '':
                 await self.bot.send_message(member, '$[realban-msg]', locales={'server_name': server.name})

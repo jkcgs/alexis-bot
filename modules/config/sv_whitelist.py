@@ -54,13 +54,6 @@ class ServerWhitelist(Command):
             self.log.debug('I joined "%s" (%s) :3', server.name, server.id)
             return
 
-        msg = '$[leaveserver-bye] ' \
-              'Para ello, debes entrar a discord.gg/chile y '
-        if wcontact == '':
-            msg += 'consultar con admin. Saludos!'
-        else:
-            msg += 'hablar con <@{}>. Saludos!'.format(wcontact)
-
         if server.default_channel is not None:
             try:
                 if wcontact == '':

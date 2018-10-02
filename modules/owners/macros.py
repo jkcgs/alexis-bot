@@ -257,11 +257,11 @@ class MacroUse(Command):
         self.swhandler_break = True
 
     async def handle(self, cmd):
-        # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
+        # Update the last user who used the macro
         if self.bot.last_author is None or not cmd.self:
             self.bot.last_author = cmd.author.id
 
-        # Obtener los argumentos del macro
+        # Get macro arguments
         pfx = self.bot.config['command_prefix']
         if cmd.message.content.startswith(pfx + ' '):
             macro_name = cmd.args[0]
@@ -274,7 +274,7 @@ class MacroUse(Command):
         if len(macro_args) == 1 and macro_args[0] == '':
             macro_args = []
 
-        # Usar un macro embed si existe
+        # Use an embed macro, if it exists
         try:
             server_id = 'global' if cmd.is_pm else cmd.message.server.id
             macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server << [server_id, 'global'])
@@ -326,22 +326,22 @@ class MacroRank(Command):
 
 def safe_format(strp, args):
     """
-    Agrega placeholders a un macro que tiene placeholders, pero que no se le pasaron los suficientes
-    :param strp: El string del macro
-    :param args: Los parámetros del macro
-    :return: El string formateado según los argumentos
+    Adds placeholders to a macro that had not enough arguments passed
+    :param strp: The macro string
+    :param args: Macro parameters
+    :return: The formatted strings
     """
 
-    # Encontrar los placeholders numéricos
+    # Find numeric placeholders
     t = [int(i) for i in re.findall(r"{(\w+)}", strp) if is_int(i)]
 
     if len(t) > 0:
         t = max(t) + 1
         if len(args) < t:
-            # Agregar los placeholders a la lista de argumentos
+            # Add placeholders to the arguments list
             args += [('{' + str(j) + '}') for j in range(len(args), t - len(args) + 1)]
 
-    # Formatear el string según la nueva lista de argumentos
+    # Format the string with the new arguments list
     return strp.format(*args)
 
 

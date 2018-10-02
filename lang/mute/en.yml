@@ -1,0 +1,23 @@
+mute-actually-not: You're not actually muted.
+mute-remaining: 'You have {time} mute remaining.'
+mute-list: 'There are {muted_amount} muted users:'
+mute-err-bot: You can't mute myself!
+mute-err-self: You can't mute yourself!
+mute-err-perms: I don't have permission to manage roles.
+mute-err-time: Invalid mute time.
+mute-err-unmute: 'If you want to unmute someone, use `$PXunmute <user>`'
+mute-err-noex-role: 'The role "{muted_role}" does not exist.'
+mute-time: 'by {delta_time}'
+mute-reason: 'due to: "{reason}"'
+mute-msg: 'Hello! You''ve been muted in **{server_name}**'
+mute-answer: '**{username}** has been muted'
+unmute-help: Unmutes users
+unmute-format: '$CMD <user, user ID, @mention>'
+unmute-no-muted-role: 'The user does not have the muted role ({role_name}).'
+unmute-err-perms: >-
+  I could not remove the muted role! Check the bot permissions (is the mute role
+  over the top bot role?
+unmute-done: User unmuted!
+mutedrole-help: Sets the muted role.
+mutedrole-format: $CMD <role>
+mutedrole-set: 'Muted role is now **{muted_role}**.'
