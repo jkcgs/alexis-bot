@@ -73,3 +73,14 @@ You can see a more elaborated example in the [`greeting.py`](https://github.com/
 script.
 
 More options and more documentation about the modules API can be found [here](https://github.com/jkcgs/alexis-bot/wiki/Modules-development).
+
+### Special thanks
+I want to thank all the people that has collaborated with this project, specially the code contributors:
+[jvicu2001](https://github.com/jvicu2001), [AnEpicName](https://github.com/AnEpicName) and 
+[HenryDelMal](https://github.com/HenryDelMal). My most special thanks goes to [santisteban](https://github.com/santisteban)
+(a.k.a. *ibk*) for creating this project. Sadly, the code has been so heavily modified and none of his code can be found
+in the current status.
+
+### License
+This project is licensed under the [MIT license](LICENSE).
+

@@ -50,7 +50,8 @@ class CommandEvent(MessageEvent):
     async def handle(self):
         try:
             cmd = self.bot.manager[self.cmdname]
-            # Filtro de permisos y tiempo
+
+            # Time and permissions filter
             if (cmd.bot_owner_only and not self.bot_owner) \
                     or (cmd.owner_only and not self.owner) \
                     or (not cmd.allow_pm and self.is_pm) \
@@ -59,10 +60,10 @@ class CommandEvent(MessageEvent):
             elif (cmd.user_delay > 0 and self.author.id in cmd.users_delay
                   and cmd.users_delay[self.author.id] + timedelta(0, cmd.user_delay) > datetime.now()
                   and not self.owner):
-                await self.answer('aún no puedes usar ese comando')
+                await self.answer(cmd.user_delay_error)
                 return
             elif not self.is_pm and cmd.nsfw_only and 'nsfw' not in self.channel.name:
-                await self.answer('este comando sólo puede ser usado en un canal NSFW')
+                await self.answer(cmd.nsfw_only_error)
                 return
             else:
                 # Ejecutar el comando
@@ -72,9 +73,9 @@ class CommandEvent(MessageEvent):
                     cmd.users_delay[self.author.id] = datetime.now()
         except Exception as e:
             if self.bot.config['debug']:
-                await self.answer('ALGO PASÓ OwO\n```{}```'.format(traceback.format_exc()))
+                await self.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
             else:
-                await self.answer('ocurr.. 1.error c0n\'el$##com@nd..\n```{}```'.format(str(e)))
+                await self.answer('$[error-msg]\n```{}```'.format(str(e)))
             log.exception(e)
 
     @staticmethod
@@ -85,10 +86,3 @@ class CommandEvent(MessageEvent):
             return cmdname in bot.manager
         else:
             return False
-
-    @property
-    def prefix(self):
-        prefix = MessageEvent.get_prefix(self.message, self.bot)
-        if self.text.startswith(prefix) is None:
-            raise RuntimeError('The message is not a command')
-        return prefix

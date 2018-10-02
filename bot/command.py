@@ -25,7 +25,7 @@ class Command:
         self.category = categories.OTHER
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
-        self.nsfw_only = False  # TODO
+        self.nsfw_only = False
         self.bot_owner_only = False
         self.owner_only = False
         self.default_enabled = True
@@ -35,6 +35,7 @@ class Command:
         self.user_delay = 0
         self.users_delay = {}
         self.user_delay_error = '$[command-delayed]'
+        self.nsfw_only_error = '$[nsfw-only]'
         self.db_models = []
 
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}

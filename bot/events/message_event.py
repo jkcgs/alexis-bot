@@ -111,7 +111,7 @@ class MessageEvent:
         :return:
         """
         if self.is_pm:
-            raise RuntimeError('Esta función no funciona desde PMs')
+            raise RuntimeError('You can\'t get users information on PMs')
 
         if isinstance(user, discord.Member) or isinstance(user, discord.User):
             return user
