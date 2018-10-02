@@ -8,7 +8,7 @@ from discord import Embed, Server
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
-from bot.utils import destination_repr, get_bot_root, replace_everywhere
+from bot.utils import destination_repr, get_bot_root
 
 
 class AlexisBot(discord.Client):

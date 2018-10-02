@@ -9,7 +9,6 @@ from bot import Command, utils, categories
 from discord import Embed
 
 from bot.libs.configuration import BaseModel
-from bot.logger import log
 from bot.utils import deltatime_to_str
 
 
@@ -243,11 +242,11 @@ class UpdateUsername(Command):
 
     async def on_member_join(self, member):
         if not self.updating:
-            UpdateUsername.do_it(member)
+            self.do_it(member)
 
     async def on_member_update(self, before, after):
         if not self.updating:
-            UpdateUsername.do_it(after)
+            self.do_it(after)
 
         if before.name != after.name:
             cfg = self.config_mgr(before.server.id)
@@ -301,8 +300,7 @@ class UpdateUsername(Command):
         self.updated = True
         return len(k)
 
-    @staticmethod
-    def do_it(user):
+    def do_it(self, user):
         if not isinstance(user, discord.User):
             raise RuntimeError('user argument can only be a discord.User')
 
@@ -311,7 +309,7 @@ class UpdateUsername(Command):
 
         if r.count() == 0 or u.name != user.name:
             old = '(none)' if u is None else u.name
-            log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
+            self.log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
             UserNameReg.create(userid=user.id, name=user.name)
             return True
 

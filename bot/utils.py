@@ -67,11 +67,11 @@ def is_owner(bot, member, server):
 
 def get_server_role(server, role, case_sensitive=True):
     """
-    Obtiene la instancia de un rol de un servidor
-    :param server: La instancia de servidor en la que se buscará
-    :param role: El nombre o ID del rol
-    :param case_sensitive: Implica si el nombre debe coincidir con las mayúsculas de manera exacta o no
-    :return: La instancia del rol, o None si no ha sido encontrado
+    Creates an instance of a server role
+    :param server: The discord.Server instance in where the lookup will be made
+    :param role: The name or ID of the role
+    :param case_sensitive: Implies if the lookup will be case sensitive
+    :return: The role instance, or None if it was not found
     """
     if not isinstance(server, discord.Server):
         raise RuntimeError('"server" argument must be a discord.Server instance')
@@ -86,10 +86,10 @@ def get_server_role(server, role, case_sensitive=True):
 
 def member_has_role(member, role):
     """
-    Verifica si un miembro dado tiene un rol
-    :param member: El miembro de un servidor
-    :param role: El nombre, ID del rol o el rol
-    :return:
+    Verifies if a guild member has a role
+    :param member: The guild member, discord.Member instance
+    :param role: The name, ID or instanced (discord.Role) role
+    :return: A boolean value, given the result of the operation
     """
     if not isinstance(member, discord.Member):
         raise RuntimeError('"member" argument must be a discord.Member instance')
@@ -121,11 +121,11 @@ def img_embed(url, title='', description='', footer=''):
 
 def text_cut(text, limit, cutter='…'):
     """
-    Corta un texto y agrega un texto al final en caso de que el texto sea mayor que el tamaño límite
-    :param text: El texto a cortar
-    :param limit: El límite de texto
-    :param cutter: El texto que se colocará al final en caso de ser cortado
-    :return: El texto cortado, si corresponde, o el texto completo, si no supera el límite.
+    Text ellipsis
+    :param text: The text to be cutted
+    :param limit: The text limit (the ellipsis character(s) are counted in this limit)
+    :param cutter: The suffix to add at the end of the cutted text.
+    :return: The cutted text, or the full text if it's shorter than the given limit.
     """
     if len(text) > limit:
         return text[:limit-len(cutter)-1] + cutter
@@ -135,11 +135,11 @@ def text_cut(text, limit, cutter='…'):
 
 def split_list(listcont, limit, glue='\n'):
     """
-    Separa una lista de items en listas más pequeñas para poder ser enviada por partes en un mensaje
-    :param listcont: La lista completa de items
-    :param limit: El límite de carácteres
-    :param glue: El string que unirá cada elemento de la lista
-    :return: Una lista de listas separadas según los parámetros entregados
+    Splits a list of items in chunks to be sent in messages
+    :param listcont: The item list
+    :param limit: The character limit
+    :param glue: The string that will join every list item
+    :return: A list of strings with the items joined given the glue parameter
     """
     chunks = []
     chunk = []
@@ -157,6 +157,13 @@ def split_list(listcont, limit, glue='\n'):
 
 
 def parse_tag(text):
+    """
+    Creates a dict object with parameters, given a Discord tag (users, channels, custom emojis).
+    :param text: The tag text
+    :return: The dict object with items, all of them will have the 'type' property (possible values: channel,
+    emoji and user). Values for channel: id. Values for emoji: name, animated (bool), id. Values for user:
+    id, with_nick (bool).
+    """
     if not pat_tag.match(text):
         return None
 
@@ -183,6 +190,11 @@ def serialize_avail(avails):
 
 
 def deltatime_to_str(deltatime):
+    """
+    Creates a relative string from a deltatime object. For example, "1 day, 3 hours".
+    :param deltatime: The deltatime object.
+    :return: The generated string from the deltatime.
+    """
     result = []
     if deltatime.days > 0:
         result.append(str(deltatime.days) + ' $[day{}]'.format('' if deltatime.days == 1 else 's'))
@@ -197,12 +209,17 @@ def deltatime_to_str(deltatime):
         result.append(str(s) + ' $[second{}]'.format('' if s == 1 else 's'))
 
     if len(result) == 0:
-        result = ['ahora']
+        result = ['$[now]']
 
     return ', '.join(result)
 
 
 def deltatime_to_str_short(deltatime):
+    """
+    Creates a relative string from a deltatime object. For example, "1d3h", for 1 day and 3 hours.
+    :param deltatime: The deltatime object.
+    :return: The generated string from the deltatime.
+    """
     result = []
     if deltatime.days > 0:
         result.append(str(deltatime.days) + 'd')
@@ -217,12 +234,18 @@ def deltatime_to_str_short(deltatime):
         result.append(str(s) + 's')
 
     if len(result) == 0:
-        result = ['now']
+        result = ['$[now]']
 
     return ''.join(result)
 
 
 def timediff_parse(timediff):
+    """
+    Creates a deltatime from a deltatime_to_str_short format result. For example, "1d3h" creates a 1 day and 3 hours
+    deltatime object. Time items can be repeated and don't need to be in a specific order.
+    :param timediff: The timediff string.
+    :return: The resulting deltatime object.
+    """
     timediff = timediff.lower()
     ds = {'s': 0, 'm': 0, 'h': 0, 'd': 0}
     times = pat_delta_each.findall(timediff)
@@ -237,6 +260,12 @@ def timediff_parse(timediff):
 
 
 def format_date(date):
+    """
+    Creates a date string given a date object, in the format YYYY-mm-dd HH:MM:SS [offset].
+    The offset will normally be in the -NNNN format (e.g., -0300).
+    :param date: The date object
+    :return: The generated string for the date object.
+    """
     offset = time.strftime('%Z')
     if len(offset) > 5:
         offset = time.strftime('%z')
@@ -245,6 +274,11 @@ def format_date(date):
 
 
 def destination_repr(destination):
+    """
+    Creates a string based on a message destination (e.g., a guild, a user).
+    :param destination: The destination object
+    :return: The generated string.
+    """
     if getattr(destination, 'server', None) is None:
         return '{} (ID: {})'.format(str(destination), destination.id)
     else:
@@ -253,6 +287,14 @@ def destination_repr(destination):
 
 
 def replace_everywhere(content, search, replace=None):
+    """
+    Replaces a string everywhere in a string or a discord.Embed instance (i.e., title, description, fields, footer)
+    :param content: The string or discord.Embed instance. If none of them, it will be str()'d.
+    :param search: The string to search.
+    :param replace: The string to replace matches.
+    :return: If a discord.Embed instance is given, it will modify its attributes, so it's not necessary to recover this
+    method's result. In any case, it will return the modified content parameter.
+    """
     if isinstance(search, dict):
         for k, v in search.items():
             content = replace_everywhere(content, k, str(v))
@@ -281,10 +323,19 @@ def replace_everywhere(content, search, replace=None):
 
 
 def get_bot_root():
+    """
+    Generates the absolute bot path in the system.
+    :return: A string containing the absolute bot path in the system.
+    """
     return path.abspath(path.join(path.dirname(__file__), '..'))
 
 
 def get_colour(value):
+    """
+    Creates a discord.Colour instance given a colour string.
+    :param value: A #RRGGBB string colour or a discord.Colour.embed_colour name.
+    :return: A discord.Colour instance.
+    """
     if re.match(pat_colour, value):
         if value.startswith("#"):
             value = value[1:]
@@ -298,6 +349,13 @@ def get_colour(value):
 
 
 def str_to_embed(txt):
+    """
+    Given a string in a certain format, creates a discord.Embed instance.
+    :param (str) txt: The string in the format: `title | description | image_url | embed_colour`.
+    To omit a parameter, add another pipe, or don't append it. For example, `title | | image_url`.
+    At least the title, description or the image url must be passed.
+    :return: A discord.Embed instance.
+    """
     if txt == '':
         raise RuntimeError('Invalid text to create an embed')
 
@@ -325,6 +383,12 @@ def str_to_embed(txt):
 
 
 def get_prefix(bot, serverid=None):
+    """
+    Looks up for the command prefix for a guild.
+    :param bot: The bot instance.
+    :param serverid: The guild ID string.
+    :return: The command prefix. If the serverid parameter is none, the default prefix will be returned.
+    """
     if serverid is None:
         return bot.config['command_prefix']
     else:
@@ -333,6 +397,15 @@ def get_prefix(bot, serverid=None):
 
 
 def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
+    """
+    Removes all the tags from a string, and replaces them with a verbose string that doesn't trigger tags.
+    :param txt: The string to format.
+    :param bot: The bot instance. If none, it won't be able to get server member nicks.
+    :param users: A boolean to determine if users will be processed. Only the user ID will be left.
+    :param channels: A boolean to determine if channels will be processed. Only the channel ID will be left.
+    :param emojis: A boolean to determine if emojis will be processed. Only the emoji name will be left.
+    :return: The formatted string.
+    """
     if isinstance(txt, discord.Message):
         txt = txt.content
 
