@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 import discord
 
-from bot.utils import get_prefix
 from . import SingleLanguage
 from .logger import log
 from .libs.configuration import ServerConfiguration
