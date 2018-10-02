@@ -1,0 +1,4 @@
+avatar-help: "Schickt den eigenen avatar, oder den einer genannten Person"
+user-avatar: "{user}'s avatar"
+user-avatar-no: "{user}'s avatar (hat keinen)"
+avatar-ext-link: "Hier clicken um ihn extern zu öffnen"
