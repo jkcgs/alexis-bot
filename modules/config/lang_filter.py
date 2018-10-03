@@ -43,6 +43,8 @@ class LangFilter(Command):
 
         prefix = get_prefix(self.bot, svid)
         kwargs['content'] = kwargs['content'].replace('$PX', prefix)
+        kwargs['content'] = kwargs['content'].lstrip(prefix)
+
         if kwargs['embed'] is not None:
             replace_everywhere(kwargs['embed'], '$PX', prefix)
 

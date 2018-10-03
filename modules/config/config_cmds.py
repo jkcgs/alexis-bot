@@ -148,17 +148,3 @@ class ShutdownCmd(Command):
 
             await self.bot.send_message(chan, '$[config-back]')
             self.bot.config['shutdown_channel'] = ''
-
-
-class SetStatus(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'status'
-        self.help = '$[config-status-help]'
-        self.bot_owner_only = True
-        self.category = categories.SETTINGS
-
-    async def handle(self, cmd):
-        status = '' if len(cmd.args) < 1 else cmd.text
-        await self.bot.change_presence(game=Game(name=status))
-        await cmd.answer('$[config-status-ok]')

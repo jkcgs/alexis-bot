@@ -86,7 +86,7 @@ class MacroSet(Command):
         if created:
             await cmd.answer('$[macros-created]', locales={'macro_name': name})
         else:
-            await cmd.answer('macros-updated', locales={'macro_name': name})
+            await cmd.answer('$[macros-updated]', locales={'macro_name': name})
 
 
 class MacroUnset(Command):

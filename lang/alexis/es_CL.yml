@@ -26,3 +26,4 @@ command-delayed: Aún no puedes usar este comando.
 nsfw-only: Este comando sólo puede ser utilizado en un canal NSFW.
 error-debug: ALGO PASÓ OwO
 error-msg: 'ocurr.. 1.error c0n''el$##com@nd..'
+invite-text: 'Puedes agregarme a tu servidor mediante el siguiente enlace:'
