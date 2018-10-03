@@ -26,3 +26,7 @@ config-goodbye: ¡Adiós!
 config-status-help: Determina el status del bot.
 config-status-ok: Listo.
 config-back: ¡Volví!
+config-resetlangs-help: >-
+  Reinicia la caché de los idiomas automáticamente definidos para hablar con los
+  usuarios vía PM
+config-resetlangs-done: ¡La caché de idiomas automáticamente definidos ha sido reiniciada!

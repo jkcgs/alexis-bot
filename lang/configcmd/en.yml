@@ -24,3 +24,5 @@ config-goodbye: Good bye!
 config-status-help: Sets the bot status.
 config-status-ok: Ready.
 config-back: I'm back!
+config-resetlangs-help: Resets the cached automatically set languages to talk to users via PM
+config-resetlangs-done: Auto-language cache reset!

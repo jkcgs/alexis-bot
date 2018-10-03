@@ -156,8 +156,6 @@ class RedditFollow(Command):
                     post_id = data['id']
                     if not exists:
                         Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
-                        self.log.info('New post in /r/{subreddit}: {permalink}'.format(
-                            subreddit=subname, permalink=data['permalink']))
 
                         if redditor is not None:
                             Redditor.update(posts=Redditor.posts + 1).where(
