@@ -1,5 +1,4 @@
 import discord
-from discord import ChannelType
 
 from bot import Command, CommandEvent
 from bot.utils import replace_everywhere, get_prefix
@@ -70,7 +69,7 @@ class LangFilter(Command):
             if hasattr(kwargs, 'event') and not kwargs['event'].is_pm:
                 return self.get_lang(kwargs['event'].server.id)
 
-            user = destination.owner if destination.type == ChannelType.group else destination.user
+            user = destination.owner if destination.type == discord.ChannelType.group else destination.user
             if user.id in self.autolang_cache:
                 return self.get_lang(self.autolang_cache[user.id])
 
