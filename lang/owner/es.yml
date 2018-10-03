@@ -1,5 +1,5 @@
 info-help: Muestra la información del bot
-info-authors: Autores
+info-authors: Autor(es)
 info-version: Versión
 clr-help: Elimina las reacciones de uno o más mensajes
 clr-format: '$CMD [#canal=actual] <id_mensaje1> ... <id_mensajeN>'

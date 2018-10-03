@@ -1,5 +1,5 @@
 info-help: Displays bot information
-info-authors: Authors
+info-authors: Author(s)
 info-version: Version
 clr-help: Removes one or more messages' reactions.
 clr-format: '$CMD [#channel=current] <id_message1> ... <id_messageN>'
