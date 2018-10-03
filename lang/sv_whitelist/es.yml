@@ -13,4 +13,4 @@ leaveserver-bye-owner: >-
   ¡Saludos!
 serverslist-help: Muestra la lista de servidores en los que está el bot.
 serverslist-none: No estoy en ningún servidor.
-serverslist-msg: 'Estoy en los siguientes servidores:'
+serverslist-msg: 'Estoy en los siguientes {amount} servidores:'

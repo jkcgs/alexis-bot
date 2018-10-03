@@ -13,4 +13,4 @@ leaveserver-bye-owner: >-
   to the whitelist.
 serverslist-help: Displays the guild list in which the bot is.
 serverslist-none: I'm not on any guild.
-serverslist-msg: 'I''m on the following guilds:'
+serverslist-msg: 'I''m on the following {amount} guilds:'

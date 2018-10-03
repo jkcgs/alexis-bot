@@ -81,7 +81,7 @@ class ServersList(Command):
             await cmd.answer('$[serverslist-none]')
             return
 
-        await cmd.answer('$[serverslist-msg]')
+        await cmd.answer('$[serverslist-msg]', locales={'amount': len(self.bot.servers)})
 
         resp_list = ''
         for server in self.bot.servers:
