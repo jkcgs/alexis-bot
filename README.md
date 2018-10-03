@@ -2,14 +2,14 @@
 
 This is a Discord bot that aims to deliver tools for all Discord users, with moderation
 and fun commands, including tools for automate tasks on servers. It is also easy to mantain,
-thanks to it's modular design.
+thanks to its modular design. Built on top of the [discord.py](https://discordpy.readthedocs.io) library.
 
 ### Quick start
 
 #### Self-host
-The bot is made on Python with discord.py. To host it, you can follow these instructions:
+Yes, of course you can self-host this bot. To do this, you can follow the following instructions:
 
-1. You need **Python 3.5 or Python 3.6 (recommended)** with `pip` installed. The `virtualenv` tool is optional but recommended.
+1. You need **Python 3.5 or Python 3.6** with `pip` installed. The `virtualenv` tool is optional but recommended.
 2. Clone this repo and change to the project directory (e.g., `cd alexis-bot`).
 3. Make a virtualenv with `virtualenv .venv` (if you have it) and activate it.
 4. Install dependencies: `pip install -r requirements.txt`
@@ -27,8 +27,8 @@ Check out [this guide](https://github.com/jkcgs/alexis-bot/wiki/Administration-a
 
 #### Users
 
-This bot has a lot of funny and useful commands (I think so), for example, providing random cats, showing
-the weather, checking a word on Urban Dictionary, and more. Check out [this page](https://discord.cl/commands) for more
+This bot has a lot of """funny""" and useful commands, for example, providing random cats, displaying
+the current weather, fetch a term definition on Urban Dictionary, and more. Check out [this page](https://discord.cl/commands) for more
 details about all the available commands.
 
 ### Development
