@@ -1,4 +1,21 @@
 lang-not-available: Idioma no disponible.
-current-lang: 'Idioma actual: **{lang}**'
+current-lang: 'Idioma actual: **{lang}**.'
 lang-set-to: 'Idioma definido como **{lang}**'
 lang-cmd-help: Cambia el idioma del bot para la guild actual.
+lang-cmd-chan-here: aquí|aqui
+lang-set-chan: 'Idioma definido como **{lang}** para el canal seleccionado.'
+lang-format: >-
+  $CMD [#canal] <código_idioma | unset> (al utilizar `unset` se reiniciará al
+  idioma por defecto del bot)
+lang-current-chan: 'Idioma para este canal: **{chan_lang}**.'
+lang-unset-chan: >-
+  El idioma para este canal ha sido restaurado al idioma predeterminado
+  (**{lang}**).
+lang-unset: >-
+  El idioma para este servidor ha sido restaurado al idioma predeterminado
+  (**{lang}**).
+lang-available-list: 'Idiomas disponibles: {lang_list}.'
+lang-chan-no-custom: Este canal no tiene un idioma propio definido.
+lang-no-custom: Este servidor ya usa el idioma por defecto.
+lang-current-guild: 'Idioma actual del servidor: **{lang}**.'
+lang-title: Información de idioma

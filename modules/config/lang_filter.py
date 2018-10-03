@@ -61,13 +61,13 @@ class LangFilter(Command):
         # If the destination is a discord.Channel or a discord.Member
         # (or any other destination instance that has the 'server' attribute)
         if hasattr(destination, 'server'):
-            return self.get_lang(destination.server.id)
+            return self.get_lang(destination.server.id, destination)
 
         # If the destination is a user
         elif isinstance(destination, discord.channel.PrivateChannel):
             # The event could've been triggered from a guild, so use its language
             if hasattr(kwargs, 'event') and not kwargs['event'].is_pm:
-                return self.get_lang(kwargs['event'].server.id)
+                return self.get_lang(kwargs['event'].server, kwargs['event'].channel)
 
             user = destination.owner if destination.type == discord.ChannelType.group else destination.user
             if user.id in self.autolang_cache:

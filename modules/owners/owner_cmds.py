@@ -233,27 +233,3 @@ class OwnerRoles(Command):
             await cmd.answer(msg + ', '.join(msg_list))
         else:
             await cmd.answer('$[owr-format]')
-
-
-class SetLanguage(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'setlanguage'
-        self.aliases = ['setlang', 'lang']
-        self.help = '$[lang-cmd-help]'
-        self.category = categories.STAFF
-        self.allow_pm = False
-        self.owner_only = True
-
-    async def handle(self, cmd):
-        if cmd.argc == 0:
-            self.log.debug('Lang updated to %s for server %s', cmd.config.get('lang'), cmd.server)
-            await cmd.answer('$[current-lang]', locales={'lang': cmd.config.get('lang')})
-            return
-
-        if not self.bot.lang.has(cmd.text):
-            await cmd.answer('$[lang-not-available]')
-            return
-
-        cmd.config.set('lang', cmd.text)
-        await cmd.answer(self.bot.lang.get('lang-set-to', cmd.text, lang=cmd.text))

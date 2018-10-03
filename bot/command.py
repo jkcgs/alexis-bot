@@ -55,16 +55,24 @@ class Command:
     def handle(self, cmd):
         pass
 
-    def get_lang(self, svid=None):
+    def get_lang(self, svid=None, channel=None):
         """
-        Creates a SingleLanguage instance for a server specific or default language.
-        :param svid: The server ID to get the language. If it's None, the default language is used.
+        Creates a SingleLanguage instance for a specific server or server channel or default language.
+        :param svid: The discord.Server instance or server ID to get the language.
+        If it's None, the default language is used.
+        :param channel: The channel ID or instance to get channel-specific language.
+        If not set, the server language is used.
         :return: The SingleLanguage instance with the determined language.
         """
-        if svid is None:
-            lang_code = self.bot.config['default_lang']
-        else:
+        lang_code = self.bot.config['default_lang']
+
+        if svid is not None and isinstance(svid, (discord.Server, str)):
+
             svid = svid if not isinstance(svid, discord.Server) else svid.id
-            lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'])
+            lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'], create=False)
+
+            if channel is not None and isinstance(channel, (discord.Channel, str)):
+                chanid = channel if not isinstance(channel, discord.Channel) else channel.id
+                lang_code = self.bot.sv_config.get(svid, 'lang#'+chanid, lang_code, create=False)
 
         return SingleLanguage(self.bot.lang, lang_code)
