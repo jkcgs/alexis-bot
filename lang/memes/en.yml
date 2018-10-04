@@ -1,0 +1,7 @@
+memes-help: Generates a meme picture based on a user's profile picture
+memes-format: '$CMD <@mention> | [text up] | <text down>'
+memes-format-1: $CMD <text down> (it will use your own profile picture)
+memes-format-2: '$CMD [user] | <text down>'
+memes-format-3: $CMD <user> | <text up> | <text down>
+memes-format-4: $CMD <@mention> <text down>
+memes-format-5: $CMD <@mention> <text up> | <text down>

@@ -1,0 +1,8 @@
+botmsg-help: Send a message with the bot.
+botmsg-format: >-
+  $CMD <channel> <message> - The *message* format is `message text | title |
+  embed | image_url | colour` (parameters after the text make an embed).
+botmsg-channel-not-found: Channel not found.
+botmsg-error-perms: Could not send the message due to lack of permissions.
+botmsg-edit-help: Edits a message sent by the bot.
+botmsg-not-found: Message not found.

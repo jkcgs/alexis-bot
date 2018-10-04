@@ -1,0 +1,24 @@
+mute-actually-not: 'Actualmente, no tienes un mute.'
+mute-remaining: 'Te queda(n) {time} de mute.'
+mute-list: 'Hay {muted_amount} usuarios muteados:'
+mute-err-bot: ¡No puedes mutearme!
+mute-err-self: ¡No puedes mutearte!
+mute-err-perms: No tengo los permisos necesarios para manejar roles.
+mute-err-time: Tiempo de mute no válido.
+mute-err-unmute: 'Si quieres desmutear a alguien, utiliza `$PXunmute <usuario>`'
+mute-err-noex-role: 'El rol "{muted_role}" no existe.'
+mute-time: 'por {delta_time}'
+mute-reason: 'debido a: "{reason}"'
+mute-msg: '¡Hola! Lamentablemente has sido muteado en el servidor **{server_name}**'
+mute-answer: '**{username}** ha sido mutead@'
+unmute-help: Quita el mute de usuarios
+unmute-format: '$CMD <usuario, id, @mención>'
+unmute-no-muted-role: 'El usuario no tiene el rol de muteado ({role_name}).'
+unmute-err-perms: >-
+  ¡No pude quitar el rol! Revisa los permisos del bot (¿está el rol de usuarios
+  muteados por sobre el mayor rol del bot?
+unmute-done: ¡Usuario desmuteado!
+mutedrole-help: Configura del rol del mute.
+mutedrole-format: $CMD <rol>
+mutedrole-set: 'El rol de muteado ahora es **{muted_role}**.'
+mute-help: Permite mutear usuarios.

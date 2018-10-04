@@ -8,7 +8,8 @@ class Weather(Command):
         super().__init__(bot)
         self.name = 'weather'
         self.aliases = ['clima']
-        self.help = 'Entrega información del clima'
+        self.help = '$[weather-help]'
+        self.format = '$[weather-format]'
         self.category = categories.INFORMATION
         self.urlbase = 'http://api.openweathermap.org/data/2.5/weather?q='
         self.default_config = {
@@ -19,33 +20,33 @@ class Weather(Command):
 
     def on_loaded(self):
         if self.bot.config['weatherapi_key'] == '':
-            self.log.warn('La API key del clima no está configurada. Puedes agregarla en el valor weatherapi_key de la'
-                          'configuración')
+            self.log.warn('Weather API key not set. Add the \'weatherapi_key\' to the settings.')
 
     async def handle(self, cmd):
         if self.bot.config['weatherapi_key'] == '':
-            await cmd.answer('este comando está desactivado debido a que no está configurado')
+            await cmd.answer('$[weather-error-not-set]')
             return
 
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM <lugar>')
+            await cmd.answer('$[format]: $[weather-format]')
             return
 
         place = urlparse.quote(cmd.text)
-        url = '{}{}&units=metric&lang=es&APPID={}'.format(self.urlbase, place, self.bot.config['weatherapi_key'])
-        self.log.debug('cargando ' + url)
+        lang = cmd.lang.lang[0:2]
+        url = '{}{}&units=metric&lang={}&APPID={}'.format(self.urlbase, place, lang, self.bot.config['weatherapi_key'])
+        self.log.debug('Loading ' + url)
 
         await cmd.typing()
         async with self.http.get(url) as r:
             if r.status != 200:
                 if r.status == 404:
-                    await cmd.answer('lugar no encontrado')
+                    await cmd.answer('$[weather-error-not-found]')
                     return
                 if r.status == 401:
-                    await cmd.answer('la API key no funciona D:')
+                    await cmd.answer('$[weather-error-key]')
                     return
                 else:
-                    await cmd.answer('error desconocido uwu ({})'.format(r.status))
+                    await cmd.answer('$[weather-error]', locales={'error': r.status})
                     return
 
             data = await r.json()
@@ -55,15 +56,15 @@ class Weather(Command):
                 wind = '{} m/s'.format(data['wind']['speed'])
 
             e = Embed(colour=12608321)
-            e.description = ':flag_{}: Clima de **{}**'.format(data['sys']['country'].lower(), data['name'])
-            e.set_footer(text='Desde OpenWeatherMap (https://openweathermap.org/)',
+            e.description = ':flag_{}: $[weather-title]'.format(data['sys']['country'].lower())
+            e.set_footer(text='$[weather-footer] (https://openweathermap.org/)',
                          icon_url='https://openweathermap.org/themes/openweathermap/'
                                   'assets/vendor/owm/img/icons/logo_60x60.png')
-            e.add_field(name='Clima', value=data['weather'][0]['description'])
-            e.add_field(name='Temperatura', value='{} ºC'.format(data['main']['temp']))
-            e.add_field(name='Presión atmosférica', value='{} hPa'.format(data['main']['pressure']))
-            e.add_field(name='Humedad', value='{}%'.format(data['main']['humidity']))
-            e.add_field(name='Viento', value=wind)
-            e.add_field(name='Nubosidad', value='{}%'.format(data['clouds']['all']))
+            e.add_field(name='$[weather-f-status]', value=data['weather'][0]['description'])
+            e.add_field(name='$[weather-f-temp]', value='{} ºC'.format(data['main']['temp']))
+            e.add_field(name='$[weather-f-pressure]', value='{} hPa'.format(data['main']['pressure']))
+            e.add_field(name='$[weather-f-humidity]', value='{}%'.format(data['main']['humidity']))
+            e.add_field(name='$[weather-f-wind]', value=wind)
+            e.add_field(name='$[weather-f-clouds]', value='{}%'.format(data['clouds']['all']))
             e.set_thumbnail(url='http://openweathermap.org/img/w/{}.png'.format(data['weather'][0]['icon']))
-            await cmd.answer(embed=e)
+            await cmd.answer(embed=e, locales={'location': data['name']})

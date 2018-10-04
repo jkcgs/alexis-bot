@@ -1,0 +1,4 @@
+ship-help: 'Forma parejas entre dos usuarios, y crea una imagen con los ávatar de ellos.'
+ship-format: $CMD @usuario1 @usuario2
+ship-err-same: '¿Sabías que para formar una pareja necesitas a dos personas? :3'
+ship-msg: 'Formando la pareja: **{ship_name}**'

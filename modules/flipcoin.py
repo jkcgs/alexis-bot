@@ -4,21 +4,28 @@ from bot import Command, categories
 
 
 class Flipcoin(Command):
+    __version__ = '1.0.0'
+    __author__ = 'makzk'
+    __description__ = 'Generates a number between 0 and 1, then given its value, returns a side of a coin.'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'flipcoin'
         self.aliases = ['coinflip', 'coin', 'moneda']
-        self.help = 'Lanza una moneda y muestra el resultado'
+        self.help = '$[random-coin-help]'
+        self.format = '$CMD'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
+        # Generate the random number, translate it to a coin side
         prob = random.random()
         if prob < .01:
-            resp = 'CANTO WN, EN SERIO XDDDD'
+            resp = '$[random-coin-side]'
         elif prob <= .5:
-            resp = 'Cara'
+            resp = '$[random-coin-head]'
         else:
-            resp = 'Sello'
+            resp = '$[random-coin-tails]'
 
-        self.log.debug('probabilidad: {} ({})'.format(prob, resp))
+        # Log the random number, and send the coin side back
+        self.log.debug('[Flipcoin] Probability: {} ({})'.format(prob, resp))
         await cmd.answer('**{}**'.format(resp))

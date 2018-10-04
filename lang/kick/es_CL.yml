@@ -1,0 +1,8 @@
+kick-help: Kickea a un usuario
+kick-format: '$CMD <@usuario> [razón]'
+kick-msg: 'Lamentablemente has sido kickeado de **{server_name}**.'
+kick-msg-reason: 'Lamentablemente has sido kickeado de **{server_name}** por "{reason}".'
+kick-answer: '¡**{username}** ha sido kickeado del servidor!'
+kick-answer-reason: '¡**{username}** ha sido kickeado del servidor! Razón: "{reason}".'
+kick-err-bot: ¡No me puedes kickear!
+kick-err-perms: No pude kickear al usuario por falta de permisos.

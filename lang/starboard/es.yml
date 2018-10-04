@@ -1,0 +1,25 @@
+starboard-help: Permite administrar el starboard.
+starboard-channel-set: 'Canal del starboard actualizado a <#{channel_id}>'
+starboard-disabled: >-
+  Starboard desactivado! Para volver a activarlo, utiliza el subcomando
+  "channel".
+starboard-count-status: 'Número de reacciones requeridas: {count}'
+starboard-err-count: 'Utiliza un número entero entre 1 y 1000, inclusive.'
+starboard-count-set: 'Número de reacciones requeridas definido en: **{count}**.'
+starboard-emoji-list: 'Emojis: {emojis}'
+starboard-emoji-format: $CMD emoji <emojis separados por espacios> (hasta 10 emojis)
+starboard-emoji-set: 'Emojis definidos: {emojis}'
+starboard-emoji-deleted: Emojis de starboard eliminados (ahora cualquier emoji cuenta).
+starboard-nsfw-enabled: 'activado :speak_no_evil:'
+starboard-nsfw-disabled: 'desactivado :dolphin:'
+starboard-nsfw-on: encendido|activado|desactivar|si|sí
+starboard-nsfw-status: 'Starboard para canales NSFW:'
+starboard-nsfw-off: apagado|desactivado|no
+starboard-nsfw-set-enabled: 'Starboard para NSFW activado :flushed:'
+starboard-nsfw-set-disabled: 'Starboard para NSFW desactivado :two_hearts:'
+starboard-nsfw-format: '$CMD nsfw [on|off]'
+starboard-format: >-
+  $PX{command_name} <subcomando> <opts>.\nSubcomandos: channel, disable, count,
+  emojis, delemojis, nfsw.
+starboard-reactions: Reacciones
+starboard-none: Ninguno

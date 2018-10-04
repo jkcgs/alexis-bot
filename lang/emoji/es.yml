@@ -1,0 +1,3 @@
+emoji-help: Envía la imagen de un emoji personalizado
+emoji-format: $CMD <emoji>
+emoji-unsupported: "Emojis unicode (como por ejemplo \U0001F60E) no están soportados. Sólo emojis custom son soportados."

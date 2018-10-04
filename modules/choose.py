@@ -1,24 +1,27 @@
 import random
+
 from bot import Command, categories
 
 
 class Choose(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.0'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'choose'
-        self.help = 'Elige un elemento al azar de una lista separada por el símbolo "|"'
+        self.help = '$[random-choose-help]'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
-        options = cmd.text.split("|")
+        # Parse options and filter empty options
+        options = [o.strip() for o in cmd.text.split("|") if o.strip() != '']
+
+        # At least 2 options are required
         if len(options) < 2:
+            await cmd.answer('$[random-choose-not-enough]')
             return
 
-        # Validar que no hayan opciones vacías
-        for option in options:
-            if option.strip() == '':
-                return
-
+        # Choose an option and send it
         answer = random.choice(options).strip()
-        text = 'yo elijo **{}**'.format(answer)
-        await cmd.answer(text)
+        await cmd.answer_embed('$[random-choose-answer]', locales={'answer': answer})

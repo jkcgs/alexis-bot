@@ -1,0 +1,5 @@
+xkcd-help: Show a xkcd comic strip.
+xkcd-format: >-
+  $CMD [comic ID|random|current]\nIf no arguments are passed, the current comic
+  is displayed.
+xkcd-err-outofbounds: Comic ID is greater than the current one.

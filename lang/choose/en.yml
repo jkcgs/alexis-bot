@@ -1,0 +1,7 @@
+random-choose-help: Choose a random element from a list separated by the `|` character.
+random-choose-answer: 'I choose **{answer}**'
+random-choose-not-enough: At least 2 options are needed. Use `|` to separate options.
+random-coin-help: Tosses a coin
+random-coin-head: Head.
+random-coin-tails: Tails.
+random-coin-side: 'Sides. Yes, it fell on it''s side. Believe it or not.'

@@ -1,0 +1,7 @@
+poll-help: Crea una encuesta en strawpoll.me
+poll-format: >-
+  $CMD <título> | <opción 1> | <opción 2> | ... | [opción N] (al menos 2
+  opciones)
+poll-error-options: ¡Necesitas al menos 2 opciones!
+poll-error-max: 'Sólo se permiten hasta {max} opciones'
+poll-options: Opciones

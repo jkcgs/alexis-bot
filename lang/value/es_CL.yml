@@ -1,0 +1,12 @@
+value-help: >-
+  Entrega información de divisas. También incluye algunos valores de
+  cryptomonedas.
+value-format: '$CMD [cantidad] <divisa-desde> <divisa-a>'
+value-error-currency: Divisa incorrecta.
+value-error-answer: Formato de respuesta inesperada.
+value-error-unavailable: Valor de divisa no disponible.
+value-error-sbif-key: API key de SBIF no configurada
+value-error-sbif: No se pudo obtener los datos desde el SBIF.
+value-error-data-not-available: Datos no disponibles.
+value-format-short: '$CMD [cantidad] [divisa-a]'
+value-error-apikey: El API key para conversión de divisas no ha sido configurada.

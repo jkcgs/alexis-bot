@@ -7,12 +7,13 @@ class LetMeGoogleThatForYou(Command):
         super().__init__(bot)
         self.name = 'lmgtfy'
         self.aliases = ['google']
-        self.help = 'Te ayuda a buscar algo en Google'
+        self.help = '$[lmgtfy-help]'
+        self.format = '$[lmgtfy-format]'
         self.category = categories.FUN
 
     async def handle(self, cmd):
         if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <texto>')
+            await cmd.answer('$[format]: $[lmgtfy-format]')
             return
 
         url = 'https://lmgtfy.com/?' + urlencode({'q': cmd.text})

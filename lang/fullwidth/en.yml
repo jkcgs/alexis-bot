@@ -1,0 +1,4 @@
+fullwidth-help: >-
+  Converts a supported set of characters (including English characters, numbers
+  and other symbols) to the ＦＵＬＬＷＩＤＴＨ format.
+fullwidth-default: YES THIS IS FULLWIDTH

@@ -1,4 +1,19 @@
-lang-not-available: "language not available"
-current-lang: "current language: **LANG**"
-lang-set-to: "language set to **LANG**"
-lang-cmd-help: "sets bot language for current server"
+lang-not-available: Language not available.
+current-lang: 'Current language: **{lang}**.'
+lang-set-to: 'Language set to **{lang}**'
+lang-cmd-help: Sets language for the current guild.
+lang-cmd-chan-here: here
+lang-set-chan: 'Language set to **{lang}** for the desired channel.'
+lang-format: >-
+  $CMD [#channel] <lang_code | unset> (by using `unset`, the default language
+  will be set)
+lang-current-chan: 'Language for this channel: **{chan_lang}**.'
+lang-unset-chan: >-
+  The language for this channel has been reset to the default value
+  (**{lang}**).
+lang-unset: 'The language for this guild has been reset to the default value (**{lang}**).'
+lang-available-list: 'Available languages: {lang_list}.'
+lang-chan-no-custom: This channel does not have an explicit language set.
+lang-no-custom: This guild is already using the default language.
+lang-current-guild: 'Current guild language: **{lang}**.'
+lang-title: Language information

@@ -1,0 +1,14 @@
+weather-help: Shows weather information
+weather-error-not-set: This command is disabled because is not correctly set up.
+weather-format: $CMD <location>
+weather-error-not-found: Location not found.
+weather-error-key: Weather API is not accepting the API key.
+weather-error: 'Unknown error ("{error}")'
+weather-footer: From OpenWeatherMap
+weather-title: 'Weather for **{location}**'
+weather-f-status: Weather
+weather-f-temp: Temperature
+weather-f-pressure: Atmospheric pressure
+weather-f-humidity: Humidity
+weather-f-wind: Wind
+weather-f-clouds: Clouds

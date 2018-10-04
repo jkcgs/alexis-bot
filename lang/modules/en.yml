@@ -1,0 +1,22 @@
+modules-help: Modules management
+modules-loaded: 'Loaded modules:'
+modules-err-self: You can't manage this module!
+modules-already-loaded: Module already loaded.
+module-loaded: Module loaded.
+module-not-found: Module not found.
+module-not-loaded: Module not loaded.
+module-disabled: Module disabled.
+module-reloaded: Module reloaded.
+module-not-reactivated: The module could not be reactivated.
+module-none: (none)
+module-e-title: Module information
+module-e-description: '**{mod_name}** version {mod_version} by {mod_author}\n*{mod_help}*'
+module-e-commands: Command(s)
+module-e-swhandler: SW Handler
+module-e-mentionhandlers: Mention Handler
+module-e-owner-only: Owners only
+module-e-delay: Delay
+module-e-priority: Priority
+module-e-path: Location
+module-e-no: 'No'
+module-no-author: '*(no author)*'

@@ -1,12 +1,29 @@
-user-not-found: "user not found"
-format: "format"
-disallowed-via-pm: "this command cannot be used via PM"
-command-not-authorized: "You can't use this command"
-yes: "yes"
-no: "no"
-name: "Name"
-start-date: "Start date"
-end-date: "End date"
-data-not-available: "data not available"
-channel-not-found: "channel not found"
-channel-saved: "channel saved"
+user-not-found: User not found
+format: Format
+disallowed-via-pm: This command cannot be used via PM
+command-not-authorized: You can't use this command
+'yes': 'yes'
+'no': 'no'
+name: Name
+start-date: Start date
+end-date: End date
+data-not-available: data not available
+channel-not-found: Channel not found.
+channel-saved: Channel saved.
+answer-for: 'To {author}'
+command-not-available: Command not available
+day: day
+days: days
+hour: hour
+hours: hours
+minute: minute
+minutes: minutes
+second: second
+seconds: seconds
+now: now
+error: 'Error: {errortext}'
+command-delayed: You still can't use this command
+nsfw-only: This command can only be used in a NSFW channel.
+error-debug: The command raised an exception while executing it
+error-msg: Could not execute this command
+invite-text: 'You can add me to your guild with the following link:'

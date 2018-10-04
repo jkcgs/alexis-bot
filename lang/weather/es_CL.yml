@@ -1,0 +1,14 @@
+weather-help: Muestra información del clima
+weather-error-not-set: Este comando está desactivado debido a que no está correctamente configurado.
+weather-format: $CMD <ubicación>
+weather-error-not-found: Ubicación no encontrada.
+weather-error-key: La API del clima no está aceptando la API key.
+weather-error: 'Error desconocido ("{error}")'
+weather-footer: De OpenWeatherMap
+weather-title: 'Clima para **{location}**'
+weather-f-status: Clima
+weather-f-temp: Temperatura
+weather-f-pressure: Presión atmosférica
+weather-f-humidity: Humedad
+weather-f-wind: Viento
+weather-f-clouds: Nubosidad

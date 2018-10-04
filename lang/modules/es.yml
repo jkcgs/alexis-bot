@@ -1,0 +1,22 @@
+modules-help: Gestión de módulos
+modules-loaded: 'Módulos cargados:'
+modules-err-self: ¡No puedes controlar este módulo!
+modules-already-loaded: Módulo ya cargado.
+module-loaded: Módulo cargado.
+module-not-found: Módulo no encontrado.
+module-not-loaded: Módulo no cargado.
+module-disabled: Módulo desactivado.
+module-reloaded: Módulo recargado.
+module-not-reactivated: El módulo no pudo ser reactivado.
+module-none: (ninguno)
+module-e-title: Información de módulo
+module-e-description: '**{mod_name}** versión {mod_version} por {mod_author}\n*{mod_help}*'
+module-e-commands: Comando(s)
+module-e-swhandler: SW Handler
+module-e-mentionhandlers: Mention Handler
+module-e-owner-only: Sólo owners
+module-e-delay: Retraso
+module-e-priority: Prioridad
+module-e-path: Ubicación
+module-e-no: 'No'
+module-no-author: '*(sin autor)*'

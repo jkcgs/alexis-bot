@@ -1,0 +1,8 @@
+rate-help: Rates something
+rate-special1: 'Between 1 and 100, I give {user} a *big* one :wink:'
+rate-special2: '`rate` ∉ ℝ'
+rate-special-ew: "\U0001F922"
+rate-special-self: "Best of the best \U0001F60E"
+rate-random-error: What the hell.
+rate-answer: 'To {thing} I give {rate} out of 100'
+rate-format: $CMD <text or @user>

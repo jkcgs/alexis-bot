@@ -1,0 +1,16 @@
+leaveserver-help: Hace que el bot deje un servidor.
+leaveserver-format: $CMD <server_id>
+leaveserver-guild-not-found: Servidor no encontrado.
+leaveserver-left: 'Dejé el servidor "{guild_name}" ({guild_id})'
+leaveserver-bye: >-
+  ¡Hola! Gracias por agregarme a este server, pero mi dueño no me tiene
+  permitido ingresar, aún.
+leaveserver-bye-admin: >-
+  Para ello, puedes entrar a discord.gg/chile y consultar con un admin.
+  ¡Saludos!
+leaveserver-bye-owner: >-
+  Para ello, puedes entrar a discord.gg/chile y hablar con <@{owner_id}>.
+  ¡Saludos!
+serverslist-help: Muestra la lista de servidores en los que está el bot.
+serverslist-none: No estoy en ningún servidor.
+serverslist-msg: 'Estoy en los siguientes {amount} servidores:'

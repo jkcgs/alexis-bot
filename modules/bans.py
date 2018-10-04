@@ -43,12 +43,12 @@ class BanCmd(Command):
             await cmd.answer('$[ban-other-bot]')
             return
 
-        # Evitar que alguien se banee a si mismo
+        # Avoid self-bans
         if self.bot.last_author == member.id:
             await cmd.answer('$[ban-self]')
             return
 
-        # No banear personas que no están en el canal
+        # Don't ban users that are not on the channel
         if not member.permissions_in(cmd.message.channel).read_messages:
             await cmd.answer('$[ban-other-absent]', locales={'other': mention_name})
             return

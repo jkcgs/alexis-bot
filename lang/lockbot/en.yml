@@ -1,0 +1,22 @@
+lockbot-help: >-
+  Locks or unlock the bot usage in specific or all channels so it can't be used
+  by normal user.
+lockbot-channel-not-found: Channel not found.
+lockbot-yes: 'Yes'
+lockbot-no: 'No'
+lockbot-also: ', but also everything is locked.'
+lockbot-all-already: All channels are already locked.
+lockbot-all-locked: Now all channels are locked.
+lockbot-all-not-locked: There is no total lock.
+lockbot-all-removed: Total lock removed.
+lockbot-all-removed-but: Total lock removed (everything but already locked channels).
+lockbot-already: Channel already locked. Use `$PXunlockbot` to unlock.
+lockbot-unlocked: Channel unlocked.
+lockbot-not-locked: The channel is not locked. Use `$PXlockbot` to unlock it.
+lockbot-locked: Channel locked.
+lockbot-list-help: Displays a list of locked channels.
+lockbot-not-found: not found
+lockbot-list-all-locked: All channels are locked.
+lockbot-list-also: 'Also, the following channels are marked as locked.'
+lockbot-list: The following channels are locked
+lockbot-list-none: There are no locked channels.

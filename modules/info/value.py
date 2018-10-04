@@ -23,9 +23,9 @@ class Value(Command):
         super().__init__(bot)
         self.name = 'value'
         self.aliases = localsbif + cryptomemes + cryptoclp
-        self.help = 'Entrega datos de conversión de divisas'
-        self.format = '!value [cantidad] <divisa1> <divisa2>'
-        self.format_shortcut = '$CMD [cantidad] <divisa2>'
+        self.help = '$[value-help]'
+        self.format = '$[value-format]'
+        self.format_shortcut = '$[value-format-short]'
         self.category = categories.INFORMATION
         self.default_config = {
             'sbif_apikey': '',
@@ -64,12 +64,12 @@ class Value(Command):
         else:
             if cmd.argc == 1:
                 if not self.valid_currency(cmd.args[0]):
-                    await cmd.answer('formato incorrecto [2]. Formato: `{}`'.format(self.format))
+                    await cmd.answer('$[value-error-currency] [2] $[format]: $[value-format]')
                     return
 
                 div_from = cmd.args[0].upper()
                 if div_from not in self.div_handlers.keys():
-                    await cmd.answer('formato incorrecto [3]. Formato: `{}`'.format(self.format))
+                    await cmd.answer('$[value-error-currency] [3] $[format]: $[value-format]')
                     return
 
                 _, div_to = self.div_handlers[div_from]
@@ -81,11 +81,11 @@ class Value(Command):
                     div_from = cmd.args[1].upper() if is_float(cmd.args[0]) else cmd.args[0].upper()
 
                     if not self.valid_currency(div_from):
-                        await cmd.answer('formato incorrecto [4]. Formato: `{}`'.format(self.format))
+                        await cmd.answer('$[value-error-currency] [4] $[format]: $[value-format]')
                         return
 
                     if div_from not in self.div_handlers.keys():
-                        await cmd.answer('formato incorrecto [5]. Formato: `{}`'.format(self.format))
+                        await cmd.answer('$[value-error-currency] [5] $[format]: $[value-format]')
                         return
 
                     _, div_to = self.div_handlers[div_from]
@@ -95,14 +95,14 @@ class Value(Command):
 
             elif cmd.argc >= 3:
                 if not is_float(cmd.args[0]):
-                    await cmd.answer('formato incorrecto [4]. Formato: `{}`'.format(self.format))
+                    await cmd.answer('$[value-error-currency] [6] $[format]: $[value-format]')
                     return
                 mult = float(cmd.args[0].replace(',', '.'))
                 div_from = cmd.args[1]
                 div_to = cmd.args[2]
 
         if not self.valid_currency(div_from) or not self.valid_currency(div_to):
-            await cmd.answer('Divisa incorrecta. Formato: `{}`'.format(self.format))
+            await cmd.answer('$[value-error-currency] $[format]: $[value-format]')
             return
 
         try:
@@ -112,7 +112,7 @@ class Value(Command):
             await cmd.typing()
             result = await self.handler(div_from, div_to, mult)
         except DivRetrievalError as e:
-            await cmd.answer('error: ' + str(e))
+            await cmd.answer('$[error]', locales={'errotext': str(e)})
             return
 
         precision = 5 if result < 1 else 2
@@ -140,13 +140,13 @@ class Value(Command):
 
     async def convert(self, div1, div2):
         if self.bot.config['currency_apikey'] == '':
-            raise DivRetrievalError('La API key de conversión de divisas no está configurada')
+            raise DivRetrievalError('$[value-error-apikey]')
 
         attempts = 0
         url = baseurl.format(div1, div2, self.bot.config['currency_apikey'])
         while attempts < 10:
-            self.log.debug('Cargando datos de divisa, intento ' + str(attempts + 1))
-            self.log.debug('Cargando url %s', url)
+            self.log.debug('Loading currency data, attempt ' + str(attempts + 1))
+            self.log.debug('Loading URL %s', url)
             async with self.http.get(url) as r:
                 data = await r.json()
                 if r.status != 200:
@@ -157,18 +157,18 @@ class Value(Command):
                     k = 'Realtime Currency Exchange Rate'
                     if k not in data.keys():
                         if 'Error Message' in data.keys() and data['Error Message'].startswith('Invalid API call.'):
-                            raise DivRetrievalError('Divisa incorrecta')
+                            raise DivRetrievalError('$[value-error-currency]')
                         else:
-                            raise DivRetrievalError('Formato de respuesta no esperada')
+                            raise DivRetrievalError('$[value-error-answer]')
                     else:
                         j = '5. Exchange Rate'
                         if j not in data[k].keys():
-                            raise DivRetrievalError('Formato de respuesta no esperada')
+                            raise DivRetrievalError('$[value-error-answer]')
 
                         value = float(data[k][j])
                 except ValueError as e:
                     self.log.exception(e)
-                    raise DivRetrievalError('El valor de las divisas no está disponible')
+                    raise DivRetrievalError('$[value-error-unavailable]')
 
                 return value
 
@@ -179,7 +179,7 @@ class Value(Command):
         # TODO: Cache
         attempts = 0
         if self.bot.config['sbif_apikey'] == '':
-            raise DivRetrievalError('La API key de SBIF no está configurada')
+            raise DivRetrievalError('$[value-error-sbif-key]')
 
         url = baseurl_sbif.format(api.lower(), self.bot.config['sbif_apikey'])
 
@@ -198,7 +198,7 @@ class Value(Command):
                     campo = api.upper() + 's'
                     value = float(data[campo][0]['Valor'].replace('.', '').replace(',', '.'))
                 except (KeyError, ValueError):
-                    raise DivRetrievalError('no pude obtener los datos de divisas (UF) D:')
+                    raise DivRetrievalError('$[value-error-sbif]')
 
                 return value
 
@@ -214,7 +214,7 @@ class Value(Command):
                 data = await r.json()
                 return data[0]['data']['market']['lastTrade']['price']
             except KeyError:
-                raise DivRetrievalError('Datos no disponibles')
+                raise DivRetrievalError('$[value-error-data-not-available]')
         return 0
 
     def valid_currency(self, curr):

@@ -1,12 +1,15 @@
 help-help: Muestra la lista de comandos disponibles
-help-usage: '`$PXhelp [comando]`. Agrega el nombre del comando para ver información sobre el comando.'
+help-usage: >-
+  `$PXhelp [comando]`. Agrega el nombre del comando para ver información sobre
+  el comando.
 help-title: Ayuda de comandos
 help-not-available: Ayuda no disponible
 help-special: Los comandos con * son sólo para staff
 help-not-found: Comando no encontrado
-help-description: 'Úsalos con el prefijo **`$PX` + "comando"** en cualquier chat en el que pueda responder.
-Si el comando comienza con `$PX`, debes ingresar el prefijo dos veces. Para ver más información sobre el
-comando, utiliza `$CMD <comando>`.'
+help-description: >-
+  Úsalos con el prefijo **`$PX` + "comando"** en cualquier chat en el que pueda
+  responder. Si el comando comienza con `$PX`, debes ingresar el prefijo dos
+  veces. Para ver más información sobre el comando, utiliza `$CMD <comando>`.
 help-description-owner: Los comandos con "*" sólo pueden ser utilizados por miembros del staff.
 help-category-other: Otros
 help-category-other-description: Uso general
@@ -15,15 +18,15 @@ help-category-fun-description: Comandos un tanto divertidos
 help-category-images: Imágenes
 help-category-images-description: Obtención y generación de imágenes
 help-category-information: Información
-help-category-information-description: ''
+help-category-information-description: Comandos de información
 help-category-moderation: Moderación
-help-category-moderation-description: ''
+help-category-moderation-description: Comandos de moderación
 help-category-staff: Staff
-help-category-staff-description: 'Configuración de la interacción del bot en el servidor'
+help-category-staff-description: Configuración de la interacción del bot en el servidor
 help-category-settings: Settings
-help-category-settings-description: 'Comandos mágicos'
+help-category-settings-description: Comandos mágicos
 help-category-utility: Utilidades
-help-category-utility-description: ''
+help-category-utility-description: Comandos de utilidad
 help-footer-for: Para $AU
 help-format-title: Uso del comando
 help-format-not-available: Formato de uso no disponible

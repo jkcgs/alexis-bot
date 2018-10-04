@@ -1,0 +1,7 @@
+cleverbot-usage-answer: '*If you wanted to say something, use: @bot <text>*'
+cleverbot-no-answer: What's going on!? HELP!
+cleverbot-error-answer: 'I''m sorry, but I can''t answer you right now'
+cleverbot-toggle-help: Toggles Cleverbot conversation
+cleverbot-toggle-answer: 'Conversation {status}'
+cleverbot-enabled: enabled
+cleverbot-disabled: disabled

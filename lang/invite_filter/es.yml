@@ -1,0 +1,14 @@
+ifilter-help: Filtra enlaces de invitación a guilds de Discord
+ifilter-enabled: activado
+ifilter-disabled: desactivado
+ifilter-status: 'El filtro está **{status}**.'
+ifilter-changed: 'El filtro ahora está **{status}**.'
+ifilter-format: '$CMD toggle, $CMD (allow|disallow) <usuario>'
+ifilter-user-not-found: Usuario no encontrado.
+ifilter-not-needed: No es necesario que te permitas saltar el filtro.
+ifilter-err-owner: No es necesario permitir que un owner se salte el filtro.
+ifilter-already-allowed: El usuario ya tiene permitido saltar el filtro.
+ifilter-added: Usuario agregado.
+ifilter-not-allowed: El usuario no tiene permitido saltar el filtro.
+ifilter-removed: Usuario quitado.
+ifilter-message: Invite automáticamente eliminado

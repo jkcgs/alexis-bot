@@ -1,0 +1,3 @@
+respects-help: Shows that a user has paid their respects to someone/something
+respects-paid-to: '**$AU** has paid their respects for **{thing}**'
+respects-paid: '**$AU** has paid their respects'

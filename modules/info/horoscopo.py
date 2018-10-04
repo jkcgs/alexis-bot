@@ -16,8 +16,8 @@ class Horoscopo(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'horoscopo'
-        self.help = 'Muestra el horóscopo para un determinado signo.'
-        self.format = '`$CMD [suscribir] <signo>` - `$CMD desuscribir`'
+        self.help = '$[horoscopo-help]'
+        self.format = '`$[horoscopo-format]'
         self.db_models = [SuscriptorHoroscopo]
         self.category = categories.INFORMATION
 
@@ -26,17 +26,17 @@ class Horoscopo(Command):
 
     async def handle(self, cmd):
         if self.horoscopo is None:
-            await cmd.answer('no hay información del horóscopo disponible')
+            await cmd.answer('$[horoscopo-unavailable]')
             return
 
         if cmd.argc == 0:
-            await cmd.answer('$[format]: ' + self.format)
+            await cmd.answer('$[format]: $[horoscopo-format]')
             return
 
         if cmd.args[0] in ['update', 'reload'] and cmd.bot_owner:
             await cmd.typing()
             await self.update()
-            await cmd.answer('datos cargados')
+            await cmd.answer('$[horoscopo-loaded]')
             return
 
         if cmd.args[0] == 'suscribir':
@@ -46,32 +46,32 @@ class Horoscopo(Command):
 
             try:
                 suscrip = SuscriptorHoroscopo.get(SuscriptorHoroscopo.userid == cmd.author.id)
-                await cmd.answer('ya estás suscrito/a al horóscopo de **{}**'.format(suscrip.signo.title()))
+                await cmd.answer('$[horoscopo-already-subscribed]', locales={'sign_name', suscrip.signo.title()})
                 return
             except SuscriptorHoroscopo.DoesNotExist:
                 pass
 
             signo = cmd.args[1]
             if self.get_sign(signo) is None:
-                await cmd.answer('signo incorrecto')
+                await cmd.answer('$[horoscopo-invalid-sign]')
                 return
 
             SuscriptorHoroscopo.create(userid=cmd.author.id, signo=signo)
-            await cmd.answer('ahora estás suscrito/a al horóscopo de **{}**'.format(signo.title()))
+            await cmd.answer('$[horoscopo-subscribed]', locales={'sign_name': signo.title()})
 
             return
 
         if cmd.args[0] == 'desuscribir':
             if cmd.argc < 1:
-                await cmd.answer('formato: $CMD desuscribir')
+                await cmd.answer('$[format]: $CMD desuscribir')
             else:
                 try:
                     suscrip = SuscriptorHoroscopo.get(SuscriptorHoroscopo.userid == cmd.author.id)
                     name = suscrip.signo.title()
                     SuscriptorHoroscopo.delete_instance(suscrip)
-                    await cmd.answer('has eliminado tu suscripción al horóscopo de **{}**'.format(name))
+                    await cmd.answer('$[horoscopo-removed]', locales={'sign_name': name})
                 except SuscriptorHoroscopo.DoesNotExist:
-                    await cmd.answer('no tienes una suscripción activa al horóscopo')
+                    await cmd.answer('$[horoscopo-not-subscribed]')
 
             return
 
@@ -82,7 +82,7 @@ class Horoscopo(Command):
 
         signo = self.get_sign(cmd.args[0])
         if signo is None:
-            await cmd.answer('signo incorrecto')
+            await cmd.answer('$[horoscopo-invalid-sign]')
             return
 
         await cmd.answer(self.make_embed(signo))
@@ -106,13 +106,14 @@ class Horoscopo(Command):
         if signo is None:
             return None
 
-        embed = Embed(title='Horóscopo - {}'.format(self.horoscopo['titulo']))
+        embed = Embed(title='$[horoscopo-title] - {}'.format(self.horoscopo['titulo']))
         embed.description = '**{}** (*{}*)\n\n'.format(signo['nombre'], signo['fechaSigno'])
-        embed.description += '**Amor**: {}\n'.format(signo['amor'])
-        embed.description += '**Salud**: {}\n'.format(signo['salud'])
-        embed.description += '**Dinero**: {}\n'.format(signo['dinero'])
-        embed.description += '**Color**: {} **Número**: {}\n'.format(signo['color'], signo['numero'])
-        embed.set_footer(text='Horóscopo de la Tía Yoly (TYaaS)')
+        embed.description += '**$[horoscopo-e-love]**: {}\n'.format(signo['amor'])
+        embed.description += '**$[horoscopo-e-health]**: {}\n'.format(signo['salud'])
+        embed.description += '**$[horoscopo-e-money]**: {}\n'.format(signo['dinero'])
+        embed.description += '**$[horoscopo-e-colour]**: {} **$[horoscopo-e-number]**: {}\n'.format(
+            signo['color'], signo['numero'])
+        embed.set_footer(text='$[horoscopo-e-footer]')
         return embed
 
     async def update(self):
@@ -122,7 +123,7 @@ class Horoscopo(Command):
             if self.horoscopo is None or self.horoscopo['titulo'] != data['titulo']:
                 self.horoscopo = data
                 self.update_day = curr.day
-                self.log.debug('Datos del horóscopo actualizados.')
+                self.log.debug('Horoscope data updated.')
                 self.bot.loop.create_task(self.send_update())
 
     async def send_update(self):
@@ -143,7 +144,7 @@ class Horoscopo(Command):
                 continue
 
             try:
-                await self.bot.send_message(content='¡Actualización de horóscopo!', embed=embed, destination=user)
+                await self.bot.send_message(content='$[horoscopo-update]', embed=embed, destination=user)
             except discord.Forbidden:
                 pass
 

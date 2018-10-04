@@ -31,7 +31,7 @@ class SimSimi:
         }
 
         request_url = "{}?{}".format(self.conversation_request_url, urlencode(request_param))
-        log.debug('Cargando url ' + request_url)
+        log.debug('Loading URL ' + request_url)
         async with self.http.get(request_url) as r:
             response_dict = await r.json()
 
@@ -46,7 +46,7 @@ class SimSimiCmd(Command):
         super().__init__(bot)
         self.name = 'simsimi'
         self.aliases = ['s']
-        self.help = 'Habla con SimSimi'
+        self.help = '$[simsimi-help]'
         self.category = categories.FUN
         self.user_delay = 5
         self.allow_pm = False
@@ -59,20 +59,19 @@ class SimSimiCmd(Command):
 
     def on_loaded(self):
         if len(self.bot.config['simsimi_apikeys']) == 0:
-            self.log.warn('No se definieron API keys para SimSimi, las puedes agregar al valor simsimi_apikeys '
-                          'de la configuración.')
+            self.log.warn('No API keys added for SimSimi, you can add them to the simsimi_apikeys value on the config.')
 
     async def handle(self, cmd):
         if cmd.text == '':
             return
 
         if len(self.bot.config['simsimi_apikeys']) == 0:
-            await cmd.answer('no disponible :c')
+            await cmd.answer('$[simsimi-not-available]')
             return
 
         if cmd.text in ['off', 'on'] and cmd.owner:
             self.enabled = cmd.text == 'on'
-            await cmd.answer('ya')
+            await cmd.answer('ok')
             return
 
         await cmd.typing()
@@ -82,11 +81,11 @@ class SimSimiCmd(Command):
             try:
                 sim = self.get_bot(lang=cmd.config.get('simsimi_lang', self.bot.config['simsimi_lang']))
                 if sim is None:
-                    await cmd.answer('no hay api keys disponibles')
+                    await cmd.answer('$[simsimi-no-apikeys]')
                     break
 
                 resp = await sim.get_conversation(cmd.no_tags())
-                await cmd.answer(resp.get('response', 'no c bro discupa'))
+                await cmd.answer(resp.get('response', '$[simsimi-no-answer]'))
                 break
             except SimSimiException as e:
                 if str(e) == 'Daily Request Query Limit Exceeded.'\
@@ -98,10 +97,10 @@ class SimSimiCmd(Command):
                         self.key_index += 1
 
                     if self.key_index == start_index:
-                        await cmd.answer('no quedan api calls disponibles')
+                        await cmd.answer('$[simsimi-no-apicalls]')
                         break
                 else:
-                    await cmd.answer('el coso tiró un error: ' + str(e))
+                    await cmd.answer('$[simsimi-error]', locales={'error': str(e)})
                     break
 
     def get_bot(self, lang):

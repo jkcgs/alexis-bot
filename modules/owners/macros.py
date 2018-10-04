@@ -5,7 +5,7 @@ import peewee
 from discord import Embed, Colour
 
 from bot import Command, categories
-from bot.utils import is_int, get_colour, format_date
+from bot.utils import is_int, get_colour, format_date, colour_list
 from bot.libs.configuration import BaseModel
 
 
@@ -13,7 +13,7 @@ class MacroSet(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'set'
-        self.help = 'Define un embed macro'
+        self.help = '$[macros-help]'
         self.category = categories.STAFF
         self.db_models = [EmbedMacro]
 
@@ -26,11 +26,7 @@ class MacroSet(Command):
 
         argc_req = 1 if len(cmd.message.attachments) > 0 else 2
         if len(cmd.args) < argc_req:
-            await cmd.answer('formato: $PX$NM <nombre> <valor> (para macros sólo texto),\n'
-                             '$PX$NM <nombre> [url_imagen]|[título]|[descripción]|[color_embed] (para macros embed)\n'
-                             'Para los macros embed, el primer parámetro es ignorado si se envía una imagen adjunta '
-                             'al comando. Para agregar un macro embed sólo con url, agrega un pipe (|) al final. '
-                             'Ejemplo: `$PX$NM <nombre> <url> |`')
+            await cmd.answer('$[format]: $[macros-format]')
             return
 
         name = cmd.args[0]
@@ -42,11 +38,11 @@ class MacroSet(Command):
         embed_colour = Colour.default()
 
         if name in self.bot.manager:
-            await cmd.answer('no se puede crear un macro con el nombre de un comando')
+            await cmd.answer('$[macros-err-cmd-name]')
             return
 
         if len(name) > 100:
-            await cmd.answer('el nombre del macro puede tener hasta 100 carácteres')
+            await cmd.answer('$[macros-err-name-length]')
             return
 
         if len(subargs) == 1 and subargs[0] != '':
@@ -72,11 +68,11 @@ class MacroSet(Command):
             if len(subargs) > 3 and subargs[3].strip() != '':
                 embed_colour = get_colour(subargs[3].strip())
                 if embed_colour is None:
-                    await cmd.answer('Color inválido')
+                    await cmd.answer('$[macros-invalid-colour]')
                     return
 
             if image_url == '' and title == '' and description == '':
-                await cmd.answer('al menos la imagen, el titulo o la descripción deben ser ingresados')
+                await cmd.answer('$[macros-missing-fields]')
                 return
 
         server_id = 'global' if cmd.is_pm else cmd.message.server.id
@@ -88,16 +84,17 @@ class MacroSet(Command):
         macro.save()
 
         if created:
-            await cmd.answer('macro **{}** creado'.format(name))
+            await cmd.answer('$[macros-created]', locales={'macro_name': name})
         else:
-            await cmd.answer('macro **{}** actualizado'.format(name))
+            await cmd.answer('$[macros-updated]', locales={'macro_name': name})
 
 
 class MacroUnset(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'unset'
-        self.help = 'Elimina un macro'
+        self.help = '$[macros-unset-help]'
+        self.format = '$[macros-unset-format]'
         self.category = categories.STAFF
 
     async def handle(self, cmd):
@@ -108,7 +105,7 @@ class MacroUnset(Command):
             return
 
         if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <nombre>')
+            await cmd.answer('$[format]: $[macros-unset-format]')
             return
 
         name = cmd.args[0].replace('\\', '')
@@ -117,16 +114,17 @@ class MacroUnset(Command):
             EmbedMacro.get(name=name, server=server_id)
             q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
             q.execute()
-            await cmd.answer('macro **{}** eliminado'.format(name))
+            await cmd.answer('$[macros-deleted]', locales={'macro_name': name})
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('el macro **{}** no existe'.format(name))
+            await cmd.answer('$[macros-not-exists]', locales={'macro_name': name})
 
 
 class MacroRename(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'rename'
-        self.help = 'Renombra un macro'
+        self.help = '$[macros-rename-help]'
+        self.format = '$[macros-rename-format]'
         self.category = categories.STAFF
 
     async def handle(self, cmd):
@@ -137,29 +135,29 @@ class MacroRename(Command):
             return
 
         if cmd.argc != 2:
-            await cmd.answer('formato: $PX$NM <nombre> <nuevo_nombre>')
+            await cmd.answer('$[format]: $[macros-rename-format]')
             return
 
         if cmd.args[1] in self.bot.manager:
-            await cmd.answer('no se puede nombrar un macro con el nombre de un comando')
+            await cmd.answer('$[macros-err-rename-cmd]')
             return
 
         if len(cmd.args[1]) > 100:
-            await cmd.answer('el nombre del macro no puede tener más de 100 carácteres')
+            await cmd.answer('$[macros-err-name-length]')
 
         serverid = 'global' if cmd.is_pm else cmd.message.server.id
         try:
             other = EmbedMacro.select().where(EmbedMacro.name == cmd.args[1], EmbedMacro.server == serverid)
             if other.count() > 0:
-                await cmd.answer('ya existe un macro con el nuevo nombre')
+                await cmd.answer('$[macros-err-rename-exists]')
                 return
 
             macro = EmbedMacro.get(EmbedMacro.name == cmd.args[0], EmbedMacro.server == serverid)
             macro.name = cmd.args[1]
             macro.save()
-            await cmd.answer('macro renombrado')
+            await cmd.answer('$[macros-renamed]')
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('ese macro no existe')
+            await cmd.answer('$[macros-not-exists]', locales={'macro_name': cmd.args[0]})
 
 
 class MacroSetColour(Command):
@@ -167,7 +165,8 @@ class MacroSetColour(Command):
         super().__init__(bot)
         self.name = 'setcolour'
         self.aliases = ['setcolor']
-        self.help = 'Actualiza el color de un macro embed'
+        self.help = '$[macros-setcolour-help]'
+        self.format = '$[macros-setcolour-format]'
         self.category = categories.STAFF
 
     async def handle(self, cmd):
@@ -178,14 +177,16 @@ class MacroSetColour(Command):
             return
 
         if len(cmd.args) < 1:
-            await cmd.answer('formato: $PX$NM <nombre> <color=default>')
+            await cmd.answer('$[format]: $[macros-setcolour-format] $[macros-setcolour-format-ext]', locales={
+                'colours_list': ', '.join(colour_list)
+            })
             return
 
         colour = Colour.default()
         if len(cmd.args) > 1:
             colour = get_colour(' '.join(cmd.args[1:]))
             if colour is None:
-                await cmd.answer('color inválido')
+                await cmd.answer('$[macros-invalid-colour]')
                 return
 
         name = cmd.args[0].replace('\\', '')
@@ -194,16 +195,16 @@ class MacroSetColour(Command):
             macro = EmbedMacro.get(name=name, server=server_id)
             macro.embed_color = colour.value
             macro.save()
-            await cmd.answer('color de macro **{}** actualizado'.format(name))
+            await cmd.answer('$[macros-colour-updated]', locales={'macro_name': name})
         except EmbedMacro.DoesNotExist:
-            await cmd.answer('el macro **{}** no existe'.format(name))
+            await cmd.answer('$[macros-not-exists]', locales={'macro_name': name})
 
 
 class MacroList(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'list'
-        self.help = 'Muestra una lista de los nombres de los macros guardados'
+        self.help = '$[macros-list-help]'
         self.rx_mention = re.compile('^<@!?[0-9]+>$')
         self.category = categories.UTILITY
 
@@ -231,18 +232,22 @@ class MacroList(Command):
 
         namelist.sort()
         n_items = len(namelist)
-        resp = '{}, hay {} macro{}:'.format(cmd.author_name, n_items, ['s', ''][int(n_items == 1)])
+        if n_items == 0:
+            await cmd.answer('$[macros-none-found]')
+            return
+
+        resp = ['$[macros-list]', '$[macros-list-singular]'][n_items == 1]
         for i, name in enumerate(namelist):
             to_add = (' ' if i == 0 else ', ') + name
 
             if len(resp + to_add) > 2000:
-                await cmd.answer(resp, withname=False)
+                await cmd.answer(resp, locales={'macros_count': n_items})
                 resp = name
             else:
                 resp += to_add
 
         if resp != '':
-            await cmd.answer(resp.strip(), withname=False)
+            await cmd.answer(resp.strip(), locales={'macros_count': n_items})
 
 
 class MacroUse(Command):
@@ -252,11 +257,11 @@ class MacroUse(Command):
         self.swhandler_break = True
 
     async def handle(self, cmd):
-        # Actualizar el id de la última persona que usó el comando, omitiendo al mismo bot
+        # Update the last user who used the macro
         if self.bot.last_author is None or not cmd.self:
             self.bot.last_author = cmd.author.id
 
-        # Obtener los argumentos del macro
+        # Get macro arguments
         pfx = self.bot.config['command_prefix']
         if cmd.message.content.startswith(pfx + ' '):
             macro_name = cmd.args[0]
@@ -269,7 +274,7 @@ class MacroUse(Command):
         if len(macro_args) == 1 and macro_args[0] == '':
             macro_args = []
 
-        # Usar un macro embed si existe
+        # Use an embed macro, if it exists
         try:
             server_id = 'global' if cmd.is_pm else cmd.message.server.id
             macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server << [server_id, 'global'])
@@ -300,7 +305,7 @@ class MacroRank(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'macrorank'
-        self.help = 'Muestra un ranking de los macros usados en el servidor actual'
+        self.help = '$[macros-rank-help]'
         self.allow_pm = False
         self.category = categories.UTILITY
 
@@ -310,34 +315,33 @@ class MacroRank(Command):
             getattr(EmbedMacro.used_count, sortage)()).limit(10)
 
         if len(result) == 0:
-            await cmd.answer('no se encontraron macros')
+            await cmd.answer('$[macros-none-found]')
             return
 
-        result = ['- {} ({}, creado: {})'.format(r.name, r.used_count, format_date(r.created)) for r in result]
+        result = ['- {} ({}, $[macros-rank-created]: {})'.format(
+            r.name, r.used_count, format_date(r.created)) for r in result]
 
         await cmd.answer('```{}```'.format('\n'.join(result)))
 
 
 def safe_format(strp, args):
     """
-    Agrega placeholders a un macro que tiene placeholders, pero que no se le pasaron los suficientes
-    :param strp: El string del macro
-    :param args: Los parámetros del macro
-    :return: El string formateado según los argumentos
+    Adds placeholders to a macro that had not enough arguments passed
+    :param strp: The macro string
+    :param args: Macro parameters
+    :return: The formatted strings
     """
 
-    # Encontrar los placeholders numéricos
+    # Find numeric placeholders
     t = [int(i) for i in re.findall(r"{(\w+)}", strp) if is_int(i)]
 
     if len(t) > 0:
         t = max(t) + 1
         if len(args) < t:
-            # Agregar los placeholders a la lista de argumentos
+            # Add placeholders to the arguments list
             args += [('{' + str(j) + '}') for j in range(len(args), t - len(args) + 1)]
 
-        print('result:', args)
-
-    # Formatear el string según la nueva lista de argumentos
+    # Format the string with the new arguments list
     return strp.format(*args)
 
 

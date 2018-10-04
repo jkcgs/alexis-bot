@@ -4,8 +4,10 @@ help-title: Commands help
 help-not-available: Help information not available
 help-special: Commands with * are only available to staff members
 help-not-found: Command not found
-help-description: 'Use them with the prefix **`$PX` + "command"** in any chat I can answer. If the command starts with
-`$PX`, you must type the prefix twice. For more information about the command, use `$CMD <command>`.'
+help-description: >-
+  Use them with the prefix **`$PX` + "command"** in any chat I can answer. If
+  the command starts with `$PX`, you must type the prefix twice. For more
+  information about the command, use `$CMD <command>`.
 help-description-owner: Commands with an asterisk can only be used by staff members.
 help-category-other: Other
 help-category-other-description: General usage
@@ -14,15 +16,15 @@ help-category-fun-description: Kinda funny commands
 help-category-images: Images
 help-category-images-description: Images gathering and generation
 help-category-information: Information
-help-category-information-description: ''
+help-category-information-description: Information commands
 help-category-moderation: Moderation
-help-category-moderation-description: ''
+help-category-moderation-description: Moderation commands
 help-category-staff: Staff
-help-category-staff-description: 'Configure the bot interaction with the server'
+help-category-staff-description: Configure the bot interaction with the server
 help-category-settings: Settings
-help-category-settings-description: 'Magical commands'
+help-category-settings-description: Magical commands
 help-category-utility: Utilities
-help-category-utility-description: ''
+help-category-utility-description: Utility commands
 help-footer-for: To $AU
 help-format-title: Command usage
 help-format-not-available: Usage format not available

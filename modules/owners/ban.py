@@ -9,14 +9,15 @@ class Ban(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'realban'
-        self.help = 'Banear a un usuario'
+        self.help = '$[realban-help]'
+        self.format = '$[realban-format]'
         self.category = categories.MODERATION
         self.allow_pm = False
         self.owner_only = True
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('Formato: $PX$NM <id, mención> [días-eliminar-mensajes (0-7)] [razón]')
+            await cmd.answer('$[format]: $[realban-format]')
             return
 
         await cmd.typing()
@@ -24,22 +25,22 @@ class Ban(Command):
         server = cmd.message.server
 
         if member is None:
-            await cmd.answer('no se encontró al usuario')
+            await cmd.answer('$[realban-user-not-found]')
             return
 
         if member.id == self.bot.user.id:
-            await cmd.answer('como me vas a banear a mi! owo')
+            await cmd.answer('$[realban-cant-bot]')
             return
 
         if member.id == cmd.author.id:
-            await cmd.answer('de verdad querías banearte a ti mismo? xd')
+            await cmd.answer('$[realban-cant-self]')
             return
 
         delete_days = 0
         if is_int(cmd.args[1]):
             delete_days = int(cmd.args[1])
             if delete_days < 0 or delete_days > 7:
-                await cmd.answer('el tiempo de eliminación de mensajes debe ser entre 0 y 7 (días)')
+                await cmd.answer('$[realban-error-days]')
                 return
             else:
                 reason = ' '.join(cmd.args[2:])
@@ -49,17 +50,22 @@ class Ban(Command):
         try:
             await self.bot.ban(member, delete_days)
         except discord.Forbidden:
-            await cmd.answer('no tengo permiso para banear a al usuario!')
+            await cmd.answer('$[realban-error-denied]')
             return
 
-        str_reason = ' debido a: **{}**'.format(reason) if reason != '' else ''
-
-        # Enviar PM con el aviso del ban
+        # Tell about the ban to the user via PM
         try:
-            await self.bot.send_message(member, 'Hola! Lamentablemente has sido expulsad@ del servidor **{}**{}.'
-                                        .format(server.name, str_reason))
+            if reason == '':
+                await self.bot.send_message(member, '$[realban-msg]', locales={'server_name': server.name})
+                await cmd.answer('$[realban-answer]', locales={'username': member.display_name})
+            else:
+                await self.bot.send_message(member, '$[realban-msg-with-reason]', locales={
+                    'server_name': server.name, 'ban_reason': reason
+                })
+                await cmd.answer('$[realban-answer-with-reason]', locales={
+                    'username': member.display_name,
+                    'ban_reason': reason
+                })
         except discord.errors.Forbidden as e:
             self.log.exception(e)
-
-        # Avisar por el canal donde se envió el comando
-        await cmd.answer('**{}** ha sido banead@{}!'.format(member.display_name, str_reason))
+            await cmd.answer('$[realban-error-perms]')

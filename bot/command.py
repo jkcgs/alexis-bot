@@ -2,7 +2,6 @@ import asyncio
 import aiohttp
 import discord
 
-from bot.utils import get_prefix
 from . import SingleLanguage
 from .logger import log
 from .libs.configuration import ServerConfiguration
@@ -25,7 +24,7 @@ class Command:
         self.category = categories.OTHER
         self.allow_pm = True
         self.allow_nsfw = True  # TODO
-        self.nsfw_only = False  # TODO
+        self.nsfw_only = False
         self.bot_owner_only = False
         self.owner_only = False
         self.default_enabled = True
@@ -34,7 +33,8 @@ class Command:
 
         self.user_delay = 0
         self.users_delay = {}
-        self.user_delay_error = 'aún no puedes usar este comando'
+        self.user_delay_error = '$[command-delayed]'
+        self.nsfw_only_error = '$[nsfw-only]'
         self.db_models = []
 
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
@@ -55,39 +55,24 @@ class Command:
     def handle(self, cmd):
         pass
 
-    def get_lang(self, svid=None):
+    def get_lang(self, svid=None, channel=None):
         """
-        Genera una instancia de SingleLanguage para un servidor en específico o con el idioma predeterminado.
-        :param svid: El ID del servidor para obtener el idioma. Si es None, se devuelve una instancia con el idioma
-        predeterminado.
-        :return: La instancia de SingleLanguage con el idioma obtenido.
+        Creates a SingleLanguage instance for a specific server or server channel or default language.
+        :param svid: The discord.Server instance or server ID to get the language.
+        If it's None, the default language is used.
+        :param channel: The channel ID or instance to get channel-specific language.
+        If not set, the server language is used.
+        :return: The SingleLanguage instance with the determined language.
         """
-        if svid is None:
-            lang_code = self.bot.config['default_lang']
-        else:
+        lang_code = self.bot.config['default_lang']
+
+        if svid is not None and isinstance(svid, (discord.Server, str)):
+
             svid = svid if not isinstance(svid, discord.Server) else svid.id
-            lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'])
+            lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'], create=False)
+
+            if channel is not None and isinstance(channel, (discord.Channel, str)):
+                chanid = channel if not isinstance(channel, discord.Channel) else channel.id
+                lang_code = self.bot.sv_config.get(svid, 'lang#'+chanid, lang_code, create=False)
 
         return SingleLanguage(self.bot.lang, lang_code)
-
-    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
-        """
-        Llamada al bot de send_message que agrega parámetros de reemplazo de textos
-        :param destination: Dónde enviar un mensaje, como discord.Channel, discord.User, discord.Object, entre otros.
-        :param content: El contenido textual a enviar
-        :param tts: El mensaje es TTS (text to speech).
-        :param embed: Enviar un embed con el mensaje.
-        :param locales: Mensajes a reemplazar en el contenido y embed.
-        :param event: El evento que origina el mensaje. Se usa para entregárselo a los respectivos handlers.
-        :return:
-        """
-        if locales is None:
-            locales = {}
-
-        px = get_prefix(destination.id if isinstance(content, discord.Server) else None)
-        locales['$PX'] = px
-        if event is not None:
-            locales['$NM'] = event.cmdname
-            locales['$CMD'] = px + event.cmdname
-
-        await self.bot.send_message(destination, content, tts=tts, embed=embed, locales=locales, event=event)

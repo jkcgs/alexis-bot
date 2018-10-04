@@ -1,0 +1,5 @@
+xkcd-help: Muestra un comic xkcd.
+xkcd-format: >-
+  Formato: $CMD [ID-de-cómic|random|current]\nSi no se escribe un parámetro, se
+  muestra el cómic actual.
+xkcd-err-outofbounds: El ID numérico del cómic es mayor al del cómic actual.

@@ -1,0 +1,8 @@
+kick-help: Kicks an user
+kick-format: '$CMD <@user> [reason]'
+kick-msg: 'Unfortunately, you''ve been kicked from **{server_name}**.'
+kick-msg-reason: 'Unfortunately, you''ve been kicked from **{server_name}**. Reason: "{reason}".'
+kick-answer: '**{username}** has been kicked from the guild!'
+kick-answer-reason: '**{username}** has been kicked from the guild! Reason: "{reason}".'
+kick-err-bot: You can't kick me!
+kick-err-perms: I couldn't kick the user because of lack of permissions.

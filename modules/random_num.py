@@ -8,7 +8,8 @@ class RandomNum(Command):
         super().__init__(bot)
         self.name = 'random'
         self.aliases = ['rand']
-        self.help = 'Elige un número al azar'
+        self.help = '$[random-help]'
+        self.format = '$CMD <n1> <n2>'
         self.category = categories.UTILITY
 
     async def handle(self, cmd):
@@ -17,7 +18,7 @@ class RandomNum(Command):
 
         if cmd.argc >= 1:
             if not cmd.args[0].isnumeric() or (cmd.argc >= 2 and not cmd.args[1].isnumeric()):
-                await cmd.answer('por favor ingresa sólo números')
+                await cmd.answer('$[random-error-number-only]')
                 return
 
             if cmd.argc == 1:
@@ -35,8 +36,7 @@ class RandomNum(Command):
             del ntemp
 
         if nmin == nmax:
-            jaja = 'tu número entre {} y {}, *AUNQUE NO LO PUEDAS CREER*, es el **{}** :open_mouth:'
-            await cmd.answer(jaja.format(nmin, nmax, nmin))
+            await cmd.answer('$[random-single-answer]', locales={'num1': nmin, 'num2': nmax, 'result': nmin})
         else:
             rand = random.randint(nmin, nmax)
             answ = 'random({}, {}) => **{}**'.format(nmin, nmax, rand)

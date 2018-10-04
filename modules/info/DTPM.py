@@ -16,31 +16,32 @@ class DTPM(Command):
         super().__init__(bot)
         self.name = 'transantiago'
         self.aliases = ['ts']
-        self.help = 'Muestra próximas llegadas de buses a un paradero de Transantiago'
+        self.help = '$[dtpm-help]'
+        self.format = '$[dtpm-format]'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $CMD <parada> [recorrido]')
+            await cmd.answer('$[format]: $[dtpm-format]')
             return
 
         if not pat_stop.match(cmd.args[0]):
-            await cmd.answer('formato de parada incorrecto')
+            await cmd.answer('$[dtpm-error-invalid-stop]')
             return
 
         if cmd.argc > 1 and not pat_rec.match(cmd.args[1]):
-            await cmd.answer('formato de recorrido incorrecto')
+            await cmd.answer('$[dtpm-error-invalid-line]')
             return
 
         try:
             await cmd.typing()
             data = await self.get_arrivals(cmd.args[0].upper())
             if isinstance(data, str):
-                await cmd.answer('error: *{}*'.format(data))
+                await cmd.answer('$[dtpm-error]', locales={'error': data})
                 return
 
             if len(data) < 1:
-                await cmd.answer('no se encontró información o el paradero no existe')
+                await cmd.answer('$[dtpm-error-not-found]')
                 return
 
             if cmd.argc >= 2:
@@ -49,11 +50,11 @@ class DTPM(Command):
                         if result['bus_plate_number'] is None:
                             await cmd.answer('"*{}*"'.format(result['arrival_estimation']))
                         else:
-                            await cmd.answer('tiempo estimado de llegada: **{}** (patente *{}*)'.format(
-                                result['arrival_estimation'], result['bus_plate_number']
-                            ))
+                            await cmd.answer('$[dtpm-estimated-time]', locales={
+                                'time': result['arrival_estimation'], 'plate': result['bus_plate_number']
+                            })
                         return
-                await cmd.answer('no hay llegadas próximas para ese recorrido')
+                await cmd.answer('$[dtpm-no-arrivals]')
             else:
                 routes = []
                 for arrival in data[:18]:
@@ -64,16 +65,16 @@ class DTPM(Command):
                             arrival['route_id'], arrival['arrival_estimation'], arrival['bus_plate_number']
                         ))
 
-                e = Embed(title='Próximas llegadas paradero ' + cmd.args[0].upper(), description='\n'.join(routes))
-                await cmd.answer(e)
+                e = Embed(title='$[dtpm-next-arrivals]', description='\n'.join(routes))
+                await cmd.answer(e, locales={'stop': cmd.args[0].upper()})
 
         except Exception as e:
-            await cmd.answer('ocurrió un error al obtener la información')
+            await cmd.answer('$[dtpm-error-raised]')
             self.log.exception(e)
 
     async def get_arrivals(self, bus_stop):
         url = 'http://web.smsbus.cl/web/buscarAction.do'
-        self.log.debug('loading %s', url)
+        self.log.debug('[DTPM] Loading %s', url)
 
         await self.http.get(url + '?d=cargarServicios')
         async with self.http.post(url, data={'d': 'busquedaParadero', 'ingresar_paradero': bus_stop}) as r:

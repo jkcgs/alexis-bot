@@ -1,0 +1,25 @@
+iam-help: Allows self role assignment
+iam-no-permission: 'Command disabled, I''m not allowed to manage roles in this server.'
+iam-no-roles: No roles available.
+iam-roles-list: 'Available roles: {roles}'
+iam-role-not-available: Role not available.
+iam-already-has-role: You already have that role.
+iam-disallowed-role: I can't manage this role.
+iam-role-given: 'Now you have the **{role}** role!'
+iam-forbidden-exception: I could not give you that role due to a `Forbidden` exception!
+iamnot-help: Removes a self-assigned role
+iamnot-format: $CMD <role>
+iamnot-removed-role: 'Role **{role}** removed.'
+iamnot-forbidden-exception: I could not remove you that role due to a `Forbidden` exception!
+iamroles-help: Manages the `$PXiam` available roles.
+iamroles-format: '`$CMD add|remove <role>` or `+|-<role>`'
+iamroles-limit-error: 'You have reached the limit of **{limit}** self-assignable roles.'
+iamroles-not-found: This role does not exist.
+iamroles-bot-superior-role: I can't assign this role because is equal or superior to my top role.
+iamroles-author-superior-role: You can't add this role because is equal or superior to your top role.
+iamroles-added: Role added!
+iamroles-no-removable-roles: There are no removable roles.
+iamroles-not-added: This role has not been added.
+iamroles-removed: 'Role {role} removed from self-assignable roles.'
+iamroles-no-subcommand: wtf
+iam-not-self-managed: This is not a self-managed role.

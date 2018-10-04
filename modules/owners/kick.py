@@ -11,42 +11,48 @@ class Kick(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'kick'
-        self.help = 'Kickea a un usuario'
+        self.help = '$[kick-help]'
+        self.format = '$[kick-format]'
         self.allow_pm = False
         self.owner_only = True
         self.category = categories.MODERATION
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('formato: $PX$NM @usuario [razón]')
+            await cmd.answer('$[format]: $[kick-format]')
             return
 
         to_kick = await cmd.get_user(cmd.args[0])
         if to_kick is None:
-            await cmd.answer('usuario no encontrado')
+            await cmd.answer('$[user-not-found]')
             return
 
-        msg_user = 'Lamentablemente has sido kickeado de {}'.format(cmd.message.server.name)
-        msg_all = '{} ha sido kickead@ del servidor'.format(to_kick.display_name)
-        if cmd.argc > 1:
-            reason = ' '.join(cmd.args[1:])
-            msg_user += ' `por **{}**'.format(reason)
-            msg_all += ' `por **{}**'.format(reason)
-
-        # Kickear al usuario
+        # Kick the user
         try:
             await self.bot.kick(to_kick)
         except discord.Forbidden:
-            await cmd.answer('no pude kickear al usuario :cry:')
+            await cmd.answer('$[kick-err-perms]')
             return
 
-        # Avisar al usuario (no bots) que fue kickeado
+        reason = ' '.join(cmd.args[1:]) if cmd.argc > 1 else ''
+
+        # Tell the user about the kick
         try:
             if not to_kick.bot:
-                await self.bot.send_message(to_kick, msg_user)
+                if reason:
+                    await self.bot.send_message(to_kick, '$[kick-msg-reason]', locales={'reason': reason})
+                else:
+                    await self.bot.send_message(to_kick, '$[kick-msg]')
+            else:
+                await cmd.answer('$[kick-err-bot]')
+                return
         except discord.Forbidden:
             pass
 
         # all iz well
-        await cmd.answer(msg_all)
+        if reason:
+            await cmd.answer('$[kick-answer-reason]', locales={'username': to_kick.display_name, 'reason': reason})
+        else:
+            await cmd.answer('$[kick-answer]', locales={'username': to_kick.display_name})
+
         # await ModLog.send_modlog(cmd, message=msg_all)

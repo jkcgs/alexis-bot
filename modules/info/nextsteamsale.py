@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import json
-import asyncio
 from discord import Embed
 
 from bot import Command, categories
@@ -42,7 +41,7 @@ class NextSteamSale(Command):
             remaining_time.insert(1, "00:00:00")
             e.add_field(name='$[nss-remaining-time]', value='$[nss-sales-have-begun]', inline=False)
         else:
-            e.add_field(name='$[nss-remaining-time]', value='$[nss-remaining-time-value]' , inline=False)
+            e.add_field(name='$[nss-remaining-time]', value='$[nss-remaining-time-value]', inline=False)
 
         await cmd.answer(embed=e, locales={
             'startdate': start_date[0],
@@ -54,9 +53,12 @@ class NextSteamSale(Command):
             'remaininghours': remaining_time[1]
         })
 
-    async def task(self):
+    async def on_ready(self):
+        self.bot.schedule(self.update_info, 43200)
+
+    async def update_info(self):
         try:
-            self.log.debug('Cargando información de próxima oferta de Steam...')
+            self.log.debug('Loading next Steam sale information...')
             async with self.http.get(NextSteamSale.url) as s:
                 content = await s.text()
                 soup = BeautifulSoup(content, 'html.parser')
@@ -65,11 +67,3 @@ class NextSteamSale(Command):
         except Exception as err:
             self.log.error(err)
             raise err
-        finally:
-            if not self.bot.is_closed:
-                await asyncio.sleep(43200)  # 12h
-                self.bot.loop.create_task(self.task())
-            
-
-
-

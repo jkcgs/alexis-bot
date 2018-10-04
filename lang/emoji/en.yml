@@ -1,0 +1,3 @@
+emoji-help: Sends back the emoji picture
+emoji-format: $CMD <emoji>
+emoji-unsupported: Unicode emojis are currently unsupported. Only custom emoji are supported.

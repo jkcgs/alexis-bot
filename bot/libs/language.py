@@ -1,5 +1,6 @@
 import glob
 import re
+import codecs
 
 from os import path
 from ruamel import yaml
@@ -20,7 +21,7 @@ class Language:
             self.load()
 
     def load(self):
-        log.info('Cargando archivos de idioma...')
+        log.info('Loading language files...')
 
         self.lib = {}
         p = path.join(self.path, "**{s}*.yml".format(s=path.sep))
@@ -32,7 +33,7 @@ class Language:
             if not path.isfile(lang_file) or not fn.endswith('.yml'):
                 continue
 
-            with open(lang_file) as f:
+            with codecs.open(lang_file, 'r', encoding='utf8') as f:
                 fcount += 1
                 yml = yaml.safe_load(f)
                 lang = fn[:-4]
@@ -46,7 +47,7 @@ class Language:
 
                     self.lib[lang][k] = str(v)
 
-        log.info('Cargado{s} %i archivo{s}'.format(s=['s', ''][int(fcount == 1)]), fcount)
+        log.info('Loaded %i language file{s}'.format(s=['s', ''][fcount == 1]), fcount)
 
     def get(self, name, __lang=None, **kwargs):
         if __lang is None:
@@ -54,9 +55,9 @@ class Language:
 
         if __lang not in self.lib:
             text = __lang + '_' + name
-        elif name not in self.lib[__lang]:
+        elif name not in self.lib[__lang] or self.lib[__lang][name] == '':
             if __lang == self.default:
-                text = __lang + '_' + name
+                text = '[{}:{}]'.format(__lang, name)
             else:
                 text = self.get(name, self.default)
         else:
@@ -65,9 +66,13 @@ class Language:
             try:
                 text = text.format(**kwargs)
             except KeyError:
-                log.warn('No se pudo formatear el texto "%s" con las variables %s', text, kwargs)
+                log.warn('Could not format the "%s" text with the %s variables', text, kwargs)
 
         return text
+
+    def get_list(self, name, separator='|', __lang=None, **kwargs):
+        val = self.get(name, __lang, **kwargs)
+        return [f.strip() for f in val.split(separator) if f.strip() != '']
 
     def has(self, lang):
         return lang in self.lib
@@ -81,11 +86,16 @@ class SingleLanguage:
     def get(self, name, **kwargs):
         return self.instance.get(name, self.lang, **kwargs)
 
+    def get_list(self, name, separator='|', **kwargs):
+        return self.instance.get_list(name, separator, self.lang, **kwargs)
+
     def format(self, message, locales=None):
         if isinstance(message, str):
             locales = locales or {}
             for m in pat_lang_placeholder.finditer(message):
                 message = message.replace(m.group(0), self.get(m.group(1), **locales))
+
+            return self.format(message) if pat_lang_placeholder.search(message) else message
         elif isinstance(message, Embed):
             if message.title != Embed.Empty:
                 message.title = self.format(message.title, locales)
@@ -95,12 +105,12 @@ class SingleLanguage:
                 message.set_footer(text=self.format(message.footer.text, locales), icon_url=message.footer.icon_url)
 
             for idx, field in enumerate(message.fields):
-                message.set_field_at(
-                    idx, name=self.format(
-                        field.name, locales), value=self.format(field.value, locales), inline=field.inline)
+                message.set_field_at(idx,
+                                     name=self.format(field.name, locales),
+                                     value=self.format(field.value, locales),
+                                     inline=field.inline)
+            return message
         elif message is None:
             return None
         else:
             return self.format(str(message), locales)
-
-        return message

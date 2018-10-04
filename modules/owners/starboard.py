@@ -23,7 +23,8 @@ class StarboardHook(Command):
         self.allow_pm = False
         self.owner_only = True
         self.name = 'starboard'
-        self.help = 'Administrar el starboard'
+        self.help = '$[starboard-help]'
+        self.format = '$[starboard-format]'
         self.category = categories.STAFF
 
     async def handle(self, cmd):
@@ -42,71 +43,70 @@ class StarboardHook(Command):
                     channel = cmd.find_channel(args[0])
 
             if channel is None:
-                await cmd.answer('Canal no encontrado')
+                await cmd.answer('$[channel-not-found]')
                 return
 
             cmd.config.set(cfg_starboard_channel, channel.id)
-            await cmd.answer('canal de starboard actualizado a <#{}>!'.format(channel.id))
+            await cmd.answer('$[starboard-channel-set]', locales={'channel_id': channel.id})
         elif subcmd == 'disable':
             cmd.config.set(cfg_starboard_channel, '')
-            await cmd.answer('Starboard desactivado! Para volver a activarlo, utiliza el subcomando "channel".')
+            await cmd.answer('$[starboard-disabled]')
         elif subcmd == 'count':
             if argc == 0:
                 count = cmd.config.get(cfg_starboard_tcount, default_count)
-                await cmd.answer('cuenta trigger actual: ' + count)
+                await cmd.answer('$[starboard-count-status]', locales={'count': count})
                 return
 
             if not args[0].isdigit():
-                await cmd.answer('utiliza un número entero entre 1 y 10, inclusive.')
+                await cmd.answer('$[starboard-err-count]')
                 return
 
             count = int(args[0])
             if count < 1 or count > 1000:
-                await cmd.answer('utiliza un número entero entre 1 y 10, inclusive.')
+                await cmd.answer('$[starboard-err-count]')
                 return
 
             cmd.config.set(cfg_starboard_tcount, count)
-            await cmd.answer('número de trigger definido en **{}**'.format(count))
+            await cmd.answer('$[starboard-count-set]', locales={'count': count})
         elif subcmd == 'emojis':
             emojis = cmd.config.get(cfg_starboard_emojis)
 
             if argc == 0:
-                val = 'Ninguno' if emojis == '' else emojis
-                await cmd.answer('emojis: ' + val)
+                val = '$[starboard-none]' if emojis == '' else emojis
+                await cmd.answer('$[starboard-emoji-list]', locales={'emojis': val})
                 return
 
             if argc > 10:
-                await cmd.answer('formato: <inserte formato aquí>')
+                await cmd.answer('$[format]: $[starboard-emoji-format]')
                 return
 
             for arg in cmd.args:
                 if not pat_emoji.match(arg) and arg not in emoji.UNICODE_EMOJI:
-                    await cmd.answer('formato: <inserte formato aquí>')
+                    await cmd.answer('$[format]: $[starboard-emoji-format]')
                     return
 
             res = cmd.config.set(cfg_starboard_emojis, cmd.text)
-            await cmd.answer('emojis guardados: ' + res)
+            await cmd.answer('$[starboard-emoji-set]', locales={'emojis': res})
         elif subcmd == 'delemojis':
             cmd.config.set(cfg_starboard_emojis, '')
-            await cmd.answer('emojis de starboard eliminados (ahora se reacciona con cualquiera).')
+            await cmd.answer('$[starboard-emoji-deleted]')
         elif subcmd == 'nsfw':
             if argc == 0:
                 val = cmd.config.get(cfg_starboard_nsfw, '0')
-                msg = 'activado :speak_no_evil:' if val == '1' else 'desactivado :dolphin:'
-                await cmd.answer('starboard para canales NSFW: {}'.format(msg))
+                msg = ['$[starboard-nsfw-disabled]', '$[starboard-nsfw-enabled]'][val == '1']
+                await cmd.answer('$[starboard-nsfw-status] {}'.format(msg))
             else:
                 arg = cmd.args[0].lower()
-                if arg in ['yes', 'true', '1', 'on', 'si']:
+                if arg in ['true', '1'] + cmd.lang.get_list('starboard-nsfw-on'):
                     cmd.config.set(cfg_starboard_nsfw, '1')
-                    await cmd.answer('starboard para NSFW activado :flushed:')
-                elif arg in ['no', 'false', '0', 'off']:
+                    await cmd.answer('$[starboard-nsfw-set-enabled]')
+                elif arg in ['false', '0'] + cmd.lang.get_list('starboard-nsfw-off'):
                     cmd.config.set(cfg_starboard_nsfw, '0')
-                    await cmd.answer('starboard para NSFW desactivado :two_hearts:')
+                    await cmd.answer('$[starboard-nsfw-set-disabled]')
                 else:
-                    await cmd.answer('Formato: nsfw [on|off]')
+                    await cmd.answer('$[format]: $[starboard-nsfw-format]')
         else:
-            await cmd.answer('formato: $PX{} <subcomando> <opts>.\n'
-                             'Subcomandos: channel, disable, count, emojis, delemojis, nfsw.'.format(cmd.cmdname))
+            await cmd.answer('$[starboard-format].', locales={'command_name': cmd.cmdname})
 
     async def on_reaction_add(self, reaction, user):
         msg = reaction.message
@@ -114,7 +114,7 @@ class StarboardHook(Command):
             return
 
         config = self.config_mgr(reaction.message.server.id)
-        # Cargar reacciones admitidas
+        # Load allowed reactions
         emojis = config.get(cfg_starboard_emojis)
         reaction_triggers = []
         if emojis != '':
@@ -127,7 +127,7 @@ class StarboardHook(Command):
                     reaction_triggers.append(react)
             reaction_triggers = reaction_filtered
 
-        # Obtener el canal de starboard
+        # Get the starboard channel
         channelid = config.get(cfg_starboard_channel)
         if channelid == '':
             return
@@ -139,11 +139,11 @@ class StarboardHook(Command):
         else:
             count_trigger = int(ct_config)
 
-        # Ignorar mensaje si es del mismo canal del starboard o del mismo bot
+        # Ignore messages on the starboard channel or from the bot itself
         if channelid == msg.channel.id or msg.author.id == self.bot.user.id:
             return
 
-        # Ignorar mensaje si es de un canal NSFW
+        # Ignore NSFW channels if they are ignored
         if 'nsfw' in msg.channel.name.lower() and config.get(cfg_starboard_nsfw, '0') == '0':
             return
 
@@ -181,7 +181,7 @@ class StarboardHook(Command):
             embed.set_image(url=msg.attachments[0]['url'])
 
         reactions = ' | '.join(['{}: {}'.format(str(r.emoji), r.count) for r in msg.reactions])
-        embed.add_field(name='Reacciones', value=reactions)
+        embed.add_field(name='$[starboard-reactions]', value=reactions)
 
         await self.bot.send_message(channel, embed=embed)
 

@@ -1,0 +1,32 @@
+warn-help: Warn a user
+warn-format: '$CMD <id, mention> <reason>'
+warn-err-bot: You can't warn me!
+warn-err-self: You can't warn yourself!
+warn-msg: 'Hello! You''re given a warning in the **{server_name}** guild for *{reason}*.'
+warn-now-single: 'Now you have {count} warning.'
+warn-now: 'Now you have {count} warnings.'
+warn-answer: '**{username}** was given a warning. Reason: **{reason}**.'
+warn-answer-count: 'Now has {count} warnings.'
+warn-answer-count-single: 'Now has {count} warning.'
+warns-help: Displays a user's warning count.
+warns-format: '$CMD <id, mention>'
+warns-has: '**{username}** has {count} warnings.'
+warns-has-single: '**{username}** has one warning.'
+warns-hasnt: '**{username}** has no warnings.'
+clrw-help: Clears a single user's warnings.
+clrw-format: '$CMD <id, mention>'
+clrw-hasnt: The user has no warnings.
+clrw-cleared: 'Warnings cleared for **{username}**'
+delw-help: >-
+  Clears a single warning for a user, given the warning number from
+  `$PXwarnlist`.
+delw-format: '$CMD <id, mention> <index>'
+delw-err-index: The index number must be greater than zero.
+delw-err-out-of-bounds: Warning index out of bounds.
+delw-deleted: Warning removed.
+warnlist-help: Shows the list of the last warnings for a user.
+warnlist-last: Last warnings
+warnrank-help: Shows a warning rank for guild's users.
+warnrank-none: No warnings found.
+warnrank-last: last
+warnrank-title: Warning rank

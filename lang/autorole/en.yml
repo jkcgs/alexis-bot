@@ -1,0 +1,16 @@
+autorole-help: Automatically gives a role to new and current users.
+autorole-format: $CMD (add|set|remove|give) (role_name|role_id)
+autorole-error-cant: 'Command disabled, I can''t manage roles in this server.'
+autorole-list-single: 'Automatically asigned role is: {role}'
+autorole-list: 'Automatically assigned roles: {roles}'
+autorole-list-none: No autorole has been set.
+autorole-not-found: Role not found.
+autorole-already-added: This role has already been added.
+autorole-cant-assign: I can't assign this role so it can't be added.
+autorole-added: Role added.
+autorole-not-assigned: That role has not been added.
+autorole-removed: Role deleted.
+autorole-none-available: There are no roles to be automatically assigned.
+autorole-assigning: Asigning roles...
+autorole-ready: ¡Ready!
+autorole-removing: Removing roles...

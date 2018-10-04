@@ -14,16 +14,10 @@ class Meme(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'meme'
-        self.help = 'Genera un meme en base a la imagen de un usuario'
+        self.help = '$[memes-help]'
         self.category = categories.IMAGES
-        self.format = 'formatos:\n' \
-                      '```' \
-                      '$CMD <texto_abajo> (usará tu avatar)\n' \
-                      '$CMD [usuario] | <texto_abajo>\n' \
-                      '$CMD <usuario> | <texto_arriba> | <texto_abajo>\n' \
-                      '$CMD <@mención> [|] <texto_abajo>\n' \
-                      '$CMD <@mención> [|] <texto_arriba> | <texto_abajo>' \
-                      '```'
+        self.format = '$[format]:```$[memes-format-1]\n$[memes-format-2]\n$[memes-format-3]\n' \
+                      '$[memes-format-4]\n$[memes-format-5]```'
         self.isize = 512
         self.mpath = path.join(path.dirname(path.realpath(__file__)), 'impact.ttf')
         self.font = None
@@ -31,17 +25,17 @@ class Meme(Command):
 
     async def on_ready(self):
         if not path.exists(self.mpath):
-            self.log.info('No se encontró la fuente Impact, descargando...')
+            self.log.info('Impact font not found, downloading...')
             try:
                 async with self.http.get(furl) as resp:
-                    self.log.info('Fuente Impact descargada')
+                    self.log.info('Impact font downloaded')
                     data = await resp.read()
                     with open(self.mpath, 'wb') as f:
                         f.write(data)
                         f.close()
-                        self.log.info('Fuente Impact guardada')
+                        self.log.info('Impact font stored')
             except OSError as e:
-                self.log.error('No fue posible guardar el archivo')
+                self.log.error('Could not save the downloaded font')
                 self.log.exception(e)
 
         self.font = ImageFont.truetype(self.mpath, size=int(self.isize/8))
@@ -64,7 +58,7 @@ class Meme(Command):
             user = await cmd.get_user(args[0].strip())
 
             if user is None:
-                await cmd.answer('usuario no encontrado')
+                await cmd.answer('$[user-not-found]')
                 return
             upper = args[1].upper() if len(args) > 2 else None
             lower = (args[2] if len(args) > 2 else args[1]).upper()
@@ -76,7 +70,7 @@ class Meme(Command):
         avatar_url = user.avatar_url or user.default_avatar_url
         await cmd.typing()
         async with self.http.get(avatar_url) as resp:
-            self.log.debug('Descargando avatar de usuario: %s', avatar_url)
+            self.log.debug('Downloading user avatar: %s', avatar_url)
             avatar_data = await resp.read()
 
         avatar_data = Image.open(BytesIO(avatar_data)).resize((self.isize, self.isize), Image.ANTIALIAS)
@@ -91,7 +85,7 @@ class Meme(Command):
         im.save(temp, format='PNG')
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
 
-        self.log.debug('Meme generado!')
+        self.log.debug('Meme generated!')
         await self.bot.send_file(cmd.channel, temp, filename='meme.png', content=cmd.author_name)
 
     def meme_draw(self, im, text, upper=True):

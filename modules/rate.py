@@ -12,30 +12,32 @@ class Rate(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'rate'
-        self.help = 'Evalúa algo'
+        self.help = '$[rate-help]'
+        self.format = '$[rate-format]'
         self.category = categories.FUN
 
     async def handle(self, cmd):
         text = [cmd.text, cmd.author_name][int(cmd.text == '')]
         t_user = await cmd.get_user(text)
 
-        if random.random() > .90:
-            if cmd.argc == 1 and t_user is not None:
+        if random.random() > .9:
+            if t_user is not None:
                 m = cmd.message.mentions[0]
                 hashi = hashlib.md5()
                 hashi.update(m.id.encode('utf-8'))
                 hid = hashi.hexdigest()
-                # no si no es niuna weá transfuga wn sólo estoy ocultando los ids de los locos especiales jaj
+
                 if hid in Rate.special1:
-                    await cmd.answer('a {} de un 1 a un 100, le doy :$'.format(text))
+                    await cmd.answer('$[rate-special1]', locales={'user': text})
                 elif hid in Rate.special2:
-                    await cmd.answer('uff men gr8 i r8 8/8')
+                    await cmd.answer('$[rate-special2]')
                 elif m.id == self.bot.user.id:
-                    await cmd.answer('lo mejor del mundo, obvio')
+                    await cmd.answer('$[rate-special-self]')
                 else:
-                    await cmd.answer('no me mandis weas xfa')
+                    await cmd.answer('$[rate-special-ew]')
             else:
-                await cmd.answer('penca tu weá xd')
+                await cmd.answer('$[rate-random-error]')
         else:
-            rating = '{:.1f}'.format(random.random()*100)
-            await cmd.answer('a {} le doy {}/100'.format(text, rating))
+            await cmd.answer('$[rate-answer]', locales={
+                'thing': text, 'rate': '{:.1f}'.format(random.random()*100)
+            })

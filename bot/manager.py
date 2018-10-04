@@ -22,20 +22,20 @@ class Manager:
         self.mention_handlers = []
 
     def load_instances(self):
-        """Carga las instancias de las clases de comandos cargadas"""
+        """Loads instances for the command classes loaded"""
         self.cmd_instances = []
         for c in Manager.get_mods(self.bot.config.get('ext_modpath', '')):
             self.cmd_instances.append(self.load_module(c))
         self.sort_instances()
 
-        log.info('Se cargaron %i módulos', len(self.cmd_instances))
-        log.debug('Comandos cargados: ' + ', '.join(self.cmds.keys()))
-        log.debug('Módulos cargados: ' + ', '.join([i.__class__.__name__ for i in self.cmd_instances]))
+        log.info('%i modules were loaded', len(self.cmd_instances))
+        log.debug('Commands loaded: ' + ', '.join(self.cmds.keys()))
+        log.debug('Modules loaded: ' + ', '.join([i.__class__.__name__ for i in self.cmd_instances]))
 
     def unload_instance(self, name):
         """
-        Saca de la memoria una instancia de un módulo, desactivando todos sus comandos y event handlers.
-        :param name: El nombre del módulo.
+        Removes from memory a module instance, and disabling its commands and event handlers.
+        :param name: Module's name.
         """
         instance = None
         for i in self.cmd_instances:
@@ -45,7 +45,7 @@ class Manager:
         if instance is None:
             return
 
-        log.debug('Desactivando módulo %s...', name)
+        log.debug('Disabling %s module...', name)
 
         # Unload commands
         cmd_names = [n for n in [instance.name] + instance.aliases if n != '']
@@ -76,16 +76,16 @@ class Manager:
 
         # Remove from instances list
         self.cmd_instances.remove(instance)
-        log.info('Módulo "%s" desactivado', name)
+        log.info('"%s" module disabled', name)
 
     def sort_instances(self):
         self.cmd_instances = sorted(self.cmd_instances, key=lambda i: i.priority)
 
     def load_module(self, cls):
         """
-        Carga un módulo de comando en el bot
-        :param cls: Clase-módulo a cargar
-        :return: La instancia del módulo cargado
+        Loads a command module into the bot
+        :param cls: The module class to load
+        :return: A module class' instance
         """
 
         instance = cls(self.bot)
@@ -95,18 +95,18 @@ class Manager:
         if isinstance(instance.default_config, dict):
             self.bot.config.load_defaults(instance.default_config)
 
-        # Comandos
+        # Commands
         for name in [instance.name] + instance.aliases:
             if name != '':
                 self.cmds[name] = instance
 
-        # Handlers startswith
+        # Startswith handlers
         for swtext in instance.swhandler:
             if swtext != '':
-                log.debug('Registrando sw_handler "%s"', swtext)
+                log.debug('Registering starts-with handler "%s"', swtext)
                 self.swhandlers[swtext] = instance
 
-        # Comandos que se activan con una mención
+        # Commands activated with mentions
         if isinstance(instance.mention_handler, bool) and instance.mention_handler:
             self.mention_handlers.append(instance)
 
@@ -122,9 +122,9 @@ class Manager:
 
     async def dispatch(self, event_name, **kwargs):
         """
-        Llama a funciones de eventos en los módulos cargados.
-        :param event_name: El nombre del handler
-        :param kwargs: Los parámetros del evento
+        Calls event methods on loaded methods.
+        :param event_name: Event handler name
+        :param kwargs: Event parameters
         """
         if not self.bot.initialized:
             return
@@ -147,10 +147,10 @@ class Manager:
 
     def dispatch_sync(self, name, force=False, **kwargs):
         """
-        Llama a funciones "handlers" en los módulos cargados.
-        :param name: El nombre del handler
-        :param force: Llamar a los handlers aunque no se haya inicializado al bot
-        :param kwargs: Los parámetros del evento
+        Synchronously (without event loop) calls "handlers" methods on loaded modules.
+        :param name: Handler name
+        :param force: Call handlers even if the bot is not initialized
+        :param kwargs: Event parameters
         """
         if not self.bot.initialized and not force:
             return
@@ -169,7 +169,7 @@ class Manager:
         if not self.bot.initialized:
             return
 
-        # Mandar PMs al log
+        # Log PMs
         if event.is_pm and message.content != '':
             if event.self:
                 log.info('[PM] (-> %s): %s', message.channel.user, event.text)
@@ -178,10 +178,10 @@ class Manager:
 
         # Command handler
         try:
-            # Comando válido
+            # Valid command
             if isinstance(event, (CommandEvent, BotMentionEvent)):
                 if isinstance(event, CommandEvent):
-                    # Actualizar id del último que usó un comando (omitir al mismo bot)
+                    # Update ID of the last one who used a command (omitting the bot)
                     if not event.self:
                         self.bot.last_author = message.author.id
                     log.debug('[command] %s: %s', event.author, str(event))
@@ -239,18 +239,18 @@ class Manager:
         classes = Manager.get_mods(self.bot.config.get('ext_modpath', ''))
         for cls in classes:
             if cls.__name__ == name:
-                log.debug('Cargando módulo "%s"...', name)
+                log.debug('Loading "%s" module...', name)
                 ins = self.load_module(cls)
                 if hasattr(ins, 'on_loaded'):
-                    log.debug('Llamando on_loaded para "%s"', name)
+                    log.debug('Calling on_loaded for "%s"', name)
                     ins.on_loaded()
                 if hasattr(ins, 'on_ready'):
-                    log.debug('Llamando on_ready para "%s"', name)
+                    log.debug('Calling on_ready for "%s"', name)
                     await ins.on_ready()
 
                 self.cmd_instances.append(ins)
                 self.sort_instances()
-                log.debug('Módulo "%s" cargado', name)
+                log.debug('"%s" module loaded', name)
                 return True
 
         return False
@@ -274,13 +274,13 @@ class Manager:
     @staticmethod
     def get_mods(ext_path=''):
         """
-        Carga los módulos disponibles
-        :param ext_path: Una carpeta de módulos externos
-        :return: Una lista de instancias de los módulos de comandos
+        Loads available modules
+        :param ext_path: An external modules folder
+        :return: An instances list of command modules
         """
         classes = []
 
-        # Listar módulos internos
+        # List internal modules
         mods_path = path.join(get_bot_root(), 'modules')
         _all = ['modules.' + f for f in Manager.get_mod_files(mods_path)]
 
@@ -288,22 +288,22 @@ class Manager:
         if path.isdir(local_ext):
             _all += ['external_modules.' + f for f in Manager.get_mod_files(local_ext)]
 
-        # Listar módulos externos
+        # List external modules
         if ext_path != '' and path.isdir(ext_path):
             ext_mods = Manager.get_mod_files(ext_path)
             sys.path.append(ext_path)
             _all += ext_mods
 
-        # Cargar todos los módulos
+        # Load all modules
         for imod in _all:
             try:
                 mod = __import__(imod, fromlist=[''])
             except ImportError as e:
-                log.error('No se pudo cargar un módulo')
+                log.error('Could not load a module')
                 log.exception(e)
                 continue
 
-            # Instanciar módulos disponibles
+            # Instantiate loaded modules
             for name, obj in inspect.getmembers(mod):
                 if obj in classes:
                     continue
@@ -316,9 +316,9 @@ class Manager:
     @staticmethod
     def get_mod_files(fpath):
         """
-        Carga una lista de archivos script
-        :param fpath: El directorio a analizar
-        :return: La lista de ubicaciones de los script, como nombre de módulo
+        Loads a script files list
+        :param fpath: The directory to scan
+        :return: The list of script paths, as a module name
         """
         result = []
         mod_files = glob.iglob(fpath + "/**/*.py", recursive=True)

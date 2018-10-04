@@ -1,0 +1,25 @@
+iam-help: Permite auto-asignarse roles
+iam-no-permission: 'Comando desactivado, no puedo gestionar roles en este servidor.'
+iam-no-roles: No hay roles disponibles.
+iam-roles-list: 'Roles disponibles: {roles}'
+iam-role-not-available: Rol no disponible.
+iam-already-has-role: Ya tienes este rol.
+iam-disallowed-role: No puedo auto-gestionar este rol.
+iam-role-given: '¡Ahora tienes el rol **{role}**!'
+iam-forbidden-exception: ¡No pude asignarte este rol debido a la excepción `Forbidden`!
+iamnot-help: Elimina un rol auto-asignado
+iamnot-format: $CMD <rol>
+iamnot-removed-role: 'Rol **{role}** eliminado.'
+iamnot-forbidden-exception: ¡No pude quitarte este rol debido a la excepción `Forbidden`!
+iamroles-help: Administra los roles auto-gestionables disponibles.
+iamroles-format: '`$CMD add|remove <rol>` or `+|-<rol>`'
+iamroles-limit-error: 'Has alcanzado el límite de **{limit}** roles auto-asignables.'
+iamroles-not-found: Ese rol no existe.
+iamroles-bot-superior-role: No puedo asignar este rol debido a que es igual o superior a mi rol máximo.
+iamroles-author-superior-role: No puedes agregar este rol debido a que es igual o superior a tu rol máximo.
+iamroles-added: ¡Rol agregado!
+iamroles-no-removable-roles: No hay roles para eliminar.
+iamroles-not-added: Este rol no ha sido agregado.
+iamroles-removed: 'Rol {role} eliminado de los roles auto-gestionables.'
+iamroles-no-subcommand: q wea
+iam-not-self-managed: Este no es un rol auto-gestionable.

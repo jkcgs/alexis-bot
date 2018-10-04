@@ -21,9 +21,11 @@ class Help(Command):
         if cmd.argc > 0:
             ins = self.bot.manager.get_cmd(cmd.args[0])
             if ins is None or (ins.owner_only and not cmd.owner) or (ins.bot_owner_only and not cmd.bot_owner):
-                await cmd.answer('comando no disponible')
+                await cmd.answer('$[command-not-available]')
             else:
-                format_cont = ins.format.replace('$CMD', cmd.prefix + cmd.args[0])
+                lang = self.get_lang(cmd.server, cmd.channel)
+                format_cont = lang.format(ins.format).replace('$CMD', '$PX$NM')
+                format_cont = format_cont.replace('$NM', cmd.args[0])
                 embed = Embed(title='$PX' + cmd.args[0], description=ins.help)
                 embed.add_field(name='$[help-format-title]', value=format_cont, inline=False)
                 embed.set_footer(text='$[help-footer-for]')
@@ -50,11 +52,13 @@ class Help(Command):
             commands[ins.category].append(k + suffix)
 
         embed = Embed(title='$[help-title]')
+        embed.set_footer(text='$[help-footer-for]')
         embed.description = '$[help-description]'
         if cmd.owner:
             embed.description += ' $[help-description-owner]'
 
-        for k in categories.names:
+        cat_values = [getattr(categories, val) for val in dir(categories) if not val.startswith('__')]
+        for k in cat_values:
             if k not in commands or len(commands[k]) < 1:
                 continue
 

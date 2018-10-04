@@ -1,0 +1,22 @@
+remindme-help: Permite crear un recordatorio que se hará llegar en el tiempo deseado.
+remindme-no-active: No tienes un recordatorio activo.
+remindme-already-active: >-
+  Ya tienes un recordatorio activo. Utiliza `$CMD` para verlo, o `$CMD cancel`
+  para cancelarlo.
+remindme-cancelled: Recordatorio cancelado.
+remindme-usage: >-
+  $CMD <tiempo> <mensaje>. El formato del tiempo es:
+  `<cantidad1><unidad1><cantidad2><unidad2>...<cantidadN><unidadN>`, por
+  ejemplo, 1d, 3h30m, 3m15s, 30m, etc.
+remindme-error-time: >-
+  Formato del tiempo incorrecto. El formato del tiempo es:
+  `<cantidad1><unidad1><cantidad2><unidad2>...<cantidadN><unidadN>`, por
+  ejemplo, 1d, 3h30m, 3m15s, 30m, etc.
+remindme-error-limit: El tiempo sólo puede tener entre 10 segundos y 10 años.
+remindme-error-text-limit: >-
+  El recordatorio sólo puede tener hasta {max} carácteres. Has ingresado
+  {amount}.
+remindme-success: >-
+  Recordatorio guardado correctamente. Se te enviará un mensaje en {delta}
+  ({datetime}).
+remindme-footer: 'Creada: {date}'
