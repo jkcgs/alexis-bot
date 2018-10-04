@@ -112,7 +112,7 @@ class Value(Command):
             await cmd.typing()
             result = await self.handler(div_from, div_to, mult)
         except DivRetrievalError as e:
-            await cmd.answer('$[error]', locales={'errotext': str(e)})
+            await cmd.answer('$[error]', locales={'errortext': str(e)})
             return
 
         precision = 5 if result < 1 else 2
