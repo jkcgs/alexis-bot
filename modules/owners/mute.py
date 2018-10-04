@@ -19,7 +19,7 @@ class Mute(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'mute'
-        self.help = 'Mutea usuarios'
+        self.help = '$[mute-help]'
         self.owner_only = True
         self.db_models = [MutedUser]
         self.allow_pm = False

@@ -20,10 +20,14 @@ class XKCD(Command):
             return
 
         arg = cmd.text
-        if arg.isdigit() and 0 < int(arg) < self.xkcd_current['num']:
-            await cmd.typing()
-            async with self.http.get(baseurl.format(arg)) as r:
-                self.xkcd_comic = await r.json()
+        if arg.isdigit():
+            if 0 < int(arg) <= self.xkcd_current['num']:
+                await cmd.typing()
+                async with self.http.get(baseurl.format(arg)) as r:
+                    self.xkcd_comic = await r.json()
+            else:
+                await cmd.answer('$[xkcd-err-outofbounds]')
+                return
         elif arg == 'random':
             xkcd_random = random.randint(1, self.xkcd_current['num'])
             async with self.http.get(baseurl.format(xkcd_random)) as r:
@@ -32,7 +36,7 @@ class XKCD(Command):
             await cmd.typing()
             self.xkcd_comic = self.xkcd_current
         else:
-            await cmd.answer('$[xkcd-format]')
+            await cmd.answer('$[format]: $[xkcd-format]')
             return
 
         embed = Embed(color=0x929591)

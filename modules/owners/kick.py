@@ -31,7 +31,7 @@ class Kick(Command):
         try:
             await self.bot.kick(to_kick)
         except discord.Forbidden:
-            await cmd.answer('no pude kickear al usuario :cry:')
+            await cmd.answer('$[kick-err-perms]')
             return
 
         reason = ' '.join(cmd.args[1:]) if cmd.argc > 1 else ''

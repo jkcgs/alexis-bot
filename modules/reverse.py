@@ -14,7 +14,7 @@ class Reverse(Command):
     async def handle(self, cmd):
         if cmd.text == '':
             text = '{}: {}'.format(
-                cmd.lang.get('format'), cmd.lang.get('reverse-format').replace('$CMD', cmd.prefix + self.name)
+                cmd.lng('format'), cmd.lng('reverse-format').replace('$CMD', cmd.prefix + self.name)
             )
         else:
             text = cmd.no_tags()

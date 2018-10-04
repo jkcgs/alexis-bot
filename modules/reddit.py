@@ -115,7 +115,7 @@ class RedditFollow(Command):
                 await cmd.answer('$[reddit-user-posts-count]', locales={
                     'num': num_posts, 'redditor': user, 's': ['s', ''][bool(num_posts == 1)]})
             else:
-                await cmd.answer('reddit-user-no-posts', locales={'redditor': user})
+                await cmd.answer('$[reddit-user-no-posts]', locales={'redditor': user})
         else:
             await cmd.answer('$[format]: $[reddit-format]')
 

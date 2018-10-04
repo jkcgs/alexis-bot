@@ -165,7 +165,7 @@ class WarnList(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'warnlist'
-        self.help = 'Muestra las últimas advertencias o el número de advertencias que tiene el usuario'
+        self.help = '$[warnlist-help]'
         self.allow_pm = False
         self.owner_only = True
         self.category = categories.MODERATION

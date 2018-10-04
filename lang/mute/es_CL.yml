@@ -21,3 +21,4 @@ unmute-done: ¡Usuario desmuteado!
 mutedrole-help: Configura del rol del mute.
 mutedrole-format: $CMD <rol>
 mutedrole-set: 'El rol de muteado ahora es **{muted_role}**.'
+mute-help: Permite mutear usuarios.

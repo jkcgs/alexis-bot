@@ -77,4 +77,4 @@ class ToggleConversation(Command):
         new_val = ['0', '1'][int(cmd.config.get(CleverbotHandler.cfg_enabled, '1') == '0')]
         cmd.config.set(CleverbotHandler.cfg_enabled, new_val)
         resp = ['cleverbot-enabled', 'cleverbot-disabled'][int(new_val == '1')]
-        await cmd.answer('$[cleverbot-toggle-answer]', locales={'status': cmd.lang.get(resp)})
+        await cmd.answer('$[cleverbot-toggle-answer]', locales={'status': cmd.lng(resp)})

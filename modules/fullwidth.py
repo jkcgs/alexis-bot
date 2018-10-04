@@ -17,7 +17,7 @@ class Fullwidth(Command):
 
     async def handle(self, cmd):
         # Fetch the text to convert
-        text = [cmd.no_tags(), cmd.lang.get('fullwidth-default')][int(cmd.text == '')].replace(' ', '   ')
+        text = [cmd.no_tags(), cmd.lng('fullwidth-default')][cmd.text == ''].replace(' ', '   ')
 
         # Translate the characters to the fullwidth format
         converted = [chr(0xFEE0 + ord(i)) if i in Fullwidth.supported else i for i in list(text)]
