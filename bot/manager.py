@@ -16,7 +16,7 @@ class Manager:
         self.bot = bot
 
         self.cmds = {}
-        self.tasks = []
+        self.tasks = {}
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
@@ -68,11 +68,11 @@ class Manager:
                 self.mention_handlers.remove(mhandler)
 
         # Hackily unload task
-        for task in self.tasks:
-            if 'coro=<{}.task()'.format(name) in str(task):
-                log.debug('Cancelling task %s', str(task))
-                task.cancel()
-                self.tasks.remove(task)
+        for task_name in list(self.tasks.keys()):
+            if task_name.startswith(name+'.'):
+                log.debug('Cancelling task %s', task_name)
+                self.tasks[task_name].cancel()
+                del self.tasks[task_name]
 
         # Remove from instances list
         self.cmd_instances.remove(instance)
@@ -110,12 +110,62 @@ class Manager:
         if isinstance(instance.mention_handler, bool) and instance.mention_handler:
             self.mention_handlers.append(instance)
 
-        # Call task
-        if callable(getattr(instance, 'task', None)):
-            loop = asyncio.get_event_loop()
-            self.tasks.append(loop.create_task(instance.task()))
+        if self.bot.user:
+            self.create_tasks(instance)
 
         return instance
+
+    def create_tasks(self, instance=None):
+        instances = self.cmd_instances if instance is None else [instance]
+
+        for instance in instances:
+            # Scheduled (repetitive) tasks
+            if isinstance(instance.schedule, list):
+                for (task, seconds) in instance.schedule:
+                    self.bot.schedule(task, seconds)
+            elif isinstance(instance.schedule, tuple):
+                task, seconds = instance.schedule
+                self.bot.schedule(task, seconds)
+
+    async def run_task(self, task, time=0):
+        """
+        Runs a task on a given interval
+        :param task: The task function
+        :param time: The time in seconds to repeat the task
+        """
+        while 1:
+            try:
+                await task()
+            except Exception as e:
+                log.exception(e)
+            finally:
+                if self.bot.is_closed:
+                    break
+                await asyncio.sleep(time)
+                if self.bot.is_closed:
+                    break
+
+    def schedule(self, task, time=0, force=False):
+        """
+        Adds a task to the loop to be run every *time* seconds.
+        :param task: The task function
+        :param time: The time in seconds to repeat the task
+        :param force: What to do if the task was already created. If True, the task is cancelled and created again.
+        """
+        if time <= 0:
+            raise RuntimeError('Task interval time must be positive')
+
+        task_name = '{}.{}'.format(task.__self__.__class__.__name__, task.__name__)
+        if task_name in self.tasks:
+            if not force:
+                return
+            self.tasks[task_name].cancel()
+
+        task_ins = self.bot.loop.create_task(self.run_task(task, time))
+        self.tasks[task_name] = task_ins
+
+        log.debug('Task "%s" created, repeating every %i seconds', task_name, time)
+        return task_ins
 
     def get_handlers(self, name):
         return [getattr(c, name, None) for c in self.cmd_instances if callable(getattr(c, name, None))]
@@ -256,9 +306,9 @@ class Manager:
         return False
 
     def cancel_tasks(self):
-        if not self.bot.loop.is_closed():
-            for task in self.tasks:
-                task.cancel()
+        for task_name in list(self.tasks.keys()):
+            self.tasks[task_name].cancel()
+            del self.tasks[task_name]
 
     def close_http(self):
         loop = asyncio.get_event_loop()

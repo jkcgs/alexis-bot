@@ -14,7 +14,7 @@ from bot.utils import destination_repr, get_bot_root
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.67'
+    __version__ = '1.0.0-dev.68'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -72,9 +72,12 @@ class AlexisBot(discord.Client):
         except discord.errors.LoginFailure:
             log.error('Invalid Discord token!')
             raise
+        except KeyboardInterrupt:
+            log.error('Keyboard interrupt!')
         except Exception as ex:
-            log.exception(ex)
-            raise
+            # I don't know how to fix this, but it's raised when closing the bot.
+            if str(ex) != '\'NoneType\' object is not iterable':
+                raise
 
     async def on_ready(self):
         """This is executed when the bot is ready"""
@@ -84,6 +87,7 @@ class AlexisBot(discord.Client):
         await self.change_presence(game=discord.Game(name=self.config['playing']))
 
         self.initialized = True
+        self.manager.create_tasks()
         await self.manager.dispatch('on_ready')
 
     async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
@@ -116,7 +120,7 @@ class AlexisBot(discord.Client):
 
         # Send the actual message
         del kwargs['locales'], kwargs['event']
-        return await super(AlexisBot, self).send_message(**kwargs)
+        return await super().send_message(**kwargs)
 
     async def delete_message(self, message):
         """
@@ -151,7 +155,7 @@ class AlexisBot(discord.Client):
         if len(self.deleted_messages_nolog) > 20:
             del self.deleted_messages_nolog[0]
 
-    async def send_modlog(self, server, message=None, embed=None, locales={}):
+    async def send_modlog(self, server, message=None, embed=None, locales=None):
         if not isinstance(server, Server):
             raise RuntimeError('server must be a discord.Server instance')
 
@@ -196,42 +200,23 @@ class AlexisBot(discord.Client):
             return False
 
     def close(self):
-        asyncio.set_event_loop(asyncio.new_event_loop())
+        log.debug('Closing stuff...')
         loop = asyncio.get_event_loop()
-
-        super().close()
-        loop.run_until_complete(self.http.close())
+        loop.create_task(self.http.close())
         self.manager.cancel_tasks()
         self.manager.close_http()
+        super().close()
+        log.debug('Goodbye!')
 
-    async def run_task(self, task, time=0):
+    def schedule(self, task, time=0, force=False):
         """
-        Runs a task on a given interval
+        Shorthand method: adds a task to the loop to be run every *time* seconds.
         :param task: The task function
         :param time: The time in seconds to repeat the task
+        :param force: What to do if the task was already created. If True, the task is cancelled and created again.
         """
-        try:
-            await task()
-        except Exception as e:
-            if not isinstance(e, RuntimeError):
-                log.exception(e)
-        finally:
-            await asyncio.sleep(time)
 
-        if not self.is_closed:
-            self.schedule(task, time)
-
-    def schedule(self, task, time=0):
-        """
-        Adds a task to the loop to be run every *time* seconds.
-        :param task: The task function
-        :param time: The time in seconds to repeat the task
-        """
-        if time <= 0:
-            raise RuntimeError('Task interval time must be positive')
-
-        if not self.is_closed:
-            self.loop.create_task(self.run_task(task, time))
+        return self.manager.schedule(task, time, force)
 
     """
     ===== EVENT HANDLERS =====

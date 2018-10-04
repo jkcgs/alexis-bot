@@ -15,3 +15,5 @@ if __name__ == '__main__':
             ale.close()
     except asyncio.CancelledError:
         pass
+    except KeyboardInterrupt:
+        print('Keyboard interrupt')

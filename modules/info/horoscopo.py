@@ -20,6 +20,7 @@ class Horoscopo(Command):
         self.format = '`$[horoscopo-format]'
         self.db_models = [SuscriptorHoroscopo]
         self.category = categories.INFORMATION
+        self.schedule = (self.update, 180)
 
         self.horoscopo = None
         self.update_day = None
@@ -86,9 +87,6 @@ class Horoscopo(Command):
             return
 
         await cmd.answer(self.make_embed(signo))
-
-    async def on_ready(self):
-        self.bot.schedule(self.update, 180)
 
     def get_sign(self, name):
         if isinstance(name, dict):

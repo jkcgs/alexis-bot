@@ -1,6 +1,4 @@
-import asyncio
 from datetime import datetime
-
 from discord import Embed
 
 from bot import Command, categories
@@ -22,6 +20,7 @@ class Sismos(Command):
         self.last_events = None
         self.last_update = None
         self.category = categories.INFORMATION
+        self.schedule = (self.update_info, 20)
 
     async def handle(self, cmd):
         if self.last_events is None:
@@ -52,9 +51,6 @@ class Sismos(Command):
         embed = Embed(title='$[sismos-last-earthquakes]', description='\n'.join(sismos_list))
         embed.set_footer(text='$[sismos-last-update]')
         await cmd.answer(embed, locales={'update': format_date(self.last_update)})
-
-    async def on_ready(self):
-        self.bot.schedule(self.update_info, 20)
 
     async def update_info(self):
         await self.bot.wait_until_ready()

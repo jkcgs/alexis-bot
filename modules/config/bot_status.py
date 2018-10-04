@@ -13,6 +13,7 @@ class BotStatus(Command):
         self.help = '$[config-status-help]'
         self.bot_owner_only = True
         self.category = categories.SETTINGS
+        self.schedule = (self.update, 30)
         self.last_status = ''
 
         self.count = 0
@@ -35,14 +36,11 @@ class BotStatus(Command):
         self.custom_list = [] if cmd.argc < 1 else [f.strip() for f in cmd.text.split('|') if f.strip() != '']
         self.count = 0
 
-        await self.task_other()
+        await self.update()
         await cmd.answer('$[config-status-ok]')
 
-    async def on_ready(self):
-        self.bot.schedule(self.task_other, 30)
-
-    async def task_other(self):
-        status = self.pop()
+    async def update(self):
+        status = self.next()
         if status == self.last_status:
             return
 
@@ -50,7 +48,7 @@ class BotStatus(Command):
         self.log.debug('Changing status to "%s"', status)
         await self.bot.change_presence(game=Game(name=status))
 
-    def pop(self):
+    def next(self):
         curr_list = self.status_list if len(self.custom_list) == 0 else self.custom_list
 
         if self.count < 0 or self.count > (len(curr_list) - 1):

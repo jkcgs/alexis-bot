@@ -24,6 +24,7 @@ class RedditFollow(Command):
         self.allow_pm = False
         self.owner_only = True
         self.category = categories.STAFF
+        self.schedule = (self.load_task, 15)
 
     def on_loaded(self):
         self.load_channels()
@@ -119,56 +120,45 @@ class RedditFollow(Command):
         else:
             await cmd.answer('$[format]: $[reddit-format]')
 
-    async def task(self):
+    async def load_task(self):
         post_id = ''
-        await self.bot.wait_until_ready()
-        try:
-            for (subname, chans) in self.chans.items():
-                subchannels = [chanid for svid, chanid in chans]
-                posts = await self.get_posts(subname)
+        for (subname, chans) in self.chans.items():
+            subchannels = [chanid for svid, chanid in chans]
+            posts = await self.get_posts(subname)
 
-                if len(posts) == 0:
-                    continue
+            if len(posts) == 0:
+                continue
 
-                data = posts[0]
+            data = posts[0]
 
-                try:
-                    exists = Post.get(Post.id == data['id'])
-                except Post.DoesNotExist:
-                    exists = False
+            try:
+                exists = Post.get(Post.id == data['id'])
+            except Post.DoesNotExist:
+                exists = False
 
-                redditor = None
-                if 'author' in data:
-                    redditor, _ = Redditor.get_or_create(name=data['author'].lower())
+            redditor = None
+            if 'author' in data:
+                redditor, _ = Redditor.get_or_create(name=data['author'].lower())
 
-                while data['id'] != post_id and not exists:
-                    subname = data.get('subreddit') or data.get('display_name')
-                    embed = self.post_to_embed(data)
-                    if embed is None:
-                        break
+            while data['id'] != post_id and not exists:
+                subname = data.get('subreddit') or data.get('display_name')
+                embed = self.post_to_embed(data)
+                if embed is None:
+                    break
 
-                    for channel in subchannels:
-                        chan = self.bot.get_channel(channel)
-                        if chan is not None:
-                            await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
-                                                        locales={'sub': subname})
+                for channel in subchannels:
+                    chan = self.bot.get_channel(channel)
+                    if chan is not None:
+                        await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
+                                                    locales={'sub': subname})
 
-                    post_id = data['id']
-                    if not exists:
-                        Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
+                post_id = data['id']
+                if not exists:
+                    Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
 
-                        if redditor is not None:
-                            Redditor.update(posts=Redditor.posts + 1).where(
-                                Redditor.name == data['author'].lower()).execute()
-
-        except Exception as e:
-            if not isinstance(e, RuntimeError):
-                self.log.exception(e)
-        finally:
-            await asyncio.sleep(15)
-
-        if not self.bot.is_closed:
-            self.bot.loop.create_task(self.task())
+                    if redditor is not None:
+                        Redditor.update(posts=Redditor.posts + 1).where(
+                            Redditor.name == data['author'].lower()).execute()
 
     def load_channels(self):
         for chan in ChannelFollow.select():

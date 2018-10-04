@@ -15,6 +15,7 @@ class NextSteamSale(Command):
         self.help = '$[nss-help]'
         self.sale = None
         self.category = categories.INFORMATION
+        self.schedule = (self.update_info, 43200)
 
     async def handle(self, cmd):
         if self.sale is None:
@@ -52,9 +53,6 @@ class NextSteamSale(Command):
             'remainingdays': remaining_time[0],
             'remaininghours': remaining_time[1]
         })
-
-    async def on_ready(self):
-        self.bot.schedule(self.update_info, 43200)
 
     async def update_info(self):
         try:

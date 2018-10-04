@@ -1,4 +1,3 @@
-import asyncio
 import re
 import datetime
 from datetime import datetime as dt
@@ -24,6 +23,7 @@ class Mute(Command):
         self.db_models = [MutedUser]
         self.allow_pm = False
         self.category = categories.MODERATION
+        self.schedule = (self.mute_task, 5)
 
     async def handle(self, cmd):
         if cmd.argc < 1:
@@ -141,39 +141,32 @@ class Mute(Command):
             pass
 
     # Removes muted role once the mute time has ended
-    async def task(self):
-        try:
-            muted = MutedUser.select().where((MutedUser.until <= dt.now()) & MutedUser.until.is_null(False))
-            for muteduser in muted:
-                server = self.bot.get_server(muteduser.serverid)
-                if server is None:
-                    continue
+    async def mute_task(self):
+        muted = MutedUser.select().where((MutedUser.until <= dt.now()) & MutedUser.until.is_null(False))
+        for muteduser in muted:
+            server = self.bot.get_server(muteduser.serverid)
+            if server is None:
+                continue
 
-                self_member = server.get_member(self.bot.user.id)
-                if self_member is not None and not self_member.server_permissions.manage_roles:
-                    self.log.warning('I can\'t manage roles on guild: %s', server)
-                    continue
+            self_member = server.get_member(self.bot.user.id)
+            if self_member is not None and not self_member.server_permissions.manage_roles:
+                self.log.warning('I can\'t manage roles on guild: %s', server)
+                continue
 
-                mgr = self.config_mgr(muteduser.serverid)
-                sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
-                member = server.get_member(muteduser.userid)
-                role = utils.get_server_role(server, sv_role)
+            mgr = self.config_mgr(muteduser.serverid)
+            sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
+            member = server.get_member(muteduser.userid)
+            role = utils.get_server_role(server, sv_role)
 
-                if role is None:
-                    self.log.warning('Role "%s" does not exist (guild: %s)', sv_role, server)
-                    continue
-                elif member is None:
-                    continue
-                else:
-                    await self.bot.remove_roles(member, role)
-                    MutedUser.delete_instance(muteduser)
-                    self.log.info('Muted role removed from "%s", guild "%s"', member.display_name, server)
-        except Exception as e:
-            self.log.exception(e)
-
-        await asyncio.sleep(5)
-        if not self.bot.is_closed:
-            self.bot.loop.create_task(self.task())
+            if role is None:
+                self.log.warning('Role "%s" does not exist (guild: %s)', sv_role, server)
+                continue
+            elif member is None:
+                continue
+            else:
+                await self.bot.remove_roles(member, role)
+                MutedUser.delete_instance(muteduser)
+                self.log.info('Muted role removed from "%s", guild "%s"', member.display_name, server)
 
     def current_deltas_for(self, userid):
         muted = MutedUser.select().where(MutedUser.userid == userid, MutedUser.until > dt.now())

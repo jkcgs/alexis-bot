@@ -22,8 +22,9 @@ class LangFilter(Command):
         svid = dest.server.id if hasattr(dest, 'server') else None
 
         lang = self.auto_lang(kwargs)
-        if kwargs.get('content', '') != '':
+        if 'content' in kwargs and kwargs['content']:
             kwargs['content'] = lang.format(kwargs['content'], kwargs.get('locales', None))
+
         if kwargs.get('embed', None) is not None:
             kwargs['embed'] = lang.format(kwargs['embed'], kwargs.get('locales', None))
 
@@ -42,8 +43,11 @@ class LangFilter(Command):
                     replace_everywhere(kwargs['embed'], '$NM', kwargs['event'].cmdname)
 
         prefix = get_prefix(self.bot, svid)
-        kwargs['content'] = kwargs['content'].replace('$PX', prefix)
-        kwargs['content'] = kwargs['content'].lstrip(prefix)
+
+        if 'content' in kwargs and kwargs['content']:
+            self.log.debug(kwargs['content'])
+            kwargs['content'] = kwargs['content'].replace('$PX', prefix)
+            kwargs['content'] = kwargs['content'].lstrip(prefix)
 
         if kwargs['embed'] is not None:
             replace_everywhere(kwargs['embed'], '$PX', prefix)

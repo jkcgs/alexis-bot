@@ -19,6 +19,7 @@ class RemindMe(Command):
         self.usage = '$[remindme-usage]'
         self.db_models = [RemindMeEvent]
         self.category = categories.UTILITY
+        self.schedule = (self.remind_task, 5)
         self.default_config = {
             'remindme_text_limit': 150
         }
@@ -71,30 +72,20 @@ class RemindMe(Command):
             'delta': deltatime_to_str(dt), 'datetime': format_date(time)
         })
 
-    async def task(self):
-        await self.bot.wait_until_ready()
-        try:
-            query = RemindMeEvent.select().where(
-                (RemindMeEvent.alerttime <= datetime.now()) &
-                (RemindMeEvent.sent == False)
-            )
-            for event in query:
-                user = await self.bot.get_user_info(event.userid)
-                if user is not None:
-                    emb = Embed(title='RemindMe!', description=event.description)
-                    emb.set_footer(text='$[remindme-footer]')
-                    await self.bot.send_message(user, embed=emb, locales={'date': format_date(event.created)})
+    async def remind_task(self):
+        query = RemindMeEvent.select().where(
+            (RemindMeEvent.alerttime <= datetime.now()) &
+            (RemindMeEvent.sent == False)
+        )
+        for event in query:
+            user = await self.bot.get_user_info(event.userid)
+            if user is not None:
+                emb = Embed(title='RemindMe!', description=event.description)
+                emb.set_footer(text='$[remindme-footer]')
+                await self.bot.send_message(user, embed=emb, locales={'date': format_date(event.created)})
 
-                event.sent = True
-                event.save()
-        except Exception as e:
-            if not isinstance(e, RuntimeError):
-                self.log.exception(e)
-        finally:
-            await asyncio.sleep(5)
-
-        if not self.bot.is_closed:
-            self.bot.loop.create_task(self.task())
+            event.sent = True
+            event.save()
 
 
 class RemindMeEvent(BaseModel):
