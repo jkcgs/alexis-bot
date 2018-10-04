@@ -188,6 +188,7 @@ class AlexisBot(discord.Client):
             log.info('Loading configuration...')
             self.config.load(defaults.config)
             self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
+            log.info('Default language: %s', self.config['default_lang'])
             log.info('Configuration loaded')
             return True
         except Exception as ex:

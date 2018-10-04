@@ -1,5 +1,6 @@
 import glob
 import re
+import codecs
 
 from os import path
 from ruamel import yaml
@@ -32,7 +33,7 @@ class Language:
             if not path.isfile(lang_file) or not fn.endswith('.yml'):
                 continue
 
-            with open(lang_file) as f:
+            with codecs.open(lang_file, 'r', encoding='utf8') as f:
                 fcount += 1
                 yml = yaml.safe_load(f)
                 lang = fn[:-4]
@@ -46,7 +47,7 @@ class Language:
 
                     self.lib[lang][k] = str(v)
 
-        log.info('Loaded %i file{s}'.format(s=['s', ''][int(fcount == 1)]), fcount)
+        log.info('Loaded %i language file{s}'.format(s=['s', ''][fcount == 1]), fcount)
 
     def get(self, name, __lang=None, **kwargs):
         if __lang is None:
