@@ -1,0 +1,7 @@
+spoiler-help: >-
+  Create a spoiler message by using a link to an picture with the text in an
+  embed.
+spoiler-format: $CMD <text>
+spoiler-error-cant: '{mention} I CAN''T REMOVE YOUR MESSAGE, **DELETE IT YOURSELF NOW**!'
+spoiler-error-couldnt: '{mention} I COULDN''T REMOVE YOUR MESSAGE, **DELETE IT YOURSELF NOW**!'
+spoiler-link: Click here to view the spoiler
