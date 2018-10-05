@@ -11,7 +11,7 @@ url = 'https://assets.imgix.net/examples/clouds.jpg?w=640&txtsize=64&txtfont64=R
 
 class Spoiler(Command):
     __author__ = 'makzk'
-    __version__ = '0.0.1'
+    __version__ = '1.0.0'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -25,7 +25,8 @@ class Spoiler(Command):
             await cmd.answer('$[spoiler-error-cant]', locales={'mention': cmd.author.mention})
         else:
             try:
-                await self.bot.delete_message(cmd.message)
+                await self.bot.delete_message_silent(cmd.message)
+
             except discord.Forbidden:
                 await cmd.answer('$[spoiler-error-couldnt]', locales={'mention': cmd.author.mention})
 
@@ -35,7 +36,9 @@ class Spoiler(Command):
 
         enc = base64.b64encode(cmd.text.encode('utf-8'))
         img_url = url.format(enc.decode('utf-8'))
-        await cmd.answer(Embed(description='[$[spoiler-link]]({})'.format(img_url)))
+        emb = Embed(description='[$[spoiler-link]]({})'.format(img_url))
+        emb.set_footer(text='$[spoiler-from]', icon_url=cmd.author.avatar_url or cmd.author.default_avatar_url)
+        await cmd.answer(emb)
 
     def can_delete_msg(self, server):
         self_member = server.get_member(self.bot.user.id)

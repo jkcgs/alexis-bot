@@ -5,3 +5,4 @@ spoiler-format: $CMD <texto>
 spoiler-error-cant: '{mention} NO PUEDO BORRAR EL MENSAJE, **BÓRRALO TU MISMO AHORA**!'
 spoiler-error-couldnt: '{mention} NO PUDE BORRAR EL MENSAJE, **BÓRRALO TU MISMO AHORA**!'
 spoiler-link: Haz click aquí para ver el spoiler
+spoiler-from: Por $AU
