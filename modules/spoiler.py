@@ -17,6 +17,7 @@ class Spoiler(Command):
         super().__init__(bot)
         self.name = 'spoiler'
         self.help = '$[spoiler-help]'
+        self.format = '$[spoiler-format]'
         self.allow_pm = False
 
     async def handle(self, cmd):
