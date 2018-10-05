@@ -1,0 +1,16 @@
+bitly-help: 'Crea una versión corta de un enlace, usando la API de Bitly.'
+bitly-format: $CMD <link>
+bitly-err-len-prepend: >-
+  La URL no es lo suficientemente larga ({min_length} carácteres). Agregué
+  "https://" a tu link, quedando en {current_length} carácteres de largo.
+bitly-err-len: >-
+  La URL no es lo suficientemente larga ({min_length} carácteres). Tiene
+  {current_length} carácteres.
+bitly-title: Link corto
+bitly-err-no-key: La API key de Bitly no ha sido definida
+bitly-err-config: 'Error de configuración: {error_text}'
+bitly-err: 'Ocurrió un error al intentar generar el link corto: {error_text}'
+bitly-err-forbidden: La API key es probablemente inválida (se recibió el estado 403 Prohibido)
+bitly-err-url: La URL entregada no es válida.
+bitly-err-status-msg: 'Código de estado inválido: **{status_code}** (mensaje: "{error_message}")'
+bitly-err-status: 'Código de estado inválido: **{status_code}**'

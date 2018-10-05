@@ -1,0 +1,16 @@
+bitly-help: 'Creates a shorter version of a link, by using the Bitly API.'
+bitly-format: $CMD <link>
+bitly-err-len-prepend: >-
+  The provided URL is not long enough ({min_length} characters). I prepended
+  "https://" to your link, making it {current_length} characters long.
+bitly-err-len: >-
+  The provided URL is not long enough ({min_length} characters). It's
+  {current_length} characters long.
+bitly-title: Shortened link
+bitly-err-no-key: Bitly API key is not set
+bitly-err-config: 'Configuration error: {error_text}'
+bitly-err: 'An error ocurred while trying to create the link: {error_text}'
+bitly-err-forbidden: The API key is probably invalid (received 403 Forbidden status)
+bitly-err-url: The provided URL is invalid.
+bitly-err-status-msg: 'Invalid status code **{status_code}** (message: "{error_message}")'
+bitly-err-status: 'Invalid status code **{status_code}**.'
