@@ -22,8 +22,12 @@ class LangFilter(Command):
         svid = dest.server.id if hasattr(dest, 'server') else None
 
         lang = self.auto_lang(kwargs)
-        if 'content' in kwargs and kwargs['content']:
-            kwargs['content'] = lang.format(kwargs['content'], kwargs.get('locales', None))
+        if 'content' in kwargs:
+            if not isinstance(kwargs['content'], str):
+                kwargs['content'] = str(kwargs['content'])
+
+            if kwargs['content'] != '':
+                kwargs['content'] = lang.format(kwargs['content'], kwargs.get('locales', None))
 
         if kwargs.get('embed', None) is not None:
             kwargs['embed'] = lang.format(kwargs['embed'], kwargs.get('locales', None))
@@ -101,4 +105,3 @@ class LangFilter(Command):
         else:
             self.log.debug('Using default language')
             return self.get_lang()
-

@@ -139,7 +139,7 @@ class Manager:
             except Exception as e:
                 log.exception(e)
             finally:
-                if self.bot.is_closed:
+                if time == 0 or self.bot.is_closed:
                     break
                 await asyncio.sleep(time)
                 if self.bot.is_closed:
@@ -152,7 +152,7 @@ class Manager:
         :param time: The time in seconds to repeat the task
         :param force: What to do if the task was already created. If True, the task is cancelled and created again.
         """
-        if time <= 0:
+        if time < 0:
             raise RuntimeError('Task interval time must be positive')
 
         task_name = '{}.{}'.format(task.__self__.__class__.__name__, task.__name__)
@@ -164,7 +164,11 @@ class Manager:
         task_ins = self.bot.loop.create_task(self.run_task(task, time))
         self.tasks[task_name] = task_ins
 
-        log.debug('Task "%s" created, repeating every %i seconds', task_name, time)
+        if time > 0:
+            log.debug('Task "%s" created, repeating every %i seconds', task_name, time)
+        else:
+            log.debug('Task "%s" created, running once', task_name)
+
         return task_ins
 
     def get_handlers(self, name):

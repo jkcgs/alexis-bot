@@ -5,6 +5,7 @@ from datetime import datetime
 
 import discord
 from discord import Embed, Server
+from discord.http import Route
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
@@ -40,15 +41,12 @@ class AlexisBot(discord.Client):
     def init(self):
         """
         Loads configuration, connects to database, and then connects to Discord.
-        :return:
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
         log.info('Python %s in %s.', sys.version.replace('\n', ''), sys.platform)
         log.info('Bot root path: %s', get_bot_root())
         log.info(platform.uname())
         log.info('------')
-
-        self.start_time = datetime.now()
 
         # Load configuration
         self.load_config()
@@ -57,7 +55,8 @@ class AlexisBot(discord.Client):
 
         # Load database
         log.info('Connecting to the database...')
-        self.connect_db()
+        self.db = init_db()
+        log.info('Successfully conected to database using %s', self.db.__class__.__name__)
         self.sv_config = Configuration()
 
         # Load command classes and instances from bots.modules
@@ -67,6 +66,7 @@ class AlexisBot(discord.Client):
 
         # Connect to Discord
         try:
+            self.start_time = datetime.now()
             log.info('Connecting to Discord...')
             self.run(self.config['token'])
         except discord.errors.LoginFailure:
@@ -76,19 +76,93 @@ class AlexisBot(discord.Client):
             log.error('Keyboard interrupt!')
         except Exception as ex:
             # I don't know how to fix this, but it's raised when closing the bot.
-            if str(ex) != '\'NoneType\' object is not iterable':
-                raise
+            # if str(ex) != '\'NoneType\' object is not iterable':
+            raise ex
 
-    async def on_ready(self):
-        """This is executed when the bot is ready"""
+    def load_config(self):
+        """
+        Loads static and language configuration
+        :return: A boolean depending on the operation's result.
+        """
+        try:
+            log.info('Loading configuration...')
+            self.config.load(defaults.config)
+            self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
+            log.info('Default language: %s', self.config['default_lang'])
+            log.info('Configuration loaded')
+            return True
+        except Exception as ex:
+            log.exception(ex)
+            return False
 
-        log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
-        log.info('------')
-        await self.change_presence(game=discord.Game(name=self.config['playing']))
+    def close(self):
+        """
+        Stops tasks, close connections and logout from Discord.
+        :return:
+        """
+        # Close everything http related
+        log.debug('Closing stuff...')
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.http.close())
+        self.manager.close_http()
 
-        self.initialized = True
-        self.manager.create_tasks()
-        await self.manager.dispatch('on_ready')
+        # Stop tasks and logout
+        self.manager.cancel_tasks()
+        super().logout()
+        log.debug('Goodbye!')
+
+    async def send_modlog(self, server, message=None, embed=None, locales=None):
+        if not isinstance(server, Server):
+            raise RuntimeError('server must be a discord.Server instance')
+
+        if (message is None or message == '') and embed is None:
+            raise RuntimeError('message or embed arguments are required')
+
+        if embed is not None and not isinstance(embed, Embed):
+            raise RuntimeError('embed must be a discord.Embed instance')
+
+        chanid = self.sv_config.get(server.id, 'join_send_channel')
+        if chanid == '':
+            return
+
+        chan = self.get_channel(chanid)
+        if chan is None:
+            log.debug('[modlog] Channel not found (svid %s chanid %s)', server.id, chanid)
+            return
+
+        await self.send_message(chan, message, embed=embed, locales=locales)
+
+    def schedule(self, task, time=0, force=False):
+        """
+        Shorthand method: adds a task to the loop to be run every *time* seconds.
+        :param task: The task function
+        :param time: The time in seconds to repeat the task. If zero, the task will be called just once.
+        :param force: What to do if the task was already created. If True, the task is cancelled and created again.
+        """
+
+        return self.manager.schedule(task, time, force)
+
+    async def channel_is_nsfw(self, channel):
+        """
+        Checks if a given channel is marked as NSFW or not.
+        :param channel: The channel, as a discord.Channel instance, or the channel ID.
+        :return: A boolean value given the operation result.
+        """
+        if isinstance(discord, discord.Channel) and channel.name.lower().startswith('nsfw'):
+            return True
+
+        channel_id = channel.id if isinstance(discord, discord.Channel) else str(channel)
+        route = Route('GET', '/channels/{channel_id}', channel_id=channel_id)
+        log.debug('Loading %s...', route.url)
+
+        req = await self.http.request(route)
+        log.debug(req)
+
+        return req['name'].lower().startswith('nsfw') or req.get('nsfw', False)
+
+    """
+    ===== METHOD OVERRIDES =====
+    """
 
     async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
         """
@@ -141,7 +215,7 @@ class AlexisBot(discord.Client):
     async def delete_message_silent(self, message):
         """
         Deletes a message and registers the last 20 messages' IDs.
-        It also adds the message to a no-track list, for the corresponding modules.
+        It also adds the message to a no-track list, for the corresponding modules (i.e. Modlog).
         :param message: The message to delete
         """
 
@@ -155,72 +229,21 @@ class AlexisBot(discord.Client):
         if len(self.deleted_messages_nolog) > 20:
             del self.deleted_messages_nolog[0]
 
-    async def send_modlog(self, server, message=None, embed=None, locales=None):
-        if not isinstance(server, Server):
-            raise RuntimeError('server must be a discord.Server instance')
-
-        if (message is None or message == '') and embed is None:
-            raise RuntimeError('message or embed arguments are required')
-
-        if embed is not None and not isinstance(embed, Embed):
-            raise RuntimeError('embed must be a discord.Embed instance')
-
-        chanid = self.sv_config.get(server.id, 'join_send_channel')
-        if chanid == '':
-            return
-
-        chan = self.get_channel(chanid)
-        if chan is None:
-            log.debug('[modlog] Channel not found (svid %s chanid %s)', server.id, chanid)
-            return
-
-        await self.send_message(chan, message, embed=embed, locales=locales)
-
-    def connect_db(self):
-        """
-        Executes the connection to the database
-        """
-        self.db = init_db()
-        log.info('Successfully conected to database using %s', self.db.__class__.__name__)
-
-    def load_config(self):
-        """
-        Loads static and language configuration
-        :return: A boolean depending on the operation's result.
-        """
-        try:
-            log.info('Loading configuration...')
-            self.config.load(defaults.config)
-            self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
-            log.info('Default language: %s', self.config['default_lang'])
-            log.info('Configuration loaded')
-            return True
-        except Exception as ex:
-            log.exception(ex)
-            return False
-
-    def close(self):
-        log.debug('Closing stuff...')
-        loop = asyncio.get_event_loop()
-        loop.create_task(self.http.close())
-        self.manager.cancel_tasks()
-        self.manager.close_http()
-        super().close()
-        log.debug('Goodbye!')
-
-    def schedule(self, task, time=0, force=False):
-        """
-        Shorthand method: adds a task to the loop to be run every *time* seconds.
-        :param task: The task function
-        :param time: The time in seconds to repeat the task
-        :param force: What to do if the task was already created. If True, the task is cancelled and created again.
-        """
-
-        return self.manager.schedule(task, time, force)
-
     """
     ===== EVENT HANDLERS =====
     """
+
+    async def on_ready(self):
+        """ This is executed when the bot has successfully connected to Discord. """
+
+        log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
+        log.info('It took %.3f seconds to connect.', (datetime.now() - self.start_time).total_seconds())
+        log.info('------')
+        await self.change_presence(game=discord.Game(name=self.config['playing']))
+
+        self.initialized = True
+        self.manager.create_tasks()
+        await self.manager.dispatch('on_ready')
 
     async def on_message(self, message):
         await self.manager.dispatch('on_message', message=message)
