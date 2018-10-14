@@ -108,8 +108,8 @@ class Mute(Command):
 
         # Tell the user about the mute, via PM
         try:
-            await self.bot.send_message(member, '$[mute-msg]{}{}.'
-                                        .format(server.name, str_deltatime, str_reason))
+            await self.bot.send_message(member, '$[mute-msg]{}{}.'.format(str_deltatime, str_reason),
+                                        locales={'server_name': server.name})
         except discord.errors.Forbidden as e:
             self.log.exception(e)
 
