@@ -27,5 +27,5 @@ class Flipcoin(Command):
             resp = '$[random-coin-tails]'
 
         # Log the random number, and send the coin side back
-        self.log.debug('[Flipcoin] Probability: {} ({})'.format(prob, resp))
+        self.log.debug('Probability: {} ({})'.format(prob, resp))
         await cmd.answer('**{}**'.format(resp))

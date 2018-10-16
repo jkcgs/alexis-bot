@@ -42,4 +42,25 @@ def get_logger(name):
     return logger
 
 
+class TaggedLogger:
+    def __init__(self, logger, tag):
+        self.logger = logger
+        self.tag = tag
+
+    def info(self, message, *args):
+        self.logger.info('[{}] {}'.format(self.tag, message), *args)
+
+    def debug(self, message, *args):
+        self.logger.debug('[{}] {}'.format(self.tag, message), *args)
+
+    def error(self, message, *args):
+        self.logger.error('[{}] {}'.format(self.tag, message), *args)
+
+    def warn(self, message, *args):
+        self.logger.warn('[{}] {}'.format(self.tag, message), *args)
+
+    def exception(self, exception):
+        self.logger.exception(exception)
+
+
 log = get_logger('Alexis')

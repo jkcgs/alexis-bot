@@ -3,7 +3,7 @@ import aiohttp
 import discord
 
 from . import SingleLanguage
-from .logger import log
+from .logger import log, TaggedLogger
 from .libs.configuration import ServerConfiguration
 from . import categories
 
@@ -11,7 +11,7 @@ from . import categories
 class Command:
     def __init__(self, bot):
         self.bot = bot
-        self.log = log
+        self.log = TaggedLogger(log, self.__class__.__name__)
         self.name = ''
         self.aliases = []
         self.swhandler = []

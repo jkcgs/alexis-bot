@@ -332,13 +332,20 @@ class Manager:
         :param ext_path: An external modules folder
         :return: An instances list of command modules
         """
+        bot_root = get_bot_root()
         classes = []
 
-        # List internal modules
-        mods_path = path.join(get_bot_root(), 'modules')
-        _all = ['modules.' + f for f in Manager.get_mod_files(mods_path)]
+        # System modules
+        mods_path = path.join(bot_root, 'bot', 'modules')
+        _all = ['bot.modules.' + f for f in Manager.get_mod_files(mods_path)]
+        log.debug('added %i internal modules', len(_all))
 
-        local_ext = path.join(get_bot_root(), 'external_modules')
+        # Included modules
+        mods_path = path.join(bot_root, 'modules')
+        _all += ['modules.' + f for f in Manager.get_mod_files(mods_path)]
+
+        # External (not from repo) modules
+        local_ext = path.join(bot_root, 'external_modules')
         if path.isdir(local_ext):
             _all += ['external_modules.' + f for f in Manager.get_mod_files(local_ext)]
 

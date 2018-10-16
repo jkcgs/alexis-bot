@@ -46,7 +46,7 @@ class Pat(Command):
         })
 
     async def on_ready(self):
-        self.log.debug('[Pat] Loading pats...')
+        self.log.debug('Loading pats...')
         if not StaticConfig.exists('pats'):
             self.log.debug('Loading remote default pats')
             async with self.http.get(default_pats) as r:

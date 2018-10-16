@@ -74,7 +74,7 @@ class DTPM(Command):
 
     async def get_arrivals(self, bus_stop):
         url = 'http://web.smsbus.cl/web/buscarAction.do'
-        self.log.debug('[DTPM] Loading %s', url)
+        self.log.debug('Loading %s', url)
 
         await self.http.get(url + '?d=cargarServicios')
         async with self.http.post(url, data={'d': 'busquedaParadero', 'ingresar_paradero': bus_stop}) as r:

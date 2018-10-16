@@ -121,7 +121,7 @@ class Mute(Command):
     async def on_member_join(self, member):
         server = member.server
         if not self.can_manage_roles(server):
-            self.log.warning('')
+            self.log.warning('Cant\' manage roles on the guild %s (%s)', str(server), server.id)
             return
 
         mgr = self.config_mgr(member.server.id)
