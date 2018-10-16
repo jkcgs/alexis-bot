@@ -10,6 +10,12 @@ class ServerWhitelist(Command):
         self.help = '$[leaveserver-help]'
         self.category = categories.SETTINGS
         self.bot_owner_only = True
+        self.default_config = {
+            'whitelist': False,
+            'whitelist_autoleave': False,
+            'whitelist_servers': [],
+            'blacklist_servers': []
+        }
 
     async def handle(self, cmd):
         if cmd.argc == 0:
@@ -44,18 +50,13 @@ class ServerWhitelist(Command):
             await self.bot.leave_server(server)
 
     async def on_server_join(self, server):
-        if not self.bot.config.get('whitelist', False):
-            return
-
-        wlist = self.bot.config.get('whitelist_servers', [])
-        wcontact = self.bot.config.get('whitelist_contact', '')
-
-        if server.id in wlist or int(server.id) in wlist:
+        if self.join_allowed(server.id):
             self.log.debug('I joined "%s" (%s) :3', server.name, server.id)
             return
 
         if server.default_channel is not None:
             try:
+                wcontact = self.bot.config.get('whitelist_contact', '')
                 if wcontact == '':
                     await self.bot.send_message(server.default_channel, '$[leaveserver-bye] $[leaveserver-admin]')
                 else:
@@ -65,8 +66,15 @@ class ServerWhitelist(Command):
                 self.log.error('I could not say goodbye to "%s" (%s)'.format(server.name, server.id))
                 self.log.exception(e)
 
-        self.log.debug('The guild "%s" (%s) is not on the whitelist, bye bye', server.name, server.id)
+        self.log.debug('The guild "%s" (%s) is not allowed, bye bye', server.name, server.id)
         await self.bot.leave_server(server)
+
+    def join_allowed(self, serverid):
+        bl_list = self.bot.config.get('blacklist_servers', [])
+        wl_enabled = self.bot.config.get('whitelist', False)
+        wl_list = self.bot.config.get('whitelist_servers', [])
+
+        return serverid not in bl_list and (not wl_enabled or serverid in wl_list)
 
 
 class ServersList(Command):
