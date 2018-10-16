@@ -15,7 +15,7 @@ from bot.utils import destination_repr, get_bot_root
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.68'
+    __version__ = '1.0.0-dev.70'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -95,20 +95,23 @@ class AlexisBot(discord.Client):
             log.exception(ex)
             return False
 
-    def close(self):
+    def logout(self):
         """
         Stops tasks, close connections and logout from Discord.
         :return:
         """
-        # Close everything http related
         log.debug('Closing stuff...')
+        yield from super().logout()
+
+        # Close everything http related
         loop = asyncio.get_event_loop()
         loop.create_task(self.http.close())
         self.manager.close_http()
 
-        # Stop tasks and logout
+        # Stop tasks
         self.manager.cancel_tasks()
-        super().logout()
+
+        # And that's it!
         log.debug('Goodbye!')
 
     async def send_modlog(self, server, message=None, embed=None, locales=None):
