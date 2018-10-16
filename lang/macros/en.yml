@@ -9,12 +9,12 @@ macros-err-cmd-name: Can't create a macro with a command's name.
 macros-err-name-length: The macro's name can't have more than 100 characters.
 macros-invalid-colour: Invalid colour.
 macros-missing-fields: 'At least the image, title or description must be sent.'
-macros-created: 'Macro **{name}** created.'
-macros-updated: 'Macro **{name}** updated.'
+macros-created: 'Macro **{macro_name}** created.'
+macros-updated: 'Macro **{macro_name}** updated.'
 macros-unset-help: Deletes a macro.
 macros-unset-format: $CMD <name>
-macros-deleted: 'Macro **{name}** deleted.'
-macros-not-exists: 'Macro **{name}** does not exist.'
+macros-deleted: 'Macro **{macro_name}** deleted.'
+macros-not-exists: 'Macro **{macro_name}** does not exist.'
 macros-rename-help: Renames a macro.
 macros-rename-format: $CMD <name> <new_name>
 macros-err-rename-cmd: You can't name a macro with a command's name.
@@ -25,7 +25,7 @@ macros-setcolour-format: $CMD <name> <colour=default>.
 macros-setcolour-format-ext: >-
   The colour can be in the #RRGGBB format or one of the following colours:
   {colours_list}.
-macros-colour-updated: 'The colour of the **{name}** macro has been updated.'
+macros-colour-updated: 'The colour of the **{macro_name}** macro has been updated.'
 macros-list-help: Displays a list of the created macros.
 macros-list-singular: 'There is {macros_count} macro:'
 macros-list: 'There are {macros_count} macros:'

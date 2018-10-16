@@ -74,7 +74,7 @@ class Mute(Command):
             deltatime = Mute.timediff_parse(cmd.args[1])
             until = dt.now() + deltatime
 
-        str_deltatime = '' if deltatime is None else ' ' + cmd.lang.get('mute-reason', locales={
+        str_deltatime = '' if deltatime is None else ' ' + cmd.lang.format('$[mute-time]', locales={
             'delta_time': utils.deltatime_to_str(deltatime)})
         if deltatime is not None and str_deltatime == '':
             await cmd.answer('$[mute-err-unmute]')
@@ -102,7 +102,7 @@ class Mute(Command):
             await self.bot.add_roles(member, mutedrole)
 
         reason = ' '.join(cmd.args[2:]).strip()
-        str_reason = (' ' + cmd.lang.get('mute-reason', locales={'reason': reason})) if reason != '' else ''
+        str_reason = (' ' + cmd.lang.format('$[mute-reason]', locales={'reason': reason})) if reason != '' else ''
         MutedUser.insert(userid=member.id, serverid=server.id, until=until, reason=reason,
                          author_name=str(cmd.author), author_id=cmd.author.id).execute()
 
