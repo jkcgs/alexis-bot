@@ -32,3 +32,9 @@ macros-list: 'Hay {macros_count} macros:'
 macros-rank-help: Muestra un ranking de los macros usados en el servidor actual.
 macros-none-found: No se encontraron macros.
 macros-rank-created: creado
+macro-search-help: Busca entre los macros de un servidor.
+macro-search-format: $CMD <término-de-búsqueda>
+macro-search-err-len: El término de búsqueda debe tener al menos 2 carácteres.
+macro-search-result-more: 'Tu búsqueda arrojó **más de 20 resultados**: `{results}`'
+macro-search-result: 'Tu búsqueda arrojó **{num_results} resultados**: `{results}`'
+macro-search-result-single: 'Tu búsqueda arrojó **un** macro:  `{results}`'

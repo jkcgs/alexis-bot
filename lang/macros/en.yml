@@ -32,3 +32,9 @@ macros-list: 'There are {macros_count} macros:'
 macros-rank-help: Displays a rank of the used macros in this server.
 macros-none-found: No macros found
 macros-rank-created: created
+macro-search-help: Search in the guild's macros.
+macro-search-format: $CMD <search-term>
+macro-search-err-len: The search term must have at least 2 characters.
+macro-search-result-more: '**More than 20** macros were found: `{results}`'
+macro-search-result: '**{num_results}** macros were found: `{results}`'
+macro-search-result-single: '**One** macro was found:  `{results}`'

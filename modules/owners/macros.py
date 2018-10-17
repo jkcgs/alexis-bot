@@ -298,6 +298,44 @@ class MacroUse(Command):
             pass
 
 
+class MacroSearch(Command):
+    __version__ = '1.0.0'
+    __author__ = 'makzk'
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'macrosearch'
+        self.aliases = ['macrofind']
+        self.help = '$[macro-search-help]'
+        self.allow_pm = False
+        self.category = categories.UTILITY
+
+    async def handle(self, cmd):
+        if cmd.argc < 1:
+            await cmd.answer('$[format]: $[macro-search-format]')
+            return
+
+        if len(cmd.args[0]) < 2:
+            await cmd.answer('$[macro-search-err-len]')
+            return
+
+        result = EmbedMacro.select().where(
+            EmbedMacro.server == cmd.server.id and EmbedMacro.name.contains(cmd.args[0])
+        ).limit(21)
+
+        n_results = result.count()
+        names = ', '.join([m.name for m in list(result)[:20]])
+
+        if n_results > 20:
+            await cmd.answer('$[macro-search-result-more]', locales={'results': names})
+        elif n_results == 1:
+            await cmd.answer('$[macro-search-result-single]', locales={'results': names})
+        else:
+            await cmd.answer('$[macro-search-result]', locales={
+                'num_results': n_results, 'results': names
+            })
+
+
 class MacroRank(Command):
     __version__ = '1.0.0'
     __author__ = 'makzk'
