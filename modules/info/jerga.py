@@ -36,8 +36,8 @@ class Jerga(Command):
                 resultados = []
                 for i in range(len(div_definition)):
                     pgraph = div_definition[i].find_all('p')
-                    definition = str(pgraph[0]).strip('<p>\n\t\t').strip('\t</p>').replace('<br/>\r\n', '\n')
-                    example = str(pgraph[1]).strip('<p>\n<i>').strip('</i>\n</p>').replace('<br/>\r\n', '\n')
+                    definition = pgraph[0].text.strip()
+                    example = pgraph[1].text.strip()
                     resultados.append('**{}.- {}**\n*\"{}\"*'.format(i+1, definition, example))
 
                 embed = Embed()
