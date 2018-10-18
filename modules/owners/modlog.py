@@ -11,6 +11,8 @@ from discord import Embed
 from bot.libs.configuration import BaseModel
 from bot.utils import deltatime_to_str
 
+modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter']
+
 
 class ModLog(Command):
     rx_channel = re.compile('^<#[0-9]+>$')
@@ -22,12 +24,12 @@ class ModLog(Command):
     async def on_member_join(self, member):
         await self.bot.send_modlog(
             member.server, '$[modlog-new-user]',
-            embed=ModLog.gen_embed(member, more=True), locales={'mid': member.id})
+            embed=ModLog.gen_embed(member, more=True), locales={'mid': member.id}, logtype='user_join')
 
     async def on_member_remove(self, member):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
         await self.bot.send_modlog(member.server, '$[modlog-user-left]',
-                                   locales={'mid': member.id, 'username': str(member), 'dt': dt})
+                                   locales={'mid': member.id, 'username': str(member), 'dt': dt}, logtype='user_leave')
 
     async def on_message_delete(self, message):
         if message.server is None or message.author.id == self.bot.user.id:
@@ -81,7 +83,32 @@ class ModLog(Command):
             except discord.Forbidden:
                 msg = '$[modlog-somehow-deleted-msg]'
 
-        await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales)
+        await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales, logtype='message_delete')
+
+    async def on_member_update(self, before, after):
+        server = after.server
+
+        if before.name != after.name:
+            if after.display_name != after.name:
+                await self.bot.send_modlog(
+                    server, '$[modlog-username-changed-nick]',
+                    locales={'prev_name': before.name, 'new_name': after.name, 'nick': after.display_name},
+                    logtype='username')
+            else:
+                await self.bot.send_modlog(
+                    server, '$[modlog-username-changed]',
+                    locales={'prev_name': before.name, 'new_name': after.name}, logtype='username')
+
+        if (before.nick or after.nick) and before.nick != after.nick:
+            if not before.nick and after.nick:
+                await self.bot.send_modlog(server, '**{}**\'s nick set to "{}"'.format(after.name, after.nick),
+                                           logtype='nick')
+            elif before.nick and not after.nick:
+                await self.bot.send_modlog(server, '**{}**\'s nick removed (it was "{}")'.format(
+                    after.name, before.nick), logtype='nick')
+            else:
+                await self.bot.send_modlog(server, '**{}**\'s nick updated (before: "{}", after: "{}")'.format(
+                    after.name, before.nick, after.nick), logtype='nick')
 
     async def get_last_alog(self, guild_id):
         x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
@@ -248,28 +275,6 @@ class UpdateUsername(Command):
         if not self.updating:
             self.do_it(after)
 
-        server = after.server
-
-        if before.name != after.name:
-            if after.display_name != after.name:
-                await self.bot.send_modlog(
-                    server, '$[modlog-username-changed-nick]',
-                    locales={'prev_name': before.name, 'new_name': after.name, 'nick': after.display_name})
-            else:
-                await self.bot.send_message(
-                    server, '$[modlog-username-changed]',
-                    locales={'prev_name': before.name, 'new_name': after.name})
-
-        if (before.nick or after.nick) and before.nick != after.nick:
-            if not before.nick and after.nick:
-                await self.bot.send_modlog(server, '**{}**\'s nick set to "{}"'.format(after.name, after.nick))
-            elif before.nick and not after.nick:
-                await self.bot.send_modlog(server, '**{}**\'s nick removed (it was "{}")'.format(
-                    after.name, before.nick))
-            else:
-                await self.bot.send_modlog(server, '**{}**\'s nick updated (before: "{}", after: "{}")'.format(
-                    after.name, before.nick, after.nick))
-
     def all(self):
         if self.updating or self.updated:
             return
@@ -317,6 +322,42 @@ class UpdateUsername(Command):
             return True
 
         return False
+
+
+class LogToggle(Command):
+    __author__ = 'makzk'
+    __version__ = '0.0.1'
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'logtoggle'
+        self.help = '$[modlog-toggle-help]'
+        self.format = '$[modlog-toggle-format]'
+        self.owner_only = True
+        self.allow_pm = False
+
+    async def handle(self, cmd):
+        disabled = cmd.config.get_list('logtype_disabled')
+        enabled = [x for x in modlog_types if x not in disabled]
+
+        if cmd.argc == 0:
+            await cmd.answer('$[modlog-toggle-list]\n$[modlog-toggle-list-disabled]', locales={
+                'enabled_logs': ', '.join(enabled) or '$[modlog-none]',
+                'disabled_logs': ', '.join(disabled) or '$[modlog-none]'
+            })
+            return
+
+        ltype = cmd.args[0]
+        if ltype not in modlog_types:
+            await cmd.answer('Invalid log type')
+            return
+
+        if ltype in disabled:
+            cmd.config.remove('logtype_disabled', ltype)
+            await cmd.answer('Log type enabled.')
+        else:
+            cmd.config.add('logtype_disabled', ltype)
+            await cmd.answer('Log type disabled.')
 
 
 class UserNote(BaseModel):

@@ -39,3 +39,8 @@ modlog-username-changed-nick: >-
 modlog-cmd-help: Entrega información sobre un usuario.
 modlog-cmd-title: 'Acerca de **{user_id}**'
 modlog-cmd-format: $CMD <@usuario | id_usuario>
+modlog-toggle-list: 'Registros activados: {enabled_logs}.'
+modlog-toggle-list-disabled: 'Registros desactivados: {disabled_logs}.'
+modlog-none: '*ninguno*'
+modlog-toggle-help: Permite activar/desactivar ciertos tipos de modlogs.
+modlog-toggle-format: '$CMD [type] - Para ver el estado de activación, no enviar el tipo de modlog.'

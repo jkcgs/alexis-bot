@@ -35,3 +35,8 @@ modlog-username-changed-nick: 'User "*{prev_name}*" changed name to "**{new_name
 modlog-cmd-help: Displays users' information.
 modlog-cmd-title: 'About **{user_id}**'
 modlog-cmd-format: $CMD <@mention | userid>
+modlog-toggle-list: 'Enabled logs: {enabled_logs}.'
+modlog-toggle-list-disabled: 'Disabled logs: {disabled_logs}.'
+modlog-none: '*none*'
+modlog-toggle-help: Allows to toggle certain types of modlogs.
+modlog-toggle-format: '$CMD [type] - Don''t send the type parameter to se the current types'' status'

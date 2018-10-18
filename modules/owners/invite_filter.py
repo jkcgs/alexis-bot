@@ -88,4 +88,4 @@ class InviteFilter(Command):
 
             embed = Embed(title='$[ifilter-message]')
             embed.description = '{}\nPor {} en {}'.format(invite[0], message.author.mention, message.channel.mention)
-            await self.bot.send_modlog(message.server, embed=embed)
+            await self.bot.send_modlog(message.server, embed=embed, logtype='invite_filter')

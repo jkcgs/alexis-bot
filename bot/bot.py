@@ -114,7 +114,7 @@ class AlexisBot(discord.Client):
         # And that's it!
         log.debug('Goodbye!')
 
-    async def send_modlog(self, server, message=None, embed=None, locales=None):
+    async def send_modlog(self, server, message=None, embed=None, locales=None, logtype=None):
         if not isinstance(server, Server):
             raise RuntimeError('server must be a discord.Server instance')
 
@@ -126,6 +126,9 @@ class AlexisBot(discord.Client):
 
         chanid = self.sv_config.get(server.id, 'join_send_channel')
         if chanid == '':
+            return
+
+        if logtype and logtype in self.sv_config.get_list(server.id, 'logtype_disabled'):
             return
 
         chan = self.get_channel(chanid)
