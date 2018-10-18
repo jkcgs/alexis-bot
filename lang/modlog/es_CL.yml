@@ -44,3 +44,8 @@ modlog-toggle-list-disabled: 'Logs desactivados: {disabled_logs}.'
 modlog-none: '*ninguno*'
 modlog-toggle-help: Permite activar/desactivar ciertos tipos de modlogs.
 modlog-toggle-format: '$CMD [type] - Para ver el estado de activación, no enviar el tipo de modlog.'
+modlog-nick-set: 'Nick de **{username}** definido en "{nick}"'
+modlock-nick-removed: 'Nick de **{username}** eliminado (era "{nick}")'
+modlog-nick-updated: >-
+  Nick de **{username}** actualizado (antes: "{before_nick}", después:
+  "{after_nick}")

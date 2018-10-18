@@ -15,6 +15,8 @@ modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick',
 
 
 class ModLog(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.0'
     rx_channel = re.compile('^<#[0-9]+>$')
     chan_config_name = 'join_send_channel'
 
@@ -101,14 +103,18 @@ class ModLog(Command):
 
         if (before.nick or after.nick) and before.nick != after.nick:
             if not before.nick and after.nick:
-                await self.bot.send_modlog(server, '**{}**\'s nick set to "{}"'.format(after.name, after.nick),
-                                           logtype='nick')
+                await self.bot.send_modlog(server, '$[modlog-nick-set]', logtype='nick',
+                                           locales={'username': after.name, 'nick': after.nick})
             elif before.nick and not after.nick:
-                await self.bot.send_modlog(server, '**{}**\'s nick removed (it was "{}")'.format(
-                    after.name, before.nick), logtype='nick')
+                await self.bot.send_modlog(server, '$[modlock-nick-removed]', logtype='nick',
+                                           locales={'username': after.name, 'nick': before.nick})
             else:
-                await self.bot.send_modlog(server, '**{}**\'s nick updated (before: "{}", after: "{}")'.format(
-                    after.name, before.nick, after.nick), logtype='nick')
+                await self.bot.send_modlog(server, '$[modlog-nick-updated]', logtype='nick',
+                                           locales={
+                                               'username': after.name,
+                                               'before_nick': before.nick,
+                                               'after_nick': after.nick
+                                           })
 
     async def get_last_alog(self, guild_id):
         x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
