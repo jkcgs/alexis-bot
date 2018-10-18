@@ -32,9 +32,9 @@ modlog-channel-set: 'Canal de información de usuarios actualizado a <#{channel_
 modlog-note-err-length: El tamaño de la nota de usuario no debe exceder los 1000 carácteres.
 modlog-note-help: Define una nota para el usuario.
 modlog-note-set: Nota de usuario definida.
-modlog-username-changed: 'El usuario "*{prev_name}*" ha cambiado su nombre a "**{new_name}**.'
+modlog-username-changed: 'El usuario "*{prev_name}*" ha cambiado su nombre a "**{new_name}**".'
 modlog-username-changed-nick: >-
-  El usuario "*{prev_name}*" ha cambiado su nombre a "**{new_name}** (nick
+  El usuario "*{prev_name}*" ha cambiado su nombre a "**{new_name}**" (nick
   actual: "{nick}").
 modlog-cmd-help: Entrega información sobre un usuario.
 modlog-cmd-title: 'Acerca de **{user_id}**'
