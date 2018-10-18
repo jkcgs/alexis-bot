@@ -29,7 +29,7 @@ class AlexisBot(discord.Client):
         self.sv_config = None
         self.last_author = None
         self.initialized = False
-        self.start_time = None
+        self.start_time = datetime.now()
 
         self.lang = {}
         self.deleted_messages = []

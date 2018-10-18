@@ -3,7 +3,7 @@ from datetime import datetime
 from discord import Game
 
 from bot import Command, AlexisBot, categories
-from bot.utils import deltatime_to_str_short
+from bot.utils import deltatime_to_time
 
 
 class BotStatus(Command):
@@ -25,9 +25,7 @@ class BotStatus(Command):
             lambda: '{} guilds'.format(len(self.bot.servers)),
             lambda: '{} users'.format(len(set([u.id for u in self.bot.get_all_members() if not u.bot]))),
             lambda: 'with {} bots'.format(len(set([u.id for u in self.bot.get_all_members() if u.bot]))),
-            lambda: 'uptime: {}'.format(deltatime_to_str_short(
-                datetime.now() - (self.bot.start_time or datetime.now()))
-            )
+            lambda: 'uptime: {}'.format(deltatime_to_time(datetime.now() - self.bot.start_time))
         ]
 
         self.custom_list = []
@@ -58,3 +56,14 @@ class BotStatus(Command):
         self.count += 1
 
         return item if isinstance(item, str) else item()
+
+
+class Uptime(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'uptime'
+        self.bot_owner_only = True
+
+    async def handle(self, cmd):
+        t = datetime.now() - self.bot.start_time
+        await cmd.answer('uptime: {}'.format(deltatime_to_time(t)))

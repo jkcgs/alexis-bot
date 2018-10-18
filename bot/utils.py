@@ -239,6 +239,25 @@ def deltatime_to_str_short(deltatime):
     return ''.join(result)
 
 
+def deltatime_to_time(deltatime):
+    """
+    Creates a time string from a deltatime object. For example, "1d 3:30:01", for 1 day and 3 hours.
+    :param deltatime: The deltatime object.
+    :return: The generated string from the deltatime.
+    """
+    result = []
+    if deltatime.days > 0:
+        result.append(str(deltatime.days) + 'd ')
+    m, s = divmod(deltatime.seconds, 60)
+    h, m = divmod(m, 60)
+
+    result.append(str(h).zfill(2))
+    result.append(':' + str(m).zfill(2))
+    result.append(':' + str(s).zfill(2))
+
+    return ''.join(result)
+
+
 def timediff_parse(timediff):
     """
     Creates a deltatime from a deltatime_to_str_short format result. For example, "1d3h" creates a 1 day and 3 hours

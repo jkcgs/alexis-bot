@@ -49,7 +49,6 @@ class LangFilter(Command):
         prefix = get_prefix(self.bot, svid)
 
         if 'content' in kwargs and kwargs['content']:
-            self.log.debug(kwargs['content'])
             kwargs['content'] = kwargs['content'].replace('$PX', prefix)
             kwargs['content'] = kwargs['content'].lstrip(prefix)
 
@@ -103,5 +102,4 @@ class LangFilter(Command):
 
         # Return the default language
         else:
-            self.log.debug('Using default language')
             return self.get_lang()
