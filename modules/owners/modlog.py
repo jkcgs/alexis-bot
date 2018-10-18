@@ -248,24 +248,27 @@ class UpdateUsername(Command):
         if not self.updating:
             self.do_it(after)
 
+        server = after.server
+
         if before.name != after.name:
-            cfg = self.config_mgr(before.server.id)
-            channel = cfg.get(ModLog.chan_config_name, '')
-            if channel == '':
-                return
+            if after.display_name != after.name:
+                await self.bot.send_modlog(
+                    server, '$[modlog-username-changed-nick]',
+                    locales={'prev_name': before.name, 'new_name': after.name, 'nick': after.display_name})
+            else:
+                await self.bot.send_message(
+                    server, '$[modlog-username-changed]',
+                    locales={'prev_name': before.name, 'new_name': after.name})
 
-            channel = before.server.get_channel(channel)
-            if channel is None:
-                channel = discord.Object(id=channel)
-
-                if after.display_name != after.name:
-                    await self.bot.send_message(
-                        channel, '$[modlog-username-changed-nick]',
-                        locales={'prev_name': before.name, 'new_name': after.name, 'nick': after.display_name})
-                else:
-                    await self.bot.send_message(
-                        channel, '$[modlog-username-changed]',
-                        locales={'prev_name': before.name, 'new_name': after.name})
+        if (before.nick or after.nick) and before.nick != after.nick:
+            if not before.nick and after.nick:
+                await self.bot.send_modlog(server, '**{}**\'s nick set to "{}"'.format(after.name, after.nick))
+            elif before.nick and not after.nick:
+                await self.bot.send_modlog(server, '**{}**\'s nick removed (it was "{}")'.format(
+                    after.name, before.nick))
+            else:
+                await self.bot.send_modlog(server, '**{}**\'s nick updated (before: "{}", after: "{}")'.format(
+                    after.name, before.nick, after.nick))
 
     def all(self):
         if self.updating or self.updated:

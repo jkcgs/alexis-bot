@@ -11,7 +11,7 @@ modlog-attached-other-single: Other attached file
 modlog-user-deleted-msg: '**{username}** deleted own''s message from {channel_name}.'
 modlog-bot-deleted-msg: 'I deleted a **{username}**''s message from the {channel_name} channel.'
 modlog-user-deleted-other: '**{deleter_name}** deleted a **{username}**''s message from {channel_name}.'
-modlog-somehow-deleted-msg: 'A **{username}**''s message has been deleted from {channel_name}.'
+modlog-somehow-deleted-msg: '**{username}**''s message has been deleted from {channel_name}.'
 modlog-e-name: Name
 modlog-e-nick: Nick
 modlog-e-user-created: User created in
