@@ -9,3 +9,4 @@ peewee==3.7.0
 requests==2.19.1
 ruamel.yaml==0.15.71
 pytz==2018.5
+feedparser==5.2.1
