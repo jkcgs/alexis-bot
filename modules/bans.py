@@ -4,10 +4,13 @@ from discord import Embed
 from datetime import datetime
 
 from bot import Command, BaseModel, categories
-from bot.utils import is_int
+from bot.utils import is_int, pat_usertag, pat_snowflake
 
 
 class BanCmd(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.1'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ban'
@@ -24,7 +27,9 @@ class BanCmd(Command):
             await cmd.answer('$[format]: $PX$NM $[ban-cmd-format]')
             return
 
-        member = await cmd.get_user(cmd.text, member_only=True)
+        is_tag = pat_usertag.match(cmd.args[0]) or pat_snowflake.match(cmd.args[0])
+        member = await cmd.get_user(cmd.args[0] if is_tag else cmd.text, member_only=True)
+
         if member is None:
             await cmd.answer('$[user-not-found]')
             return
