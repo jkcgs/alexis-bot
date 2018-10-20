@@ -1,0 +1,6 @@
+nyaa-help: Search on nyaa.si
+nyaa-format: >-
+  $CMD [hs] [query] - Add "hs" at te beggining of the query to automagically add
+  "horriblesubs 1080p" to the query.
+nyaa-no-results: No results.
+nyaa-title: Search results

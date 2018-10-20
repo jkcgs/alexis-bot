@@ -23,6 +23,9 @@ class LangFilter(Command):
 
         lang = self.auto_lang(kwargs)
         if 'content' in kwargs:
+            if kwargs['content'] is None:
+                kwargs['content'] = ''
+
             if not isinstance(kwargs['content'], str):
                 kwargs['content'] = str(kwargs['content'])
 

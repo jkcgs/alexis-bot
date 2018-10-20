@@ -1,0 +1,6 @@
+nyaa-help: Realizar una búsqueda en nyaa.si
+nyaa-format: >-
+  $CMD [hs] [búsqueda] - Antepone "hs" con un espacio a la búsqueda para buscar
+  con "horriblesubs 1080p".
+nyaa-no-results: Sin resultados.
+nyaa-title: Resultados de búsqueda

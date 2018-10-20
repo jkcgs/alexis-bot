@@ -1,7 +1,5 @@
 import re
 from base64 import b64encode
-from yarl import URL
-from aiohttp import InvalidURL
 from discord import Embed
 
 from bot import Command
@@ -37,44 +35,41 @@ class Feed(Command):
             await cmd.answer('xd')
             return
 
-        try:
-            await cmd.typing()
-            url, url_type = self.normalize_url(cmd.text)
-            self.log.debug('URL: %s', url)
+        await cmd.typing()
+        url, url_type = self.normalize_url(cmd.text)
+        self.log.debug('URL: %s', url)
 
-            if url_type == 'twitter':
-                async with self.get_twitter(url) as r:
-                    data = await r.json()
+        if url_type == 'twitter':
+            async with self.get_twitter(url) as r:
+                data = await r.json()
 
-                    # Not a list: probably an error
-                    if not isinstance(data, list):
-                        err = 'unknown error'
-                        if 'errors' in data:
-                            err = 'Error {}: {}'.format(data['errors'][0]['code'], data['errors'][0]['message'])
+                # Not a list: probably an error
+                if not isinstance(data, list):
+                    err = 'unknown error'
+                    if 'errors' in data:
+                        err = 'Error {}: {}'.format(data['errors'][0]['code'], data['errors'][0]['message'])
 
-                        self.log.debug(data)
-                        await cmd.answer(err)
-                        return
+                    self.log.debug(data)
+                    await cmd.answer(err)
+                    return
 
-                    if len(data) == 0:
-                        await cmd.answer('no tweets found')
-                        return
+                if len(data) == 0:
+                    await cmd.answer('no tweets found')
+                    return
 
-                    tweet_url = 'https://twitter.com/{}/status/{}'.format(
-                        data[0]['user']['screen_name'], data[0]['id_str'])
-                    await cmd.answer(tweet_url)
-            elif url_type == 'tumblr' or url_type == 'generic':
-                async with self.http.get(url) as r:
-                    p = feedparser.parse(await r.text())
-                    embed = Embed(title='Feed information')
-                    embed.description = '**Title**: {}\n**Description**: {}'.format(
-                        p['feed']['title'], p['feed']['subtitle']
-                    )
-                    await cmd.answer(embed)
-            else:
-                raise InvalidURL(url)
-        except InvalidURL:
-            await cmd.answer('invalid url')
+                tweet_url = 'https://twitter.com/{}/status/{}'.format(
+                    data[0]['user']['screen_name'], data[0]['id_str'])
+                await cmd.answer(tweet_url)
+        elif url_type == 'tumblr' or url_type == 'generic':
+            async with self.http.get(url) as r:
+                p = feedparser.parse(await r.text())
+                embed = Embed(title='Feed information')
+                embed.description = '**Title**: {}\n**Description**: {}'.format(
+                    p['feed']['title'], p['feed']['subtitle']
+                )
+                await cmd.answer(embed)
+        else:
+            await cmd.answer('Invalid URL')
 
     def twitter_url(self, user_url):
         # todo: retrieve account id and store that instead
@@ -102,12 +97,8 @@ class Feed(Command):
         elif pat_tumblr.match(url):
             url = 'https://{}.tumblr.com/rss'.format(pat_tumblr.findall(url)[0])
             return url, 'tumblr'
-        else:
-            try:
-                url = URL(url)
-                return url, 'generic'
-            except ValueError:
-                raise InvalidURL(url)
+        elif pat_url.match(url):
+            return url, 'generic'
 
     def get_twitter(self, url):
         return self.http.get(url, headers={'Authorization': 'Bearer ' + self.twitter_token})
