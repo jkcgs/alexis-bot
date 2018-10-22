@@ -59,6 +59,9 @@ class TaggedLogger:
     def warn(self, message, *args):
         self.logger.warn('[{}] {}'.format(self.tag, message), *args)
 
+    def warning(self, message, *args):
+        self.warn(message, *args)
+
     def exception(self, exception):
         self.logger.exception(exception)
 
