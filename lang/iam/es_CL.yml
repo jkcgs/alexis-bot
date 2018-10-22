@@ -23,3 +23,12 @@ iamroles-not-added: Este rol no ha sido agregado.
 iamroles-removed: 'Rol {role} eliminado de los roles auto-gestionables.'
 iamroles-no-subcommand: q wea
 iam-not-self-managed: Este no es un rol auto-gestionable.
+iamnot-cant-remove: No puedes quitarte este rol.
+iamroles-lock-format: $CMD lock <rol>
+iamroles-lock-none: No hay roles disponibles para bloquear.
+iamroles-lock-already: Este rol ya está desbloqueado.
+iamroles-lock-locked: Rol bloqueado.
+iamroles-unlock-format: $CMD unlock <rol>
+iamroles-unlock-none: No hay roles desbloqueables disponibles.
+iamroles-unlock-not-locked: Este rol no está bloqueado.
+iamroles-unlock-unlocked: Rol desbloqueado.

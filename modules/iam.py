@@ -4,6 +4,7 @@ from bot import Command, categories
 from bot.utils import member_has_role, get_server_role
 
 cfg_roles = 'iam_roles'
+cfg_roles_locked = 'iam_roles_locked'
 
 
 class IAm(Command):
@@ -94,6 +95,11 @@ class IAmNot(Command):
             await cmd.answer('$[iam-disallowed-role]')
             return
 
+        roles_locked = cmd.config.get_list(cfg_roles_locked)
+        if role.id in roles_locked:
+            await cmd.answer('$[iamnot-cant-remove]')
+            return
+
         try:
             await self.bot.remove_roles(cmd.author, role)
             await cmd.answer('$[iamnot-removed-role]', locales={'role': role.name})
@@ -117,6 +123,7 @@ class IAmRoles(Command):
             return
 
         roles = cmd.config.get_list(cfg_roles)
+        roles_locked = cmd.config.get_list(cfg_roles_locked)
         limit = self.bot.config['iam_roles_limit']
 
         if cmd.argc == 0:
@@ -141,6 +148,16 @@ class IAmRoles(Command):
             cmd.args.insert(0, 'remove')
             cmd.args[1] = cmd.args[1][1:]
             cmd.text = 'remove ' + cmd.text[1:]
+        if cmd.text.startswith('!'):
+            cmd.argc += 1
+            cmd.args.insert(0, 'lock')
+            cmd.args[1] = cmd.args[1][1:]
+            cmd.text = 'lock ' + cmd.text[1:]
+        if cmd.text.startswith('?'):
+            cmd.argc += 1
+            cmd.args.insert(0, 'unlock')
+            cmd.args[1] = cmd.args[1][1:]
+            cmd.text = 'unlock ' + cmd.text[1:]
 
         if cmd.argc < 2:
             await cmd.answer('$[format]: $[iamroles-format]')
@@ -187,5 +204,53 @@ class IAmRoles(Command):
 
             cmd.config.remove(cfg_roles, role_id)
             await cmd.answer('$[iamroles-removed]', locales={'role': role_name})
+        elif cmd.args[0] == 'lock':
+            if cmd.argc < 2:
+                await cmd.answer('$[format]: $[iamroles-lock-format]')
+                return
+
+            if len(roles) == 0:
+                await cmd.answer('$[iamroles-lock-none]')
+                return
+
+            role_raw = ' '.join(cmd.args[1:])
+            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role_id = role_raw if role is None or role_raw in roles else role.id
+
+            if role_id not in roles:
+                await cmd.answer('$[iamroles-not-added]')
+                return
+
+            if role_id in roles_locked:
+                await cmd.answer('$[iamroles-lock-already]')
+                return
+
+            cmd.config.add(cfg_roles_locked, role_id)
+            await cmd.answer('$[iamroles-lock-locked]')
+
+        elif cmd.args[0] == 'unlock':
+            if cmd.argc < 2:
+                await cmd.answer('$[format]: $[iamroles-unlock-format]')
+                return
+
+            if len(roles_locked) == 0:
+                await cmd.answer('$[iamroles-unlock-none]')
+                return
+
+            role_raw = ' '.join(cmd.args[1:])
+            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role_id = role_raw if role is None or role_raw in roles else role.id
+
+            if role_id not in roles_locked:
+                await cmd.answer('$[iamroles-not-added]')
+                return
+
+            if role_id not in roles_locked:
+                await cmd.answer('$[iamroles-unlock-not-locked]')
+                return
+
+            cmd.config.remove(cfg_roles_locked, role_id)
+            await cmd.answer('$[iamroles-unlock-unlocked]')
+
         else:
             await cmd.answer('$[iamroles-no-subcommand]')

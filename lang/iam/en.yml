@@ -23,3 +23,12 @@ iamroles-not-added: This role has not been added.
 iamroles-removed: 'Role {role} removed from self-assignable roles.'
 iamroles-no-subcommand: wtf
 iam-not-self-managed: This is not a self-managed role.
+iamnot-cant-remove: You cannot remove this role from yourself.
+iamroles-lock-format: $CMD lock <role>
+iamroles-lock-none: No lockable roles available.
+iamroles-lock-already: Role already locked.
+iamroles-lock-locked: Role locked.
+iamroles-unlock-format: $CMD unlock <role>
+iamroles-unlock-none: No unlockable roles available.
+iamroles-unlock-not-locked: This role is not locked.
+iamroles-unlock-unlocked: Role unlocked.
