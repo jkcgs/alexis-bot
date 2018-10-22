@@ -454,7 +454,7 @@ def invite_filter(text):
     :param text: The text to filter
     :return: The filtered text
     """
-    if pat_invite.match(text):
-        for match in pat_invite.finditer(text):
-            text = text.replace(match.group(0), '$[invite-filtered]')
+    for match in pat_invite.finditer(text):
+        text = text.replace(match.group(0), '$[invite-filtered]')
+
     return text

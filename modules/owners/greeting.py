@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot import Command, categories
 from bot.libs.configuration import ServerConfiguration
-from bot.utils import is_int, invite_filter
+from bot.utils import is_int, invite_filter, pat_invite
 
 
 class Greeting(Command):
@@ -161,9 +161,15 @@ class Greeting(Command):
         if chan is None:
             return
 
+        name = member.display_name
+        mention = member.mention
+        if pat_invite.search(name) or pat_invite.search(mention):
+            name = invite_filter(member.display_name)
+            mention = name
+
         msg = random.choice(msgs)
-        msg = msg.replace('$name', invite_filter(member.display_name))
-        msg = msg.replace('$mention', member.mention)
+        msg = msg.replace('$name', name)
+        msg = msg.replace('$mention', mention)
         msg = msg.replace('$server', member.server.name)
 
         await self.bot.send_message(chan, msg)
