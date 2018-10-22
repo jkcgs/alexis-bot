@@ -27,3 +27,4 @@ nsfw-only: This command can only be used in a NSFW channel.
 error-debug: The command raised an exception while executing it
 error-msg: Could not execute this command
 invite-text: 'You can add me to your guild with the following link:'
+invite-filtered: '[redacted invite]'

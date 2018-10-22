@@ -19,6 +19,7 @@ pat_snowflake = re.compile('^\d{10,19}$')
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
 pat_delta = re.compile('^([0-9]+[smhd])+$')
 pat_delta_each = re.compile('([0-9]+[smhd])+')
+pat_invite = re.compile('(?:https?://)?(discord(?:app\.com/invite|.gg)/[a-zA-Z0-9]+)')
 
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
                'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
@@ -445,3 +446,15 @@ def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
             txt = txt.replace(m.group(0), m.group(1))
 
     return txt
+
+
+def invite_filter(text):
+    """
+    Filters any Discord invitation link found on a string
+    :param text: The text to filter
+    :return: The filtered text
+    """
+    if pat_invite.match(text):
+        for match in pat_invite.finditer(text):
+            text = text.replace(match, '$[invite-filtered]')
+    return text

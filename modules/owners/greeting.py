@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot import Command, categories
 from bot.libs.configuration import ServerConfiguration
-from bot.utils import is_int
+from bot.utils import is_int, invite_filter
 
 
 class Greeting(Command):
@@ -162,7 +162,7 @@ class Greeting(Command):
             return
 
         msg = random.choice(msgs)
-        msg = msg.replace('$name', member.display_name)
+        msg = msg.replace('$name', invite_filter(member.display_name))
         msg = msg.replace('$mention', member.mention)
         msg = msg.replace('$server', member.server.name)
 

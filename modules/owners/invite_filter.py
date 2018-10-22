@@ -3,6 +3,7 @@ import re
 from discord import Embed
 
 from bot import Command, MessageEvent, categories
+from bot.utils import pat_invite
 
 
 class InviteFilter(Command):
@@ -11,7 +12,6 @@ class InviteFilter(Command):
 
     cfg_filter_status = 'invite_filter_enabled'
     cfg_filter_list = 'invite_filter_list'
-    pat_invite = re.compile('(?:https?://)?discord(?:app\.com/invite|.gg)/[a-zA-Z0-9]+')
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -81,7 +81,7 @@ class InviteFilter(Command):
         if not filter_enabled or evt.author.id in evt.config.get_list(self.cfg_filter_list):
             return
 
-        invite = self.pat_invite.search(message.content)
+        invite = pat_invite.search(message.content)
         if invite:
             self.log.debug('Removing invite in %s: %s by %s', message.server, invite[0], message.author)
             await self.bot.delete_message_silent(message)
