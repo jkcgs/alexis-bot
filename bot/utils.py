@@ -19,7 +19,7 @@ pat_snowflake = re.compile('^\d{10,19}$')
 pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
 pat_delta = re.compile('^([0-9]+[smhd])+$')
 pat_delta_each = re.compile('([0-9]+[smhd])+')
-pat_invite = re.compile('(?:https?://)?(discord(?:app\.com/invite|.gg)/[a-zA-Z0-9]+)')
+pat_invite = re.compile('(?:https?://)?(discord(?:app\.com/invite|\.gg|\.me)/[a-zA-Z0-9]+)')
 
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
                'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
