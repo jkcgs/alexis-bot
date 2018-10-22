@@ -456,5 +456,5 @@ def invite_filter(text):
     """
     if pat_invite.match(text):
         for match in pat_invite.finditer(text):
-            text = text.replace(match, '$[invite-filtered]')
+            text = text.replace(match.group(0), '$[invite-filtered]')
     return text
