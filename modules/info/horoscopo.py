@@ -1,6 +1,7 @@
 import discord
 import peewee
 import pytz
+from aiohttp import ContentTypeError
 from datetime import datetime
 
 from discord import Embed
@@ -11,7 +12,7 @@ from bot import Command, categories, BaseModel
 class Horoscopo(Command):
     __version__ = '1.2.0'
     __author__ = 'makzk'
-    api_url = 'https://api.cadcc.cl/tyaas/'
+    api_url = 'https://api.adderou.cl/tyaas/'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -115,8 +116,14 @@ class Horoscopo(Command):
         return embed
 
     async def update(self):
+        self.log.debug('Loading %s ...', Horoscopo.api_url)
         async with self.http.get(Horoscopo.api_url) as r:
-            data = await r.json()
+            try:
+                data = await r.json()
+            except ContentTypeError:
+                self.log.error('Response is not JSON')
+                return
+
             curr = datetime.now(pytz.timezone('Chile/Continental'))
             if self.horoscopo is None or self.horoscopo['titulo'] != data['titulo']:
                 self.horoscopo = data

@@ -6,7 +6,7 @@ import peewee
 from discord.http import Route
 
 from bot import Command, utils, categories
-from discord import Embed
+from discord import Embed, Member
 
 from bot.libs.configuration import BaseModel
 from bot.utils import deltatime_to_str
@@ -102,19 +102,35 @@ class ModLog(Command):
                     locales={'prev_name': before.name, 'new_name': after.name}, logtype='username')
 
         if (before.nick or after.nick) and before.nick != after.nick:
-            if not before.nick and after.nick:
-                await self.bot.send_modlog(server, '$[modlog-nick-set]', logtype='nick',
-                                           locales={'username': after.name, 'nick': after.nick})
-            elif before.nick and not after.nick:
-                await self.bot.send_modlog(server, '$[modlock-nick-removed]', logtype='nick',
-                                           locales={'username': after.name, 'nick': before.nick})
+            alog = await self.get_last_alog(after.server.id)
+
+            if alog['action_type'] == 24 and len(alog['changes']) and alog['changes'][0]['key'] == 'nick':
+                if alog['user_id'] == str(after.id):
+                    by = after
+                else:
+                    by = after.server.get_member(alog['user_id'])
             else:
-                await self.bot.send_modlog(server, '$[modlog-nick-updated]', logtype='nick',
-                                           locales={
-                                               'username': after.name,
-                                               'before_nick': before.nick,
-                                               'after_nick': after.nick
-                                           })
+                by = None
+
+            prev_nick = before.nick or '$[modlog-nick-none]'
+            after_nick = after.nick or '$[modlog-nick-none]'
+            locales = {'author': by.name, 'target': after.name, 'previous': prev_nick, 'after': after_nick}
+
+            if by is None:
+                # default entry, no author
+                await self.bot.send_modlog(server, '$[modlog-nick-other]', logtype='nick', locales=locales)
+            elif by.id == after.id:
+                # self updated
+                if by.id == self.bot.user.id:
+                    await self.bot.send_modlog(server, '$[modlog-nick-bot-self]', logtype='nick', locales=locales)
+                else:
+                    await self.bot.send_modlog(server, '$[modlog-nick-self]', logtype='nick', locales=locales)
+            else:
+                # someone updated other's nick
+                if after.id == self.bot.user.id:
+                    await self.bot.send_modlog(server, '$[modlog-nick-other-bot]', logtype='nick', locales=locales)
+                else:
+                    await self.bot.send_modlog(server, '$[modlog-nick-by]', logtype='nick', locales=locales)
 
     async def get_last_alog(self, guild_id):
         x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))

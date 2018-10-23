@@ -55,18 +55,19 @@ class Language:
 
         if __lang not in self.lib:
             text = __lang + '_' + name
-        elif name not in self.lib[__lang] or self.lib[__lang][name] == '':
+        elif name not in self.lib[__lang] or self.lib[__lang][name].strip() == '':
             if __lang == self.default:
                 text = '[{}:{}]'.format(__lang, name)
             else:
-                text = self.get(name, self.default)
+                text = self.get(name, self.default, **kwargs)
         else:
             text = self.lib[__lang][name]
 
             try:
                 text = text.format(**kwargs)
-            except KeyError:
-                log.warn('Could not format the "%s" text with the %s variables', text, kwargs)
+            except KeyError as e:
+                log.warn('Could not format the "%s" text with the %s variables', text, repr(kwargs))
+                log.exception(e)
 
         return text
 

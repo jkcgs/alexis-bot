@@ -24,7 +24,7 @@ class CleverbotHandler(Command):
         if config_key == '':
             CleverbotHandler.check = False
             self.log.warn('Cleverbot API key not defined. Add it to the \'cleverbot_apikey\' '
-                          'value to settings.yml file')
+                          'value the settings')
         else:
             self.cbot = CleverWrap(config_key)
             self.log.debug('Loaded CleverWrap')

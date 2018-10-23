@@ -40,6 +40,12 @@ modlog-toggle-list-disabled: 'Disabled logs: {disabled_logs}.'
 modlog-none: '*none*'
 modlog-toggle-help: Allows to toggle certain types of modlogs.
 modlog-toggle-format: '$CMD [type] - Don''t send the type parameter to se the current types'' status'
-modlog-nick-set: '**{username}**''s nick set to "{nick}"'
-modlock-nick-removed: '**{username}**''s nick removed (it was "{nick}")'
-modlog-nick-updated: '**{username}**''s nick updated (before: "{before_nick}", after: "{after_nick}")'
+modlog-nick-other: 'Nick updated for **{target}**. Previous: "{previous}", after: "**{after}**"'
+modlog-nick-self: '**{target}** updated its nick. Previous: "{previous}", after: "**{after}**"'
+modlog-nick-bot: 'I''ve updated **{target}**''s nick. Previous: "{previous}", after: "**{after}**"'
+modlog-nick-by: >-
+  {author} updated **{target}**'s nick. Previous: "{previous}", after:
+  "**{after}**"
+modlog-nick-bot-self: 'I''ve updated my nick. Previous: "{previous}", after: "**{after}**"'
+modlog-nick-other-bot: '{author} updated my nick. Previous: "{previous}", after: "**{after}**"'
+modlog-nick-none: '*(none)*'
