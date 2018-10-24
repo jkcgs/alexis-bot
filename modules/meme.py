@@ -1,5 +1,4 @@
 from io import BytesIO
-from os import path
 from PIL import Image, ImageFont, ImageDraw
 from bot import Command, categories
 from bot.utils import pat_usertag
@@ -9,7 +8,7 @@ furl = 'https://raw.githubusercontent.com/caarlos0-graveyard/msfonts/master/font
 
 class Meme(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.2'
+    __version__ = '1.0.3'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -19,24 +18,15 @@ class Meme(Command):
         self.format = '$[format]:```$[memes-format-1]\n$[memes-format-2]\n$[memes-format-3]\n' \
                       '$[memes-format-4]\n$[memes-format-5]```'
         self.isize = 512
-        self.mpath = path.join(path.dirname(path.realpath(__file__)), 'impact.ttf')
+        self.mpath = None
         self.font = None
         self.font_smaller = None
 
     async def on_ready(self):
-        if not path.exists(self.mpath):
-            self.log.info('Impact font not found, downloading...')
-            try:
-                async with self.http.get(furl) as resp:
-                    self.log.info('Impact font downloaded')
-                    data = await resp.read()
-                    with open(self.mpath, 'wb') as f:
-                        f.write(data)
-                        f.close()
-                        self.log.info('Impact font stored')
-            except OSError as e:
-                self.log.error('Could not save the downloaded font')
-                self.log.exception(e)
+        self.mpath = await self.mgr.download('impact.ttf', furl)
+        if self.mpath is None:
+            self.log.warn('Could not retrieve the font')
+            return
 
         self.font = ImageFont.truetype(self.mpath, size=int(self.isize/8))
         self.font_smaller = ImageFont.truetype(self.mpath, size=int(self.isize/14))
@@ -44,6 +34,10 @@ class Meme(Command):
     async def handle(self, cmd):
         if cmd.argc == 0:
             await cmd.answer(self.format)
+            return
+
+        if self.font is None:
+            await cmd.answer('$[memes-disabled]')
             return
 
         if pat_usertag.match(cmd.args[0]):

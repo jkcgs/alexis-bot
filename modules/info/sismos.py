@@ -1,4 +1,3 @@
-from aiohttp import ContentTypeError
 from datetime import datetime
 from discord import Embed
 
@@ -61,11 +60,7 @@ class Sismos(Command):
 
         self.log.debug('Loading %s ...', Sismos.api_url)
         async with self.http.get(Sismos.api_url) as r:
-            try:
-                data = await r.json()
-            except ContentTypeError:
-                self.log.error('Response is not JSON')
-                return
+            data = await r.json()
 
             if first:
                 self.log.debug('Earthquakes information loaded. {} entries loaded.'.format(len(data)))

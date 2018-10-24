@@ -11,16 +11,15 @@ from . import categories
 class Command:
     def __init__(self, bot):
         self.bot = bot
+        self.mgr = bot.manager
         self.log = TaggedLogger(log, self.__class__.__name__)
         self.name = ''
         self.aliases = []
+        self.db_models = []
+        self.schedule = []
         self.swhandler = []
         self.swhandler_break = False
         self.mention_handler = False
-        self.help = '$[help-not-available]'
-        self.pm_error = '$[disallowed-via-pm]'
-        self.owner_error = '$[command-not-authorized]'
-        self.format = '$[help-format-not-available]'
         self.category = categories.OTHER
         self.allow_pm = True
         self.nsfw_only = False
@@ -29,13 +28,15 @@ class Command:
         self.default_enabled = True
         self.default_config = None
         self.priority = 100
-
         self.user_delay = 0
         self.users_delay = {}
+
+        self.help = '$[help-not-available]'
+        self.pm_error = '$[disallowed-via-pm]'
+        self.owner_error = '$[command-not-authorized]'
+        self.format = '$[help-format-not-available]'
         self.user_delay_error = '$[command-delayed]'
         self.nsfw_only_error = '$[nsfw-only]'
-        self.db_models = []
-        self.schedule = []
 
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
         self.http = aiohttp.ClientSession(

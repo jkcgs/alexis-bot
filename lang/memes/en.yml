@@ -5,3 +5,4 @@ memes-format-2: '$CMD [user] | <text down>'
 memes-format-3: $CMD <user> | <text up> | <text down>
 memes-format-4: $CMD <@mention> <text down>
 memes-format-5: $CMD <@mention> <text up> | <text down>
+memes-disabled: 'Command disabled, font file not found.'

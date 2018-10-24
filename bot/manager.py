@@ -1,8 +1,11 @@
 import asyncio
 import glob
 import inspect
+import os
 import sys
 from os import path
+
+import aiohttp
 
 from bot import CommandEvent, BotMentionEvent
 from bot.utils import get_bot_root
@@ -20,6 +23,11 @@ class Manager:
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
+
+        headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
+        self.http = aiohttp.ClientSession(
+            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
+        )
 
     def load_instances(self):
         """Loads instances for the command classes loaded"""
@@ -318,6 +326,44 @@ class Manager:
         loop = asyncio.get_event_loop()
         for i in self.cmd_instances:
             loop.create_task(i.http.close())
+
+    async def download(self, filename, url, filesize=None):
+        basedir = path.abspath(path.join(path.dirname(path.realpath(__file__)), '..', 'cache'))
+        if not path.exists(basedir):
+            try:
+                os.mkdir(basedir)
+            except Exception as e:
+                log.error('Could not create cache directory')
+                log.exception(e)
+                return None
+
+        filepath = path.join(basedir, filename)
+        if path.exists(filepath):
+            if filesize is None:
+                return filepath
+
+            fs = os.stat(filepath)
+            if fs.st_size == filesize:
+                return filepath
+
+        try:
+            log.debug('Downloading %s from %s', filename, url)
+            async with self.http.get(url) as r:
+                log.info('File %s downloaded', filename)
+                data = await r.read()
+                try:
+                    with open(filepath, 'wb') as f:
+                        f.write(data)
+                        log.info('File %s stored to %s', filename, filepath)
+                        return filepath
+                except OSError as e:
+                    log.error('Could not store %s file', filename)
+                    log.exception(e)
+                    return None
+        except Exception as e:
+            log.error('Could not download the %s file', filename)
+            log.exception(e)
+            return None
 
     def __getitem__(self, item):
         return self.get_cmd(item)

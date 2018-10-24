@@ -1,7 +1,6 @@
 import discord
 import peewee
 import pytz
-from aiohttp import ContentTypeError
 from datetime import datetime
 
 from discord import Embed
@@ -118,11 +117,7 @@ class Horoscopo(Command):
     async def update(self):
         self.log.debug('Loading %s ...', Horoscopo.api_url)
         async with self.http.get(Horoscopo.api_url) as r:
-            try:
-                data = await r.json()
-            except ContentTypeError:
-                self.log.error('Response is not JSON')
-                return
+            data = await r.json()
 
             curr = datetime.now(pytz.timezone('Chile/Continental'))
             if self.horoscopo is None or self.horoscopo['titulo'] != data['titulo']:

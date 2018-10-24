@@ -13,10 +13,22 @@ class ShipperUwU(Command):
         self.format = '$[ship-format]'
         self.allow_pm = False
         self.category = categories.IMAGES
+        self.heart_path = None
+
+    async def on_ready(self):
+        hurl = 'https://i.imgur.com/80c3IKZ.png'
+        self.heart_path = await self.mgr.download('heart.png', hurl)
+        if self.heart_path is None:
+            self.log.warn('Could not retrieve the heart picture')
+            return
 
     async def handle(self, cmd):
         if cmd.argc != 2:
             await cmd.answer('$[format]: $[ship-format]')
+            return
+
+        if self.heart_path is None:
+            await cmd.answer('$[ship-disabled]')
             return
 
         # Get mentions in the same order as they were sent
@@ -50,7 +62,7 @@ class ShipperUwU(Command):
         user2_img = Image.open(BytesIO(user2_avatar)).resize((512, 512), Image.ANTIALIAS)
 
         # Open the heart <3
-        heart_img = Image.open(path.join(path.dirname(path.realpath(__file__)), 'heart.png'))
+        heart_img = Image.open(self.heart_path)
 
         # Create picture
         result = Image.new('RGBA', (1536, 512))
