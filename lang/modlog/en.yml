@@ -30,8 +30,8 @@ modlog-channel-set: 'Log channel updated to <#{channel_id}>'
 modlog-note-err-length: User note can't exceed 1000 characters.
 modlog-note-help: Sets a note for an user.
 modlog-note-set: User note set.
-modlog-username-changed: 'User "*{prev_name}*" changed name to "**{new_name}**.'
-modlog-username-changed-nick: 'User "*{prev_name}*" changed name to "**{new_name}** (current nick: "{nick}").'
+modlog-username-changed: 'User "*{prev_name}*" changed name to "**{new_name}**".'
+modlog-username-changed-nick: 'User "*{prev_name}*" changed name to "**{new_name}**" (current nick: "{nick}").'
 modlog-cmd-help: Displays users' information.
 modlog-cmd-title: 'About **{user_id}**'
 modlog-cmd-format: $CMD <@mention | userid>

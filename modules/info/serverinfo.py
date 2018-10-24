@@ -54,7 +54,7 @@ class ServerInfo(Command):
         if 'VIP_REGIONS' in server.features:
             other.append('$[serverinfo-feature-vipregions]')
         if 'VANITY_URL' in server.features:
-            other.append('$[serverinfo-feature-vanity')
+            other.append('$[serverinfo-feature-vanity]')
         if 'INVITE_SPLASH' in server.features:
             other.append('$[serverinfo-feature-splash]')
         if server.mfa_level > 0:
