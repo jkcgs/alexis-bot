@@ -179,6 +179,12 @@ class MessageEvent:
         return self.server.get_member(self.bot.user.id)
 
     @property
+    def permissions(self):
+        if self.server is None:
+            return None
+        return self.server_member.permissions_in(self.channel)
+
+    @property
     def lang(self):
         if self._lang is None:
             if self.server is None:

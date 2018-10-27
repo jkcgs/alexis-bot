@@ -6,7 +6,7 @@ import peewee
 from discord.http import Route
 
 from bot import Command, utils, categories
-from discord import Embed, Member
+from discord import Embed
 
 from bot.libs.configuration import BaseModel
 from bot.utils import deltatime_to_str
@@ -102,7 +102,10 @@ class ModLog(Command):
                     locales={'prev_name': before.name, 'new_name': after.name}, logtype='username')
 
         if (before.nick or after.nick) and before.nick != after.nick:
-            alog = await self.get_last_alog(after.server.id)
+            try:
+                alog = await self.get_last_alog(after.server.id)
+            except discord.Forbidden:
+                alog = None
 
             if alog['action_type'] == 24 and len(alog['changes']) and alog['changes'][0]['key'] == 'nick':
                 if alog['user_id'] == str(after.id):
@@ -133,12 +136,16 @@ class ModLog(Command):
                     await self.bot.send_modlog(server, '$[modlog-nick-by]', logtype='nick', locales=locales)
 
     async def get_last_alog(self, guild_id):
-        x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
-        x = x['audit_log_entries']
-        if len(x) == 0:
+        try:
+            x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
+        except discord.Forbidden:
+            self.log.debug('No permission to read audit logs for guild %s', guild_id)
             return None
 
-        return x[0]
+        if 'audit_log_entries' not in x or len(x['audit_log_entries']) == 0:
+            return None
+
+        return x['audit_log_entries'][0]
 
     @staticmethod
     def get_note(member):
