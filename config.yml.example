@@ -21,7 +21,8 @@ default_lang: "en"
 
 # Advanced stuff
 log_path: logs      # Logs path
-log_to_files: true  # Log to files can be disabled here (useful when using supervisord, or whatever)
+log_to_files: false # Log to files can be disabled here (useful when using supervisord, or whatever)
+log_format: '%(asctime)s | %(levelname)-8s | %(message)s' # Logging format
 ext_modpath: ""     # External path to load modules
 debug: false        # Debug mode. Exception tracebacks will be fully logged into chat.
 

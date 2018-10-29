@@ -14,10 +14,14 @@ def get_logger(name):
 
     if not logger_created:
         config = StaticConfig('config.yml')
-        config.load({'log_path': 'logs', 'log_to_files': True})
+        config.load({
+            'log_path': 'logs',
+            'log_to_files': False,
+            'log_format': '%(asctime)s | %(levelname)-8s | %(message)s'
+        })
 
         logger.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(message)s', '%Y-%m-%d %H:%M:%S')
+        formatter = logging.Formatter(config['log_format'], '%Y-%m-%d %H:%M:%S')
         stdout_logger = logging.StreamHandler()
         stdout_logger.setLevel(logging.DEBUG)
         stdout_logger.setFormatter(formatter)
