@@ -71,8 +71,8 @@ class ModLog(Command):
         else:
             try:
                 last = await self.get_last_alog(message.server.id)
-                if last['action_type'] == 72 and last['options']['channel_id'] == message.channel.id and \
-                        last['target_id'] == message.author.id:
+                if last is not None and last['action_type'] == 72 and \
+                        last['options']['channel_id'] == message.channel.id and last['target_id'] == message.author.id:
                     who = last['user_id']
                     if who == self.bot.user.id:
                         msg = '$[modlog-bot-deleted-msg]'
