@@ -107,7 +107,8 @@ class ModLog(Command):
             except discord.Forbidden:
                 alog = None
 
-            if alog['action_type'] == 24 and len(alog['changes']) and alog['changes'][0]['key'] == 'nick':
+            if alog is not None and alog['action_type'] == 24 and len(alog['changes']) \
+                    and alog['changes'][0]['key'] == 'nick':
                 if alog['user_id'] == str(after.id):
                     by = after
                 else:
