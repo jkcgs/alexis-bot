@@ -11,4 +11,4 @@ realban-msg-with-reason: >-
   **{ban_reason}**
 realban-answer: '¡The user **{username}** has been banned!'
 realban-answer-with-reason: '¡The user **{}** has been banned! Reason: **{ban_reason}**'
-realban-error-perms: I could not ban the user due to lack of permissions!
+realban-error-perms: I could not tell the user about the ban!

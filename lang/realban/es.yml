@@ -11,4 +11,4 @@ realban-msg-with-reason: >-
   debido a: **{ban_reason}**
 realban-answer: '¡El usuario **{username}** ha sido baneado!'
 realban-answer-with-reason: '¡El usuario **{}** ha sido baneado! Razón: **{ban_reason}**'
-realban-error-perms: ¡No pude banear al usuario debido a falta de permisos!
+realban-error-perms: ¡No pude avisar al usuario respecto de su ban!

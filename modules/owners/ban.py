@@ -57,15 +57,17 @@ class Ban(Command):
         try:
             if reason == '':
                 await self.bot.send_message(member, '$[realban-msg]', locales={'server_name': server.name})
-                await cmd.answer('$[realban-answer]', locales={'username': member.display_name})
             else:
                 await self.bot.send_message(member, '$[realban-msg-with-reason]', locales={
                     'server_name': server.name, 'ban_reason': reason
                 })
-                await cmd.answer('$[realban-answer-with-reason]', locales={
-                    'username': member.display_name,
-                    'ban_reason': reason
-                })
-        except discord.errors.Forbidden as e:
-            self.log.exception(e)
+        except discord.errors.Forbidden:
             await cmd.answer('$[realban-error-perms]')
+
+        if reason == '':
+            await cmd.answer('$[realban-answer]', locales={'username': member.display_name})
+        else:
+            await cmd.answer('$[realban-answer-with-reason]', locales={
+                'username': member.display_name,
+                'ban_reason': reason
+            })
