@@ -1,8 +1,11 @@
 spoiler-help: >-
   Crea un mensaje de spoiler colocando el mensaje en una imagen, en un link sin
   vista previa.
-spoiler-format: $CMD <texto>
+spoiler-format: >-
+  $CMD <texto> [ | <título>] - Puedes agregar un título al spoiler agregándolo
+  después de una barra vertical (`|`).
 spoiler-error-cant: '{mention} NO PUEDO BORRAR EL MENSAJE, **BÓRRALO TU MISMO AHORA**!'
 spoiler-error-couldnt: '{mention} NO PUDE BORRAR EL MENSAJE, **BÓRRALO TU MISMO AHORA**!'
 spoiler-link: Haz click aquí para ver el spoiler
 spoiler-from: Por $AU
+spoiler-title: 'Spoiler: {title}'

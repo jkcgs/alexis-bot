@@ -6,7 +6,7 @@ discord.py==0.16.12
 emoji==0.5.1
 lxml==4.2.5
 peewee==3.7.0
-requests==2.19.1
+requests==2.20.0
 ruamel.yaml==0.15.71
 pytz==2018.5
 feedparser==5.2.1

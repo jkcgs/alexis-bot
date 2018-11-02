@@ -1,8 +1,11 @@
 spoiler-help: >-
   Create a spoiler message by using a link to an picture with the text in an
   embed.
-spoiler-format: $CMD <text>
+spoiler-format: >-
+  $CMD <text> [ | <title>] - You can add a title to the spoiler by adding it
+  after a pipe (`|`).
 spoiler-error-cant: '{mention} I CAN''T REMOVE YOUR MESSAGE, **DELETE IT YOURSELF NOW**!'
 spoiler-error-couldnt: '{mention} I COULDN''T REMOVE YOUR MESSAGE, **DELETE IT YOURSELF NOW**!'
 spoiler-link: Click here to view the spoiler
 spoiler-from: By $AU
+spoiler-title: 'Spoiler: {title}'
