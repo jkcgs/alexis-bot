@@ -1,7 +1,7 @@
-import asyncio
 import html
 import re
 
+import discord
 import peewee
 from discord import Embed
 
@@ -11,7 +11,7 @@ from bot.utils import pat_channel, pat_subreddit, text_cut
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.3'
+    __version__ = '1.1.4'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -149,8 +149,12 @@ class RedditFollow(Command):
                 for channel in subchannels:
                     chan = self.bot.get_channel(channel)
                     if chan is not None:
-                        await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
-                                                    locales={'sub': subname})
+                        try:
+                            await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
+                                                        locales={'sub': subname})
+                        except discord.Forbidden:
+                            self.log.debug('Could not sent a r/%s post to %s (%s) due to missing permissions',
+                                           subname, chan.server.name, chan.server.id)
 
                 post_id = data['id']
                 if not exists:
