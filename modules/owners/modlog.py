@@ -118,7 +118,8 @@ class ModLog(Command):
 
             prev_nick = before.nick or '$[modlog-nick-none]'
             after_nick = after.nick or '$[modlog-nick-none]'
-            locales = {'author': by.name, 'target': after.name, 'previous': prev_nick, 'after': after_nick}
+            locales = {'author': '' if by is None else by.name,
+                       'target': after.name, 'previous': prev_nick, 'after': after_nick}
 
             if by is None:
                 # default entry, no author
