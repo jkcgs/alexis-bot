@@ -7,7 +7,7 @@ from bot.libs.configuration import ServerConfig
 
 
 class Sismos(Command):
-    __version__ = '1.0.1'
+    __version__ = '1.0.2'
     __author__ = 'makzk'
     cfg_channel_name = 'sismos_channel'
     api_url = 'https://api.adderou.cl/sismo/'
