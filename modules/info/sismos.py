@@ -62,11 +62,14 @@ class Sismos(Command):
         async with self.http.get(Sismos.api_url) as r:
             data = await r.json()
 
+            if not isinstance(data, list) or len(data) == 0:
+                self.log.debug('No data retrieved')
+                return
+
             if first:
                 self.log.debug('Earthquakes information loaded. {} entries loaded.'.format(len(data)))
 
             if self.last_events is None or len(self.last_events) == 0 or data[0]['id'] != self.last_events[0]['id']:
-
                 self.last_events = data
                 self.last_update = datetime.now()
 
