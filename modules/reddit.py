@@ -11,7 +11,7 @@ from bot.utils import pat_channel, pat_subreddit, text_cut
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.4'
+    __version__ = '1.1.5'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -213,12 +213,12 @@ class RedditFollow(Command):
         elif post['media']:
             if 'preview' in post:
                 embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
-            elif post['thumbnail'] != 'default':
+            elif post['thumbnail'] != 'default' and post['thumbnail'].startswith('http'):
                 embed.set_thumbnail(url=html.unescape(post['thumbnail']))
             embed.description = "$[reddit-media-link]: " + post['url']
         elif 'preview' in post:
             embed.set_image(url=html.unescape(post['preview']['images'][0]['source']['url']))
-        elif post['thumbnail'] != '' and post['thumbnail'] != 'default':
+        elif post['thumbnail'] != '' and post['thumbnail'] != 'default' and post['thumbnail'].startswith('http'):
             embed.set_thumbnail(url=html.unescape(post['thumbnail']))
 
         return embed
