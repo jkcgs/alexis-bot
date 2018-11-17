@@ -1,0 +1,14 @@
+nekos-no-types: No hay tipos de imágenes disponibles
+nekos-types: 'Tipos de imágenes disponibles: `{image_types}`'
+nekos-invalid-type: Tipo de imagen incorrecto
+nekos-invalid-response: Respuesta inválida UwU
+nekos-help: Obtener una imagen desde nekos.life (NSFW)
+nekos-format: >-
+  Usa "$CMD help" para ver los tipos de imagen disponibles, luego usa $CMD
+  `tipo`
+nekos-owoify-help: nadie te puede ayudar ewe
+nekos-owoify-format: >-
+  $CMD `texto`, donde `texto` es el texto que quieres *OwOificar*, hasta 200
+  carácteres.
+nekos-owoify-error: 'Error: {error_msg}'
+nekos-owoify-length-error: 'oopsie whoopsie you made a fucky wucky, no hay texto o es de más de 200'
