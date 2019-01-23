@@ -5,7 +5,7 @@ from discord import Embed
 from bot import Command
 import feedparser
 
-pat_twitter = re.compile('^(https?://(www\.)?twitter\.com/|@)[a-zA-Z0-9_]{1,50}$')
+pat_twitter = re.compile('^((https?://)?(www\.)?twitter\.com/|@)[a-zA-Z0-9_]{1,50}$')
 pat_reddit_user = re.compile('^(https?://(www\.)?reddit.com/u(ser)?/|/?u/)[a-zA-Z0-9_\-]{1,50}$')
 pat_reddit_sub = re.compile('^(https?://(www\.)?reddit.com)?/?r/[a-zA-Z0-9_\-]{1,50}$')
 pat_tumblr = re.compile('^(?:https?://)?([a-zA-Z0-9\-]{1,50})\.tumblr\.com/?$')
@@ -40,6 +40,10 @@ class Feed(Command):
         self.log.debug('URL: %s', url)
 
         if url_type == 'twitter':
+            if self.twitter_token is None:
+                await cmd.answer('Twitter feeds are unavailable.')
+                return
+
             async with self.get_twitter(url) as r:
                 data = await r.json()
 
@@ -79,6 +83,8 @@ class Feed(Command):
             user = user_url[20:]
         elif user_url.startswith('http://twitter.com/'):
             user = user_url[19:]
+        elif user_url.startswith('twitter.com/'):
+            user = user_url[12:]
         else:
             return None
 
@@ -99,6 +105,8 @@ class Feed(Command):
             return url, 'tumblr'
         elif pat_url.match(url):
             return url, 'generic'
+        else:
+            return None, None
 
     def get_twitter(self, url):
         return self.http.get(url, headers={'Authorization': 'Bearer ' + self.twitter_token})

@@ -15,7 +15,7 @@ from bot.utils import destination_repr, get_bot_root
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.75'
+    __version__ = '1.0.0-dev.76'
     name = 'AlexisBot'
 
     def __init__(self, **options):

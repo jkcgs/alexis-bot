@@ -75,4 +75,7 @@ class Help(Command):
                     content = '$[help-category-{}-description]'.format(k) + content
                 embed.add_field(name=name_l.format(k), value=content, inline=False)
 
-        await cmd.answer(embed)
+        if not cmd.is_pm:
+            await cmd.answer('$[help-via-pm]')
+
+        await cmd.answer(embed, to_author=True)
