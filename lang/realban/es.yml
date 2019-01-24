@@ -10,5 +10,5 @@ realban-msg-with-reason: >-
   ¡Hola! Lamentablemente has sido expulsad@ del servidor **{server_name}**
   debido a: **{ban_reason}**
 realban-answer: '¡El usuario **{username}** ha sido baneado!'
-realban-answer-with-reason: '¡El usuario **{}** ha sido baneado! Razón: **{ban_reason}**'
+realban-answer-with-reason: '¡El usuario **{username}** ha sido baneado! Razón: **{ban_reason}**'
 realban-error-perms: ¡No pude avisar al usuario respecto de su ban!

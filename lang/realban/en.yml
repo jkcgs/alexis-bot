@@ -10,5 +10,5 @@ realban-msg-with-reason: >-
   Hello! Sadly, you have been banned from **{server_name}** due to:
   **{ban_reason}**
 realban-answer: '¡The user **{username}** has been banned!'
-realban-answer-with-reason: '¡The user **{}** has been banned! Reason: **{ban_reason}**'
+realban-answer-with-reason: '¡The user **{username}** has been banned! Reason: **{ban_reason}**'
 realban-error-perms: I could not tell the user about the ban!

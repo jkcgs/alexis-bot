@@ -42,8 +42,8 @@ class Ban(Command):
             if delete_days < 0 or delete_days > 7:
                 await cmd.answer('$[realban-error-days]')
                 return
-            else:
-                reason = ' '.join(cmd.args[2:])
+
+            reason = ' '.join(cmd.args[2:])
         else:
             reason = ' '.join(cmd.args[1:])
 
