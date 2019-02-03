@@ -19,6 +19,7 @@ class Spoiler(Command):
         self.help = '$[spoiler-help]'
         self.format = '$[spoiler-format]'
         self.allow_pm = False
+        self.default_enabled = False
 
     async def handle(self, cmd):
         if cmd.argc == 0:
