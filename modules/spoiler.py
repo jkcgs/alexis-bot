@@ -11,7 +11,7 @@ url = 'https://assets.imgix.net/examples/clouds.jpg?w=640&txtsize=64&txtfont64=R
 
 class Spoiler(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.0'
+    __version__ = '1.1.1'
 
     def __init__(self, bot):
         super().__init__(bot)
