@@ -1,6 +1,7 @@
 import asyncio
 import re
 from datetime import datetime
+from threading import Thread
 
 import discord
 import peewee
@@ -336,16 +337,25 @@ class UpdateUsername(Command):
         self.db_models = [UserNameReg]
         self.updating = False
         self.updated = False
+        self.ready = False
+        self.loop = asyncio.new_event_loop()
 
     async def on_ready(self):
-        self.bot.loop.create_task(self.run_all())
+        t = Thread(target=self.start_update, args=(self.loop,))
+        t.start()
+
+    def start_update(self, loop):
+        self.log.debug('Running initial update...')
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.run_all())
+        self.ready = True
 
     async def on_member_join(self, member):
-        if not self.updating:
+        if not self.ready or not self.updating:
             self.bot.loop.create_task(self.do_it(member))
 
     async def on_member_update(self, before, after):
-        if not self.updating:
+        if not self.ready or not self.updating:
             self.bot.loop.create_task(self.do_it(after))
 
     async def run_all(self):
