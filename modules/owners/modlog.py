@@ -135,7 +135,7 @@ class ModLog(Command):
             if after.display_name != after.name:
                 name_before = utils.md_filter(before.name)
                 name_after = utils.md_filter(after.name)
-                nick = utils.md_filter(after.display_nick)
+                nick = utils.md_filter(after.display_name)
 
                 await self.bot.send_modlog(
                     server, '$[modlog-username-changed-nick]',
