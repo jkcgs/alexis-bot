@@ -458,3 +458,17 @@ def invite_filter(text):
         text = text.replace(match.group(0), '$[invite-filtered]')
 
     return text
+
+
+def md_filter(text):
+    """
+    Filters Markown syntax with backslashes
+    :param text:
+    :return:
+    """
+    replacements = ['||', '*', '_']
+
+    for o in replacements:
+        text = text.replace(o, '\\' + o)
+
+    return text

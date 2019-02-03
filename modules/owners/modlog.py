@@ -11,12 +11,12 @@ from discord import Embed
 from bot.libs.configuration import BaseModel
 from bot.utils import deltatime_to_str
 
-modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter']
+modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']
 
 
 class ModLog(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     rx_channel = re.compile('^<#[0-9]+>$')
     chan_config_name = 'join_send_channel'
 
@@ -30,8 +30,13 @@ class ModLog(Command):
 
     async def on_member_remove(self, member):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
-        await self.bot.send_modlog(member.server, '$[modlog-user-left]',
-                                   locales={'mid': member.id, 'username': str(member), 'dt': dt}, logtype='user_leave')
+        locales = {
+            'mid': member.id,
+            'username': utils.md_filter(str(member)),
+            'dt': dt
+        }
+
+        await self.bot.send_modlog(member.server, '$[modlog-user-left]', locales=locales, logtype='user_leave')
 
     async def on_message_delete(self, message):
         if message.server is None or message.author.id == self.bot.user.id:
@@ -61,7 +66,11 @@ class ModLog(Command):
                 embed.add_field(name=t, value=', '.join(x))
 
         msg = '$[modlog-user-deleted-msg]'
-        locales = {'username': message.author.display_name, 'channel_name': message.channel.mention}
+        locales = {
+            'username': utils.md_filter(message.author.display_name),
+            'channel_name': message.channel.mention
+        }
+
         if message.id in self.bot.deleted_messages:
             if message.id in self.bot.deleted_messages_nolog:
                 self.bot.deleted_messages_nolog.remove(message.id)
@@ -87,19 +96,49 @@ class ModLog(Command):
 
         await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales, logtype='message_delete')
 
+    async def on_message_edit(self, before, after):
+        if before.server is None or before.author.id == self.bot.user.id:
+            return
+
+        footer = '$[modlog-msg-sent]: {}, $[modlog-msg-edited]: {}'.format(
+            utils.format_date(before.timestamp),
+            utils.format_date(after.timestamp)
+        )
+
+        embed = Embed(title='📝 $[modlog-user-edited-msg]')
+        embed.set_footer(text=footer)
+
+        locales = {
+            'username': utils.md_filter(after.author.display_name)
+        }
+
+        cont_before = '($[modlog-no-text])' if before.content == '' else before.content
+        cont_after = '($[modlog-no-text])' if after.content == '' else after.content
+        embed.add_field(name='$[modlog-user-edited-before]', value=utils.text_cut(cont_before, 1000), inline=False)
+        embed.add_field(name='$[modlog-user-edited-after]', value=utils.text_cut(cont_after, 1000), inline=False)
+
+        await self.bot.send_modlog(after.server, embed=embed, locales=locales, logtype='message_edit')
+
     async def on_member_update(self, before, after):
         server = after.server
 
         if before.name != after.name:
             if after.display_name != after.name:
+                name_before = utils.md_filter(before.name)
+                name_after = utils.md_filter(after.name)
+                nick = utils.md_filter(after.display_nick)
+
                 await self.bot.send_modlog(
                     server, '$[modlog-username-changed-nick]',
-                    locales={'prev_name': before.name, 'new_name': after.name, 'nick': after.display_name},
+                    locales={'prev_name': name_before, 'new_name': name_after, 'nick': nick},
                     logtype='username')
             else:
+                name_before = utils.md_filter(before.name)
+                name_after = utils.md_filter(after.name)
+
                 await self.bot.send_modlog(
                     server, '$[modlog-username-changed]',
-                    locales={'prev_name': before.name, 'new_name': after.name}, logtype='username')
+                    locales={'prev_name': name_before, 'new_name': name_after}, logtype='username')
 
         if (before.nick or after.nick) and before.nick != after.nick:
             try:
@@ -116,10 +155,12 @@ class ModLog(Command):
             else:
                 by = None
 
-            prev_nick = before.nick or '$[modlog-nick-none]'
-            after_nick = after.nick or '$[modlog-nick-none]'
+            prev_nick = utils.md_filter(before.nick) or '$[modlog-nick-none]'
+            after_nick = utils.md_filter(after.nick) or '$[modlog-nick-none]'
+            target = utils.md_filter(after.name)
+
             locales = {'author': '' if by is None else by.name,
-                       'target': after.name, 'previous': prev_nick, 'after': after_nick}
+                       'target': target, 'previous': prev_nick, 'after': after_nick}
 
             if by is None:
                 # default entry, no author
@@ -174,8 +215,8 @@ class ModLog(Command):
     @staticmethod
     def gen_embed(member, more=False):
         embed = Embed()
-        embed.add_field(name='$[modlog-e-name]', value=str(member))
-        embed.add_field(name='$[modlog-e-nick]', value=member.nick if member.nick is not None else '$[modlog-no-nick]')
+        embed.add_field(name='$[modlog-e-name]', value=utils.md_filter(str(member)))
+        embed.add_field(name='$[modlog-e-nick]', value=utils.md_filter(member.nick) if member.nick is not None else '$[modlog-no-nick]')
         embed.add_field(name='$[modlog-e-user-created]', value=utils.format_date(member.created_at))
         embed.add_field(name='$[modlog-e-user-join]', value=utils.format_date(member.joined_at))
         embed.add_field(name='$[modlog-e-stance]',

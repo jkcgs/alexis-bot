@@ -57,3 +57,6 @@ modlog-nick-by: >-
 modlog-nick-bot-self: 'He actualizado mi alias. Antes: "{previous}", después: "**{after}**"'
 modlog-nick-other-bot: '{author} actualizó mi alias. Antes: "{previous}", después: "**{after}**"'
 modlog-nick-none: '*(ninguno)*'
+modlog-user-edited-msg: '**{username}** ha editado su mensaje'
+modlog-user-edited-before: Antes
+modlog-user-edited-after: Después

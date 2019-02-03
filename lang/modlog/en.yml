@@ -31,7 +31,9 @@ modlog-note-err-length: User note can't exceed 1000 characters.
 modlog-note-help: Sets a note for an user.
 modlog-note-set: User note set.
 modlog-username-changed: 'User "*{prev_name}*" changed name to "**{new_name}**".'
-modlog-username-changed-nick: 'User "*{prev_name}*" changed name to "**{new_name}**" (current nick: "{nick}").'
+modlog-username-changed-nick: >-
+  User "*{prev_name}*" changed name to "**{new_name}**" (current nick:
+  "{nick}").
 modlog-cmd-help: Displays users' information.
 modlog-cmd-title: 'About **{user_id}**'
 modlog-cmd-format: $CMD <@mention | userid>
@@ -49,3 +51,6 @@ modlog-nick-by: >-
 modlog-nick-bot-self: 'I''ve updated my nick. Previous: "{previous}", after: "**{after}**"'
 modlog-nick-other-bot: '{author} updated my nick. Previous: "{previous}", after: "**{after}**"'
 modlog-nick-none: '*(none)*'
+modlog-user-edited-msg: '**{username}** has edited their message'
+modlog-user-edited-before: Before
+modlog-user-edited-after: After
