@@ -40,7 +40,7 @@ class Command:
 
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
         self.http = aiohttp.ClientSession(
-            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
+            headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
         )
 
     def can_manage_roles(self, server):

@@ -321,11 +321,19 @@ class Manager:
         for task_name in list(self.tasks.keys()):
             self.tasks[task_name].cancel()
             del self.tasks[task_name]
+        log.debug('All tasks cancelled.')
 
     def close_http(self):
         loop = asyncio.get_event_loop()
+        loop.create_task(self.close_http_async())
+
+    async def close_http_async(self):
         for i in self.cmd_instances:
-            loop.create_task(i.http.close())
+            await i.http.close()
+
+        await self.http.close()
+        await self.bot.http.close()
+        log.debug('HTTP sessions closed.')
 
     async def download(self, filename, url, filesize=None):
         basedir = path.abspath(path.join(path.dirname(path.realpath(__file__)), '..', 'cache'))

@@ -1,3 +1,4 @@
+import asyncio
 import re
 from datetime import datetime
 
@@ -337,6 +338,17 @@ class UpdateUsername(Command):
         self.updated = False
 
     async def on_ready(self):
+        self.bot.loop.create_task(self.run_all())
+
+    async def on_member_join(self, member):
+        if not self.updating:
+            self.bot.loop.create_task(self.do_it(member))
+
+    async def on_member_update(self, before, after):
+        if not self.updating:
+            self.bot.loop.create_task(self.do_it(after))
+
+    async def run_all(self):
         if self.updating or self.updated:
             return
 
@@ -345,14 +357,6 @@ class UpdateUsername(Command):
 
         if c is not None:
             self.log.debug('Users updated: %i', c)
-
-    async def on_member_join(self, member):
-        if not self.updating:
-            self.do_it(member)
-
-    async def on_member_update(self, before, after):
-        if not self.updating:
-            self.do_it(after)
 
     def all(self):
         if self.updating or self.updated:
@@ -387,7 +391,7 @@ class UpdateUsername(Command):
         self.updated = True
         return len(k)
 
-    def do_it(self, user):
+    async def do_it(self, user):
         if not isinstance(user, discord.User):
             raise RuntimeError('user argument can only be a discord.User')
 
