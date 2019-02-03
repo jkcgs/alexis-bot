@@ -54,3 +54,4 @@ modlog-nick-none: '*(none)*'
 modlog-user-edited-msg: '**{username}** has edited their message'
 modlog-user-edited-before: Before
 modlog-user-edited-after: After
+modlog-user-edited-channel: 'Channel: {channel} ([go to message]({link}))'

@@ -472,3 +472,11 @@ def md_filter(text):
         text = text.replace(o, '\\' + o)
 
     return text
+
+
+def message_link(message):
+    return 'https://discordapp.com/channels/{}/{}/{}'.format(
+        message.server.id if message.server else '@me',
+        message.channel.id,
+        message.id
+    )

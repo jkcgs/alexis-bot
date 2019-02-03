@@ -16,7 +16,7 @@ modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick',
 
 class ModLog(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.1'
+    __version__ = '1.0.2'
     rx_channel = re.compile('^<#[0-9]+>$')
     chan_config_name = 'join_send_channel'
 
@@ -97,7 +97,12 @@ class ModLog(Command):
         await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales, logtype='message_delete')
 
     async def on_message_edit(self, before, after):
+        # Ignore on PM or self message
         if before.server is None or before.author.id == self.bot.user.id:
+            return
+
+        # Ignore if no content changes were made
+        if before.content.strip() == after.content.strip():
             return
 
         footer = '$[modlog-msg-sent]: {}, $[modlog-msg-edited]: {}'.format(
@@ -105,11 +110,13 @@ class ModLog(Command):
             utils.format_date(after.timestamp)
         )
 
-        embed = Embed(title='📝 $[modlog-user-edited-msg]')
+        embed = Embed(title='📝 $[modlog-user-edited-msg]', description='$[modlog-user-edited-channel]')
         embed.set_footer(text=footer)
 
         locales = {
-            'username': utils.md_filter(after.author.display_name)
+            'username': utils.md_filter(after.author.display_name),
+            'channel': after.channel.mention,
+            'link': utils.message_link(after)
         }
 
         cont_before = '($[modlog-no-text])' if before.content == '' else before.content
