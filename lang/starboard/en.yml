@@ -16,8 +16,9 @@ starboard-nsfw-off: disable|off|no
 starboard-nsfw-set-enabled: 'Starboard for NSFW enabled :flushed:'
 starboard-nsfw-set-disabled: 'Starboard for NSFW disabled :two_hearts:'
 starboard-nsfw-format: '$CMD nsfw [on|off]'
-starboard-format: >-
-  $PX{command_name} <subcommand> <opts>.\nSubcommands: channel, disable, count,
-  emojis, delemojis, nfsw.
+starboard-format: >
+  $CMD <subcommand> <opts>.
+
+  Subcommands: channel, disable, count, emojis, delemojis, nsfw.
 starboard-reactions: Reactions
 starboard-none: None

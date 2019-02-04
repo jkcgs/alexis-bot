@@ -12,9 +12,10 @@ clr-err-single-not-found: 'Message {message_id} could not be found.'
 clr-err-some-deleted: The reactions of some messages could be clear.
 clr-success: Reactions removed successfully.
 prefix-help: 'Changes comands prefix (default: `!`)'
-prefix-current: >-
-  Current prefix is `$PX`.\nYou can change it with $PX{command_name} <prefix> or
-  "{self_mention} <prefix>"
+prefix-current: >
+  Current prefix is `$PX`.
+
+  You can change it with $PX{command_name} <prefix> or "{self_mention} <prefix>"
 prefix-set: 'Prefix set to `{new_prefix}`.'
 cmd-help: Allows to enable or disable a command.
 cmd-format: >-

@@ -17,6 +17,9 @@ pat_emoji = re.compile('^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 
 
 class StarboardHook(Command):
+    __author__ = 'makzk'
+    __version__ = '1.1.1'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.db_models = [Starboard]
@@ -96,17 +99,17 @@ class StarboardHook(Command):
                 msg = ['$[starboard-nsfw-disabled]', '$[starboard-nsfw-enabled]'][val == '1']
                 await cmd.answer('$[starboard-nsfw-status] {}'.format(msg))
             else:
-                arg = cmd.args[0].lower()
-                if arg in ['true', '1'] + cmd.lang.get_list('starboard-nsfw-on'):
+                arg = cmd.args[1].lower()
+                if arg in ['true', '1', 'on'] + cmd.lang.get_list('starboard-nsfw-on'):
                     cmd.config.set(cfg_starboard_nsfw, '1')
                     await cmd.answer('$[starboard-nsfw-set-enabled]')
-                elif arg in ['false', '0'] + cmd.lang.get_list('starboard-nsfw-off'):
+                elif arg in ['false', '0', 'off'] + cmd.lang.get_list('starboard-nsfw-off'):
                     cmd.config.set(cfg_starboard_nsfw, '0')
                     await cmd.answer('$[starboard-nsfw-set-disabled]')
                 else:
                     await cmd.answer('$[format]: $[starboard-nsfw-format]')
         else:
-            await cmd.answer('$[starboard-format].', locales={'command_name': cmd.cmdname})
+            await cmd.answer('$[starboard-format]', locales={'command_name': cmd.cmdname})
 
     async def on_reaction_add(self, reaction, user):
         msg = reaction.message
@@ -128,8 +131,8 @@ class StarboardHook(Command):
             reaction_triggers = reaction_filtered
 
         # Get the starboard channel
-        channelid = config.get(cfg_starboard_channel)
-        if channelid == '':
+        starboard_chanid = config.get(cfg_starboard_channel)
+        if starboard_chanid == '':
             return
 
         ct_config = config.get(cfg_starboard_tcount, default_count)
@@ -140,16 +143,19 @@ class StarboardHook(Command):
             count_trigger = int(ct_config)
 
         # Ignore messages on the starboard channel or from the bot itself
-        if channelid == msg.channel.id or msg.author.id == self.bot.user.id:
+        if starboard_chanid == msg.channel.id or msg.author.id == self.bot.user.id:
             return
 
         # Ignore NSFW channels if they are ignored
         if 'nsfw' in msg.channel.name.lower() and config.get(cfg_starboard_nsfw, '0') == '0':
             return
 
-        star_item = Starboard.select().where(Starboard.message_id == msg.id)
-        if len(star_item) >= 1:
-            return
+        try:
+            star_item = Starboard.get(Starboard.message_id == msg.id)
+            is_update = True
+        except peewee.DoesNotExist:
+            star_item = None
+            is_update = False
 
         max_count = 0
         for reaction in msg.reactions:
@@ -167,25 +173,47 @@ class StarboardHook(Command):
         if max_count < count_trigger:
             return
 
-        timestamp = datetime.now()
-        Starboard.insert(message_id=msg.id, timestamp=timestamp).execute()
-        channel = Object(id=channelid)
+        starboard_chan = self.bot.get_channel(starboard_chanid)
+        if starboard_chan is None:
+            star_item.delete_instance()
+            return
 
+        footer_text = self.get_lang(msg.server.id, starboard_chan.id).get('starboard-reactions')
+
+        if is_update:
+            if not star_item.starboard_id:
+                return
+
+            starboard_msg = await self.bot.get_message(starboard_chan, star_item.starboard_id)
+            if starboard_msg is None:
+                return
+
+            new_embed = self.create_embed(msg, star_item.timestamp, footer_text)
+            await self.bot.edit_message(starboard_msg, embed=new_embed)
+        else:
+            timestamp = datetime.now()
+            embed = self.create_embed(msg, timestamp, footer_text)
+            starboard_msg = await self.bot.send_message(starboard_chan, embed=embed)
+            Starboard.insert(message_id=msg.id, timestamp=timestamp, starboard_id=starboard_msg.id).execute()
+
+    def create_embed(self, msg, ts, footer_txt):
         embed = Embed()
         title = '{} - #{}'.format(msg.author.display_name, msg.channel.name)
         embed.set_author(name=title, icon_url=msg.author.avatar_url)
         embed.description = msg.content
-        embed.set_footer(text=str(timestamp))
+        embed.set_footer(text=str(ts))
 
         if len(msg.attachments):
             embed.set_image(url=msg.attachments[0]['url'])
 
         reactions = ' | '.join(['{}: {}'.format(str(r.emoji), r.count) for r in msg.reactions])
-        embed.add_field(name='$[starboard-reactions]', value=reactions)
+        self.get_lang(msg.server.id)
 
-        await self.bot.send_message(channel, embed=embed)
+        embed.add_field(name=footer_txt, value=reactions)
+        return embed
 
 
 class Starboard(BaseModel):
     message_id = peewee.TextField()
+    starboard_id = peewee.TextField()
     timestamp = peewee.DateTimeField(null=False)

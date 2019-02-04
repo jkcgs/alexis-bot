@@ -12,9 +12,10 @@ clr-err-single-not-found: 'El mensaje {message_id} no pudo ser encontrado.'
 clr-err-some-deleted: Se eliminaron las reacciones de algunos mensajes
 clr-success: Reacciones eliminadas correctamente
 prefix-help: 'Cambia el prefijo para los comandos (predeterminado: `!`)'
-prefix-current: >-
-  El prefijo actual es `$PX`.\nPuedes cambiarlo con $PX{command_name} <prefijo>
-  o "{self_mention} <prefijo>"
+prefix-current: >
+  El prefijo actual es `$PX`.
+
+  Puedes cambiarlo con $PX{command_name} <prefijo> o "{self_mention} <prefijo>"
 prefix-set: 'Prefijo configurado como `{new_prefix}`.'
 cmd-help: Permite activar o desactivar algún comando.
 cmd-format: >-
