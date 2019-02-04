@@ -3,7 +3,7 @@ from datetime import datetime
 
 import peewee
 import emoji
-from discord import Emoji, Object, Embed
+from discord import Emoji, Embed
 
 from bot import Command, categories
 from bot.libs.configuration import BaseModel
@@ -215,5 +215,5 @@ class StarboardHook(Command):
 
 class Starboard(BaseModel):
     message_id = peewee.TextField()
-    starboard_id = peewee.TextField()
+    starboard_id = peewee.TextField(default='')
     timestamp = peewee.DateTimeField(null=False)

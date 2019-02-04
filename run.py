@@ -17,3 +17,6 @@ if __name__ == '__main__':
         pass
     except KeyboardInterrupt:
         print('Keyboard interrupt')
+    except Exception:
+        ale.manager.close_http()
+        raise

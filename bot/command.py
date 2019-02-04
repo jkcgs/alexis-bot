@@ -1,4 +1,5 @@
 import aiohttp
+import asyncio
 import discord
 
 from . import SingleLanguage
@@ -39,7 +40,7 @@ class Command:
 
         headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
         self.http = aiohttp.ClientSession(
-            headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
+            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
         )
 
     def can_manage_roles(self, server):
