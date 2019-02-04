@@ -468,8 +468,9 @@ def md_filter(text):
     """
     replacements = ['||', '*', '_']
 
-    for o in replacements:
-        text = text.replace(o, '\\' + o)
+    if text is not None:
+        for o in replacements:
+            text = text.replace(o, '\\' + o)
 
     return text
 
