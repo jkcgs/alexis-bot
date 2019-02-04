@@ -1,6 +1,12 @@
 animal-cats-help: Muestra un gato aleatorio desde random.cat
-animal-cats-title: Aquí está tu gatito
+animal-cats-title: "Aquí está tu gatito \U0001F63A"
 animal-cats-error: 'No pude obtener un gatito :('
 animal-dogs-help: Muestra un perro aleatorio desde dog.ceo
 animal-dogs-title: "Aquí está tu perrito \U0001F415"
 animal-dogs-error: 'No pude obtener un perrito :('
+animal-shiba-help: Muestra un shibe aleatorio desde shibe.online
+animal-shiba-title: "Aquí está tu shibe \U0001F415"
+animals-shiba-error: 'No pude obtener un shibe :('
+animal-fox-help: Muestra un zorro aleatorio desde randomfox.ca
+animal-fox-title: "Aquí está tu zorro \U0001F98A"
+animal-fox-error: 'No pude obtener un zorro :('

@@ -4,3 +4,9 @@ animal-cats-error: 'Could not fetch a cat :('
 animal-dogs-help: Retrieves a random dog from dog.ceo
 animal-dogs-title: "Here's your doggo \U0001F415"
 animal-dogs-error: 'Could not fetch a dog :('
+animal-shiba-help: Retrieves a random shibe from shibe.online
+animal-shiba-title: "Here's your shibe \U0001F415"
+animals-shiba-error: 'Could not fetch a shibe :('
+animal-fox-help: Retrieves a random fox from randomfox.ca
+animal-fox-title: "Here's your fox \U0001F98A"
+animal-fox-error: 'Could not fetch a fox :('
