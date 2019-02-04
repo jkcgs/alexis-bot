@@ -405,14 +405,15 @@ class UpdateUsername(Command):
         if not isinstance(user, discord.User):
             raise RuntimeError('user argument can only be a discord.User')
 
-        r = UserNameReg.select().where(UserNameReg.userid == user.id).order_by(UserNameReg.timestamp.desc()).limit(1)
-        u = r.get() if r.count() > 0 else None
+        with self.bot.db.atomic():
+            r = UserNameReg.select().where(UserNameReg.userid == user.id).order_by(UserNameReg.timestamp.desc()).limit(1)
+            u = r.get() if r.count() > 0 else None
 
-        if r.count() == 0 or u.name != user.name:
-            old = '(none)' if u is None else u.name
-            self.log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
-            UserNameReg.create(userid=user.id, name=user.name)
-            return True
+            if r.count() == 0 or u.name != user.name:
+                old = '(none)' if u is None else u.name
+                self.log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
+                UserNameReg.create(userid=user.id, name=user.name)
+                return True
 
         return False
 

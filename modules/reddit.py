@@ -158,11 +158,12 @@ class RedditFollow(Command):
 
                 post_id = data['id']
                 if not exists:
-                    Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
+                    with self.bot.db.atomic():
+                        Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
 
-                    if redditor is not None:
-                        Redditor.update(posts=Redditor.posts + 1).where(
-                            Redditor.name == data['author'].lower()).execute()
+                        if redditor is not None:
+                            Redditor.update(posts=Redditor.posts + 1).where(
+                                Redditor.name == data['author'].lower()).execute()
 
     def load_channels(self):
         for chan in ChannelFollow.select():
