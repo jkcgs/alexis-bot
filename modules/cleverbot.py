@@ -30,14 +30,17 @@ class CleverbotHandler(Command):
             self.log.debug('Loaded CleverWrap')
 
     async def handle(self, cmd):
-        if not (isinstance(cmd, BotMentionEvent) and cmd.starts_with and len(cmd.text) > 3):
+        if not (isinstance(cmd, BotMentionEvent) and cmd.starts_with and len(cmd.text) > 0):
+            return
+
+        if cmd.args[0] == 'prefix':
             return
 
         if not CleverbotHandler.check or cmd.config.get(CleverbotHandler.cfg_enabled, '1') != '1':
-            await cmd.answer('$[cleverbot-disabled]')
+            await cmd.answer('$[cleverbot-toggle-answer]', locales={'status': '$[cleverbot-disabled]'})
             return
 
-        if cmd.text == '':
+        if not isinstance(cmd, BotMentionEvent) and cmd.text == '':
             await cmd.answer('$[cleverbot-usage-answer]')
             return
 
@@ -56,9 +59,6 @@ class CleverbotHandler(Command):
             self.log.exception(e)
 
         await cmd.answer(reply)
-
-    def load_config(self):
-        self.on_loaded()
 
 
 class ToggleConversation(Command):

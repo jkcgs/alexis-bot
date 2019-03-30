@@ -15,7 +15,7 @@ prefix-help: 'Cambia el prefijo para los comandos (predeterminado: `!`)'
 prefix-current: >
   El prefijo actual es `$PX`.
 
-  Puedes cambiarlo con $PX{command_name} <prefijo> o "{self_mention} <prefijo>"
+  Puedes cambiarlo con $PX{command_name} <prefijo> o "{self_mention} prefix <prefijo>"
 prefix-set: 'Prefijo configurado como `{new_prefix}`.'
 cmd-help: Permite activar o desactivar algún comando.
 cmd-format: >-

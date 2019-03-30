@@ -15,7 +15,7 @@ prefix-help: 'Changes comands prefix (default: `!`)'
 prefix-current: >
   Current prefix is `$PX`.
 
-  You can change it with $PX{command_name} <prefix> or "{self_mention} <prefix>"
+  You can change it with $PX{command_name} <prefix> or "{self_mention} prefix <prefix>"
 prefix-set: 'Prefix set to `{new_prefix}`.'
 cmd-help: Allows to enable or disable a command.
 cmd-format: >-
