@@ -53,13 +53,13 @@ class SetLanguage(Command):
                     return
 
                 cmd.config.unset('lang#'+chan.id)
-                self.log.debug('Set default language for channel %s in guild %s', cmd.config.get('lang'), cmd.server)
+                self.log.debug('Set default language for channel %s in guild %s', cmd.config.get('lang'), cmd.guild)
                 sv_default = cmd.config.get('lang', self.bot.config['default_lang'], create=False)
                 await cmd.answer(self.bot.lang.get('lang-unset-chan', sv_default, lang=sv_default))
             else:
                 cmd.config.set('lang#'+chan.id, lang)
                 self.log.debug('Lang updated to %s for channel %s in guild %s',
-                               lang, cmd.config.get('lang'), cmd.server)
+                               lang, cmd.config.get('lang'), cmd.guild)
                 await cmd.answer(self.bot.lang.get('lang-set-chan', lang, lang=lang))
         else:
             if lang == 'unset':
@@ -68,11 +68,11 @@ class SetLanguage(Command):
                     return
 
                 cmd.config.unset('lang')
-                self.log.debug('Set default language for guild %s', cmd.server)
+                self.log.debug('Set default language for guild %s', cmd.guild)
                 await cmd.answer(self.bot.lang.get('lang-unset', None, lang=self.bot.config['default_lang']))
             else:
                 cmd.config.set('lang', cmd.text)
-                self.log.debug('Lang updated to %s for guild %s', cmd.config.get('lang'), cmd.server)
+                self.log.debug('Lang updated to %s for guild %s', cmd.config.get('lang'), cmd.guild)
                 await cmd.answer(self.bot.lang.get('lang-set-to', lang, lang=cmd.text))
 
 

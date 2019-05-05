@@ -41,9 +41,9 @@ class Kick(Command):
             if not to_kick.bot:
                 if reason:
                     await self.bot.send_message(to_kick, '$[kick-msg-reason]', locales={
-                        'reason': reason, 'server_name': str(cmd.server)})
+                        'reason': reason, 'server_name': str(cmd.guild)})
                 else:
-                    await self.bot.send_message(to_kick, '$[kick-msg]', locales={'server_name': str(cmd.server)})
+                    await self.bot.send_message(to_kick, '$[kick-msg]', locales={'server_name': str(cmd.guild)})
             else:
                 await cmd.answer('$[kick-err-bot]')
                 return

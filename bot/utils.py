@@ -66,18 +66,16 @@ def is_owner(bot, member, server):
     return False
 
 
-def get_server_role(server, role, case_sensitive=True):
+def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
     """
-    Creates an instance of a server role
-    :param server: The discord.Server instance in where the lookup will be made
+    Creates an instance of a guild role
+    :param guild: The discord.Guild instance in where the lookup will be made
     :param role: The name or ID of the role
     :param case_sensitive: Implies if the lookup will be case sensitive
     :return: The role instance, or None if it was not found
     """
-    if not isinstance(server, discord.Server):
-        raise RuntimeError('"server" argument must be a discord.Server instance')
 
-    for role_ins in server.roles:
+    for role_ins in guild.roles:
         if (not case_sensitive and role_ins.name.lower() == role.lower()) \
                 or role_ins.name == role or role_ins.id == role:
             return role_ins
@@ -85,16 +83,13 @@ def get_server_role(server, role, case_sensitive=True):
     return None
 
 
-def member_has_role(member, role):
+def member_has_role(member: discord.Member, role):
     """
     Verifies if a guild member has a role
     :param member: The guild member, discord.Member instance
     :param role: The name, ID or instanced (discord.Role) role
     :return: A boolean value, given the result of the operation
     """
-    if not isinstance(member, discord.Member):
-        raise RuntimeError('"member" argument must be a discord.Member instance')
-
     for member_role in member.roles:
         if isinstance(role, discord.Role) and member_role == role:
             return True
@@ -481,3 +476,19 @@ def message_link(message):
         message.channel.id,
         message.id
     )
+
+
+def lazy_property(fn):
+    """
+    Decorator that makes a property lazy-evaluated.
+    Retrieved from: https://stevenloria.com/lazy-properties/ (2019-05-05)
+    """
+    attr_name = '_lazy_' + fn.__name__
+
+    @property
+    def _lazy_property(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, fn(self))
+        return getattr(self, attr_name)
+
+    return _lazy_property

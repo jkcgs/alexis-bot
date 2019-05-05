@@ -1,6 +1,8 @@
 import traceback
 from datetime import timedelta, datetime
 
+import discord
+
 from bot.utils import serialize_avail, replace_everywhere, no_tags
 from bot.logger import log
 from .message_event import MessageEvent
@@ -62,7 +64,7 @@ class CommandEvent(MessageEvent):
                   and not self.owner):
                 await self.answer(cmd.user_delay_error)
                 return
-            elif not self.is_pm and cmd.nsfw_only and 'nsfw' not in self.channel.name:
+            elif not self.is_pm and cmd.nsfw_only and self.channel.is_nsfw():
                 await self.answer(cmd.nsfw_only_error)
                 return
             else:
@@ -77,6 +79,12 @@ class CommandEvent(MessageEvent):
             else:
                 await self.answer('$[error-msg]\n```{}```'.format(str(e)))
             log.exception(e)
+
+    def can_manage_roles(self):
+        if not isinstance(self.channel, discord.TextChannel):
+            return False
+
+        return self.channel.guild.me.server_permissions.manage_roles
 
     @staticmethod
     def is_command(message, bot):

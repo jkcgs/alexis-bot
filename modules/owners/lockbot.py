@@ -22,7 +22,7 @@ class LockBot(Command):
         if event.is_pm or event.owner:
             return
 
-        if is_locked(message.server.id, message.channel.id):
+        if is_locked(message.guild.id, message.channel.id):
             return False
 
     async def handle(self, cmd):

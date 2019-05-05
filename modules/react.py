@@ -30,7 +30,7 @@ class React(Command):
                 return
 
             try:
-                chan = await cmd.server.get_channel(cmd.args[0][2:-1])
+                chan = await cmd.guild.get_channel(cmd.args[0][2:-1])
             except discord.NotFound:
                 await cmd.answer('Channel not found')
                 return

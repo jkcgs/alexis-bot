@@ -27,7 +27,7 @@ class Mute(Command):
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            delta = Mute.current_delta(cmd.author.id, cmd.message.server.id)
+            delta = Mute.current_delta(cmd.author.id, cmd.message.guild.id)
             if delta is None:
                 await cmd.answer('$[mute-actually-not]')
             else:
@@ -35,14 +35,14 @@ class Mute(Command):
             return
 
         if cmd.args[0] == 'list':
-            curr = self.current_server_deltas(cmd.message.server.id)
+            curr = self.current_server_deltas(cmd.message.guild.id)
             x = ['- {} ({})'.format(getattr(user, 'display_name', str(user)), delta) for user, delta in curr]
             await cmd.answer('$[mute-list]\n{}'.format('\n'.join(x)), locales={'muted_amount': len(curr)})
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = cmd.message.server
+        guild = cmd.message.guild
         await cmd.typing()
 
         if member is None:
@@ -58,8 +58,8 @@ class Mute(Command):
             return
 
         # Check if roles can be managed
-        if not self.can_manage_roles(server):
-            self.log.warning('I can\'t manage roles on guild: %s', str(server))
+        if not cmd.can_manage_roles():
+            self.log.warning('I can\'t manage roles on guild: %s', str(guild))
             await cmd.answer('$[mute-err-perms]')
             return
 
@@ -92,10 +92,10 @@ class Mute(Command):
 
         # Add the muted role only if the user does not have it
         if mutedrole is None:
-            mutedrole = utils.get_server_role(server, sv_role)
+            mutedrole = utils.get_guild_role(guild, sv_role)
             # if mutedrole is still None
             if mutedrole is None:
-                self.log.warning('Role "%s" does not exist (guild: %s)', sv_role, server)
+                self.log.warning('Role "%s" does not exist (guild: %s)', sv_role, guild)
                 await cmd.answer('$[mute-err-noex-role]', locales={'muted_role': sv_role})
                 return
 
@@ -103,13 +103,13 @@ class Mute(Command):
 
         reason = ' '.join(cmd.args[2:]).strip()
         str_reason = (' ' + cmd.lang.format('$[mute-reason]', locales={'reason': reason})) if reason != '' else ''
-        MutedUser.insert(userid=member.id, serverid=server.id, until=until, reason=reason,
+        MutedUser.insert(userid=member.id, serverid=guild.id, until=until, reason=reason,
                          author_name=str(cmd.author), author_id=cmd.author.id).execute()
 
         # Tell the user about the mute, via PM
         try:
             await self.bot.send_message(member, '$[mute-msg]{}{}.'.format(str_deltatime, str_reason),
-                                        locales={'server_name': server.name})
+                                        locales={'server_name': guild.name})
         except discord.errors.Forbidden as e:
             self.log.exception(e)
 
@@ -119,23 +119,23 @@ class Mute(Command):
 
     # Restore the mute role if user left and joined the guild again
     async def on_member_join(self, member):
-        server = member.server
-        if not self.can_manage_roles(server):
-            self.log.warning('Cant\' manage roles on the guild %s (%s)', str(server), server.id)
+        guild = member.guild
+        if not guild.me.server_permissions.manage_roles:
+            self.log.warning('Can\'t manage roles on the guild %s (%s)', str(guild), guild.id)
             return
 
-        mgr = self.config_mgr(member.server.id)
+        mgr = self.bot.get_guild_config(member.guild)
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        role = utils.get_server_role(server, sv_role)
+        role = utils.get_guild_role(guild, sv_role)
         if role is None:
-            self.log.warning('Role"%s" does not exist (guild: %s)', sv_role, server)
+            self.log.warning('Role"%s" does not exist (guild: %s)', sv_role, guild)
             return
 
         try:
             MutedUser.get((MutedUser.until > dt.now()) | MutedUser.until.is_null(),
                           MutedUser.userid == member.id)
             self.bot.add_roles(member, role)
-            self.log.info('Muted role added to "%s", guild "%s"', member.display_name, server)
+            self.log.info('Muted role added to "%s", guild "%s"', member.display_name, guild)
             return
         except MutedUser.DoesNotExist:
             pass
@@ -144,29 +144,28 @@ class Mute(Command):
     async def mute_task(self):
         muted = MutedUser.select().where((MutedUser.until <= dt.now()) & MutedUser.until.is_null(False))
         for muteduser in muted:
-            server = self.bot.get_server(muteduser.serverid)
-            if server is None:
+            guild = self.bot.get_guild(muteduser.serverid)
+            if guild is None:
                 continue
 
-            self_member = server.get_member(self.bot.user.id)
-            if self_member is not None and not self_member.server_permissions.manage_roles:
-                self.log.warning('I can\'t manage roles on guild: %s', server)
+            if not guild.me.server_permissions.manage_roles:
+                self.log.warning('I can\'t manage roles on guild: %s', guild)
                 continue
 
-            mgr = self.config_mgr(muteduser.serverid)
-            sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
-            member = server.get_member(muteduser.userid)
-            role = utils.get_server_role(server, sv_role)
+            config = self.bot.get_guild_config(guild)
+            guild_role = config.get(Mute.cfg_muted_role, Mute.default_muted_role)
+            member = guild.get_member(muteduser.userid)
+            role = utils.get_guild_role(guild, guild_role)
 
             if role is None:
-                self.log.warning('Role "%s" does not exist (guild: %s)', sv_role, server)
+                self.log.warning('Role "%s" does not exist (guild: %s)', guild_role, guild)
                 continue
             elif member is None:
                 continue
             else:
                 await self.bot.remove_roles(member, role)
                 MutedUser.delete_instance(muteduser)
-                self.log.info('Muted role removed from "%s", guild "%s"', member.display_name, server)
+                self.log.info('Muted role removed from "%s", guild "%s"', member.display_name, guild)
 
     def current_deltas_for(self, userid):
         muted = MutedUser.select().where(MutedUser.userid == userid, MutedUser.until > dt.now())
@@ -234,7 +233,7 @@ class Unmute(Command):
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        mutedrole = utils.get_server_role(cmd.message.server, sv_role)
+        mutedrole = utils.get_guild_role(cmd.message.server, sv_role)
 
         if mutedrole is None:
             await cmd.answer('$[unmute-no-muted-role]'.format(sv_role), locales={'role_name'})
@@ -270,7 +269,7 @@ class SetMutedRole(Command):
             await cmd.answer('$[format]: $[mutedrole-format]')
             return
 
-        r = utils.get_server_role(cmd.message.server, cmd.args[0])
+        r = utils.get_guild_role(cmd.message.server, cmd.args[0])
         if r is None:
             await cmd.answer('$[mute-err-noex-role]', locales={'muted_role': cmd.args[0]})
             return

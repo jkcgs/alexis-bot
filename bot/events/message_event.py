@@ -173,16 +173,10 @@ class MessageEvent:
         return is_owner(self.bot, self.author, self.guild)
 
     @property
-    def server_member(self):
-        if self.guild is None:
-            return None
-        return self.guild.get_member(self.bot.user.id)
-
-    @property
     def permissions(self):
         if self.guild is None:
             return None
-        return self.server_member.permissions_in(self.channel)
+        return self.guild.me.permissions_in(self.channel)
 
     @property
     def lang(self):

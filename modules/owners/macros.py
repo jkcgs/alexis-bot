@@ -320,7 +320,7 @@ class MacroSearch(Command):
             return
 
         result = EmbedMacro.select().where(
-            EmbedMacro.server == cmd.server.id and EmbedMacro.name.contains(cmd.args[0])
+            EmbedMacro.server == cmd.guild.id and EmbedMacro.name.contains(cmd.args[0])
         ).limit(21)
 
         n_results = result.count()

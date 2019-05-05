@@ -23,7 +23,7 @@ class BotSendMessage(Command):
             return
 
         chan = self.bot.get_channel(cmd.args[0][2:-1])
-        if chan is None or chan.server.id != cmd.server.id:
+        if chan is None or chan.server.id != cmd.guild.id:
             await cmd.answer('$[botmsg-channel-not-found]')
             return
 
@@ -57,7 +57,7 @@ class BotEditMessage(Command):
             return
 
         chan = self.bot.get_channel(cmd.args[0][2:-1])
-        if chan is None or chan.server.id != cmd.server.id:
+        if chan is None or chan.server.id != cmd.guild.id:
             await cmd.answer('$[botmsg-channel-not-found]')
             return
 

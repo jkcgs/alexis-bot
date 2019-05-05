@@ -8,6 +8,7 @@ from discord import Embed, Guild
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
+from bot.libs.configuration import GuildConfiguration
 from bot.utils import destination_repr, get_bot_root
 
 
@@ -193,6 +194,15 @@ class AlexisBot(discord.Client):
             del self.deleted_messages[0]
         if len(self.deleted_messages_nolog) > 50:
             del self.deleted_messages_nolog[0]
+
+    def get_guild_config(self, guild: discord.Guild):
+        """
+        Creates a GuildConfiguration instance for a specific discord.Guild
+        :param guild: The guild that "owns" the GuildConfiguration instance
+        :return: The GuildConfiguration instance for that guild.
+        """
+
+        return GuildConfiguration(self.sv_config, guild.id)
 
     """
     ===== EVENT HANDLERS =====
