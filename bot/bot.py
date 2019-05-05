@@ -1,11 +1,9 @@
-import asyncio
 import platform
 import sys
 from datetime import datetime
 
 import discord
-from discord import Embed, Server
-from discord.http import Route
+from discord import Embed, Guild
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
@@ -109,9 +107,9 @@ class AlexisBot(discord.Client):
         # Stop tasks
         self.manager.cancel_tasks()
 
-    async def send_modlog(self, server, message=None, embed=None, locales=None, logtype=None):
-        if not isinstance(server, Server):
-            raise RuntimeError('server must be a discord.Server instance')
+    async def send_modlog(self, guild, message=None, embed=None, locales=None, logtype=None):
+        if not isinstance(guild, Guild):
+            raise RuntimeError('guild must be a discord.Guild instance')
 
         if (message is None or message == '') and embed is None:
             raise RuntimeError('message or embed arguments are required')
@@ -119,16 +117,16 @@ class AlexisBot(discord.Client):
         if embed is not None and not isinstance(embed, Embed):
             raise RuntimeError('embed must be a discord.Embed instance')
 
-        chanid = self.sv_config.get(server.id, 'join_send_channel')
+        chanid = self.sv_config.get(guild.id, 'join_send_channel')
         if chanid == '':
             return
 
-        if logtype and logtype in self.sv_config.get_list(server.id, 'logtype_disabled'):
+        if logtype and logtype in self.sv_config.get_list(guild.id, 'logtype_disabled'):
             return
 
         chan = self.get_channel(chanid)
         if chan is None:
-            log.debug('[modlog] Channel not found (svid %s chanid %s)', server.id, chanid)
+            log.debug('[modlog] Channel not found (svid %s chanid %s)', guild.id, chanid)
             return
 
         await self.send_message(chan, message, embed=embed, locales=locales)
@@ -143,38 +141,19 @@ class AlexisBot(discord.Client):
 
         return self.manager.schedule(task, time, force)
 
-    async def channel_is_nsfw(self, channel):
+    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None,
+                           file=None, files=None):
         """
-        Checks if a given channel is marked as NSFW or not.
-        :param channel: The channel, as a discord.Channel instance, or the channel ID.
-        :return: A boolean value given the operation result.
-        """
-        if isinstance(discord, discord.Channel) and channel.name.lower().startswith('nsfw'):
-            return True
-
-        channel_id = channel.id if isinstance(discord, discord.Channel) else str(channel)
-        route = Route('GET', '/channels/{channel_id}', channel_id=channel_id)
-        log.debug('Loading %s...', route.url)
-
-        req = await self.http.request(route)
-        log.debug(req)
-
-        return req['name'].lower().startswith('nsfw') or req.get('nsfw', False)
-
-    """
-    ===== METHOD OVERRIDES =====
-    """
-
-    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None):
-        """
-        Override original discord.Client method to send messages, to fire other calls
+        Method that proxies all messages sent to Discord, to fire other calls
         like event handlers, message filters and bot logging. Allows original method's parameters.
-        :param destination: Where to send the message, e.g. discord.Channel, discord.User, discord.Object.
+        :param destination: Where to send the message, must be a discord.abc.Messageable compatible instance.
         :param content: Textual content to send
         :param tts: Enable TTS (text to speech).
         :param embed: Send an embed with the message.
         :param locales: Strings to replace on the message and embed.
         :param event: Original event that triggers the message. Used to deliver it to handlers.
+        :param file: The file to upload.
+        :param files: A list of files to upload. Must be a maximum of 10.
         :return:
         """
 
@@ -182,7 +161,10 @@ class AlexisBot(discord.Client):
         if locales is None:
             locales = {}
 
-        kwargs = {'destination': destination, 'content': content, 'tts': tts,
+        if not isinstance(destination, discord.abc.Messageable):
+            raise RuntimeError('destination must be a discord.abc.Messageable compatible instance')
+
+        kwargs = {'destination': destination, 'content': content, 'tts': tts, 'file': file, 'files': files,
                   'embed': embed, 'locales': locales, 'event': event}
         self.manager.dispatch_ref('pre_send_message', kwargs)
 
@@ -195,17 +177,21 @@ class AlexisBot(discord.Client):
 
         # Send the actual message
         del kwargs['locales'], kwargs['event']
-        return await super().send_message(**kwargs)
+        return await destination.send(**kwargs)
 
     async def delete_message(self, message):
+        # TODO: Delete
         """
         Deletes a message and registers the last 20 messages' IDs.
         :param message: The message to delete
         """
+        if not isinstance(message, discord.Message):
+            raise RuntimeError('message must be a discord.Message instance')
+
         self.deleted_messages.append(message.id)
 
         try:
-            await super().delete_message(message)
+            await message.delete()
         except discord.Forbidden as e:
             del self.deleted_messages[-1]
             raise e
@@ -214,6 +200,7 @@ class AlexisBot(discord.Client):
             del self.deleted_messages[0]
 
     async def delete_message_silent(self, message):
+        # TODO: Delete
         """
         Deletes a message and registers the last 20 messages' IDs.
         It also adds the message to a no-track list, for the corresponding modules (i.e. Modlog).
@@ -240,7 +227,7 @@ class AlexisBot(discord.Client):
         log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
         log.info('It took %.3f seconds to connect.', (datetime.now() - self.start_time).total_seconds())
         log.info('------')
-        await self.change_presence(game=discord.Game(name=self.config['playing']))
+        await self.change_presence(activity=discord.Game(self.config['playing']))
 
         self.initialized = True
         self.manager.create_tasks()

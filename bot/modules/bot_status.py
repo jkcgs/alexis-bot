@@ -44,7 +44,7 @@ class BotStatus(Command):
 
         self.last_status = status
         self.log.debug('Changing status to "%s"', status)
-        await self.bot.change_presence(game=Game(name=status))
+        await self.bot.change_presence(activity=Game(status))
 
     def next(self):
         curr_list = self.status_list if len(self.custom_list) == 0 else self.custom_list

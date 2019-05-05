@@ -67,13 +67,13 @@ class Command:
         """
         lang_code = self.bot.config['default_lang']
 
-        if svid is not None and isinstance(svid, (discord.Server, str)):
+        if svid is not None and isinstance(svid, (discord.Guild, str)):
 
-            svid = svid if not isinstance(svid, discord.Server) else svid.id
+            svid = svid if not isinstance(svid, discord.Guild) else svid.id
             lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'], create=False)
 
-            if channel is not None and isinstance(channel, (discord.Channel, str)):
-                chanid = channel if not isinstance(channel, discord.Channel) else channel.id
+            if channel is not None and isinstance(channel, (discord.TextChannel, str)):
+                chanid = channel if not isinstance(channel, discord.TextChannel) else channel.id
                 lang_code = self.bot.sv_config.get(svid, 'lang#'+chanid, lang_code, create=False)
 
         return SingleLanguage(self.bot.lang, lang_code)

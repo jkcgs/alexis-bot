@@ -87,7 +87,7 @@ class React(Command):
             letters = yaml.load(await r.text())
             ins.log.debug('Reaction characters loaded!')
 
-        all_reacts = ins.bot.get_all_emojis()
+        all_reacts = ins.bot.emojis
 
         for letter, reacts in letters.items():
             for react in reacts:

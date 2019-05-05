@@ -129,7 +129,7 @@ class ModLog(Command):
         await self.bot.send_modlog(after.server, embed=embed, locales=locales, logtype='message_edit')
 
     async def on_member_update(self, before, after):
-        server = after.server
+        guild = after.guild
 
         if before.name != after.name:
             if after.display_name != after.name:
@@ -138,7 +138,7 @@ class ModLog(Command):
                 nick = utils.md_filter(after.display_name)
 
                 await self.bot.send_modlog(
-                    server, '$[modlog-username-changed-nick]',
+                    guild, '$[modlog-username-changed-nick]',
                     locales={'prev_name': name_before, 'new_name': name_after, 'nick': nick},
                     logtype='username')
             else:
@@ -146,12 +146,12 @@ class ModLog(Command):
                 name_after = utils.md_filter(after.name)
 
                 await self.bot.send_modlog(
-                    server, '$[modlog-username-changed]',
+                    guild, '$[modlog-username-changed]',
                     locales={'prev_name': name_before, 'new_name': name_after}, logtype='username')
 
         if (before.nick or after.nick) and before.nick != after.nick:
             try:
-                alog = await self.get_last_alog(after.server.id)
+                alog = await self.get_last_alog(after.guild.id)
             except discord.Forbidden:
                 alog = None
 
@@ -160,7 +160,7 @@ class ModLog(Command):
                 if alog['user_id'] == str(after.id):
                     by = after
                 else:
-                    by = after.server.get_member(alog['user_id'])
+                    by = after.guild.get_member(alog['user_id'])
             else:
                 by = None
 
@@ -173,19 +173,19 @@ class ModLog(Command):
 
             if by is None:
                 # default entry, no author
-                await self.bot.send_modlog(server, '$[modlog-nick-other]', logtype='nick', locales=locales)
+                await self.bot.send_modlog(guild, '$[modlog-nick-other]', logtype='nick', locales=locales)
             elif by.id == after.id:
                 # self updated
                 if by.id == self.bot.user.id:
-                    await self.bot.send_modlog(server, '$[modlog-nick-bot-self]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-bot-self]', logtype='nick', locales=locales)
                 else:
-                    await self.bot.send_modlog(server, '$[modlog-nick-self]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-self]', logtype='nick', locales=locales)
             else:
                 # someone updated other's nick
                 if after.id == self.bot.user.id:
-                    await self.bot.send_modlog(server, '$[modlog-nick-other-bot]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-other-bot]', logtype='nick', locales=locales)
                 else:
-                    await self.bot.send_modlog(server, '$[modlog-nick-by]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-by]', logtype='nick', locales=locales)
 
     async def get_last_alog(self, guild_id):
         try:
@@ -204,7 +204,7 @@ class ModLog(Command):
         if not isinstance(member, discord.Member):
             raise RuntimeError('member argument can only be a discord.Member')
 
-        xd, _ = UserNote.get_or_create(serverid=member.server.id, userid=member.id)
+        xd, _ = UserNote.get_or_create(serverid=member.guild.id, userid=member.id)
         return xd.note
 
     @staticmethod
@@ -212,7 +212,7 @@ class ModLog(Command):
         if not isinstance(member, discord.Member):
             raise RuntimeError('member argument can only be a discord.Member')
 
-        xd, _ = UserNote.get_or_create(serverid=member.server.id, userid=member.id)
+        xd, _ = UserNote.get_or_create(serverid=member.guild.id, userid=member.id)
         xd.note = note
         xd.save()
 
@@ -402,8 +402,9 @@ class UpdateUsername(Command):
         return len(k)
 
     async def do_it(self, user):
-        if not isinstance(user, discord.User):
-            raise RuntimeError('user argument can only be a discord.User')
+        self.log.debug(user)
+        if not isinstance(user, discord.User) or not isinstance(user, discord.Member):
+            raise RuntimeError('user argument can only be a discord.User or discord.Member')
 
         with self.bot.db.atomic():
             r = UserNameReg.select().where(UserNameReg.userid == user.id).order_by(UserNameReg.timestamp.desc()).limit(1)
