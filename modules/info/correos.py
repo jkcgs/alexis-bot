@@ -26,7 +26,7 @@ class Correos(Command):
 
         if not evt.is_pm:
             try:
-                await self.bot.delete_message(evt.message)
+                await self.bot.delete_message(evt.message, silent=True)
             except discord.Forbidden:
                 pass
 

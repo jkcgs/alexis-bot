@@ -17,7 +17,7 @@ class MessageEvent:
         self.channel = message.channel
         self.author = message.author
         self.author_name = message.author.display_name
-        self.is_pm = message.server is None
+        self.is_pm = message.guild is None
         self.self = message.author.id == bot.user.id
         self.text = message.content
         self.bot_owner = message.author.id in bot.config['bot_owners']
@@ -27,8 +27,8 @@ class MessageEvent:
         self._lang = None
 
         if not self.is_pm:
-            self.server = message.server
-            self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
+            self.server = message.guild
+            self.config = ServerConfiguration(self.bot.sv_config, message.guild.id)
         else:
             self.config = ServerConfiguration(self.bot.sv_config, 'all')
 
@@ -60,7 +60,7 @@ class MessageEvent:
     async def answer_embed(self, msg, title=None, *, delete_trigger=False, withname=True, **kwargs):
         if delete_trigger:
             try:
-                await self.bot.delete_message(self.message)
+                await self.bot.delete_message(msg)
             except discord.Forbidden:
                 pass
 

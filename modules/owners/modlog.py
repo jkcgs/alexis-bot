@@ -27,7 +27,7 @@ class ModLog(Command):
 
     async def on_member_join(self, member):
         await self.bot.send_modlog(
-            member.server, '$[modlog-new-user]',
+            member.guild, '$[modlog-new-user]',
             embed=ModLog.gen_embed(member, more=True), locales={'mid': member.id}, logtype='user_join')
 
     async def on_member_remove(self, member):
@@ -38,10 +38,10 @@ class ModLog(Command):
             'dt': dt
         }
 
-        await self.bot.send_modlog(member.server, '$[modlog-user-left]', locales=locales, logtype='user_leave')
+        await self.bot.send_modlog(member.guild, '$[modlog-user-left]', locales=locales, logtype='user_leave')
 
     async def on_message_delete(self, message):
-        if message.server is None or message.author.id == self.bot.user.id:
+        if message.guild is None or message.author.id == self.bot.user.id:
             return
 
         footer = '$[modlog-msg-sent]: ' + utils.format_date(message.timestamp)

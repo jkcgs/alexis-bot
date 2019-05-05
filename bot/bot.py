@@ -1,3 +1,4 @@
+import asyncio
 import platform
 import sys
 from datetime import datetime
@@ -35,6 +36,7 @@ class AlexisBot(discord.Client):
 
         self.manager = Manager(self)
         self.config = StaticConfig()
+        self.loop = asyncio.get_event_loop()
 
     def init(self):
         """
@@ -66,16 +68,15 @@ class AlexisBot(discord.Client):
         try:
             self.start_time = datetime.now()
             log.info('Connecting to Discord...')
-            self.run(self.config['token'])
+            self.loop.run_until_complete(self.start(self.config['token']))
         except discord.errors.LoginFailure:
             log.error('Invalid Discord token!')
             raise
         except KeyboardInterrupt:
+            self.loop.run_until_complete(self.logout())
             log.error('Keyboard interrupt!')
-        except Exception as ex:
-            # I don't know how to fix this, but it's raised when closing the bot.
-            # if str(ex) != '\'NoneType\' object is not iterable':
-            raise ex
+        finally:
+            self.loop.close()
 
     def load_config(self):
         """
@@ -93,13 +94,13 @@ class AlexisBot(discord.Client):
             log.exception(ex)
             return False
 
-    def logout(self):
+    async def logout(self):
         """
         Stops tasks, close connections and logout from Discord.
         :return:
         """
         log.debug('Closing stuff...')
-        yield from super().logout()
+        await super().logout()
 
         # Close everything http related
         self.manager.close_http()
@@ -179,42 +180,30 @@ class AlexisBot(discord.Client):
         del kwargs['locales'], kwargs['event']
         return await destination.send(**kwargs)
 
-    async def delete_message(self, message):
-        # TODO: Delete
+    async def delete_message(self, message, silent=False):
         """
-        Deletes a message and registers the last 20 messages' IDs.
+        Deletes a message and registers the last 50 messages' IDs.
         :param message: The message to delete
+        :param silent: Add the message to the no-log list
         """
         if not isinstance(message, discord.Message):
             raise RuntimeError('message must be a discord.Message instance')
 
         self.deleted_messages.append(message.id)
+        if silent:
+            self.deleted_messages_nolog.append(message.id)
 
         try:
             await message.delete()
         except discord.Forbidden as e:
             del self.deleted_messages[-1]
+            if silent:
+                del self.deleted_messages_nolog[-1]
             raise e
 
-        if len(self.deleted_messages) > 20:
+        if len(self.deleted_messages) > 50:
             del self.deleted_messages[0]
-
-    async def delete_message_silent(self, message):
-        # TODO: Delete
-        """
-        Deletes a message and registers the last 20 messages' IDs.
-        It also adds the message to a no-track list, for the corresponding modules (i.e. Modlog).
-        :param message: The message to delete
-        """
-
-        try:
-            self.deleted_messages_nolog.append(message.id)
-            await self.delete_message(message)
-        except discord.Forbidden as e:
-            del self.deleted_messages_nolog[-1]
-            raise e
-
-        if len(self.deleted_messages_nolog) > 20:
+        if len(self.deleted_messages_nolog) > 50:
             del self.deleted_messages_nolog[0]
 
     """

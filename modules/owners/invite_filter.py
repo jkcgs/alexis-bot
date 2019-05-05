@@ -84,7 +84,7 @@ class InviteFilter(Command):
         invite = pat_invite.search(message.content)
         if invite:
             self.log.debug('Removing invite in %s: %s by %s', message.server, invite[0], message.author)
-            await self.bot.delete_message_silent(message)
+            await self.bot.delete_message(message, silent=True)
 
             embed = Embed(title='$[ifilter-message]')
             embed.description = '{}\nPor {} en {}'.format(invite[0], message.author.mention, message.channel.mention)
