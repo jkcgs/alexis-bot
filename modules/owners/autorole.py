@@ -95,9 +95,9 @@ class AutoRole(Command):
 
                 if i < total:
                     await asyncio.sleep(3)
-                    loop.create_task(upd())
+                    await loop.create_task(upd())
 
-            loop.create_task(upd())
+            await loop.create_task(upd())
 
             for member in list(cmd.guild.members):
                 await self.give_roles(member)
@@ -120,9 +120,9 @@ class AutoRole(Command):
 
                 if i < total:
                     await asyncio.sleep(3)
-                    loop.create_task(upd())
+                    await loop.create_task(upd())
 
-            loop.create_task(upd())
+            await loop.create_task(upd())
 
             for member in list(cmd.guild.members):
                 await self.take_roles(member)

@@ -7,10 +7,8 @@ from os import path
 
 import aiohttp
 
-from bot import CommandEvent, BotMentionEvent
-from bot.utils import get_bot_root
+from bot import CommandEvent, BotMentionEvent, MessageEvent
 from .logger import log
-from .events import parse_event
 from .command import Command
 
 
@@ -193,7 +191,13 @@ class Manager:
 
         event = None
         if event_name == 'on_message':
-            event = parse_event(kwargs.get('message'), self.bot)
+            message = kwargs.get('message')
+            if CommandEvent.is_command(message, self.bot):
+                event = CommandEvent(message, self.bot)
+            elif self.bot.user.mentioned_in(message) and message.author != self.bot.user:
+                event = BotMentionEvent(message, self.bot)
+            else:
+                event = MessageEvent(message, self.bot)
 
         for x in self.get_handlers('pre_' + event_name):
             y = await x(event=event, **kwargs)
@@ -386,7 +390,7 @@ class Manager:
         :param ext_path: An external modules folder
         :return: An instances list of command modules
         """
-        bot_root = get_bot_root()
+        bot_root = Manager.get_bot_root()
         classes = []
 
         # System modules
@@ -444,3 +448,11 @@ class Manager:
             result.append(mod_file.replace(fpath + path.sep, '')[:-3].replace(path.sep, '.'))
 
         return result
+
+    @staticmethod
+    def get_bot_root():
+        """
+        Generates the absolute bot path in the system.
+        :return: A string containing the absolute bot path in the system.
+        """
+        return path.abspath(path.join(path.dirname(__file__), '..'))

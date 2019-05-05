@@ -42,30 +42,6 @@ def is_float(val):
         return False
 
 
-def is_owner(bot, member, server):
-    if server is None or not isinstance(member, discord.Member):
-        return False
-
-    if member.guild_permissions.administrator:
-        return True
-
-    cfg = GuildConfiguration(bot.sv_config, server.id)
-
-    owner_roles = cfg.get('owner_roles', bot.config['owner_role'])
-    if owner_roles == '':
-        owner_roles = []
-    else:
-        owner_roles = owner_roles.split('\n')
-
-    for role in member.roles:
-        if role.id in owner_roles \
-                or role.name in owner_roles \
-                or member.id in owner_roles:
-            return True
-
-    return False
-
-
 def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
     """
     Creates an instance of a guild role
@@ -81,22 +57,6 @@ def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
             return role_ins
 
     return None
-
-
-def member_has_role(member: discord.Member, role):
-    """
-    Verifies if a guild member has a role
-    :param member: The guild member, discord.Member instance
-    :param role: The name, ID or instanced (discord.Role) role
-    :return: A boolean value, given the result of the operation
-    """
-    for member_role in member.roles:
-        if isinstance(role, discord.Role) and member_role == role:
-            return True
-        if member_role.name == role or member_role.id == role:
-            return True
-
-    return False
 
 
 def img_embed(url, title='', description='', footer=''):
@@ -288,19 +248,6 @@ def format_date(date):
     return date.strftime('%Y-%m-%d %H:%M:%S ') + offset
 
 
-def destination_repr(destination):
-    """
-    Creates a string based on a message destination (e.g., a guild, a user).
-    :param destination: The destination object
-    :return: The generated string.
-    """
-    if isinstance(destination, discord.TextChannel):
-        return '{}#{} (IDS {}#{})'.format(destination.guild, str(destination), destination.id,
-                                          destination.guild.id)
-    else:
-        return '{} (ID: {})'.format(str(destination), destination.id)
-
-
 def replace_everywhere(content, search, replace=None):
     """
     Replaces a string everywhere in a string or a discord.Embed instance (i.e., title, description, fields, footer)
@@ -335,14 +282,6 @@ def replace_everywhere(content, search, replace=None):
         return str(content).replace(search, replace)
 
     return content
-
-
-def get_bot_root():
-    """
-    Generates the absolute bot path in the system.
-    :return: A string containing the absolute bot path in the system.
-    """
-    return path.abspath(path.join(path.dirname(__file__), '..'))
 
 
 def get_colour(value):
@@ -395,20 +334,6 @@ def str_to_embed(txt):
         return None
 
     return embed
-
-
-def get_prefix(bot, serverid=None):
-    """
-    Looks up for the command prefix for a guild.
-    :param bot: The bot instance.
-    :param serverid: The guild ID string.
-    :return: The command prefix. If the serverid parameter is none, the default prefix will be returned.
-    """
-    if serverid is None:
-        return bot.config['command_prefix']
-    else:
-        svconfig = GuildConfiguration(bot.sv_config, serverid)
-        return svconfig.get('command_prefix', bot.config['command_prefix'])
 
 
 def no_tags(txt, bot=None, users=True, channels=True, emojis=True):

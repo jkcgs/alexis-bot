@@ -1,7 +1,7 @@
 import discord
 
 from bot import Command, CommandEvent
-from bot.utils import replace_everywhere, get_prefix
+from bot.utils import replace_everywhere
 
 
 class LangFilter(Command):
@@ -19,7 +19,6 @@ class LangFilter(Command):
 
     def pre_send_message(self, kwargs):
         dest = kwargs.get('destination')
-        svid = dest.server.id if hasattr(dest, 'server') else None
 
         lang = self.auto_lang(kwargs)
         if 'content' in kwargs:
@@ -49,7 +48,7 @@ class LangFilter(Command):
                 if kwargs.get('embed', None) is not None:
                     replace_everywhere(kwargs['embed'], '$NM', kwargs['event'].cmdname)
 
-        prefix = get_prefix(self.bot, svid)
+        prefix = self.bot.get_prefix(getattr(dest, 'guild', None))
 
         if 'content' in kwargs and kwargs['content']:
             kwargs['content'] = kwargs['content'].replace('$PX', prefix)

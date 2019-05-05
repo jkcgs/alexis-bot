@@ -2,11 +2,11 @@ import re
 import sys
 from os import path, listdir, mkdir
 
-
+from bot import Manager
 from bot.libs.configuration import StaticConfig
-from bot.utils import is_int, get_bot_root
+from bot.utils import is_int
 
-LANG_FOLDER = path.join(get_bot_root(), 'lang')
+LANG_FOLDER = path.join(Manager.get_bot_root(), 'lang')
 LANGS = ['en', 'es', 'es_CL']
 pat_name = re.compile('^[0-9a-zA-Z_\-]{3,20}$')
 

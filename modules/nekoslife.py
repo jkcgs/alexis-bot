@@ -84,7 +84,7 @@ class OwOify(Command):
 
     async def handle(self, cmd):
         # filter text and check its length
-        text = no_tags(cmd.text)
+        text = cmd.no_tags()
         if cmd.argc == 0 or len(text) > 200:
             await cmd.answer('$[nekos-owoify-length-error]')
             return

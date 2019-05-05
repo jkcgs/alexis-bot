@@ -4,12 +4,10 @@ import sys
 from datetime import datetime
 
 import discord
-from discord import Embed, Guild
 
 from bot import Language, StaticConfig, Configuration, Manager
 from bot import defaults, init_db, log
 from bot.libs.configuration import GuildConfiguration
-from bot.utils import destination_repr, get_bot_root
 
 
 class AlexisBot(discord.Client):
@@ -45,7 +43,7 @@ class AlexisBot(discord.Client):
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
         log.info('Python %s in %s.', sys.version.replace('\n', ''), sys.platform)
-        log.info('Bot root path: %s', get_bot_root())
+        log.info('Bot root path: %s', self.manager.get_bot_root())
         log.info(platform.uname())
         log.info('------')
 
@@ -109,16 +107,17 @@ class AlexisBot(discord.Client):
         # Stop tasks
         self.manager.cancel_tasks()
 
-    async def send_modlog(self, guild, message=None, embed=None, locales=None, logtype=None):
-        if not isinstance(guild, Guild):
-            raise RuntimeError('guild must be a discord.Guild instance')
-
-        if (message is None or message == '') and embed is None:
-            raise RuntimeError('message or embed arguments are required')
-
-        if embed is not None and not isinstance(embed, Embed):
-            raise RuntimeError('embed must be a discord.Embed instance')
-
+    async def send_modlog(self, guild: discord.Guild, message=None, embed: discord.Embed=None,
+                          locales=None, logtype=None):
+        """
+        Sends a message to the modlog channel of a guild, if modlog channel is set, and if the
+        logtype is enabled.
+        :param guild: The guild to send the modlog message.
+        :param message: The message content.
+        :param embed: An embed for the message.
+        :param locales: Locale variables for language messages.
+        :param logtype: The modlog type of the message. Guilds can disable individual modlog types.
+        """
         chanid = self.sv_config.get(guild.id, 'join_send_channel')
         if chanid == '':
             return
@@ -160,7 +159,13 @@ class AlexisBot(discord.Client):
         self.manager.dispatch_ref('pre_send_message', kwargs)
 
         # Log the message
-        msg = 'Sending message "{}" to {} '.format(kwargs['content'], destination_repr(destination))
+        if isinstance(destination, discord.TextChannel):
+            destination_repr = '{}#{} (IDS {}#{})'.format(
+                destination.guild, str(destination), destination.id, destination.guild.id)
+        else:
+            destination_repr = '{} (ID: {})'.format(str(destination), destination.id)
+
+        msg = 'Sending message "{}" to {} '.format(kwargs['content'], destination_repr)
         if isinstance(kwargs.get('embed', None), discord.Embed):
             msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
         log.debug(msg)
@@ -195,21 +200,64 @@ class AlexisBot(discord.Client):
         if len(self.deleted_messages_nolog) > 50:
             del self.deleted_messages_nolog[0]
 
+    # ------------------------
+    # | GUILD HELPER METHODS |
+    # ------------------------
+
     def get_guild_config(self, guild: discord.Guild):
         """
         Creates a GuildConfiguration instance for a specific discord.Guild
         :param guild: The guild that "owns" the GuildConfiguration instance
         :return: The GuildConfiguration instance for that guild.
         """
+        return GuildConfiguration(self.sv_config, guild)
 
-        return GuildConfiguration(self.sv_config, guild.id)
+    def is_guild_owner(self, member: discord.Member):
+        """
+        Check if a guild member is an "owner" for the bot
+        :param member: The discord.Guild member.
+        :return: A boolean value depending if the member is an owner or not.
+        """
+        # The server owner or a user with the Administrator permission is an owner to the bot.
+        if member.guild.owner == member or member.guild_permissions.administrator:
+            return True
 
-    """
-    ===== EVENT HANDLERS =====
-    """
+        # Check if the user has the owner role
+        cfg = self.get_guild_config(member.guild)
+        owner_roles = cfg.get_list('owner_roles', '\n', [self.config['owner_role']])
+        for role in member.roles:
+            if role.id in owner_roles \
+                    or role.name in owner_roles \
+                    or member.id in owner_roles:
+                return True
+
+        return False
+
+    def get_prefix(self, destination=None):
+        """
+        Gets the prefix for a channel of destination. It would normally return a prefix for a guild
+        TextChannel, and return the default one for all the other destinations.
+        :param destination: The Guild or TextChannel of destination. Any other of these will return
+        the default prefix.
+        :return: The prefix for the destination.
+        """
+        if isinstance(destination, discord.TextChannel):
+            # If the destination is a TextChannel, use its Guild
+            destination = destination.guild
+        elif not isinstance(destination, discord.Guild):
+            # Anything not a TextChannel or Guild, sets the destination to None to get the default prefix.
+            destination = None
+
+        # Retrieve and return the prefix
+        cfg = self.get_guild_config(destination)
+        return cfg.get('command_prefix', self.config['command_prefix'])
+
+    # ------------------
+    # | EVENT HANDLERS |
+    # ------------------
 
     async def on_ready(self):
-        """ This is executed when the bot has successfully connected to Discord. """
+        """ This is executed once the bot has successfully connected to Discord. """
 
         log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
         log.info('It took %.3f seconds to connect.', (datetime.now() - self.start_time).total_seconds())

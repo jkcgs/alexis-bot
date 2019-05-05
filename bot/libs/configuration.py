@@ -225,16 +225,19 @@ class Configuration:
                 return False
         return False
 
-    def get_list(self, svid, name, separator=','):
+    def get_list(self, svid, name, separator=',', default=None):
         """
         Fetches a configuration value as a list
         :param svid: The server ID
         :param name: The configuration value name
         :param separator: The separator that will split the values (as it's stored as a single string)
+        :param default: The default value to return if the config does not exist.
         :return: The requested configuration as a list
         """
+        if default is None:
+            default = []
         val = self.get(svid, name, '')
-        return [] if val == '' else val.split(separator)
+        return default if val == '' else val.split(separator)
 
     def set_list(self, svid, name, elements, separator=','):
         """
@@ -318,12 +321,12 @@ class GuildConfiguration:
     """
     Shortcut to manage a single server configuration from a Configuration instance.
     """
-    def __init__(self, mgr, guild):
+    def __init__(self, mgr, guild: discord.Guild=None):
         """
         :param mgr: The Configuration instance for the global configuration manager
         :param guild: The discord.Server instance or server ID
         """
-        self.guild_id = guild.id if isinstance(guild, discord.Guild) else guild
+        self.guild_id = guild.id if guild is not None else 'all'
         self.mgr = mgr
 
     def has(self, name):
@@ -365,14 +368,15 @@ class GuildConfiguration:
         """
         return self.mgr.unset(self.guild_id, name)
 
-    def get_list(self, name, separator=','):
+    def get_list(self, name, separator=',', default=None):
         """
         Fetches a configuration value as a list
         :param name: The configuration value name
         :param separator: The separator that will split the values (as it's stored as a single string)
+        :param default: The default value if it does not exist.
         :return: The requested configuration as a list
         """
-        return self.mgr.get_list(self.guild_id, name, separator)
+        return self.mgr.get_list(self.guild_id, name, separator, default)
 
     def set_list(self, name, elements, separator='.'):
         """
@@ -407,7 +411,6 @@ class GuildConfiguration:
     def remove_index(self, name, idx, separator=','):
         """
         Fetches a cofiguration value as a list, removes a value by it's index, then stores the list.
-        :param svid: The server ID
         :param name: The configuration value name
         :param idx: The value index, starting from zero. If the index is invalid, the list won't be modified.
         :param separator: The splitter string (as the value is stored as a single string)

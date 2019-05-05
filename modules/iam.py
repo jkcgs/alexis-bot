@@ -1,7 +1,7 @@
 import discord
 
 from bot import Command, categories
-from bot.utils import member_has_role, get_guild_role
+from bot.utils import get_guild_role
 
 cfg_roles = 'iam_roles'
 cfg_roles_locked = 'iam_roles_locked'
@@ -24,6 +24,7 @@ class IAm(Command):
             await cmd.answer('$[iam-no-permission]')
             return
 
+        member = cmd.author
         roles = cmd.config.get_list(cfg_roles)
 
         if cmd.argc == 0:
@@ -42,7 +43,7 @@ class IAm(Command):
             await cmd.answer('$[iam-role-not-available]')
             return False
 
-        if member_has_role(cmd.author, role):
+        if role in member.roles:
             await cmd.answer('$[iam-already-has-role]')
             return False
 
@@ -51,7 +52,7 @@ class IAm(Command):
             return False
 
         try:
-            await self.bot.add_roles(cmd.author, role)
+            await member.add_roles([role])
             await cmd.answer('$[iam-role-given]', locales={'role': role.name})
         except discord.Forbidden:
             await cmd.answer('$[iam-forbidden-exception]')
@@ -76,6 +77,7 @@ class IAmNot(Command):
             await cmd.answer('$[format]: $[iamnot-format]')
             return
 
+        member = cmd.author
         roles = cmd.config.get_list(cfg_roles)
         role = get_guild_role(cmd.guild, cmd.text, False)
 
@@ -84,7 +86,7 @@ class IAmNot(Command):
             return
 
         if role.id not in roles:
-            if member_has_role(cmd.author, role):
+            if role in member.roles:
                 await cmd.answer('$[iam-not-self-managed]')
             else:
                 await cmd.answer('$[iam-role-not-available]')
@@ -101,7 +103,7 @@ class IAmNot(Command):
             return
 
         try:
-            await self.bot.remove_roles(cmd.author, role)
+            await member.remove_roles([role])
             await cmd.answer('$[iamnot-removed-role]', locales={'role': role.name})
         except discord.Forbidden:
             await cmd.answer('$[iamnot-forbidden-exception]')

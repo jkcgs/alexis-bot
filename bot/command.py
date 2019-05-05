@@ -5,7 +5,6 @@ import discord
 from bot.utils import lazy_property
 from . import SingleLanguage
 from .logger import log, TaggedLogger
-from .libs.configuration import GuildConfiguration
 from . import categories
 
 

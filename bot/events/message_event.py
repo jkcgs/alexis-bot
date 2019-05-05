@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot.libs.configuration import GuildConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix, no_tags
+from bot.utils import pat_channel, pat_usertag, pat_snowflake, no_tags
 
 
 class MessageEvent:
@@ -28,9 +28,9 @@ class MessageEvent:
 
         if not self.is_pm:
             self.guild = message.guild
-            self.config = GuildConfiguration(self.bot.sv_config, message.guild.id)
+            self.config = GuildConfiguration(self.bot.sv_config, message.guild)
         else:
-            self.config = GuildConfiguration(self.bot.sv_config, 'all')
+            self.config = GuildConfiguration(self.bot.sv_config)
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """
@@ -76,9 +76,9 @@ class MessageEvent:
 
     async def typing(self):
         """
-        Sends the "typing..." status to the event's channel.
+        Shortcut method. Sends the "typing..." status to the event's channel.
         """
-        await self.bot.send_typing(self.message.channel)
+        await self.channel.typing()
 
     def member_by_id(self, user_id):
         """
@@ -94,9 +94,6 @@ class MessageEvent:
                 return member
 
         return None
-
-    def is_owner(self, user):
-        return is_owner(self.bot, user, self.message.guild)
 
     def no_tags(self, users=True, channels=True, emojis=True):
         return no_tags(self.message, self.bot, users, channels, emojis)
@@ -162,15 +159,33 @@ class MessageEvent:
     def lng(self, name, **kwargs):
         return self.lang.get(name, **kwargs)
 
+    def is_owner(self, member: discord.Member):
+        if member.guild.owner == member or member.guild_permissions.administrator:
+            return True
+
+        owner_roles = self.config.get('owner_roles', self.bot.config['owner_role'])
+        if owner_roles == '':
+            owner_roles = []
+        else:
+            owner_roles = owner_roles.split('\n')
+
+        for role in member.roles:
+            if role.id in owner_roles \
+                    or role.name in owner_roles \
+                    or member.id in owner_roles:
+                return True
+
+        return False
+
     @property
     def prefix(self):
-        return MessageEvent.get_prefix(self.message, self.bot)
+        return self.bot.get_prefix(self.message.channel)
 
     @property
     def owner(self):
         if self.guild is None:
             return False
-        return is_owner(self.bot, self.author, self.guild)
+        return self.bot.is_guild_owner(self.guild)
 
     @property
     def permissions(self):
@@ -192,7 +207,3 @@ class MessageEvent:
     def __str__(self):
         return '[{}  channel="{}#{}" author="{}" text="{}"]'.format(
             self.__class__.__name__, self.message.guild, self.message.channel, self.message.author, self.text)
-
-    @staticmethod
-    def get_prefix(message, bot):
-        return get_prefix(bot, None if message.guild is None else message.guild.id)

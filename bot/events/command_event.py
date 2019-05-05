@@ -88,7 +88,7 @@ class CommandEvent(MessageEvent):
 
     @staticmethod
     def is_command(message, bot):
-        prefix = MessageEvent.get_prefix(message, bot)
+        prefix = bot.get_prefix(message.channel)
         if message.content.startswith(prefix):
             cmdname = message.content[len(prefix):].split(' ')[0].split(':')[0]
             return cmdname in bot.manager
