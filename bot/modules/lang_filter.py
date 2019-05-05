@@ -39,14 +39,14 @@ class LangFilter(Command):
             kwargs['content'] = kwargs['content'].replace('$AU', kwargs['event'].author_name)
             kwargs['content'] = kwargs['content'].replace('$CMD', '$PX$NM')
 
-            if kwargs['embed'] is not None:
+            if kwargs.get('embed', None) is not None:
                 replace_everywhere(kwargs['embed'], '$CMD', '$PX$NM')
                 replace_everywhere(kwargs['embed'], '$AU', kwargs['event'].author_name)
 
             if isinstance(kwargs['event'], CommandEvent):
                 kwargs['content'] = kwargs['content'].replace('$NM', kwargs['event'].cmdname)
 
-                if kwargs['embed'] is not None:
+                if kwargs.get('embed', None) is not None:
                     replace_everywhere(kwargs['embed'], '$NM', kwargs['event'].cmdname)
 
         prefix = get_prefix(self.bot, svid)
@@ -55,7 +55,7 @@ class LangFilter(Command):
             kwargs['content'] = kwargs['content'].replace('$PX', prefix)
             kwargs['content'] = kwargs['content'].lstrip(prefix)
 
-        if kwargs['embed'] is not None:
+        if kwargs.get('embed', None) is not None:
             replace_everywhere(kwargs['embed'], '$PX', prefix)
 
     def auto_lang(self, kwargs):
@@ -76,12 +76,17 @@ class LangFilter(Command):
             return self.get_lang(destination.server.id, destination)
 
         # If the destination is a user
-        elif isinstance(destination, discord.channel.PrivateChannel):
+        elif isinstance(destination, discord.channel.DMChannel) \
+                or isinstance(destination, discord.channel.GroupChannel):
             # The event could've been triggered from a guild, so use its language
             if hasattr(kwargs, 'event') and not kwargs['event'].is_pm:
                 return self.get_lang(kwargs['event'].server, kwargs['event'].channel)
 
-            user = destination.owner if destination.type == discord.ChannelType.group else destination.user
+            if isinstance(destination, discord.channel.GroupChannel):
+                user = destination.owner
+            else:
+                user = destination.recipient
+
             if user.id in self.autolang_cache:
                 return self.get_lang(self.autolang_cache[user.id])
 

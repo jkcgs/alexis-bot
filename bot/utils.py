@@ -6,7 +6,7 @@ import re
 from os import path
 from discord import Embed, Colour
 
-from bot.libs.configuration import ServerConfiguration
+from bot.libs.configuration import GuildConfiguration
 
 
 pat_tag = re.compile('^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')
@@ -46,10 +46,10 @@ def is_owner(bot, member, server):
     if server is None or not isinstance(member, discord.Member):
         return False
 
-    if member.server_permissions.administrator:
+    if member.guild_permissions.administrator:
         return True
 
-    cfg = ServerConfiguration(bot.sv_config, server.id)
+    cfg = GuildConfiguration(bot.sv_config, server.id)
 
     owner_roles = cfg.get('owner_roles', bot.config['owner_role'])
     if owner_roles == '':
@@ -299,11 +299,11 @@ def destination_repr(destination):
     :param destination: The destination object
     :return: The generated string.
     """
-    if getattr(destination, 'server', None) is None:
-        return '{} (ID: {})'.format(str(destination), destination.id)
+    if isinstance(destination, discord.TextChannel):
+        return '{}#{} (IDS {}#{})'.format(destination.guild, str(destination), destination.id,
+                                          destination.guild.id)
     else:
-        return '{}#{} (IDS {}#{})'.format(destination.server, str(destination), destination.id,
-                                          destination.server.id)
+        return '{} (ID: {})'.format(str(destination), destination.id)
 
 
 def replace_everywhere(content, search, replace=None):
@@ -412,7 +412,7 @@ def get_prefix(bot, serverid=None):
     if serverid is None:
         return bot.config['command_prefix']
     else:
-        svconfig = ServerConfiguration(bot.sv_config, serverid)
+        svconfig = GuildConfiguration(bot.sv_config, serverid)
         return svconfig.get('command_prefix', bot.config['command_prefix'])
 
 

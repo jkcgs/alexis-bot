@@ -43,7 +43,7 @@ class CommandEvent(MessageEvent):
 
     def __str__(self):
         return '[{} name="{}", channel="{}#{}", author="{}" text="{}"]'.format(
-            self.__class__.__name__, self.cmdname, self.message.server,
+            self.__class__.__name__, self.cmdname, self.message.guild,
             self.message.channel, self.message.author, self.text
         )
 

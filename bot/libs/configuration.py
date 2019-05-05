@@ -314,16 +314,16 @@ class Configuration:
         return self.sv[svid][name]
 
 
-class ServerConfiguration:
+class GuildConfiguration:
     """
     Shortcut to manage a single server configuration from a Configuration instance.
     """
-    def __init__(self, mgr, server):
+    def __init__(self, mgr, guild):
         """
         :param mgr: The Configuration instance for the global configuration manager
-        :param server: The discord.Server instance or server ID
+        :param guild: The discord.Server instance or server ID
         """
-        self.svid = server.id if isinstance(server, discord.Server) else server
+        self.guild_id = guild.id if isinstance(guild, discord.Guild) else guild
         self.mgr = mgr
 
     def has(self, name):
@@ -332,7 +332,7 @@ class ServerConfiguration:
         :param name: The configuration value name
         :return: A boolean value from the operation result.
         """
-        return self.mgr.has(self.svid, name)
+        return self.mgr.has(self.guild_id, name)
 
     def get(self, name, default='', create=True):
         """
@@ -345,7 +345,7 @@ class ServerConfiguration:
         on the database and cached on memory. Else, the default value is returned and nothing else.
         :return: The requested configuration value.
         """
-        return self.mgr.get(self.svid, name, default, create)
+        return self.mgr.get(self.guild_id, name, default, create)
 
     def set(self, name, value):
         """
@@ -355,7 +355,7 @@ class ServerConfiguration:
         :param value: The new configuration value
         :return: The stored value
         """
-        return self.mgr.set(self.svid, name, value)
+        return self.mgr.set(self.guild_id, name, value)
 
     def unset(self, name):
         """
@@ -363,7 +363,7 @@ class ServerConfiguration:
         :param name: The configuration value name
         :return: A boolean given if the value existed or not
         """
-        return self.mgr.unset(self.svid, name)
+        return self.mgr.unset(self.guild_id, name)
 
     def get_list(self, name, separator=','):
         """
@@ -372,7 +372,7 @@ class ServerConfiguration:
         :param separator: The separator that will split the values (as it's stored as a single string)
         :return: The requested configuration as a list
         """
-        return self.mgr.get_list(self.svid, name, separator)
+        return self.mgr.get_list(self.guild_id, name, separator)
 
     def set_list(self, name, elements, separator='.'):
         """
@@ -381,7 +381,7 @@ class ServerConfiguration:
         :param elements: The list to be stored
         :param separator: The glue for the items list (as it's stored as a single string)
         """
-        self.mgr.set_list(self.svid, name, elements, separator)
+        self.mgr.set_list(self.guild_id, name, elements, separator)
 
     def add(self, name, value, separator=','):
         """
@@ -391,7 +391,7 @@ class ServerConfiguration:
         :param separator: The splitter string
         :return: The list with the new value added (if it wasn't on the list already)
         """
-        return self.mgr.add(self.svid, name, value, separator)
+        return self.mgr.add(self.guild_id, name, value, separator)
 
     def remove(self, name, value, separator=','):
         """
@@ -402,7 +402,7 @@ class ServerConfiguration:
         :param separator: The splitter string (as the value is stored as a single string)
         :return: The list with the value removed, or the same list if the item wasn't on the list.
         """
-        return self.mgr.remove(self.svid, name, value, separator)
+        return self.mgr.remove(self.guild_id, name, value, separator)
 
     def remove_index(self, name, idx, separator=','):
         """
@@ -413,7 +413,7 @@ class ServerConfiguration:
         :param separator: The splitter string (as the value is stored as a single string)
         :return: The list with the value removed, or the same list if the item wasn't on the list.
         """
-        return self.mgr.remove(self.svid, name, idx, separator)
+        return self.mgr.remove(self.guild_id, name, idx, separator)
 
 
 def get_database():

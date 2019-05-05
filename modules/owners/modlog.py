@@ -100,7 +100,7 @@ class ModLog(Command):
 
     async def on_message_edit(self, before, after):
         # Ignore on PM or self message
-        if before.server is None or before.author.id == self.bot.user.id:
+        if not isinstance(before.channel, discord.TextChannel) or before.author.id == self.bot.user.id:
             return
 
         # Ignore if no content changes were made
@@ -402,8 +402,7 @@ class UpdateUsername(Command):
         return len(k)
 
     async def do_it(self, user):
-        self.log.debug(user)
-        if not isinstance(user, discord.User) or not isinstance(user, discord.Member):
+        if not isinstance(user, discord.User) and not isinstance(user, discord.Member):
             raise RuntimeError('user argument can only be a discord.User or discord.Member')
 
         with self.bot.db.atomic():

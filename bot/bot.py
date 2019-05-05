@@ -130,7 +130,7 @@ class AlexisBot(discord.Client):
             log.debug('[modlog] Channel not found (svid %s chanid %s)', guild.id, chanid)
             return
 
-        await self.send_message(chan, message, embed=embed, locales=locales)
+        await self.send_message(chan, content=message, embed=embed, locales=locales)
 
     def schedule(self, task, time=0, force=False):
         """
@@ -142,38 +142,26 @@ class AlexisBot(discord.Client):
 
         return self.manager.schedule(task, time, force)
 
-    async def send_message(self, destination, content=None, *, tts=False, embed=None, locales=None, event=None,
-                           file=None, files=None):
+    async def send_message(self, destination, content, **kwargs):
         """
         Method that proxies all messages sent to Discord, to fire other calls
         like event handlers, message filters and bot logging. Allows original method's parameters.
         :param destination: Where to send the message, must be a discord.abc.Messageable compatible instance.
-        :param content: Textual content to send
-        :param tts: Enable TTS (text to speech).
-        :param embed: Send an embed with the message.
-        :param locales: Strings to replace on the message and embed.
-        :param event: Original event that triggers the message. Used to deliver it to handlers.
-        :param file: The file to upload.
-        :param files: A list of files to upload. Must be a maximum of 10.
-        :return:
+        :param content: The content of the message to send.
+        :return: The message sent
         """
 
-        # Call pre_send_message handlers, append destination
-        if locales is None:
-            locales = {}
-
+        kwargs['content'] = content
         if not isinstance(destination, discord.abc.Messageable):
             raise RuntimeError('destination must be a discord.abc.Messageable compatible instance')
 
-        kwargs = {'destination': destination, 'content': content, 'tts': tts, 'file': file, 'files': files,
-                  'embed': embed, 'locales': locales, 'event': event}
+        # Call pre_send_message handlers, append destination
         self.manager.dispatch_ref('pre_send_message', kwargs)
 
         # Log the message
-        dest = destination_repr(kwargs['destination'])
-        msg = 'Sending message "{}" to {} '.format(kwargs['content'], dest)
-        if isinstance(embed, discord.Embed):
-            msg += ' (with embed: {})'.format(embed.to_dict())
+        msg = 'Sending message "{}" to {} '.format(kwargs['content'], destination_repr(destination))
+        if isinstance(kwargs.get('embed', None), discord.Embed):
+            msg += ' (with embed: {})'.format(kwargs.get('embed').to_dict())
         log.debug(msg)
 
         # Send the actual message

@@ -4,7 +4,7 @@ import discord
 
 from . import SingleLanguage
 from .logger import log, TaggedLogger
-from .libs.configuration import ServerConfiguration
+from .libs.configuration import GuildConfiguration
 from . import categories
 
 
@@ -48,7 +48,7 @@ class Command:
         return self_member.server_permissions.manage_roles
 
     def config_mgr(self, serverid):
-        return ServerConfiguration(self.bot.sv_config, serverid)
+        return GuildConfiguration(self.bot.sv_config, serverid)
 
     def right_cmd(self, cmd):
         return cmd.is_cmd and cmd.cmdname == self.name or cmd.cmdname in self.aliases
