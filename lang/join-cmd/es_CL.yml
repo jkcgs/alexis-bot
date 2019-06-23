@@ -1,0 +1,12 @@
+join-help: Te asigna un rol para ver el resto del servidor.
+join-format: '`$CMD <role name>` o `$CMD unset` para desactivar el comando $PXjoin.'
+join-error-cant: 'Comando desactivado, no puedo manejar roles en este servidor.'
+join-now-disabled: El comando $PXjoin ha sido desactivado.
+join-role-not-found: Rol no encontrado.
+join-cant-assign: No puedo asignar este rol.
+join-role-set: 'Rol de ingreso configurado como **{rolename}**.'
+join-disabled: Comando `$PXjoin` desactivado.
+join-already: Ya te has unido a la guild.
+join-exec-role-not-found: Rol de ingreso no encontrado. ¡Dile al staff de esto!
+join-could-not-assign: ¡No pude asignarte el rol de ingreso! ¡Dile al staff de esto!
+join-joined: ¡Te has unido a la guild! ¡Bienvenid@!

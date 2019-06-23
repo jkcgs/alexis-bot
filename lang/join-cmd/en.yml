@@ -1,0 +1,12 @@
+join-help: Grants you a role to view the rest of the guild.
+join-format: '`$CMD <role name>` or `$CMD unset` to disable the $PXjoin command.'
+join-error-cant: 'Command disabled, I can''t manage roles in this server.'
+join-now-disabled: The $PXjoin command is now disabled.
+join-role-not-found: Role not found.
+join-cant-assign: I can't assign this role.
+join-role-set: 'Join role set to **{rolename}**.'
+join-disabled: Join command disabled.
+join-already: You have already joined in.
+join-exec-role-not-found: Join role not found. Tell a guild owner about this!
+join-could-not-assign: I could not assign you the role! Tell a guild owner about this!
+join-joined: You have now joined the guild! Welcome!
