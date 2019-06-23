@@ -3,6 +3,7 @@
 config.yml
 /config/
 /cache/
+database.db.bkp
 database.db
 logs/
 data.json
