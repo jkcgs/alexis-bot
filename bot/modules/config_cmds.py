@@ -137,7 +137,7 @@ class ShutdownCmd(Command):
     async def handle(self, cmd):
         self.bot.config['shutdown_channel'] = cmd.message.channel.id
         await cmd.answer('$[config-goodbye]')
-        await self.bot.logout()
+        self.bot.logout()
         sys.exit(0)
 
     async def on_ready(self):
