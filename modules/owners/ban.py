@@ -6,6 +6,9 @@ from bot import categories
 
 
 class Ban(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.1'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'realban'
@@ -37,15 +40,19 @@ class Ban(Command):
             return
 
         delete_days = 0
-        if is_int(cmd.args[1]):
-            delete_days = int(cmd.args[1])
-            if delete_days < 0 or delete_days > 7:
-                await cmd.answer('$[realban-error-days]')
-                return
+        reason = ''
 
-            reason = ' '.join(cmd.args[2:])
-        else:
-            reason = ' '.join(cmd.args[1:])
+        if cmd.argc > 1:
+            if is_int(cmd.args[1]):
+                delete_days = int(cmd.args[1])
+                if delete_days < 0 or delete_days > 7:
+                    await cmd.answer('$[realban-error-days]')
+                    return
+
+                if cmd.argc > 2:
+                    reason = ' '.join(cmd.args[2:])
+            else:
+                reason = ' '.join(cmd.args[1:])
 
         try:
             await self.bot.ban(member, delete_days)
