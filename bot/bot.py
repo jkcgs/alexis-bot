@@ -1,4 +1,3 @@
-import asyncio
 import platform
 import sys
 from datetime import datetime
@@ -13,7 +12,7 @@ from bot.libs.configuration import GuildConfiguration
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.82'
+    __version__ = '1.0.0-dev.84'
     name = 'AlexisBot'
 
     def __init__(self, **options):
