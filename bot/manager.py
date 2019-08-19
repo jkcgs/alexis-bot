@@ -238,9 +238,9 @@ class Manager:
         # Log PMs
         if event.is_pm and message.content != '':
             if event.self:
-                log.info('[PM] (-> %s): %s', message.channel.user, event.text)
+                log.info('[PM] (-> %s): %s', message.channel.recipient, event.text)
             else:
-                log.info('[PM] %s: %s', event.author, event.text)
+                log.info('[PM] (<- %s): %s', event.author, event.text)
 
         # Command handler
         try:

@@ -1,0 +1,4 @@
+guildlist-help: Displays the guild list in which the bot is.
+guildlist-none: I'm not on any guild.
+guildlist-msg: 'I''m on the following {amount} guilds:'
+guildlist-answer: I'll send you the info via DM.

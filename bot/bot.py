@@ -1,3 +1,4 @@
+import asyncio
 import platform
 import sys
 from datetime import datetime
@@ -12,7 +13,7 @@ from bot.libs.configuration import GuildConfiguration
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev.84'
+    __version__ = '1.0.0-dev2.1'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -71,7 +72,7 @@ class AlexisBot(discord.Client):
             log.error('Invalid Discord token!')
             raise
         except KeyboardInterrupt:
-            self.loop.run_until_complete(self.logout())
+            self.loop.run_until_complete(self.close())
             log.error('Keyboard interrupt!')
         finally:
             self.loop.close()
@@ -92,13 +93,13 @@ class AlexisBot(discord.Client):
             log.exception(ex)
             return False
 
-    async def logout(self):
+    async def close(self):
         """
         Stops tasks, close connections and logout from Discord.
         :return:
         """
         log.debug('Closing stuff...')
-        await super().logout()
+        await super().close()
 
         # Close everything http related
         self.manager.close_http()
@@ -251,6 +252,10 @@ class AlexisBot(discord.Client):
         cfg = self.get_guild_config(destination)
         return cfg.get('command_prefix', self.config['command_prefix'])
 
+    @property
+    def uptime(self):
+        return datetime.now() - self.start_time
+
     # ------------------
     # | EVENT HANDLERS |
     # ------------------
@@ -294,11 +299,11 @@ class AlexisBot(discord.Client):
     async def on_message_edit(self, before, after):
         await self.manager.dispatch('on_message_edit', before=before, after=after)
 
-    async def on_server_join(self, server):
-        await self.manager.dispatch('on_server_join', server=server)
+    async def on_guild_join(self, guild):
+        await self.manager.dispatch('on_guild_join', guild=guild)
 
-    async def on_server_remove(self, server):
-        await self.manager.dispatch('on_server_remove', server=server)
+    async def on_guild_remove(self, guild):
+        await self.manager.dispatch('on_guild_remove', guild=guild)
 
     async def on_member_ban(self, member):
         await self.manager.dispatch('on_member_ban', member=member)

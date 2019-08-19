@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from discord import Game
 
 from bot import Command, AlexisBot, categories
@@ -15,20 +13,20 @@ class BotStatus(Command):
         self.category = categories.SETTINGS
         self.schedule = (self.update, 30)
         self.last_status = ''
-
         self.count = 0
+        self.custom_list = []
+
+        # Generated status list; they are lambdas to retrieve correct information
         self.status_list = [
             lambda: 'discord.cl/bot',
             lambda: 'version {}'.format(AlexisBot.__version__),
             lambda: 'add with !invite',
             lambda: '!help = commands',
-            lambda: '{} guilds'.format(len(self.bot.servers)),
-            lambda: '{} users'.format(len(set([u.id for u in self.bot.get_all_members() if not u.bot]))),
+            lambda: 'in {} guilds'.format(len(self.bot.guilds)),
+            lambda: 'with {} users'.format(len(set([u.id for u in self.bot.get_all_members() if not u.bot]))),
             lambda: 'with {} bots'.format(len(set([u.id for u in self.bot.get_all_members() if u.bot]))),
-            lambda: 'uptime: {}'.format(deltatime_to_time(datetime.now() - self.bot.start_time))
+            lambda: 'since {}'.format(deltatime_to_time(self.bot.uptime))
         ]
-
-        self.custom_list = []
 
     async def handle(self, cmd):
         self.custom_list = [] if cmd.argc < 1 else [f.strip() for f in cmd.text.split('|') if f.strip() != '']
@@ -56,14 +54,3 @@ class BotStatus(Command):
         self.count += 1
 
         return item if isinstance(item, str) else item()
-
-
-class Uptime(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'uptime'
-        self.bot_owner_only = True
-
-    async def handle(self, cmd):
-        t = datetime.now() - self.bot.start_time
-        await cmd.answer('uptime: {}'.format(deltatime_to_time(t)))

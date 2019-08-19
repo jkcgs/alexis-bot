@@ -17,7 +17,7 @@ class MessageEvent:
         self.channel = message.channel
         self.author = message.author
         self.author_name = message.author.display_name
-        self.is_pm = message.guild is None
+        self.is_pm = isinstance(message.channel, discord.DMChannel)
         self.self = message.author.id == bot.user.id
         self.text = message.content
         self.bot_owner = message.author.id in bot.config['bot_owners']
@@ -185,7 +185,7 @@ class MessageEvent:
     def owner(self):
         if self.guild is None:
             return False
-        return self.bot.is_guild_owner(self.guild)
+        return self.bot.is_guild_owner(self.guild.me)
 
     @property
     def permissions(self):

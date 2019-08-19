@@ -1,0 +1,9 @@
+guildwl-bye: >-
+  Hello! Thanks for adding me to this guild, but my owner does not allow me to
+  join it, yet.
+guildwl-bye-admin: >-
+  You can go to discord.gg/chile and ask an admin to add this guild to the
+  whitelist.
+guildwl-bye-owner: >-
+  You can join discord.gg/chile and/or talk to <@{owner_id}> to add this guild
+  to the whitelist.
