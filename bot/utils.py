@@ -397,7 +397,7 @@ def md_filter(text):
 
 def message_link(message):
     return 'https://discordapp.com/channels/{}/{}/{}'.format(
-        message.server.id if message.server else '@me',
+        message.guild.id if message.guild else '@me',
         message.channel.id,
         message.id
     )

@@ -312,4 +312,4 @@ class AlexisBot(discord.Client):
         await self.manager.dispatch('on_member_unban', member=member)
 
     async def on_typing(self, channel, user, when):
-        await self.manager.dispatch('on_server_remove', channel=channel, user=user, when=when)
+        await self.manager.dispatch('on_typing', channel=channel, user=user, when=when)

@@ -157,7 +157,7 @@ class Greeting(Command):
         if chanid == '' or len(msgs) == 0:
             return
 
-        chan = member.server.get_channel(chanid)
+        chan = member.guild.get_channel(chanid)
         if chan is None:
             return
 
@@ -170,7 +170,7 @@ class Greeting(Command):
         msg = random.choice(msgs)
         msg = msg.replace('$name', name)
         msg = msg.replace('$mention', mention)
-        msg = msg.replace('$server', member.server.name)
+        msg = msg.replace('$server', member.guild.name)
 
         await self.bot.send_message(chan, msg)
 

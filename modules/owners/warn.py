@@ -26,7 +26,7 @@ class Warn(Command):
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = cmd.message.server
+        server = cmd.message.guild
         await cmd.typing()
 
         if member is None:
@@ -180,7 +180,7 @@ class WarnList(Command):
             warnlist = []
             for warn in warns:
                 fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                u = cmd.message.server.get_member(warn.userid)
+                u = cmd.message.guild.get_member(warn.userid)
                 if u is None:
                     u = '<@{}> ({})'.format(warn.userid, warn.userid)
                 else:
@@ -238,7 +238,7 @@ class WarnRank(Command):
 
         msg = []
         for xd in e:
-            u = cmd.message.server.get_member(xd.userid)
+            u = cmd.message.guild.get_member(xd.userid)
             d = xd.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             if u is None:
                 u = 'ID {}'.format(xd.userid, xd.userid)

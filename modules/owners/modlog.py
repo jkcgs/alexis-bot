@@ -81,14 +81,14 @@ class ModLog(Command):
                 msg = '$[modlog-bot-deleted-msg]'
         else:
             try:
-                last = await self.get_last_alog(message.server.id)
+                last = await self.get_last_alog(message.guild.id)
                 if last is not None and last['action_type'] == 72 and \
                         last['options']['channel_id'] == message.channel.id and last['target_id'] == message.author.id:
                     who = last['user_id']
                     if who == self.bot.user.id:
                         msg = '$[modlog-bot-deleted-msg]'
                     else:
-                        u = message.server.get_member(who)
+                        u = message.guild.get_member(who)
                         u = '<@' + who + '>' if u is None else u.display_name
 
                         locales['deleter_name'] = u
@@ -96,7 +96,7 @@ class ModLog(Command):
             except discord.Forbidden:
                 msg = '$[modlog-somehow-deleted-msg]'
 
-        await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales, logtype='message_delete')
+        await self.bot.send_modlog(message.guild, msg, embed=embed, locales=locales, logtype='message_delete')
 
     async def on_message_edit(self, before, after):
         # Ignore on PM or self message
@@ -126,7 +126,7 @@ class ModLog(Command):
         embed.add_field(name='$[modlog-user-edited-before]', value=utils.text_cut(cont_before, 1000), inline=False)
         embed.add_field(name='$[modlog-user-edited-after]', value=utils.text_cut(cont_after, 1000), inline=False)
 
-        await self.bot.send_modlog(after.server, embed=embed, locales=locales, logtype='message_edit')
+        await self.bot.send_modlog(after.guild, embed=embed, locales=locales, logtype='message_edit')
 
     async def on_member_update(self, before, after):
         guild = after.guild
@@ -351,11 +351,11 @@ class UpdateUsername(Command):
         self.ready = True
 
     async def on_member_join(self, member):
-        if not self.ready or not self.updating:
+        if self.ready and not self.updating:
             self.bot.loop.create_task(self.do_it(member))
 
     async def on_member_update(self, before, after):
-        if not self.ready or not self.updating:
+        if self.ready and not self.updating:
             self.bot.loop.create_task(self.do_it(after))
 
     async def run_all(self):
@@ -367,6 +367,8 @@ class UpdateUsername(Command):
 
         if c is not None:
             self.log.debug('Users updated: %i', c)
+        else:
+            self.log.debug('No users were updated')
 
     def all(self):
         if self.updating or self.updated:

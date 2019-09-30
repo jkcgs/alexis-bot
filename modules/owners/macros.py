@@ -145,7 +145,7 @@ class MacroRename(Command):
         if len(cmd.args[1]) > 100:
             await cmd.answer('$[macros-err-name-length]')
 
-        serverid = 'global' if cmd.is_pm else cmd.message.server.id
+        serverid = 'global' if cmd.is_pm else cmd.message.guild.id
         try:
             other = EmbedMacro.select().where(EmbedMacro.name == cmd.args[1], EmbedMacro.server == serverid)
             if other.count() > 0:

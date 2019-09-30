@@ -141,7 +141,7 @@ class AutoRole(Command):
         return [r for r in roles if r is not None]
 
     async def give_roles(self, member):
-        roles = self.get_roles(member.server)
+        roles = self.get_roles(member.guild)
 
         if len(roles) == 0:
             return
@@ -149,7 +149,7 @@ class AutoRole(Command):
         await self.bot.add_roles(member, *roles)
 
     async def take_roles(self, member):
-        roles = self.get_roles(member.server)
+        roles = self.get_roles(member.guild)
 
         if len(roles) == 0:
             return

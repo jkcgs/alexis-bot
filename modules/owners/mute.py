@@ -120,7 +120,7 @@ class Mute(Command):
     # Restore the mute role if user left and joined the guild again
     async def on_member_join(self, member):
         guild = member.guild
-        if not guild.me.server_permissions.manage_roles:
+        if not guild.me.guild_permissions.manage_roles:
             self.log.warning('Can\'t manage roles on the guild %s (%s)', str(guild), guild.id)
             return
 
@@ -233,7 +233,7 @@ class Unmute(Command):
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        mutedrole = utils.get_guild_role(cmd.message.server, sv_role)
+        mutedrole = utils.get_guild_role(cmd.message.guild, sv_role)
 
         if mutedrole is None:
             await cmd.answer('$[unmute-no-muted-role]'.format(sv_role), locales={'role_name'})
@@ -269,7 +269,7 @@ class SetMutedRole(Command):
             await cmd.answer('$[format]: $[mutedrole-format]')
             return
 
-        r = utils.get_guild_role(cmd.message.server, cmd.args[0])
+        r = utils.get_guild_role(cmd.message.guild, cmd.args[0])
         if r is None:
             await cmd.answer('$[mute-err-noex-role]', locales={'muted_role': cmd.args[0]})
             return

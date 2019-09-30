@@ -46,7 +46,7 @@ class LockBot(Command):
         chanid = 'all' if chall else channel.id
 
         if cmd.cmdname == 'islocked':
-            locked = is_locked(cmd.message.server.id, chanid)
+            locked = is_locked(cmd.message.guild.id, chanid)
             msg = ['$[lockbot-no]', '$[lockbot-yes]'][locked]
 
             if 'all' in chans:
@@ -108,7 +108,7 @@ class LockedChans(Command):
         others = [f for f in chans if f != 'all']
         chan_list = []
         for chanid in others:
-            chan = cmd.message.server.get_channel(chanid)
+            chan = cmd.message.guild.get_channel(chanid)
             if chan is None:
                 chan_list.append('- {} ($[lockbot-not-found])'.format(chanid))
             else:
