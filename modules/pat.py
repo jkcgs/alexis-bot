@@ -3,8 +3,8 @@ from bot.libs.configuration import yaml
 from bot import Command, StaticConfig, categories
 from bot.utils import img_embed
 
-default_pats = 'https://gist.github.com/jkcgs/137a28dc01b3e8538a253652f44eaf09/' \
-               'raw/039dfdf76945915ad5d723d0031daa94d2e03e0b/pats.yml'
+default_pats = 'https://gist.github.com/makzk/ee4448d8cd3eb52a6f2072e5612b63ee/' \
+               'raw/edb0e7740d732d8932aa9d54508dd9260fb65aff/pats.yml'
 
 
 class Pat(Command):

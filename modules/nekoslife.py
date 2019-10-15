@@ -1,5 +1,5 @@
 from bot import Command
-from bot.utils import img_embed, no_tags
+from bot.utils import img_embed
 
 from urllib.parse import urlencode
 
@@ -32,10 +32,11 @@ class NekosLife(Command):
 
             # Look for image endpoints
             for ep in data:
-                start = 'OPTIONS,GET,HEAD     /api/v2/img/'
-                if ep.startswith(start):
-                    types = ep[len(start)+1:-2]
-                    self.img_types = [t[1:-1] for t in types.split(', ')]
+                if '/api/v2/img/' in ep:
+                    self.img_types = [
+                        t[2:-1] for t in ep.split('<')[1][:-1].split(',')
+                        if t[2:-1] not in ['v3', 'nekoapi_v3.1']
+                    ]
                     break
 
             # Check if types were retrieved
@@ -43,6 +44,7 @@ class NekosLife(Command):
                 self.log.warn('No image types were retrieved')
             else:
                 self.log.info('%i image types were found', len(self.img_types))
+                self.log.debug('Nekos types found: %s', self.img_types)
 
     async def handle(self, cmd):
         # no subcmd or help

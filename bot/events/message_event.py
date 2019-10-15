@@ -78,7 +78,7 @@ class MessageEvent:
         """
         Shortcut method. Sends the "typing..." status to the event's channel.
         """
-        await self.channel.typing()
+        await self.channel.trigger_typing()
 
     def member_by_id(self, user_id):
         """

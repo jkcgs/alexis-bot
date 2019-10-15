@@ -5,7 +5,8 @@ from bot import Command
 from bot.utils import pat_channel, pat_snowflake
 
 letters = {}
-reacts_url = 'https://gist.github.com/jkcgs/df2e2aea66b9359efaa1942255d401f1/raw'
+reacts_url = 'https://gist.github.com/makzk/3757e899f80a6e45f6e5818dc358c51c/' \
+             'raw/bfa484303bdfdca1571015bac5eca5abb78edb8a/characters.yml'
 
 
 class React(Command):
