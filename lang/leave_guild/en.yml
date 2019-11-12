@@ -1,0 +1,4 @@
+leaveguild-help: Instructs the bot to leave a guild.
+leaveguild-format: $CMD <guild_id>
+leaveguild-guild-not-found: Guild not found.
+leaveguild-left: 'I left the guild "{guild_name}" ({guild_id})'

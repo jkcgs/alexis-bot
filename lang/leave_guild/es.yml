@@ -1,0 +1,4 @@
+leaveguild-help: Hace que el bot deje un servidor.
+leaveguild-format: $CMD <server_id>
+leaveguild-guild-not-found: Servidor no encontrado.
+leaveguild-left: 'Dejé el servidor "{guild_name}" ({guild_id})'
