@@ -321,7 +321,7 @@ class GuildConfiguration:
     """
     Shortcut to manage a single server configuration from a Configuration instance.
     """
-    def __init__(self, mgr, guild: discord.Guild=None):
+    def __init__(self, mgr, guild: discord.Guild = None):
         """
         :param mgr: The Configuration instance for the global configuration manager
         :param guild: The discord.Server instance or server ID
@@ -400,7 +400,6 @@ class GuildConfiguration:
     def remove(self, name, value, separator=','):
         """
         Fetches a cofiguration value as a list, removes a value if it exists, then stores the list.
-        :param svid: The server ID
         :param name: The configuration value name
         :param value: The value to be removed from the list
         :param separator: The splitter string (as the value is stored as a single string)

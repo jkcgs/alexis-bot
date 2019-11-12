@@ -3,7 +3,6 @@ import random
 from discord import Embed
 
 from bot import Command, categories
-from bot.libs.configuration import GuildConfiguration
 from bot.utils import is_int, invite_filter, pat_invite
 
 
@@ -88,7 +87,8 @@ class Greeting(Command):
                     return
 
                 description = '\n'.join(['{}.- {}'.format(i+1, f) for i, f in enumerate(msgs)])
-                description += '\n\n**$[greeting-current-channel]**: <#{}>'.format(cmd.config.get(Greeting.cfg_welcome_channel))
+                description += '\n\n**$[greeting-current-channel]**: <#{}>'.format(
+                    cmd.config.get(Greeting.cfg_welcome_channel))
                 title = '$[greeting-welcome-messages]' if is_welcome else '$[greeting-goodbye-messages]'
                 embed = Embed(title=title, description=description)
                 await cmd.answer(embed)

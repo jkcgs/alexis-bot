@@ -1,5 +1,3 @@
-import re
-
 from discord import Embed
 
 from bot import Command, MessageEvent, categories

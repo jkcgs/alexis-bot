@@ -6,8 +6,8 @@ from bot import AlexisBot, Command, categories, BotMentionEvent
 from bot.events import is_bot_command
 from bot.utils import unserialize_avail, get_guild_role, serialize_avail
 
-rx_snowflake = re.compile('^\d{10,19}$')
-rx_channel = re.compile('^<#\d{10,19}>$')
+rx_snowflake = re.compile(r'^\d{10,19}$')
+rx_channel = re.compile(r'^<#\d{10,19}>$')
 
 
 class InfoCmd(Command):

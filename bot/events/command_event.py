@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 
 import discord
 
-from bot.utils import serialize_avail, replace_everywhere, no_tags
+from bot.utils import serialize_avail, no_tags
 from bot.logger import log
 from .message_event import MessageEvent
 

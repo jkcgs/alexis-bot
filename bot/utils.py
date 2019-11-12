@@ -3,23 +3,19 @@ import time
 
 import discord
 import re
-from os import path
 from discord import Embed, Colour
 
-from bot.libs.configuration import GuildConfiguration
-
-
-pat_tag = re.compile('^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')
-pat_usertag = re.compile('^<@!?(\d{10,19})>$')
-pat_channel = re.compile('^<#(\d{10,19})>$')
-pat_subreddit = re.compile('^[a-zA-Z0-9_\-]{2,25}$')
-pat_emoji = re.compile('<a?(:([a-zA-Z0-9\-_]+):)([0-9]+)>')
-pat_normal_emoji = re.compile('^:[a-zA-Z\-_]+:$')
-pat_snowflake = re.compile('^\d{10,19}$')
-pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
-pat_delta = re.compile('^([0-9]+[smhd])+$')
-pat_delta_each = re.compile('([0-9]+[smhd])+')
-pat_invite = re.compile('(?:https?://)?(discord(?:app\.com/invite|\.gg|\.me)/[a-zA-Z0-9]+)')
+pat_tag = re.compile(r'^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')
+pat_usertag = re.compile(r'^<@!?(\d{10,19})>$')
+pat_channel = re.compile(r'^<#(\d{10,19})>$')
+pat_subreddit = re.compile(r'^[a-zA-Z0-9_\-]{2,25}$')
+pat_emoji = re.compile(r'<a?(:([a-zA-Z0-9\-_]+):)([0-9]+)>')
+pat_normal_emoji = re.compile(r'^:[a-zA-Z\-_]+:$')
+pat_snowflake = re.compile(r'^\d{10,19}$')
+pat_colour = re.compile(r'^#?[0-9a-fA-F]{6}$')
+pat_delta = re.compile(r'^([0-9]+[smhd])+$')
+pat_delta_each = re.compile(r'([0-9]+[smhd])+')
+pat_invite = re.compile(r'(?:https?://)?(discord(?:app\.com/invite|\.gg|\.me)/[a-zA-Z0-9]+)')
 
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
                'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',

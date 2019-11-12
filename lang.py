@@ -8,7 +8,7 @@ from bot.utils import is_int
 
 LANG_FOLDER = path.join(Manager.get_bot_root(), 'lang')
 LANGS = ['en', 'es', 'es_CL']
-pat_name = re.compile('^[0-9a-zA-Z_\-]{3,20}$')
+pat_name = re.compile(r'^[0-9a-zA-Z_\-]{3,20}$')
 
 
 def yesno(default_yes=True):

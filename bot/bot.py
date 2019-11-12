@@ -107,7 +107,7 @@ class AlexisBot(discord.Client):
         # Stop tasks
         self.manager.cancel_tasks()
 
-    async def send_modlog(self, guild: discord.Guild, message=None, embed: discord.Embed=None,
+    async def send_modlog(self, guild: discord.Guild, message=None, embed: discord.Embed = None,
                           locales=None, logtype=None):
         """
         Sends a message to the modlog channel of a guild, if modlog channel is set, and if the
@@ -163,7 +163,7 @@ class AlexisBot(discord.Client):
             destination_repr = '{}#{} (IDS {}#{})'.format(
                 destination.guild, str(destination), destination.id, destination.guild.id)
         else:
-            destination_repr = '{} (ID: {})'.format(str(destination), destination.id)
+            destination_repr = str(destination)
 
         msg = 'Sending message "{}" to {} '.format(kwargs['content'], destination_repr)
         if isinstance(kwargs.get('embed', None), discord.Embed):

@@ -44,9 +44,9 @@ class ModLog(Command):
         if message.guild is None or message.author.id == self.bot.user.id:
             return
 
-        footer = '$[modlog-msg-sent]: ' + utils.format_date(message.timestamp)
-        if message.edited_timestamp is not None:
-            footer += ', $[modlog-msg-edited]: ' + utils.format_date(message.edited_timestamp)
+        footer = '$[modlog-msg-sent]: ' + utils.format_date(message.created_at)
+        if message.edited_at is not None:
+            footer += ', $[modlog-msg-edited]: ' + utils.format_date(message.edited_at)
 
         embed = Embed(description='($[modlog-no-text])' if message.content == '' else message.content)
         embed.set_footer(text=footer)
@@ -108,8 +108,8 @@ class ModLog(Command):
             return
 
         footer = '$[modlog-msg-sent]: {}, $[modlog-msg-edited]: {}'.format(
-            utils.format_date(before.timestamp),
-            utils.format_date(after.timestamp)
+            utils.format_date(before.created_at),
+            utils.format_date(after.created_at)
         )
 
         embed = Embed(title='📝 $[modlog-user-edited-msg]', description='$[modlog-user-edited-channel]')

@@ -14,7 +14,7 @@ cfg_starboard_emojis = 'starboard_emojis'
 cfg_starboard_channel = 'starboard_channel'
 cfg_starboard_tcount = 'starboard_trigger_count'
 cfg_starboard_nsfw = 'starboard_watch_nsfw'
-pat_emoji = re.compile('^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
+pat_emoji = re.compile(r'^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 
 
 class StarboardHook(Command):

@@ -1,6 +1,6 @@
 import asyncio
 
-from bot.bot import AlexisBot
+from bot import AlexisBot
 
 
 if __name__ == '__main__':
