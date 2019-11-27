@@ -2,11 +2,8 @@ from datetime import timedelta, datetime
 
 import discord
 
-from bot.logger import new_logger
 from bot.utils import serialize_avail, no_tags
 from .message_event import MessageEvent
-
-log = new_logger('CommandEvent')
 
 
 class CommandEvent(MessageEvent):
