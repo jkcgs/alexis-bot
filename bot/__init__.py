@@ -8,7 +8,6 @@ from .command import Command
 from .manager import Manager
 
 from .libs.configuration import get_database, init_db
-from .logger import log
 from . import defaults
 
 from .bot import AlexisBot

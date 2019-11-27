@@ -6,8 +6,6 @@ from os import path
 from ruamel import yaml
 from discord import Embed
 
-from bot.logger import log
-
 pat_lang_placeholder = re.compile(r'\$\[([a-zA-Z0-9_\-]+)\]')
 
 
@@ -21,12 +19,9 @@ class Language:
             self.load()
 
     def load(self):
-        log.info('Loading language files...')
-
         self.lib = {}
         p = path.join(self.path, "**{s}*.yml".format(s=path.sep))
         lang_files = glob.iglob(p, recursive=True)
-        fcount = 0
 
         for lang_file in lang_files:
             fn = path.basename(lang_file)
@@ -34,7 +29,6 @@ class Language:
                 continue
 
             with codecs.open(lang_file, 'r', encoding='utf8') as f:
-                fcount += 1
                 yml = yaml.safe_load(f)
                 lang = fn[:-4]
 
@@ -46,8 +40,6 @@ class Language:
                         self.lib[lang] = {}
 
                     self.lib[lang][k] = str(v)
-
-        log.info('Loaded %i language file{s}'.format(s=['s', ''][fcount == 1]), fcount)
 
     def get(self, name, __lang=None, **kwargs):
         if __lang is None:
@@ -65,9 +57,8 @@ class Language:
 
             try:
                 text = text.format(**kwargs)
-            except KeyError as e:
-                log.warn('Could not format the "%s" text with the %s variables', text, repr(kwargs))
-                log.exception(e)
+            except KeyError:
+                pass
 
         return text
 

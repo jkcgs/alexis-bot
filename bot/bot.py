@@ -6,8 +6,11 @@ from datetime import datetime
 import discord
 
 from bot import Language, StaticConfig, Configuration, Manager
-from bot import defaults, init_db, log
+from bot import defaults, init_db
 from bot.libs.configuration import GuildConfiguration
+from bot.logger import new_logger
+
+log = new_logger('Core')
 
 
 class AlexisBot(discord.Client):
@@ -85,8 +88,9 @@ class AlexisBot(discord.Client):
         try:
             log.info('Loading configuration...')
             self.config.load(defaults.config)
+            log.info('Loading language stuff...')
             self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
-            log.info('Default language: %s', self.config['default_lang'])
+            log.info('Loaded languages: %s, default: %s', list(self.lang.lib.keys()), self.config['default_lang'])
             log.info('Configuration loaded')
             return True
         except Exception as ex:

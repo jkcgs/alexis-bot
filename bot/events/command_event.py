@@ -1,11 +1,12 @@
-import traceback
 from datetime import timedelta, datetime
 
 import discord
 
+from bot.logger import new_logger
 from bot.utils import serialize_avail, no_tags
-from bot.logger import log
 from .message_event import MessageEvent
+
+log = new_logger('CommandEvent')
 
 
 class CommandEvent(MessageEvent):
@@ -50,35 +51,28 @@ class CommandEvent(MessageEvent):
         )
 
     async def handle(self):
-        try:
-            cmd = self.bot.manager[self.cmdname]
+        cmd = self.bot.manager[self.cmdname]
 
-            # Time and permissions filter
-            if (cmd.bot_owner_only and not self.bot_owner) \
-                    or (cmd.owner_only and not self.owner) \
-                    or (not cmd.allow_pm and self.is_pm) \
-                    or (not self.is_pm and not self.is_enabled()):
-                return
-            elif (cmd.user_delay > 0 and self.author.id in cmd.users_delay
-                  and cmd.users_delay[self.author.id] + timedelta(0, cmd.user_delay) > datetime.now()
-                  and not self.owner):
-                await self.answer(cmd.user_delay_error)
-                return
-            elif not self.is_pm and cmd.nsfw_only and self.channel.is_nsfw():
-                await self.answer(cmd.nsfw_only_error)
-                return
-            else:
-                # Run the command
-                result = await cmd.handle(self)
-                fine = result is None or (isinstance(result, bool) and result)
-                if fine and cmd.user_delay > 0:
-                    cmd.users_delay[self.author.id] = datetime.now()
-        except Exception as e:
-            if self.bot.config['debug']:
-                await self.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
-            else:
-                await self.answer('$[error-msg]\n```{}```'.format(str(e)))
-            log.exception(e)
+        # Time and permissions filter
+        if (cmd.bot_owner_only and not self.bot_owner) \
+                or (cmd.owner_only and not self.owner) \
+                or (not cmd.allow_pm and self.is_pm) \
+                or (not self.is_pm and not self.is_enabled()):
+            return
+        elif (cmd.user_delay > 0 and self.author.id in cmd.users_delay
+              and cmd.users_delay[self.author.id] + timedelta(0, cmd.user_delay) > datetime.now()
+              and not self.owner):
+            await self.answer(cmd.user_delay_error)
+            return
+        elif not self.is_pm and cmd.nsfw_only and self.channel.is_nsfw():
+            await self.answer(cmd.nsfw_only_error)
+            return
+        else:
+            # Run the command
+            result = await cmd.handle(self)
+            fine = result is None or (isinstance(result, bool) and result)
+            if fine and cmd.user_delay > 0:
+                cmd.users_delay[self.author.id] = datetime.now()
 
     def can_manage_roles(self):
         if not isinstance(self.channel, discord.TextChannel):
