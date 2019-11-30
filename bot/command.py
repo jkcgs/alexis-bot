@@ -4,7 +4,7 @@ import discord
 
 from bot.utils import lazy_property
 from . import SingleLanguage
-from .logger import create_logger
+from .logger import new_logger
 from . import categories
 
 
@@ -79,4 +79,4 @@ class Command:
 
     @lazy_property
     def log(self):
-        return create_logger(self.__class__.__name__)
+        return new_logger(self.__class__.__name__)

@@ -3,13 +3,16 @@ import glob
 import inspect
 import os
 import sys
+import traceback
 from os import path
 
 import aiohttp
 
 from bot import CommandEvent, BotMentionEvent, MessageEvent
-from .logger import log
+from bot.logger import new_logger
 from .command import Command
+
+log = new_logger('Manager')
 
 
 class Manager:
@@ -252,7 +255,14 @@ class Manager:
                         self.bot.last_author = message.author.id
                     log.debug('[command] %s: %s', event.author, str(event))
 
-                await event.handle()
+                try:
+                    await event.handle()
+                except Exception as e:
+                    if self.bot.config['debug']:
+                        await event.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
+                    else:
+                        await event.answer('$[error-msg]\n```{}```'.format(str(e)))
+                    log.exception(e)
 
             # 'startswith' handlers
             for swtext in self.swhandlers.keys():
@@ -396,7 +406,7 @@ class Manager:
         # System modules
         mods_path = path.join(bot_root, 'bot', 'modules')
         _all = ['bot.modules.' + f for f in Manager.get_mod_files(mods_path)]
-        log.debug('added %i internal modules', len(_all))
+        log.debug('Loaded %i internal modules', len(_all))
 
         # Included modules
         mods_path = path.join(bot_root, 'modules')
