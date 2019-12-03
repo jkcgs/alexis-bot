@@ -4,7 +4,7 @@ from discord import Embed
 from bot import Command, categories
 from bot.utils import format_date
 from bot.regex import pat_channel
-from bot.libs.dynamic_config import ServerConfig
+from bot.database import ServerConfig
 
 
 class Sismos(Command):

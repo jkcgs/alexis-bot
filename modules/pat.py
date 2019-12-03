@@ -3,8 +3,7 @@ from bot.libs.configuration import yaml
 from bot import Command, StaticConfig, categories
 from bot.utils import img_embed
 
-default_pats = 'https://gist.github.com/makzk/ee4448d8cd3eb52a6f2072e5612b63ee/' \
-               'raw/edb0e7740d732d8932aa9d54508dd9260fb65aff/pats.yml'
+default_pats = 'https://l.owo.cl/default_pats'
 
 
 class Pat(Command):
@@ -60,3 +59,4 @@ class Pat(Command):
             }
 
         self.config = StaticConfig.get_config('pats', defaults)
+        self.log.debug('Pats loaded')

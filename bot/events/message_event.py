@@ -2,7 +2,7 @@ import discord
 
 from discord import Embed
 
-from bot.libs.dynamic_config import GuildConfiguration
+from bot.guild_configuration import GuildConfiguration
 from bot.libs.language import SingleLanguage
 from bot.utils import no_tags
 from bot.regex import pat_usertag, pat_channel, pat_snowflake
@@ -23,15 +23,9 @@ class MessageEvent:
         self.text = message.content
         self.bot_owner = message.author.id in bot.config['bot_owners']
 
-        self.guild = None
-        self.config = None
+        self.guild = None if self.is_pm else message.guild
+        self.config = GuildConfiguration.get_instance(self.guild)
         self._lang = None
-
-        if not self.is_pm:
-            self.guild = message.guild
-            self.config = GuildConfiguration(message.guild)
-        else:
-            self.config = GuildConfiguration()
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """

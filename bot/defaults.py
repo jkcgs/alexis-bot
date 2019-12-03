@@ -17,3 +17,5 @@ config = {
     'log_to_files': False,
     'log_format': default_log_format
 }
+datetime_format = '%Y-%m-%d %H:%M:%S'
+filename_format = '%Y-%m-%d_%H-%M-%S'

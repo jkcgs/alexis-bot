@@ -6,6 +6,7 @@ import discord
 import peewee
 
 from bot import Command, utils, categories, BaseModel
+from bot.guild_configuration import GuildConfiguration
 
 
 class Mute(Command):
@@ -123,7 +124,7 @@ class Mute(Command):
             self.log.warning('Can\'t manage roles on the guild %s (%s)', str(guild), guild.id)
             return
 
-        mgr = self.bot.get_guild_config(member.guild)
+        mgr = GuildConfiguration.get_instance(member.guild)
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
         role = utils.get_guild_role(guild, sv_role)
         if role is None:
@@ -151,7 +152,7 @@ class Mute(Command):
                 self.log.warning('I can\'t manage roles on guild: %s', guild)
                 continue
 
-            config = self.bot.get_guild_config(guild)
+            config = GuildConfiguration.get_instance(guild)
             guild_role = config.get(Mute.cfg_muted_role, Mute.default_muted_role)
             member = guild.get_member(muteduser.userid)
             role = utils.get_guild_role(guild, guild_role)

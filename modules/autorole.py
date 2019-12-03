@@ -1,6 +1,7 @@
 import asyncio
 
 from bot import Command, categories
+from bot.guild_configuration import GuildConfiguration
 from bot.utils import get_guild_role
 
 
@@ -136,7 +137,7 @@ class AutoRole(Command):
         await self.give_roles(member)
 
     def get_roles(self, guild):
-        cfg = self.bot.get_guild_config(guild)
+        cfg = GuildConfiguration.get_instance(guild)
         roles = [get_guild_role(guild, r) for r in cfg.get_list(AutoRole.cfg_name)]
         return [r for r in roles if r is not None]
 

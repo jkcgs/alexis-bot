@@ -3,13 +3,10 @@ import logging
 import os
 from os import path
 
-from bot.defaults import default_log_format
-
-datetime_format = '%Y-%m-%d %H:%M:%S'
-filename_format = '%Y-%m-%d_%H-%M-%S'
+from bot.defaults import default_log_format, datetime_format, filename_format
 
 
-def create_logger(name, log_format=default_log_format, log_path=None):
+def create_logger(name, log_format=default_log_format, log_path=None, logtime=None):
     log = logging.getLogger(name)
     formatter = logging.Formatter(log_format, datetime_format)
 
@@ -23,7 +20,9 @@ def create_logger(name, log_format=default_log_format, log_path=None):
     if log_path is not None:
         if not os.path.isdir(log_path):
             os.makedirs(log_path)
-        filename = datetime.datetime.now().strftime(datetime_format) + '.log'
+
+        dt = datetime.datetime.now() if logtime is None else logtime
+        filename = dt.strftime(filename_format) + '.log'
         file_logger = logging.FileHandler(path.join(log_path, filename), encoding='utf-8')
         file_logger.setLevel(logging.DEBUG)
         file_logger.setFormatter(formatter)

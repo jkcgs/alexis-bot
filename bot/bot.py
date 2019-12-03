@@ -5,8 +5,9 @@ from datetime import datetime
 
 import discord
 
-from bot import Language, Configuration, Manager
-from bot.libs.dynamic_config import GuildConfiguration, BotDatabase
+from bot import Language, Manager
+from bot.guild_configuration import GuildConfiguration
+from bot.database import BotDatabase
 from bot.libs.configuration import BotConfiguration
 from bot.logger import new_logger
 
@@ -16,7 +17,7 @@ log = new_logger('Core')
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/jkcgs)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev2.1'
+    __version__ = '1.0.0-dev3'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -74,7 +75,7 @@ class AlexisBot(discord.Client):
             raise
         except KeyboardInterrupt:
             self.loop.run_until_complete(self.close())
-            log.error('Keyboard interrupt!')
+            log.warning('Keyboard interrupt!')
         finally:
             self.loop.close()
 
@@ -120,12 +121,12 @@ class AlexisBot(discord.Client):
         :param locales: Locale variables for language messages.
         :param logtype: The modlog type of the message. Guilds can disable individual modlog types.
         """
-        sv_config = Configuration.get_instance()
-        chanid = sv_config.get(guild.id, 'join_send_channel')
+        config = GuildConfiguration.get_instance(guild)
+        chanid = config.get('join_send_channel')
         if chanid == '':
             return
 
-        if logtype and logtype in sv_config.get_list(guild.id, 'logtype_disabled'):
+        if logtype and logtype in config.get_list('logtype_disabled'):
             return
 
         chan = self.get_channel(chanid)
@@ -207,14 +208,6 @@ class AlexisBot(discord.Client):
     # | GUILD HELPER METHODS |
     # ------------------------
 
-    def get_guild_config(self, guild: discord.Guild):
-        """
-        Creates a GuildConfiguration instance for a specific discord.Guild
-        :param guild: The guild that "owns" the GuildConfiguration instance
-        :return: The GuildConfiguration instance for that guild.
-        """
-        return GuildConfiguration(guild)
-
     def is_guild_owner(self, member: discord.Member):
         """
         Check if a guild member is an "owner" for the bot
@@ -226,7 +219,7 @@ class AlexisBot(discord.Client):
             return True
 
         # Check if the user has the owner role
-        cfg = self.get_guild_config(member.guild)
+        cfg = GuildConfiguration.get_instance(member.guild)
         owner_roles = cfg.get_list('owner_roles', '\n', [self.config['owner_role']])
         for role in member.roles:
             if role.id in owner_roles \
@@ -252,7 +245,7 @@ class AlexisBot(discord.Client):
             destination = None
 
         # Retrieve and return the prefix
-        cfg = self.get_guild_config(destination)
+        cfg = GuildConfiguration.get_instance(destination)
         return cfg.get('command_prefix', self.config['command_prefix'])
 
     @property

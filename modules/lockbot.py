@@ -1,7 +1,7 @@
 from discord import Embed
 
 from bot import Command, categories
-from bot.libs.dynamic_config import ServerConfig
+from bot.database import ServerConfig
 
 cfg_locked = 'locked_bot_channels'
 

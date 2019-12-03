@@ -7,6 +7,7 @@ import emoji
 from discord import Emoji, Embed
 
 from bot import Command, categories, BaseModel
+from bot.guild_configuration import GuildConfiguration
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
@@ -113,7 +114,7 @@ class StarboardHook(Command):
 
     async def on_reaction_add(self, reaction, user: discord.Member):
         message = reaction.message
-        config = self.bot.get_guild_config(user.guild)
+        config = GuildConfiguration.get_instance(user.guild)
 
         # Load allowed reactions
         emojis = config.get(cfg_starboard_emojis)

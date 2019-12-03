@@ -1,13 +1,10 @@
 import discord
-import peewee
-from playhouse.db_url import connect
+from discord import Guild
 
-from bot.libs.configuration import yaml, BotConfiguration
-
-yaml.default_flow_style = False
+from bot.database import ServerConfig
 
 
-class Configuration:
+class DynConfiguration:
     """
     Manages per-server configuration on the database, cached on memory.
     """
@@ -201,10 +198,10 @@ class Configuration:
 
     @staticmethod
     def get_instance():
-        if not Configuration._instance:
-            Configuration._instance = Configuration()
+        if not DynConfiguration._instance:
+            DynConfiguration._instance = DynConfiguration()
 
-        return Configuration._instance
+        return DynConfiguration._instance
 
 
 class GuildConfiguration:
@@ -216,7 +213,7 @@ class GuildConfiguration:
         :param guild: The discord.Server instance or server ID
         """
         self.guild_id = guild.id if guild is not None else 'all'
-        self.mgr = Configuration.get_instance()
+        self.mgr = DynConfiguration.get_instance()
 
     def has(self, name):
         """
@@ -306,36 +303,12 @@ class GuildConfiguration:
         """
         return self.mgr.remove(self.guild_id, name, idx, separator)
 
-
-class BotDatabase:
-    _db = None
+    _instances = {}
 
     @staticmethod
-    def get_instance():
-        cfg = BotConfiguration.get_instance()
-        dburl = cfg['database_url']
-        if dburl.startswith('mysql:'):
-            dburl += '&amp;' if '?' in dburl else '?'
-            dburl += 'charset=utf8mb4;'
+    def get_instance(guild: Guild = None):
+        guild_id = 'all' if guild is None else guild.id
+        if guild_id not in GuildConfiguration._instances:
+            GuildConfiguration._instances[guild_id] = GuildConfiguration(guild)
 
-        if BotDatabase._db is None:
-            BotDatabase._db = connect(dburl)
-
-        return BotDatabase._db
-
-    @staticmethod
-    def initialize():
-        ins = BotDatabase.get_instance()
-        ins.create_tables([ServerConfig], safe=True)
-        return ins
-
-
-class BaseModel(peewee.Model):
-    class Meta:
-        database = BotDatabase.get_instance()
-
-
-class ServerConfig(BaseModel):
-    serverid = peewee.TextField()
-    name = peewee.TextField()
-    value = peewee.TextField(default='')
+        return GuildConfiguration._instances[guild_id]

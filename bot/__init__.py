@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .events import CommandEvent, MessageEvent, BotMentionEvent
-from .libs.dynamic_config import Configuration, BaseModel
+from .database import BaseModel
 from .libs.configuration import StaticConfig
 from .libs.language import Language, SingleLanguage
 from .command import Command

@@ -5,6 +5,7 @@ from ruamel.yaml import YAML
 from bot import defaults
 
 yaml = YAML(typ='safe')
+yaml.default_flow_style = False
 
 
 class StaticConfig:

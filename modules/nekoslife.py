@@ -44,7 +44,6 @@ class NekosLife(Command):
                 self.log.warn('No image types were retrieved')
             else:
                 self.log.info('%i image types were found', len(self.img_types))
-                self.log.debug('Nekos types found: %s', self.img_types)
 
     async def handle(self, cmd):
         # no subcmd or help
