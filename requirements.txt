@@ -2,9 +2,9 @@ Pillow==6.2.1
 aiohttp==3.6.2
 beautifulsoup4==4.8.1
 cleverwrap==0.3.0.2
-discord.py==1.2.4
+discord.py==1.2.5
 emoji==0.5.4
-lxml==4.4.1
-peewee==3.11.2
+lxml==4.4.2
+peewee==3.12.0
 ruamel.yaml==0.16.5
 feedparser==5.2.1
