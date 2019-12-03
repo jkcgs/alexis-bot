@@ -4,7 +4,8 @@ from discord import Embed
 from datetime import datetime
 
 from bot import Command, BaseModel, categories
-from bot.utils import is_int, pat_usertag, pat_snowflake
+from bot.utils import is_int
+from bot.regex import pat_usertag, pat_snowflake
 
 
 class BanCmd(Command):

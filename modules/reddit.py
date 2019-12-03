@@ -6,7 +6,8 @@ import peewee
 from discord import Embed
 
 from bot import Command, BaseModel, categories
-from bot.utils import pat_channel, pat_subreddit, text_cut
+from bot.utils import text_cut
+from bot.regex import pat_channel, pat_subreddit
 
 
 class RedditFollow(Command):

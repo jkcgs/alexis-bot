@@ -1,9 +1,9 @@
-from bot.libs.configuration import StaticConfig
+from bot.libs.configuration import BotConfiguration
 from bot.libs.logger import create_logger, default_format
 
 
 def new_logger(name):
-    config = StaticConfig('config.yml')
+    config = BotConfiguration.get_instance()
     config.load({
         'log_path': 'logs',
         'log_to_files': False,

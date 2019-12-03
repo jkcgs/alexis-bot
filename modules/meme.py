@@ -1,7 +1,7 @@
 from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 from bot import Command, categories
-from bot.utils import pat_usertag
+from bot.regex import pat_usertag
 
 furl = 'https://github.com/sophilabs/macgifer/raw/master/static/font/impact.ttf'
 

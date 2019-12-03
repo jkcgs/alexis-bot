@@ -1,7 +1,7 @@
 from discord import Embed
 
 from bot import Command, MessageEvent, categories
-from bot.utils import pat_invite
+from bot.regex import pat_invite
 
 
 class InviteFilter(Command):

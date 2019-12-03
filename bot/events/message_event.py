@@ -2,9 +2,10 @@ import discord
 
 from discord import Embed
 
-from bot.libs.configuration import GuildConfiguration
+from bot.libs.dynamic_config import GuildConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import pat_channel, pat_usertag, pat_snowflake, no_tags
+from bot.utils import no_tags
+from bot.regex import pat_usertag, pat_channel, pat_snowflake
 
 
 class MessageEvent:
@@ -28,9 +29,9 @@ class MessageEvent:
 
         if not self.is_pm:
             self.guild = message.guild
-            self.config = GuildConfiguration(self.bot.sv_config, message.guild)
+            self.config = GuildConfiguration(message.guild)
         else:
-            self.config = GuildConfiguration(self.bot.sv_config)
+            self.config = GuildConfiguration()
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """

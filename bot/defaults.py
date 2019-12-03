@@ -4,7 +4,7 @@ config = {
     'token': '',
     'debug': False,
     'command_prefix': '!',
-    'database_url': 'sqlite:///database.db',
+    'database_url': 'sqlite:///db.sqlite3',
     'playing': '!help',
     'bot_owners': ['130324995984326656'],
     'owner_role': 'AlexisMaster',

@@ -1,7 +1,8 @@
 import discord
 
 from bot import Command, categories
-from bot.utils import pat_channel, pat_snowflake, str_to_embed
+from bot.utils import str_to_embed
+from bot.regex import pat_channel, pat_snowflake
 
 
 class BotSendMessage(Command):

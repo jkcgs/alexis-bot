@@ -3,7 +3,8 @@ import random
 from discord import Embed
 
 from bot import Command, categories
-from bot.utils import is_int, invite_filter, pat_invite
+from bot.utils import is_int, invite_filter
+from bot.regex import pat_invite
 
 
 class Greeting(Command):

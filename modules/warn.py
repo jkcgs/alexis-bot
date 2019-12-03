@@ -4,9 +4,8 @@ import discord
 import peewee
 from discord import Embed
 
-from bot import Command, categories
+from bot import Command, categories, BaseModel
 from bot.utils import is_int
-from bot.libs.configuration import BaseModel
 
 
 class Warn(Command):

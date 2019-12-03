@@ -2,7 +2,7 @@ import discord
 from bot.libs.configuration import yaml
 
 from bot import Command
-from bot.utils import pat_channel, pat_snowflake
+from bot.regex import pat_channel, pat_snowflake
 
 letters = {}
 reacts_url = 'https://gist.github.com/makzk/3757e899f80a6e45f6e5818dc358c51c/' \

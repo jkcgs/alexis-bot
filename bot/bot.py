@@ -5,9 +5,9 @@ from datetime import datetime
 
 import discord
 
-from bot import Language, StaticConfig, Configuration, Manager
-from bot import defaults, init_db
-from bot.libs.configuration import GuildConfiguration
+from bot import Language, Configuration, Manager
+from bot.libs.dynamic_config import GuildConfiguration, BotDatabase
+from bot.libs.configuration import BotConfiguration
 from bot.logger import new_logger
 
 log = new_logger('Core')
@@ -27,7 +27,6 @@ class AlexisBot(discord.Client):
         super().__init__(**options)
 
         self.db = None
-        self.sv_config = None
         self.last_author = None
         self.initialized = False
         self.start_time = datetime.now()
@@ -37,7 +36,7 @@ class AlexisBot(discord.Client):
         self.deleted_messages_nolog = []
 
         self.manager = Manager(self)
-        self.config = StaticConfig()
+        self.config = None
         self.loop = asyncio.get_event_loop()
 
     def init(self):
@@ -57,9 +56,8 @@ class AlexisBot(discord.Client):
 
         # Load database
         log.info('Connecting to the database...')
-        self.db = init_db()
+        self.db = BotDatabase.initialize()
         log.info('Successfully conected to database using %s', self.db.__class__.__name__)
-        self.sv_config = Configuration()
 
         # Load command classes and instances from bots.modules
         log.info('Loading commands...')
@@ -87,7 +85,7 @@ class AlexisBot(discord.Client):
         """
         try:
             log.info('Loading configuration...')
-            self.config.load(defaults.config)
+            self.config = BotConfiguration.get_instance()
             log.info('Loading language stuff...')
             self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
             log.info('Loaded languages: %s, default: %s', list(self.lang.lib.keys()), self.config['default_lang'])
@@ -122,11 +120,12 @@ class AlexisBot(discord.Client):
         :param locales: Locale variables for language messages.
         :param logtype: The modlog type of the message. Guilds can disable individual modlog types.
         """
-        chanid = self.sv_config.get(guild.id, 'join_send_channel')
+        sv_config = Configuration.get_instance()
+        chanid = sv_config.get(guild.id, 'join_send_channel')
         if chanid == '':
             return
 
-        if logtype and logtype in self.sv_config.get_list(guild.id, 'logtype_disabled'):
+        if logtype and logtype in sv_config.get_list(guild.id, 'logtype_disabled'):
             return
 
         chan = self.get_channel(chanid)
@@ -214,7 +213,7 @@ class AlexisBot(discord.Client):
         :param guild: The guild that "owns" the GuildConfiguration instance
         :return: The GuildConfiguration instance for that guild.
         """
-        return GuildConfiguration(self.sv_config, guild)
+        return GuildConfiguration(guild)
 
     def is_guild_owner(self, member: discord.Member):
         """

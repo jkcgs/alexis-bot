@@ -5,8 +5,7 @@ from datetime import datetime as dt
 import discord
 import peewee
 
-from bot import Command, utils, categories
-from bot.libs.configuration import BaseModel
+from bot import Command, utils, categories, BaseModel
 
 
 class Mute(Command):

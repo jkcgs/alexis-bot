@@ -7,10 +7,9 @@ import discord
 import peewee
 from discord.http import Route
 
-from bot import Command, utils, categories
+from bot import Command, utils, categories, BaseModel
 from discord import Embed
 
-from bot.libs.configuration import BaseModel
 from bot.utils import deltatime_to_str
 
 modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']

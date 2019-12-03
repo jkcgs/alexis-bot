@@ -6,8 +6,7 @@ import peewee
 import emoji
 from discord import Emoji, Embed
 
-from bot import Command, categories
-from bot.libs.configuration import BaseModel
+from bot import Command, categories, BaseModel
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
