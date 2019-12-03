@@ -3,12 +3,13 @@ import logging
 import os
 from os import path
 
-default_format = '%(asctime)s | %(levelname)-8s | %(name)s || %(message)s'
+from bot.defaults import default_log_format
+
 datetime_format = '%Y-%m-%d %H:%M:%S'
 filename_format = '%Y-%m-%d_%H-%M-%S'
 
 
-def create_logger(name, log_format=default_format, log_path=None):
+def create_logger(name, log_format=default_log_format, log_path=None):
     log = logging.getLogger(name)
     formatter = logging.Formatter(log_format, datetime_format)
 

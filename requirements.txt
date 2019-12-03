@@ -8,3 +8,4 @@ lxml==4.4.2
 peewee==3.12.0
 ruamel.yaml==0.16.5
 feedparser==5.2.1
+requests==2.22.0

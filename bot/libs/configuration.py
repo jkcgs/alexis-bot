@@ -96,11 +96,11 @@ class StaticConfig:
         return self.config[name]
 
     @staticmethod
-    def get_config(name, defaults=None):
+    def get_config(name, default_config=None):
         """
         Loads a file inside the "config" folder from the current execution path, and returns an instance of this class.
         :param name: The file name (don't add '.yml', since it will be appended)
-        :param defaults: Default values to load to the file
+        :param default_config: Default values to load to the file
         :return: A StaticConfig instance for the loaded file
         """
 
@@ -113,8 +113,8 @@ class StaticConfig:
                 os.utime(conf_path, None)
 
         ins = StaticConfig('config/' + name + '.yml', True)
-        if defaults is not None:
-            ins.load_defaults(defaults)
+        if default_config is not None:
+            ins.load_defaults(default_config)
 
         return ins
 

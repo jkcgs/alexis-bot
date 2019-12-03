@@ -213,7 +213,6 @@ class GuildConfiguration:
     """
     def __init__(self, guild: discord.Guild = None):
         """
-        :param mgr: The Configuration instance for the global configuration manager
         :param guild: The discord.Server instance or server ID
         """
         self.guild_id = guild.id if guild is not None else 'all'

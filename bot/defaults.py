@@ -1,5 +1,7 @@
 # This module contains default definitions for bot settings and whatever
 
+default_log_format = '%(asctime)s | %(levelname)-8s | %(name)s || %(message)s'
+
 config = {
     'token': '',
     'debug': False,
@@ -10,5 +12,8 @@ config = {
     'owner_role': 'AlexisMaster',
     'ext_modpath': '',
     'subreddit': [],
-    'default_lang': 'es'
+    'default_lang': 'es',
+    'log_path': 'logs',
+    'log_to_files': False,
+    'log_format': default_log_format
 }
