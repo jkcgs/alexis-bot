@@ -2,8 +2,9 @@ from datetime import datetime
 from discord import Embed
 
 from bot import Command, categories
-from bot.utils import pat_channel, format_date
-from bot.libs.configuration import ServerConfig
+from bot.utils import format_date
+from bot.regex import pat_channel
+from bot.database import ServerConfig
 
 
 class Sismos(Command):

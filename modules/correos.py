@@ -26,7 +26,7 @@ class Correos(Command):
 
         if not evt.is_pm:
             try:
-                await self.bot.delete_message(evt.message)
+                await self.bot.delete_message(evt.message, silent=True)
             except discord.Forbidden:
                 pass
 
@@ -49,5 +49,6 @@ class Correos(Command):
                 return
 
             last_entry = data['entries'][0]
-            desc = '{} *({})*\n**$[correos-location]**: {}'.format(last_entry['status'], last_entry['datetime'], last_entry['place'])
+            desc = '{} *({})*\n**$[correos-location]**: {}'.format(
+                last_entry['status'], last_entry['datetime'], last_entry['place'])
             await evt.answer_embed(desc, '$[correos-title]')

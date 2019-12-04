@@ -2,10 +2,11 @@ import discord
 from bot.libs.configuration import yaml
 
 from bot import Command
-from bot.utils import pat_channel, pat_snowflake
+from bot.regex import pat_channel, pat_snowflake
 
 letters = {}
-reacts_url = 'https://gist.github.com/jkcgs/df2e2aea66b9359efaa1942255d401f1/raw'
+reacts_url = 'https://gist.github.com/makzk/3757e899f80a6e45f6e5818dc358c51c/' \
+             'raw/bfa484303bdfdca1571015bac5eca5abb78edb8a/characters.yml'
 
 
 class React(Command):
@@ -30,7 +31,7 @@ class React(Command):
                 return
 
             try:
-                chan = await cmd.server.get_channel(cmd.args[0][2:-1])
+                chan = await cmd.guild.get_channel(cmd.args[0][2:-1])
             except discord.NotFound:
                 await cmd.answer('Channel not found')
                 return
@@ -87,7 +88,7 @@ class React(Command):
             letters = yaml.load(await r.text())
             ins.log.debug('Reaction characters loaded!')
 
-        all_reacts = ins.bot.get_all_emojis()
+        all_reacts = ins.bot.emojis
 
         for letter, reacts in letters.items():
             for react in reacts:

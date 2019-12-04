@@ -1,7 +1,7 @@
 import discord
 
 from bot import Command, categories
-from bot.utils import member_has_role, get_server_role
+from bot.utils import get_guild_role
 
 cfg_roles = 'iam_roles'
 cfg_roles_locked = 'iam_roles_locked'
@@ -20,10 +20,11 @@ class IAm(Command):
         }
 
     async def handle(self, cmd):
-        if not self.can_manage_roles(cmd.server):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[iam-no-permission]')
             return
 
+        member = cmd.author
         roles = cmd.config.get_list(cfg_roles)
 
         if cmd.argc == 0:
@@ -32,26 +33,26 @@ class IAm(Command):
                 return False
             else:
                 # Convert roles ID list to names, filter not available roles
-                roles = [get_server_role(cmd.server, r) for r in roles]
+                roles = [get_guild_role(cmd.guild, r) for r in roles]
                 roles = [r.name for r in roles if r is not None]
                 await cmd.answer('$[iam-roles-list]', locales={'roles': ', '.join(roles)})
                 return False
 
-        role = get_server_role(cmd.server, cmd.text, False)
+        role = get_guild_role(cmd.guild, cmd.text, False)
         if role is None or role.id not in roles:
             await cmd.answer('$[iam-role-not-available]')
             return False
 
-        if member_has_role(cmd.author, role):
+        if role in member.roles:
             await cmd.answer('$[iam-already-has-role]')
             return False
 
-        if role >= cmd.server.me.top_role:
+        if role >= cmd.guild.me.top_role:
             await cmd.answer('$[iam-disallowed-role]')
             return False
 
         try:
-            await self.bot.add_roles(cmd.author, role)
+            await member.add_roles([role])
             await cmd.answer('$[iam-role-given]', locales={'role': role.name})
         except discord.Forbidden:
             await cmd.answer('$[iam-forbidden-exception]')
@@ -76,22 +77,23 @@ class IAmNot(Command):
             await cmd.answer('$[format]: $[iamnot-format]')
             return
 
+        member = cmd.author
         roles = cmd.config.get_list(cfg_roles)
-        role = get_server_role(cmd.server, cmd.text, False)
+        role = get_guild_role(cmd.guild, cmd.text, False)
 
         if role is None:
             await cmd.answer('$[iam-role-not-available]')
             return
 
         if role.id not in roles:
-            if member_has_role(cmd.author, role):
+            if role in member.roles:
                 await cmd.answer('$[iam-not-self-managed]')
             else:
                 await cmd.answer('$[iam-role-not-available]')
 
             return
 
-        if role >= cmd.server.me.top_role:
+        if role >= cmd.guild.me.top_role:
             await cmd.answer('$[iam-disallowed-role]')
             return
 
@@ -101,7 +103,7 @@ class IAmNot(Command):
             return
 
         try:
-            await self.bot.remove_roles(cmd.author, role)
+            await member.remove_roles([role])
             await cmd.answer('$[iamnot-removed-role]', locales={'role': role.name})
         except discord.Forbidden:
             await cmd.answer('$[iamnot-forbidden-exception]')
@@ -118,7 +120,7 @@ class IAmRoles(Command):
         self.category = categories.STAFF
 
     async def handle(self, cmd):
-        if not self.can_manage_roles(cmd.server):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[iam-no-permission]')
             return
 
@@ -132,7 +134,7 @@ class IAmRoles(Command):
                 return
             else:
                 # Convert roles ID list to their name, show "ND:(id)" if it's not available.
-                roles = [get_server_role(cmd.server, r) or r for r in roles]
+                roles = [get_guild_role(cmd.guild, r) or r for r in roles]
                 roles = [(r.name if isinstance(r, discord.Role) else 'ND:' + r) for r in roles]
                 await cmd.answer('$[iam-roles-list]', locales={'roles': ', '.join(roles)})
                 return
@@ -168,12 +170,12 @@ class IAmRoles(Command):
                 await cmd.answer('$[iamroles-limit-error]', locales={'limit': limit})
                 return
 
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             if role is None:
                 await cmd.answer('$[iamroles-not-found]')
                 return
 
-            if role >= cmd.server.me.top_role:
+            if role >= cmd.guild.me.top_role:
                 await cmd.answer('$[iamroles-bot-superior-role]')
                 return
 
@@ -190,7 +192,7 @@ class IAmRoles(Command):
                 return
 
             role_raw = ' '.join(cmd.args[1:])
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             if role is None:
                 if role_raw in roles:
                     role_id = role_raw
@@ -214,7 +216,7 @@ class IAmRoles(Command):
                 return
 
             role_raw = ' '.join(cmd.args[1:])
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             role_id = role_raw if role is None or role_raw in roles else role.id
 
             if role_id not in roles:
@@ -238,7 +240,7 @@ class IAmRoles(Command):
                 return
 
             role_raw = ' '.join(cmd.args[1:])
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             role_id = role_raw if role is None or role_raw in roles else role.id
 
             if role_id not in roles_locked:

@@ -25,7 +25,7 @@ class Ban(Command):
 
         await cmd.typing()
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = cmd.message.server
+        server = cmd.message.guild
 
         if member is None:
             await cmd.answer('$[realban-user-not-found]')

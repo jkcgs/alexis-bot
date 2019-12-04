@@ -4,10 +4,10 @@ import discord
 
 from bot import AlexisBot, Command, categories, BotMentionEvent
 from bot.events import is_bot_command
-from bot.utils import unserialize_avail, get_server_role, serialize_avail
+from bot.utils import unserialize_avail, get_guild_role, serialize_avail
 
-rx_snowflake = re.compile('^\d{10,19}$')
-rx_channel = re.compile('^<#\d{10,19}>$')
+rx_snowflake = re.compile(r'^\d{10,19}$')
+rx_channel = re.compile(r'^<#\d{10,19}>$')
 
 
 class InfoCmd(Command):
@@ -195,7 +195,7 @@ class OwnerRoles(Command):
                 return
 
             cmd_role = ' '.join(cmd.args[1:])
-            role = get_server_role(cmd.message.server, cmd_role)
+            role = get_guild_role(cmd.message.guild, cmd_role)
             if role is None and cmd_role not in owner_roles:
                 await cmd.answer('$[owr-role-not-found]')
                 return
@@ -226,11 +226,11 @@ class OwnerRoles(Command):
             msg = '$[owr-title] '
             msg_list = []
             for roleid in owner_roles:
-                srole = get_server_role(cmd.message.server, roleid)
+                srole = get_guild_role(cmd.message.guild, roleid)
                 if srole is not None:
                     msg_list.append(srole.name)
                 else:
-                    member = cmd.message.server.get_member(roleid)
+                    member = cmd.message.guild.get_member(roleid)
                     if member is not None:
                         msg_list.append('$[owr-usr]:' + member.display_name)
                     else:

@@ -1,7 +1,8 @@
 import discord
 
 from bot import Command, categories
-from bot.utils import pat_channel, pat_snowflake, str_to_embed
+from bot.utils import str_to_embed
+from bot.regex import pat_channel, pat_snowflake
 
 
 class BotSendMessage(Command):
@@ -23,7 +24,7 @@ class BotSendMessage(Command):
             return
 
         chan = self.bot.get_channel(cmd.args[0][2:-1])
-        if chan is None or chan.server.id != cmd.server.id:
+        if chan is None or chan.server.id != cmd.guild.id:
             await cmd.answer('$[botmsg-channel-not-found]')
             return
 
@@ -57,7 +58,7 @@ class BotEditMessage(Command):
             return
 
         chan = self.bot.get_channel(cmd.args[0][2:-1])
-        if chan is None or chan.server.id != cmd.server.id:
+        if chan is None or chan.server.id != cmd.guild.id:
             await cmd.answer('$[botmsg-channel-not-found]')
             return
 

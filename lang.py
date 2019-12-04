@@ -2,13 +2,12 @@ import re
 import sys
 from os import path, listdir, mkdir
 
+from bot import Manager, StaticConfig
+from bot.utils import is_int
 
-from bot.libs.configuration import StaticConfig
-from bot.utils import is_int, get_bot_root
-
-LANG_FOLDER = path.join(get_bot_root(), 'lang')
+LANG_FOLDER = path.join(Manager.get_bot_root(), 'lang')
 LANGS = ['en', 'es', 'es_CL']
-pat_name = re.compile('^[0-9a-zA-Z_\-]{3,20}$')
+pat_name = re.compile(r'^[0-9a-zA-Z_\-]{3,20}$')
 
 
 def yesno(default_yes=True):

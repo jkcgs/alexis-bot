@@ -1,9 +1,9 @@
 from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 from bot import Command, categories
-from bot.utils import pat_usertag
+from bot.regex import pat_usertag
 
-furl = 'https://raw.githubusercontent.com/caarlos0-graveyard/msfonts/master/fonts/impact.ttf'
+furl = 'https://github.com/sophilabs/macgifer/raw/master/static/font/impact.ttf'
 
 
 class Meme(Command):
@@ -28,8 +28,13 @@ class Meme(Command):
             self.log.warn('Could not retrieve the font')
             return
 
-        self.font = ImageFont.truetype(self.mpath, size=int(self.isize/8))
-        self.font_smaller = ImageFont.truetype(self.mpath, size=int(self.isize/14))
+        try:
+            self.font = ImageFont.truetype(self.mpath, size=int(self.isize/8))
+            self.font_smaller = ImageFont.truetype(self.mpath, size=int(self.isize/14))
+        except OSError as e:
+            if str(e) == 'unknown file format':
+                self.log.warn('The cached or downloaded font is invalid. '
+                              'Try deleting "cache/impact.ttf" and running the bot again.')
 
     async def handle(self, cmd):
         if cmd.argc == 0:

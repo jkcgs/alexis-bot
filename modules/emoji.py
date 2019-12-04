@@ -1,5 +1,6 @@
 from bot import Command, categories
-from bot.utils import pat_emoji, pat_normal_emoji, img_embed
+from bot.utils import img_embed
+from bot.regex import pat_emoji, pat_normal_emoji
 import re
 
 

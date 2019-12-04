@@ -20,4 +20,4 @@ class Ping(Command):
             return
 
         delay = (datetime.now() - now).microseconds / 1000
-        await self.bot.edit_message(msg, new_content=msg.content + ' | `delay: {:.0f} ms`'.format(delay))
+        await msg.edit(content=msg.content + ' | `delay: {:.0f} ms`'.format(delay))

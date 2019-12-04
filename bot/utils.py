@@ -3,23 +3,9 @@ import time
 
 import discord
 import re
-from os import path
 from discord import Embed, Colour
 
-from bot.libs.configuration import ServerConfiguration
-
-
-pat_tag = re.compile('^<(@!?|#|a?:([a-zA-Z0-9\-_]+):)(\d{10,19})>$')
-pat_usertag = re.compile('^<@!?(\d{10,19})>$')
-pat_channel = re.compile('^<#(\d{10,19})>$')
-pat_subreddit = re.compile('^[a-zA-Z0-9_\-]{2,25}$')
-pat_emoji = re.compile('<a?(:([a-zA-Z0-9\-_]+):)([0-9]+)>')
-pat_normal_emoji = re.compile('^:[a-zA-Z\-_]+:$')
-pat_snowflake = re.compile('^\d{10,19}$')
-pat_colour = re.compile('^#?[0-9a-fA-F]{6}$')
-pat_delta = re.compile('^([0-9]+[smhd])+$')
-pat_delta_each = re.compile('([0-9]+[smhd])+')
-pat_invite = re.compile('(?:https?://)?(discord(?:app\.com/invite|\.gg|\.me)/[a-zA-Z0-9]+)')
+from bot.regex import pat_tag, pat_usertag, pat_channel, pat_emoji, pat_colour, pat_delta_each, pat_invite
 
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
                'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
@@ -42,66 +28,28 @@ def is_float(val):
         return False
 
 
-def is_owner(bot, member, server):
-    if server is None or not isinstance(member, discord.Member):
-        return False
-
-    if member.server_permissions.administrator:
-        return True
-
-    cfg = ServerConfiguration(bot.sv_config, server.id)
-
-    owner_roles = cfg.get('owner_roles', bot.config['owner_role'])
-    if owner_roles == '':
-        owner_roles = []
-    else:
-        owner_roles = owner_roles.split('\n')
-
-    for role in member.roles:
-        if role.id in owner_roles \
-                or role.name in owner_roles \
-                or member.id in owner_roles:
-            return True
-
-    return False
+def auto_int(val):
+    try:
+        return int(val)
+    except ValueError:
+        return val
 
 
-def get_server_role(server, role, case_sensitive=True):
+def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
     """
-    Creates an instance of a server role
-    :param server: The discord.Server instance in where the lookup will be made
+    Creates an instance of a guild role
+    :param guild: The discord.Guild instance in where the lookup will be made
     :param role: The name or ID of the role
     :param case_sensitive: Implies if the lookup will be case sensitive
     :return: The role instance, or None if it was not found
     """
-    if not isinstance(server, discord.Server):
-        raise RuntimeError('"server" argument must be a discord.Server instance')
 
-    for role_ins in server.roles:
+    for role_ins in guild.roles:
         if (not case_sensitive and role_ins.name.lower() == role.lower()) \
-                or role_ins.name == role or role_ins.id == role:
+                or role_ins.name == role or role_ins.id == auto_int(role):
             return role_ins
 
     return None
-
-
-def member_has_role(member, role):
-    """
-    Verifies if a guild member has a role
-    :param member: The guild member, discord.Member instance
-    :param role: The name, ID or instanced (discord.Role) role
-    :return: A boolean value, given the result of the operation
-    """
-    if not isinstance(member, discord.Member):
-        raise RuntimeError('"member" argument must be a discord.Member instance')
-
-    for member_role in member.roles:
-        if isinstance(role, discord.Role) and member_role == role:
-            return True
-        if member_role.name == role or member_role.id == role:
-            return True
-
-    return False
 
 
 def img_embed(url, title='', description='', footer=''):
@@ -169,15 +117,15 @@ def parse_tag(text):
         return None
 
     if pat_channel.match(text):
-        return {'type': 'channel', 'id': text[2:-1]}
+        return {'type': 'channel', 'id': int(text[2:-1])}
 
     emoji = pat_emoji.match(text)
     if emoji is not None:
-        return {'type': 'emoji', 'name': emoji.group(2), 'animated': text.startswith('<a'), 'id': emoji.group(3)}
+        return {'type': 'emoji', 'name': emoji.group(2), 'animated': text.startswith('<a'), 'id': int(emoji.group(3))}
 
     user = pat_usertag.match(text)
     if user is not None:
-        return {'type': 'user', 'id': user.group(0), 'with_nick': text.startswith('<@!')}
+        return {'type': 'user', 'id': int(user.group(1)), 'with_nick': text.startswith('<@!')}
     
     return None
 
@@ -293,19 +241,6 @@ def format_date(date):
     return date.strftime('%Y-%m-%d %H:%M:%S ') + offset
 
 
-def destination_repr(destination):
-    """
-    Creates a string based on a message destination (e.g., a guild, a user).
-    :param destination: The destination object
-    :return: The generated string.
-    """
-    if getattr(destination, 'server', None) is None:
-        return '{} (ID: {})'.format(str(destination), destination.id)
-    else:
-        return '{}#{} (IDS {}#{})'.format(destination.server, str(destination), destination.id,
-                                          destination.server.id)
-
-
 def replace_everywhere(content, search, replace=None):
     """
     Replaces a string everywhere in a string or a discord.Embed instance (i.e., title, description, fields, footer)
@@ -340,14 +275,6 @@ def replace_everywhere(content, search, replace=None):
         return str(content).replace(search, replace)
 
     return content
-
-
-def get_bot_root():
-    """
-    Generates the absolute bot path in the system.
-    :return: A string containing the absolute bot path in the system.
-    """
-    return path.abspath(path.join(path.dirname(__file__), '..'))
 
 
 def get_colour(value):
@@ -400,20 +327,6 @@ def str_to_embed(txt):
         return None
 
     return embed
-
-
-def get_prefix(bot, serverid=None):
-    """
-    Looks up for the command prefix for a guild.
-    :param bot: The bot instance.
-    :param serverid: The guild ID string.
-    :return: The command prefix. If the serverid parameter is none, the default prefix will be returned.
-    """
-    if serverid is None:
-        return bot.config['command_prefix']
-    else:
-        svconfig = ServerConfiguration(bot.sv_config, serverid)
-        return svconfig.get('command_prefix', bot.config['command_prefix'])
 
 
 def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
@@ -477,7 +390,23 @@ def md_filter(text):
 
 def message_link(message):
     return 'https://discordapp.com/channels/{}/{}/{}'.format(
-        message.server.id if message.server else '@me',
+        message.guild.id if message.guild else '@me',
         message.channel.id,
         message.id
     )
+
+
+def lazy_property(fn):
+    """
+    Decorator that makes a property lazy-evaluated.
+    Retrieved from: https://stevenloria.com/lazy-properties/ (2019-05-05)
+    """
+    attr_name = '_lazy_' + fn.__name__
+
+    @property
+    def _lazy_property(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, fn(self))
+        return getattr(self, attr_name)
+
+    return _lazy_property

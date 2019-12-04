@@ -23,7 +23,7 @@ class Help(Command):
             if ins is None or (ins.owner_only and not cmd.owner) or (ins.bot_owner_only and not cmd.bot_owner):
                 await cmd.answer('$[command-not-available]')
             else:
-                lang = self.get_lang(cmd.server, cmd.channel)
+                lang = self.get_lang(cmd.guild, cmd.channel)
                 format_cont = lang.format(ins.format).replace('$CMD', '$PX$NM')
                 format_cont = format_cont.replace('$NM', cmd.args[0])
                 embed = Embed(title='$PX' + cmd.args[0], description=ins.help)

@@ -1,7 +1,7 @@
 import discord
 
 from bot import Command, categories
-from bot.utils import get_server_role
+from bot.utils import get_guild_role
 
 
 class JoinCmd(Command):
@@ -19,7 +19,7 @@ class JoinCmd(Command):
         self.user_delay = 5
 
     async def handle(self, cmd):
-        if not self.can_manage_roles(cmd.server):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[join-error-cant]')
             return
 
@@ -33,13 +33,13 @@ class JoinCmd(Command):
             await cmd.answer('$[join-already]')
             return
 
-        role = get_server_role(cmd.server, roleid)
+        role = get_guild_role(cmd.guild, roleid)
         if role is None:
             await cmd.answer('$[join-exec-role-not-found]')
             return
 
         try:
-            await self.bot.add_roles(cmd.author, role)
+            await cmd.author.add_roles(role)
             await cmd.answer('$[join-joined]')
         except (discord.Forbidden, discord.HTTPException):
             await cmd.answer('$[join-could-not-assign]')
@@ -60,7 +60,7 @@ class JoinRole(Command):
         self.user_delay = 5
 
     async def handle(self, cmd):
-        if not self.can_manage_roles(cmd.server):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[join-error-cant]')
             return
 
@@ -73,10 +73,10 @@ class JoinRole(Command):
             await cmd.answer('$[join-now-disabled]')
             return
 
-        role = get_server_role(cmd.server, ' '.join(cmd.args))
+        role = get_guild_role(cmd.guild, ' '.join(cmd.args))
         if role is None:
             await cmd.answer('$[join-role-not-found]')
-        elif role >= cmd.server.me.top_role:
+        elif role >= cmd.guild.me.top_role:
             await cmd.answer('$[join-cant-assign]')
         else:
             cmd.config.set(JoinCmd.cfg_name, role.id)

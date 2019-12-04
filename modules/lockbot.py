@@ -1,8 +1,7 @@
 from discord import Embed
 
 from bot import Command, categories
-from bot.libs.configuration import ServerConfig
-
+from bot.database import ServerConfig
 
 cfg_locked = 'locked_bot_channels'
 
@@ -22,7 +21,7 @@ class LockBot(Command):
         if event.is_pm or event.owner:
             return
 
-        if is_locked(message.server.id, message.channel.id):
+        if is_locked(message.guild.id, message.channel.id):
             return False
 
     async def handle(self, cmd):
@@ -46,7 +45,7 @@ class LockBot(Command):
         chanid = 'all' if chall else channel.id
 
         if cmd.cmdname == 'islocked':
-            locked = is_locked(cmd.message.server.id, chanid)
+            locked = is_locked(cmd.message.guild.id, chanid)
             msg = ['$[lockbot-no]', '$[lockbot-yes]'][locked]
 
             if 'all' in chans:
@@ -108,7 +107,7 @@ class LockedChans(Command):
         others = [f for f in chans if f != 'all']
         chan_list = []
         for chanid in others:
-            chan = cmd.message.server.get_channel(chanid)
+            chan = cmd.message.guild.get_channel(chanid)
             if chan is None:
                 chan_list.append('- {} ($[lockbot-not-found])'.format(chanid))
             else:

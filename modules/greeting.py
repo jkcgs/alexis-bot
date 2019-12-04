@@ -3,8 +3,9 @@ import random
 from discord import Embed
 
 from bot import Command, categories
-from bot.libs.configuration import ServerConfiguration
-from bot.utils import is_int, invite_filter, pat_invite
+from bot.guild_configuration import GuildConfiguration
+from bot.utils import is_int, invite_filter
+from bot.regex import pat_invite
 
 
 class Greeting(Command):
@@ -88,7 +89,8 @@ class Greeting(Command):
                     return
 
                 description = '\n'.join(['{}.- {}'.format(i+1, f) for i, f in enumerate(msgs)])
-                description += '\n\n**$[greeting-current-channel]**: <#{}>'.format(cmd.config.get(Greeting.cfg_welcome_channel))
+                description += '\n\n**$[greeting-current-channel]**: <#{}>'.format(
+                    cmd.config.get(Greeting.cfg_welcome_channel))
                 title = '$[greeting-welcome-messages]' if is_welcome else '$[greeting-goodbye-messages]'
                 embed = Embed(title=title, description=description)
                 await cmd.answer(embed)
@@ -151,13 +153,13 @@ class Greeting(Command):
         cfg_channel = self.cfg_welcome_channel if is_welcome else self.cfg_goodbye_channel
         cfg_messages = self.cfg_welcome_messages if is_welcome else self.cfg_goodbye_messages
 
-        cfg = ServerConfiguration(self.bot.sv_config, member.server)
+        cfg = GuildConfiguration.get_instance(member.guild)
         chanid = cfg.get(cfg_channel)
         msgs = cfg.get_list(cfg_messages, Greeting.separator)
         if chanid == '' or len(msgs) == 0:
             return
 
-        chan = member.server.get_channel(chanid)
+        chan = member.guild.get_channel(chanid)
         if chan is None:
             return
 
@@ -170,7 +172,7 @@ class Greeting(Command):
         msg = random.choice(msgs)
         msg = msg.replace('$name', name)
         msg = msg.replace('$mention', mention)
-        msg = msg.replace('$server', member.server.name)
+        msg = msg.replace('$server', member.guild.name)
 
         await self.bot.send_message(chan, msg)
 

@@ -1,19 +1,20 @@
 import re
 from datetime import datetime
 
+import discord
 import peewee
 import emoji
 from discord import Emoji, Embed
 
-from bot import Command, categories
-from bot.libs.configuration import BaseModel
+from bot import Command, categories, BaseModel
+from bot.guild_configuration import GuildConfiguration
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
 cfg_starboard_channel = 'starboard_channel'
 cfg_starboard_tcount = 'starboard_trigger_count'
 cfg_starboard_nsfw = 'starboard_watch_nsfw'
-pat_emoji = re.compile('^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
+pat_emoji = re.compile(r'^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 
 
 class StarboardHook(Command):
@@ -111,12 +112,10 @@ class StarboardHook(Command):
         else:
             await cmd.answer('$[starboard-format]', locales={'command_name': cmd.cmdname})
 
-    async def on_reaction_add(self, reaction, user):
-        msg = reaction.message
-        if msg.server is None:
-            return
+    async def on_reaction_add(self, reaction, user: discord.Member):
+        message = reaction.message
+        config = GuildConfiguration.get_instance(user.guild)
 
-        config = self.config_mgr(reaction.message.server.id)
         # Load allowed reactions
         emojis = config.get(cfg_starboard_emojis)
         reaction_triggers = []
@@ -143,22 +142,22 @@ class StarboardHook(Command):
             count_trigger = int(ct_config)
 
         # Ignore messages on the starboard channel or from the bot itself
-        if starboard_chanid == msg.channel.id or msg.author.id == self.bot.user.id:
+        if starboard_chanid == message.channel.id or message.author.id == self.bot.user.id:
             return
 
         # Ignore NSFW channels if they are ignored
-        if 'nsfw' in msg.channel.name.lower() and config.get(cfg_starboard_nsfw, '0') == '0':
+        if message.channel.is_nsfw() and config.get(cfg_starboard_nsfw, '0') == '0':
             return
 
         try:
-            star_item = Starboard.get(Starboard.message_id == msg.id)
+            star_item = Starboard.get(Starboard.message_id == message.id)
             is_update = True
         except peewee.DoesNotExist:
             star_item = None
             is_update = False
 
         max_count = 0
-        for reaction in msg.reactions:
+        for reaction in message.reactions:
             emoji_react = reaction.emoji
             if len(reaction_triggers) != 0:
                 if isinstance(emoji_react, str) and emoji_react not in reaction_triggers:
@@ -178,7 +177,7 @@ class StarboardHook(Command):
             star_item.delete_instance()
             return
 
-        footer_text = self.get_lang(msg.server.id, starboard_chan.id).get('starboard-reactions')
+        footer_text = self.get_lang(message.guild, starboard_chan).get('starboard-reactions')
 
         if is_update:
             if not star_item.starboard_id:
@@ -188,13 +187,13 @@ class StarboardHook(Command):
             if starboard_msg is None:
                 return
 
-            new_embed = self.create_embed(msg, star_item.timestamp, footer_text)
+            new_embed = self.create_embed(message, star_item.timestamp, footer_text)
             await self.bot.edit_message(starboard_msg, embed=new_embed)
         else:
             timestamp = datetime.now()
-            embed = self.create_embed(msg, timestamp, footer_text)
+            embed = self.create_embed(message, timestamp, footer_text)
             starboard_msg = await self.bot.send_message(starboard_chan, embed=embed)
-            Starboard.insert(message_id=msg.id, timestamp=timestamp, starboard_id=starboard_msg.id).execute()
+            Starboard.insert(message_id=message.id, timestamp=timestamp, starboard_id=starboard_msg.id).execute()
 
     def create_embed(self, msg, ts, footer_txt):
         embed = Embed()
@@ -207,7 +206,7 @@ class StarboardHook(Command):
             embed.set_image(url=msg.attachments[0]['url'])
 
         reactions = ' | '.join(['{}: {}'.format(str(r.emoji), r.count) for r in msg.reactions])
-        self.get_lang(msg.server.id)
+        self.get_lang(msg.guild)
 
         embed.add_field(name=footer_txt, value=reactions)
         return embed

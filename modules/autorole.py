@@ -1,7 +1,8 @@
 import asyncio
 
 from bot import Command, categories
-from bot.utils import get_server_role
+from bot.guild_configuration import GuildConfiguration
+from bot.utils import get_guild_role
 
 
 class AutoRole(Command):
@@ -20,11 +21,11 @@ class AutoRole(Command):
         self.category = categories.STAFF
 
     async def handle(self, cmd):
-        if not self.can_manage_roles(cmd.server):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[autorole-error-cant]')
             return
 
-        roles = [get_server_role(cmd.server, r) for r in cmd.config.get_list(AutoRole.cfg_name)]
+        roles = [get_guild_role(cmd.guild, r) for r in cmd.config.get_list(AutoRole.cfg_name)]
         roles = [r for r in roles if r is not None]
 
         if cmd.argc == 0:
@@ -43,29 +44,29 @@ class AutoRole(Command):
             else:
                 await cmd.answer('$[autorole-list-none]')
         elif cmd.args[0] == 'add':
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             if role is None:
                 await cmd.answer('$[autorole-not-found]')
             elif role.id in [r.id for r in roles]:
                 await cmd.answer('$[autorole-already-added]')
-            elif role >= cmd.server.me.top_role:
+            elif role >= cmd.guild.me.top_role:
                 await cmd.answer('$[autorole-cant-assign]')
             else:
                 cmd.config.add(AutoRole.cfg_name, role.id)
                 await cmd.answer('$[autorole-added]')
         elif cmd.args[0] == 'set':
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             if role is None:
                 await cmd.answer('$[autorole-not-found]')
             elif role.id in [r.id for r in roles]:
                 await cmd.answer('$[autorole-already-added]')
-            elif role >= cmd.server.me.top_role:
+            elif role >= cmd.guild.me.top_role:
                 await cmd.answer('$[autorole-cant-assign]')
             else:
                 cmd.config.set_list(AutoRole.cfg_name, [role.id])
                 await cmd.answer('$[autorole-added]')
         elif cmd.args[0] == 'remove':
-            role = get_server_role(cmd.server, ' '.join(cmd.args[1:]))
+            role = get_guild_role(cmd.guild, ' '.join(cmd.args[1:]))
             if role is None:
                 role = ' '.join(cmd.args[1:])
                 if role not in cmd.config.get_list(AutoRole.cfg_name):
@@ -86,7 +87,7 @@ class AutoRole(Command):
 
             msg = await cmd.answer('$[autorole-assigning]')
 
-            total = len(cmd.server.members)
+            total = len(cmd.guild.members)
             loop = asyncio.get_event_loop()
             i = 0
 
@@ -99,7 +100,7 @@ class AutoRole(Command):
 
             await loop.create_task(upd())
 
-            for member in list(cmd.server.members):
+            for member in list(cmd.guild.members):
                 await self.give_roles(member)
                 i += 1
 
@@ -111,7 +112,7 @@ class AutoRole(Command):
 
             msg = await cmd.answer('$[autorole-removing]')
 
-            total = len(cmd.server.members)
+            total = len(cmd.guild.members)
             loop = asyncio.get_event_loop()
             i = 0
 
@@ -124,7 +125,7 @@ class AutoRole(Command):
 
             await loop.create_task(upd())
 
-            for member in list(cmd.server.members):
+            for member in list(cmd.guild.members):
                 await self.take_roles(member)
                 i += 1
 
@@ -135,13 +136,13 @@ class AutoRole(Command):
     async def on_member_join(self, member):
         await self.give_roles(member)
 
-    def get_roles(self, server):
-        cfg = self.config_mgr(server.id)
-        roles = [get_server_role(server, r) for r in cfg.get_list(AutoRole.cfg_name)]
+    def get_roles(self, guild):
+        cfg = GuildConfiguration.get_instance(guild)
+        roles = [get_guild_role(guild, r) for r in cfg.get_list(AutoRole.cfg_name)]
         return [r for r in roles if r is not None]
 
     async def give_roles(self, member):
-        roles = self.get_roles(member.server)
+        roles = self.get_roles(member.guild)
 
         if len(roles) == 0:
             return
@@ -149,7 +150,7 @@ class AutoRole(Command):
         await self.bot.add_roles(member, *roles)
 
     async def take_roles(self, member):
-        roles = self.get_roles(member.server)
+        roles = self.get_roles(member.guild)
 
         if len(roles) == 0:
             return

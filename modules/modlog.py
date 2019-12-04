@@ -1,16 +1,13 @@
-import asyncio
 import re
 from datetime import datetime
-from threading import Thread
 
 import discord
 import peewee
 from discord.http import Route
 
-from bot import Command, utils, categories
-from discord import Embed
+from bot import Command, utils, categories, BaseModel
+from discord import Embed, AuditLogAction
 
-from bot.libs.configuration import BaseModel
 from bot.utils import deltatime_to_str
 
 modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']
@@ -27,7 +24,7 @@ class ModLog(Command):
 
     async def on_member_join(self, member):
         await self.bot.send_modlog(
-            member.server, '$[modlog-new-user]',
+            member.guild, '$[modlog-new-user]',
             embed=ModLog.gen_embed(member, more=True), locales={'mid': member.id}, logtype='user_join')
 
     async def on_member_remove(self, member):
@@ -38,29 +35,29 @@ class ModLog(Command):
             'dt': dt
         }
 
-        await self.bot.send_modlog(member.server, '$[modlog-user-left]', locales=locales, logtype='user_leave')
+        await self.bot.send_modlog(member.guild, '$[modlog-user-left]', locales=locales, logtype='user_leave')
 
     async def on_message_delete(self, message):
-        if message.server is None or message.author.id == self.bot.user.id:
+        if message.guild is None or message.author.id == self.bot.user.id:
             return
 
-        footer = '$[modlog-msg-sent]: ' + utils.format_date(message.timestamp)
-        if message.edited_timestamp is not None:
-            footer += ', $[modlog-msg-edited]: ' + utils.format_date(message.edited_timestamp)
+        footer = '$[modlog-msg-sent]: ' + utils.format_date(message.created_at)
+        if message.edited_at is not None:
+            footer += ', $[modlog-msg-edited]: ' + utils.format_date(message.edited_at)
 
         embed = Embed(description='($[modlog-no-text])' if message.content == '' else message.content)
         embed.set_footer(text=footer)
         if len(message.attachments) > 0:
             with_img = False
-            if 'width' in message.attachments[0] is not None:
-                fn_value = '[{}]({})'.format(message.attachments[0]['filename'], message.attachments[0]['url'])
-                embed.set_image(url=message.attachments[0]['url'])
+            if message.attachments.width:
+                fn_value = '[{}]({})'.format(message.attachments[0].filename, message.attachments[0].url)
+                embed.set_image(url=message.attachments[0].url)
                 embed.add_field(name='$[modlog-file-name]', value=fn_value)
                 with_img = True
 
             if with_img and len(message.attachments) > 1 or not with_img:
                 i = 1 if with_img else 0
-                x = ['[{}]({})'.format(f['filename'], f['url']) for f in message.attachments[i:]]
+                x = ['[{}]({})'.format(f.filename, f.url) for f in message.attachments[i:]]
                 t = [
                         ['$[modlog-attatched]', '$[modlog-attached-other]'],
                         ['$[modlog-attached-single]', '$[modlog-attached-other-single]']
@@ -81,26 +78,23 @@ class ModLog(Command):
                 msg = '$[modlog-bot-deleted-msg]'
         else:
             try:
-                last = await self.get_last_alog(message.server.id)
-                if last is not None and last['action_type'] == 72 and \
-                        last['options']['channel_id'] == message.channel.id and last['target_id'] == message.author.id:
-                    who = last['user_id']
+                last = await self.get_last_alog(message.guild)
+                if last is not None and last.action == AuditLogAction.message_delete and \
+                        last.extra.channel.id == message.channel.id and last.target.id == message.author.id:
+                    who = last.user
                     if who == self.bot.user.id:
                         msg = '$[modlog-bot-deleted-msg]'
                     else:
-                        u = message.server.get_member(who)
-                        u = '<@' + who + '>' if u is None else u.display_name
-
-                        locales['deleter_name'] = u
+                        locales['deleter_name'] = who.display_name
                         msg = '$[modlog-user-deleted-other]'
             except discord.Forbidden:
                 msg = '$[modlog-somehow-deleted-msg]'
 
-        await self.bot.send_modlog(message.server, msg, embed=embed, locales=locales, logtype='message_delete')
+        await self.bot.send_modlog(message.guild, msg, embed=embed, locales=locales, logtype='message_delete')
 
     async def on_message_edit(self, before, after):
         # Ignore on PM or self message
-        if before.server is None or before.author.id == self.bot.user.id:
+        if not isinstance(before.channel, discord.TextChannel) or before.author.id == self.bot.user.id:
             return
 
         # Ignore if no content changes were made
@@ -108,8 +102,8 @@ class ModLog(Command):
             return
 
         footer = '$[modlog-msg-sent]: {}, $[modlog-msg-edited]: {}'.format(
-            utils.format_date(before.timestamp),
-            utils.format_date(after.timestamp)
+            utils.format_date(before.created_at),
+            utils.format_date(after.created_at)
         )
 
         embed = Embed(title='📝 $[modlog-user-edited-msg]', description='$[modlog-user-edited-channel]')
@@ -126,10 +120,10 @@ class ModLog(Command):
         embed.add_field(name='$[modlog-user-edited-before]', value=utils.text_cut(cont_before, 1000), inline=False)
         embed.add_field(name='$[modlog-user-edited-after]', value=utils.text_cut(cont_after, 1000), inline=False)
 
-        await self.bot.send_modlog(after.server, embed=embed, locales=locales, logtype='message_edit')
+        await self.bot.send_modlog(after.guild, embed=embed, locales=locales, logtype='message_edit')
 
     async def on_member_update(self, before, after):
-        server = after.server
+        guild = after.guild
 
         if before.name != after.name:
             if after.display_name != after.name:
@@ -138,7 +132,7 @@ class ModLog(Command):
                 nick = utils.md_filter(after.display_name)
 
                 await self.bot.send_modlog(
-                    server, '$[modlog-username-changed-nick]',
+                    guild, '$[modlog-username-changed-nick]',
                     locales={'prev_name': name_before, 'new_name': name_after, 'nick': nick},
                     logtype='username')
             else:
@@ -146,21 +140,18 @@ class ModLog(Command):
                 name_after = utils.md_filter(after.name)
 
                 await self.bot.send_modlog(
-                    server, '$[modlog-username-changed]',
+                    guild, '$[modlog-username-changed]',
                     locales={'prev_name': name_before, 'new_name': name_after}, logtype='username')
 
         if (before.nick or after.nick) and before.nick != after.nick:
             try:
-                alog = await self.get_last_alog(after.server.id)
+                alog = await self.get_last_alog(after.guild)
             except discord.Forbidden:
                 alog = None
 
-            if alog is not None and alog['action_type'] == 24 and len(alog['changes']) \
-                    and alog['changes'][0]['key'] == 'nick':
-                if alog['user_id'] == str(after.id):
-                    by = after
-                else:
-                    by = after.server.get_member(alog['user_id'])
+            if alog is not None and alog.action == AuditLogAction.member_update \
+                    and len(alog.changes) and alog.extra.nick:
+                by = alog.user
             else:
                 by = None
 
@@ -173,38 +164,41 @@ class ModLog(Command):
 
             if by is None:
                 # default entry, no author
-                await self.bot.send_modlog(server, '$[modlog-nick-other]', logtype='nick', locales=locales)
+                await self.bot.send_modlog(guild, '$[modlog-nick-other]', logtype='nick', locales=locales)
             elif by.id == after.id:
                 # self updated
                 if by.id == self.bot.user.id:
-                    await self.bot.send_modlog(server, '$[modlog-nick-bot-self]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-bot-self]', logtype='nick', locales=locales)
                 else:
-                    await self.bot.send_modlog(server, '$[modlog-nick-self]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-self]', logtype='nick', locales=locales)
             else:
                 # someone updated other's nick
                 if after.id == self.bot.user.id:
-                    await self.bot.send_modlog(server, '$[modlog-nick-other-bot]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-other-bot]', logtype='nick', locales=locales)
                 else:
-                    await self.bot.send_modlog(server, '$[modlog-nick-by]', logtype='nick', locales=locales)
+                    await self.bot.send_modlog(guild, '$[modlog-nick-by]', logtype='nick', locales=locales)
 
-    async def get_last_alog(self, guild_id):
+    async def get_last_alog(self, guild):
         try:
-            x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
+            entries = await guild.audit_logs(limit=1).flatten()
         except discord.Forbidden:
-            self.log.debug('No permission to read audit logs for guild %s', guild_id)
+            self.log.debug('No permission to read audit logs for guild %s', guild.id)
+            return None
+        except AttributeError:
+            self.log.warning('There was probably an unknown (for discord.py) Audit Log action and triggered this error')
             return None
 
-        if 'audit_log_entries' not in x or len(x['audit_log_entries']) == 0:
+        if len(entries) == 0:
             return None
 
-        return x['audit_log_entries'][0]
+        return entries[0]
 
     @staticmethod
     def get_note(member):
         if not isinstance(member, discord.Member):
             raise RuntimeError('member argument can only be a discord.Member')
 
-        xd, _ = UserNote.get_or_create(serverid=member.server.id, userid=member.id)
+        xd, _ = UserNote.get_or_create(serverid=member.guild.id, userid=member.id)
         return xd.note
 
     @staticmethod
@@ -212,7 +206,7 @@ class ModLog(Command):
         if not isinstance(member, discord.Member):
             raise RuntimeError('member argument can only be a discord.Member')
 
-        xd, _ = UserNote.get_or_create(serverid=member.server.id, userid=member.id)
+        xd, _ = UserNote.get_or_create(serverid=member.guild.id, userid=member.id)
         xd.note = note
         xd.save()
 
@@ -329,93 +323,6 @@ class UserNoteCmd(Command):
 
         ModLog.set_note(member, ' '.join(cmd.args[1:]))
         await cmd.answer('$[modlog-note-set]')
-
-
-class UpdateUsername(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.db_models = [UserNameReg]
-        self.updating = False
-        self.updated = False
-        self.ready = False
-        self.loop = asyncio.new_event_loop()
-
-    async def on_ready(self):
-        t = Thread(target=self.start_update, args=(self.loop,))
-        t.start()
-
-    def start_update(self, loop):
-        self.log.debug('Running initial update...')
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.run_all())
-        self.ready = True
-
-    async def on_member_join(self, member):
-        if not self.ready or not self.updating:
-            self.bot.loop.create_task(self.do_it(member))
-
-    async def on_member_update(self, before, after):
-        if not self.ready or not self.updating:
-            self.bot.loop.create_task(self.do_it(after))
-
-    async def run_all(self):
-        if self.updating or self.updated:
-            return
-
-        self.log.debug('Updating users\' names...')
-        c = self.all()
-
-        if c is not None:
-            self.log.debug('Users updated: %i', c)
-
-    def all(self):
-        if self.updating or self.updated:
-            return
-
-        self.updating = True
-
-        # Retrieve every last user name
-        # SELECT * FROM usernamereg t1 WHERE timestamp = (
-        #   SELECT MAX(timestamp) FROM t1 WHERE t1.timestamp = usernamereg.timestamp
-        # ) ORDER BY timestamp DESC
-        u_alias = UserNameReg.alias()
-        j = {u.userid: u.name for u in
-             UserNameReg.select().where(
-                 UserNameReg.timestamp == u_alias.select(peewee.fn.MAX(u_alias.timestamp)).where(
-                     u_alias.userid == UserNameReg.userid)
-             ).order_by(
-                 UserNameReg.timestamp.desc()
-             )}
-
-        # Filter by unregistered users
-        k = [{'userid': m.id, 'name': m.name}
-             for m in self.bot.get_all_members() if m.id not in j or j[m.id] != m.name]
-        k = [i for n, i in enumerate(k) if i not in k[n + 1:]]  # https://stackoverflow.com/a/9428041
-
-        # Register new users' names
-        with self.bot.db.atomic():
-            for idx in range(0, len(k), 100):
-                UserNameReg.insert_many(k[idx:idx + 100]).execute()
-
-        self.updating = False
-        self.updated = True
-        return len(k)
-
-    async def do_it(self, user):
-        if not isinstance(user, discord.User):
-            raise RuntimeError('user argument can only be a discord.User')
-
-        with self.bot.db.atomic():
-            r = UserNameReg.select().where(UserNameReg.userid == user.id).order_by(UserNameReg.timestamp.desc()).limit(1)
-            u = r.get() if r.count() > 0 else None
-
-            if r.count() == 0 or u.name != user.name:
-                old = '(none)' if u is None else u.name
-                self.log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
-                UserNameReg.create(userid=user.id, name=user.name)
-                return True
-
-        return False
 
 
 class LogToggle(Command):

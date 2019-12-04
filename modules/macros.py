@@ -4,9 +4,8 @@ from datetime import datetime
 import peewee
 from discord import Embed, Colour
 
-from bot import Command, categories
+from bot import Command, categories, BaseModel
 from bot.utils import is_int, get_colour, format_date, colour_list
-from bot.libs.configuration import BaseModel
 
 
 class MacroSet(Command):
@@ -75,8 +74,8 @@ class MacroSet(Command):
                 await cmd.answer('$[macros-missing-fields]')
                 return
 
-        server_id = 'global' if cmd.is_pm else cmd.message.server.id
-        macro, created = EmbedMacro.get_or_create(name=name, server=server_id)
+        guild = 'global' if cmd.is_pm else cmd.message.guild.id
+        macro, created = EmbedMacro.get_or_create(name=name, server=guild)
         macro.image_url = image_url
         macro.title = title
         macro.description = description
@@ -145,7 +144,7 @@ class MacroRename(Command):
         if len(cmd.args[1]) > 100:
             await cmd.answer('$[macros-err-name-length]')
 
-        serverid = 'global' if cmd.is_pm else cmd.message.server.id
+        serverid = 'global' if cmd.is_pm else cmd.message.guild.id
         try:
             other = EmbedMacro.select().where(EmbedMacro.name == cmd.args[1], EmbedMacro.server == serverid)
             if other.count() > 0:
@@ -190,9 +189,9 @@ class MacroSetColour(Command):
                 return
 
         name = cmd.args[0].replace('\\', '')
-        server_id = 'global' if cmd.is_pm else cmd.message.server.id
+        guild = 'global' if cmd.is_pm else cmd.message.guild.id
         try:
-            macro = EmbedMacro.get(name=name, server=server_id)
+            macro = EmbedMacro.get(name=name, server=guild)
             macro.embed_color = colour.value
             macro.save()
             await cmd.answer('$[macros-colour-updated]', locales={'macro_name': name})
@@ -216,7 +215,7 @@ class MacroList(Command):
             items = EmbedMacro.select().where(EmbedMacro.server == 'global')
         else:
             items = EmbedMacro.select().where(
-                EmbedMacro.server << [cmd.message.server.id, 'global'])
+                EmbedMacro.server << [cmd.message.guild.id, 'global'])
 
         for item in items:
             if re.match(self.rx_mention, item.name):
@@ -276,8 +275,8 @@ class MacroUse(Command):
 
         # Use an embed macro, if it exists
         try:
-            server_id = 'global' if cmd.is_pm else cmd.message.server.id
-            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server << [server_id, 'global'])
+            guild_id = 'global' if cmd.is_pm else cmd.message.guild.id
+            macro = EmbedMacro.get(EmbedMacro.name == macro_name, EmbedMacro.server << [guild_id, 'global'])
             macro.used_count += 1
             macro.save()
 
@@ -320,7 +319,7 @@ class MacroSearch(Command):
             return
 
         result = EmbedMacro.select().where(
-            EmbedMacro.server == cmd.server.id and EmbedMacro.name.contains(cmd.args[0])
+            EmbedMacro.server == cmd.guild.id and EmbedMacro.name.contains(cmd.args[0])
         ).limit(21)
 
         n_results = result.count()
@@ -349,7 +348,7 @@ class MacroRank(Command):
 
     async def handle(self, cmd):
         sortage = 'asc' if cmd.argc == 1 and cmd.args[0] in ['inv', 'inverse'] else 'desc'
-        result = EmbedMacro.select().where(EmbedMacro.server == cmd.server.id).order_by(
+        result = EmbedMacro.select().where(EmbedMacro.server == cmd.guild.id).order_by(
             getattr(EmbedMacro.used_count, sortage)()).limit(10)
 
         if len(result) == 0:

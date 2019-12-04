@@ -1,5 +1,4 @@
 from io import BytesIO
-from os import path
 from PIL import Image
 from bot import Command, categories
 from bot.utils import parse_tag
@@ -50,11 +49,11 @@ class ShipperUwU(Command):
         self.log.debug('Generating picture...')
 
         # Download profile pictures
+        self.log.debug('Downloading user1 avatar - %s', item1_url)
         async with self.http.get(item1_url) as resp:
-            self.log.debug('Downloading user1 avatar - %s', item1_url)
             user1_avatar = await resp.read()
+        self.log.debug('Downloading user2 avatar - %s', item2_url)
         async with self.http.get(item2_url) as resp:
-            self.log.debug('Downloading user2 avatar - %s', item2_url)
             user2_avatar = await resp.read()
 
         # Open and resize pictures

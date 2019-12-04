@@ -22,7 +22,7 @@ class ServerInfo(Command):
                 await cmd.answer('$[format]: $[serverinfo-format]')
                 return
             else:
-                cmd.args.append(cmd.server.id)
+                cmd.args.append(cmd.guild.id)
 
         server = self.bot.get_server(cmd.args[0])
         if server is None:

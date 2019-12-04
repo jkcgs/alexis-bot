@@ -2,9 +2,10 @@ import discord
 
 from discord import Embed
 
-from bot.libs.configuration import ServerConfiguration
+from bot.guild_configuration import GuildConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import is_owner, pat_channel, pat_usertag, pat_snowflake, get_prefix, no_tags
+from bot.utils import no_tags
+from bot.regex import pat_usertag, pat_channel, pat_snowflake
 
 
 class MessageEvent:
@@ -17,20 +18,14 @@ class MessageEvent:
         self.channel = message.channel
         self.author = message.author
         self.author_name = message.author.display_name
-        self.is_pm = message.server is None
+        self.is_pm = isinstance(message.channel, discord.DMChannel)
         self.self = message.author.id == bot.user.id
         self.text = message.content
         self.bot_owner = message.author.id in bot.config['bot_owners']
 
-        self.server = None
-        self.config = None
+        self.guild = None if self.is_pm else message.guild
+        self.config = GuildConfiguration.get_instance(self.guild)
         self._lang = None
-
-        if not self.is_pm:
-            self.server = message.server
-            self.config = ServerConfiguration(self.bot.sv_config, message.server.id)
-        else:
-            self.config = ServerConfiguration(self.bot.sv_config, 'all')
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
         """
@@ -60,7 +55,7 @@ class MessageEvent:
     async def answer_embed(self, msg, title=None, *, delete_trigger=False, withname=True, **kwargs):
         if delete_trigger:
             try:
-                await self.bot.delete_message(self.message)
+                await self.bot.delete_message(msg)
             except discord.Forbidden:
                 pass
 
@@ -76,9 +71,9 @@ class MessageEvent:
 
     async def typing(self):
         """
-        Sends the "typing..." status to the event's channel.
+        Shortcut method. Sends the "typing..." status to the event's channel.
         """
-        await self.bot.send_typing(self.message.channel)
+        await self.channel.trigger_typing()
 
     def member_by_id(self, user_id):
         """
@@ -89,14 +84,11 @@ class MessageEvent:
         if self.is_pm:
             return None
 
-        for member in self.message.server.members:
+        for member in self.message.guild.members:
             if member.id == user_id:
                 return member
 
         return None
-
-    def is_owner(self, user):
-        return is_owner(self.bot, user, self.message.server)
 
     def no_tags(self, users=True, channels=True, emojis=True):
         return no_tags(self.message, self.bot, users, channels, emojis)
@@ -115,10 +107,13 @@ class MessageEvent:
         if isinstance(user, discord.Member) or isinstance(user, discord.User):
             return user
 
+        if isinstance(user, int):
+            return await self.bot.fetch_user(user)
+
         if user.startswith("@"):
             user = user[1:]
 
-        u = self.message.server.get_member_named(user)
+        u = self.message.guild.get_member_named(user)
         if u is not None:
             return u
 
@@ -126,14 +121,14 @@ class MessageEvent:
             st = 3 if user[2] == '!' else 2
             user = user[st:-1]
 
-        u = self.message.server.get_member(user)
+        u = self.message.guild.get_member(user)
         if u is not None:
             return u
 
         if member_only or not pat_snowflake.match(user):
             return None
 
-        return await self.bot.get_user_info(user)
+        return self.bot.get_user(user)
 
     def find_channel(self, channel):
         """
@@ -144,16 +139,16 @@ class MessageEvent:
         if self.is_pm:
             return None
 
-        sv = self.message.server
+        guild = self.message.guild
         if pat_snowflake.match(channel):
-            return sv.get_channel(channel)
+            return guild.get_channel(channel)
         elif pat_channel.match(channel):
-            return sv.get_channel(channel[2:-1])
+            return guild.get_channel(channel[2:-1])
         else:
             if channel.startswith('#'):
                 channel = channel[1:]
 
-            for chan in sv.channels:
+            for chan in guild.channels:
                 if chan.name == channel:
                     return chan
 
@@ -162,43 +157,51 @@ class MessageEvent:
     def lng(self, name, **kwargs):
         return self.lang.get(name, **kwargs)
 
+    def is_owner(self, member: discord.Member):
+        if member.guild.owner == member or member.guild_permissions.administrator:
+            return True
+
+        owner_roles = self.config.get('owner_roles', self.bot.config['owner_role'])
+        if owner_roles == '':
+            owner_roles = []
+        else:
+            owner_roles = owner_roles.split('\n')
+
+        for role in member.roles:
+            if role.id in owner_roles \
+                    or role.name in owner_roles \
+                    or member.id in owner_roles:
+                return True
+
+        return False
+
     @property
     def prefix(self):
-        return MessageEvent.get_prefix(self.message, self.bot)
+        return self.bot.get_prefix(self.message.channel)
 
     @property
     def owner(self):
-        if self.server is None:
+        if self.guild is None:
             return False
-        return is_owner(self.bot, self.author, self.server)
-
-    @property
-    def server_member(self):
-        if self.server is None:
-            return None
-        return self.server.get_member(self.bot.user.id)
+        return self.bot.is_guild_owner(self.guild.me)
 
     @property
     def permissions(self):
-        if self.server is None:
+        if self.guild is None:
             return None
-        return self.server_member.permissions_in(self.channel)
+        return self.guild.me.permissions_in(self.channel)
 
     @property
     def lang(self):
         if self._lang is None:
-            if self.server is None:
+            if self.guild is None:
                 self._lang = SingleLanguage(self.bot.lang, self.bot.config['default_lang'])
             else:
-                lang_code = self.bot.sv_config.get(self.server.id, 'lang', self.bot.config['default_lang'])
+                lang_code = self.bot.sv_config.get(self.guild.id, 'lang', self.bot.config['default_lang'])
                 self._lang = SingleLanguage(self.bot.lang, lang_code)
 
         return self._lang
 
     def __str__(self):
         return '[{}  channel="{}#{}" author="{}" text="{}"]'.format(
-            self.__class__.__name__, self.message.server, self.message.channel, self.message.author, self.text)
-
-    @staticmethod
-    def get_prefix(message, bot):
-        return get_prefix(bot, None if message.server is None else message.server.id)
+            self.__class__.__name__, self.message.guild, self.message.channel, self.message.author, self.text)

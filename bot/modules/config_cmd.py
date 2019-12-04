@@ -1,7 +1,3 @@
-import sys
-
-from discord import Game
-
 from bot import Command, StaticConfig, categories
 from bot.utils import is_float, is_int, split_list
 
@@ -107,44 +103,3 @@ class ConfigCmd(Command):
                 return
         else:
             await cmd.answer('$[config-err-sub]')
-
-
-class ReloadCmd(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'reload'
-        self.help = '$[config-reload-help]'
-        self.bot_owner_only = True
-        self.category = categories.SETTINGS
-
-    async def handle(self, cmd):
-        if not self.bot.load_config():
-            await cmd.answer('$[config-reload-err]')
-            return
-
-        nmods = len([i.load_config() for i in self.bot.manager.cmd_instances if callable(getattr(i, 'load_config', None))])
-        await cmd.answer('$[config-reloaded]', locales={'rel_mods': nmods})
-
-
-class ShutdownCmd(Command):
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'shutdown'
-        self.help = '$[config-shutdown-help]'
-        self.bot_owner_only = True
-        self.category = categories.SETTINGS
-
-    async def handle(self, cmd):
-        self.bot.config['shutdown_channel'] = cmd.message.channel.id
-        await cmd.answer('$[config-goodbye]')
-        self.bot.logout()
-        sys.exit(0)
-
-    async def on_ready(self):
-        if self.bot.config.get('shutdown_channel', '') != '':
-            chan = self.bot.get_channel(self.bot.config['shutdown_channel'])
-            if chan is None:
-                return
-
-            await self.bot.send_message(chan, '$[config-back]')
-            self.bot.config['shutdown_channel'] = ''

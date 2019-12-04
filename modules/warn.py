@@ -4,9 +4,8 @@ import discord
 import peewee
 from discord import Embed
 
-from bot import Command, categories
+from bot import Command, categories, BaseModel
 from bot.utils import is_int
-from bot.libs.configuration import BaseModel
 
 
 class Warn(Command):
@@ -26,7 +25,7 @@ class Warn(Command):
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = cmd.message.server
+        server = cmd.message.guild
         await cmd.typing()
 
         if member is None:
@@ -180,7 +179,7 @@ class WarnList(Command):
             warnlist = []
             for warn in warns:
                 fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                u = cmd.message.server.get_member(warn.userid)
+                u = cmd.message.guild.get_member(warn.userid)
                 if u is None:
                     u = '<@{}> ({})'.format(warn.userid, warn.userid)
                 else:
@@ -227,25 +226,25 @@ class WarnRank(Command):
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
-        e = UserWarn.select(UserWarn.serverid, UserWarn.userid, UserWarn.timestamp, UserWarn.reason,
-                            peewee.fn.COUNT(UserWarn.userid).alias('num_warns')) \
-            .group_by(UserWarn.userid) \
-            .order_by(peewee.fn.COUNT(UserWarn.userid).desc())
+        query = UserWarn.select(
+            UserWarn.serverid, UserWarn.userid, UserWarn.timestamp, UserWarn.reason,
+            peewee.fn.COUNT(UserWarn.userid).alias('num_warns')
+        ).group_by(UserWarn.userid).order_by(peewee.fn.COUNT(UserWarn.userid).desc())
 
-        if e.count() == 0:
+        if query.count() == 0:
             await cmd.answer('$[warnrank-none]')
             return
 
         msg = []
-        for xd in e:
-            u = cmd.message.server.get_member(xd.userid)
-            d = xd.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-            if u is None:
-                u = 'ID {}'.format(xd.userid, xd.userid)
+        for result in query:
+            member = cmd.message.guild.get_member(result.userid)
+            timestr = result.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            if member is None:
+                member = 'ID {}'.format(result.userid, result.userid)
             else:
-                u = u.display_name
+                member = member.display_name
 
-            msg.append('{} - {} ($[warnrank-last]: {}, "{}")'.format(xd.num_warns, u, d, xd.reason))
+            msg.append('{} - {} ($[warnrank-last]: {}, "{}")'.format(result.num_warns, member, timestr, result.reason))
 
         await cmd.answer(Embed(title='$[warnrank-title]', description='\n'.join(msg)))
         return
