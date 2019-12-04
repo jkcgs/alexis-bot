@@ -3,15 +3,16 @@ import glob
 import inspect
 import os
 import sys
+import traceback
 from os import path
 
 import aiohttp
 
-from bot import CommandEvent, BotMentionEvent
-from bot.utils import get_bot_root
-from .logger import log
-from .events import parse_event
+from bot import CommandEvent, BotMentionEvent, MessageEvent
+from bot.logger import new_logger
 from .command import Command
+
+log = new_logger('Manager')
 
 
 class Manager:
@@ -193,7 +194,13 @@ class Manager:
 
         event = None
         if event_name == 'on_message':
-            event = parse_event(kwargs.get('message'), self.bot)
+            message = kwargs.get('message')
+            if CommandEvent.is_command(message, self.bot):
+                event = CommandEvent(message, self.bot)
+            elif self.bot.user.mentioned_in(message) and message.author != self.bot.user:
+                event = BotMentionEvent(message, self.bot)
+            else:
+                event = MessageEvent(message, self.bot)
 
         for x in self.get_handlers('pre_' + event_name):
             y = await x(event=event, **kwargs)
@@ -234,9 +241,9 @@ class Manager:
         # Log PMs
         if event.is_pm and message.content != '':
             if event.self:
-                log.info('[PM] (-> %s): %s', message.channel.user, event.text)
+                log.info('[PM] (-> %s): %s', message.channel.recipient, event.text)
             else:
-                log.info('[PM] %s: %s', event.author, event.text)
+                log.info('[PM] (<- %s): %s', event.author, event.text)
 
         # Command handler
         try:
@@ -248,7 +255,14 @@ class Manager:
                         self.bot.last_author = message.author.id
                     log.debug('[command] %s: %s', event.author, str(event))
 
-                await event.handle()
+                try:
+                    await event.handle()
+                except Exception as e:
+                    if self.bot.config['debug']:
+                        await event.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
+                    else:
+                        await event.answer('$[error-msg]\n```{}```'.format(str(e)))
+                    log.exception(e)
 
             # 'startswith' handlers
             for swtext in self.swhandlers.keys():
@@ -386,13 +400,13 @@ class Manager:
         :param ext_path: An external modules folder
         :return: An instances list of command modules
         """
-        bot_root = get_bot_root()
+        bot_root = Manager.get_bot_root()
         classes = []
 
         # System modules
         mods_path = path.join(bot_root, 'bot', 'modules')
         _all = ['bot.modules.' + f for f in Manager.get_mod_files(mods_path)]
-        log.debug('added %i internal modules', len(_all))
+        log.debug('Loaded %i internal modules', len(_all))
 
         # Included modules
         mods_path = path.join(bot_root, 'modules')
@@ -444,3 +458,11 @@ class Manager:
             result.append(mod_file.replace(fpath + path.sep, '')[:-3].replace(path.sep, '.'))
 
         return result
+
+    @staticmethod
+    def get_bot_root():
+        """
+        Generates the absolute bot path in the system.
+        :return: A string containing the absolute bot path in the system.
+        """
+        return path.abspath(path.join(path.dirname(__file__), '..'))

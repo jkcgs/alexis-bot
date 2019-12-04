@@ -5,11 +5,11 @@ from discord import Embed
 from bot import Command
 import feedparser
 
-pat_twitter = re.compile('^((https?://)?(www\.)?twitter\.com/|@)[a-zA-Z0-9_]{1,50}$')
-pat_reddit_user = re.compile('^(https?://(www\.)?reddit.com/u(ser)?/|/?u/)[a-zA-Z0-9_\-]{1,50}$')
-pat_reddit_sub = re.compile('^(https?://(www\.)?reddit.com)?/?r/[a-zA-Z0-9_\-]{1,50}$')
-pat_tumblr = re.compile('^(?:https?://)?([a-zA-Z0-9\-]{1,50})\.tumblr\.com/?$')
-pat_url = re.compile('^https?://[-a-zA-Z0-9@%._+~=]{2,256}\.[a-z]{2,10}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)$')
+pat_twitter = re.compile(r'^((https?://)?(www\.)?twitter\.com/|@)[a-zA-Z0-9_]{1,50}$')
+pat_reddit_user = re.compile(r'^(https?://(www\.)?reddit.com/u(ser)?/|/?u/)[a-zA-Z0-9_\-]{1,50}$')
+pat_reddit_sub = re.compile(r'^(https?://(www\.)?reddit.com)?/?r/[a-zA-Z0-9_\-]{1,50}$')
+pat_tumblr = re.compile(r'^(?:https?://)?([a-zA-Z0-9\-]{1,50})\.tumblr\.com/?$')
+pat_url = re.compile(r'^https?://[-a-zA-Z0-9@%._+~=]{2,256}\.[a-z]{2,10}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)$')
 
 
 #

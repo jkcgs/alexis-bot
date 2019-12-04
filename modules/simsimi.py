@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from bot import Command, log, categories
+from bot import Command, categories
 
 
 class SimSimiException(Exception):
@@ -31,7 +31,6 @@ class SimSimi:
         }
 
         request_url = "{}?{}".format(self.conversation_request_url, urlencode(request_param))
-        log.debug('Loading URL ' + request_url)
         async with self.http.get(request_url) as r:
             response_dict = await r.json()
 

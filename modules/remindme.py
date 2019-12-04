@@ -1,11 +1,11 @@
-import asyncio
 from datetime import datetime
 
 from discord import Embed
 
 from bot import Command, BaseModel, categories
 from peewee import DateTimeField, TextField, BooleanField
-from bot.utils import pat_delta, timediff_parse, no_tags, deltatime_to_str, format_date
+from bot.utils import timediff_parse, no_tags, deltatime_to_str, format_date
+from bot.regex import pat_delta
 
 
 class RemindMe(Command):

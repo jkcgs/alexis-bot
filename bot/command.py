@@ -2,20 +2,22 @@ import aiohttp
 import asyncio
 import discord
 
+from bot.utils import lazy_property
 from . import SingleLanguage
-from .logger import log, TaggedLogger
-from .libs.configuration import ServerConfiguration
+from .logger import new_logger
 from . import categories
 
 
 class Command:
+    __author__ = 'makzk'
+    __version__ = '0.0.0'
+
     def __init__(self, bot):
         self.bot = bot
         self.mgr = bot.manager
-        self.log = TaggedLogger(log, self.__class__.__name__)
-        self.name = ''
-        self.aliases = []
-        self.db_models = []
+        self.name = ''  # Command name
+        self.aliases = []  # Command aliases
+        self.db_models = []  # Command
         self.schedule = []
         self.swhandler = []
         self.swhandler_break = False
@@ -31,6 +33,7 @@ class Command:
         self.user_delay = 0
         self.users_delay = {}
 
+        # Default messages and error messages
         self.help = '$[help-not-available]'
         self.pm_error = '$[disallowed-via-pm]'
         self.owner_error = '$[command-not-authorized]'
@@ -38,42 +41,42 @@ class Command:
         self.user_delay_error = '$[command-delayed]'
         self.nsfw_only_error = '$[nsfw-only]'
 
-        headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
-        self.http = aiohttp.ClientSession(
-            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
-        )
-
-    def can_manage_roles(self, server):
-        self_member = server.get_member(self.bot.user.id)
-        return self_member.server_permissions.manage_roles
-
-    def config_mgr(self, serverid):
-        return ServerConfiguration(self.bot.sv_config, serverid)
-
-    def right_cmd(self, cmd):
-        return cmd.is_cmd and cmd.cmdname == self.name or cmd.cmdname in self.aliases
-
     def handle(self, cmd):
-        pass
+        raise AssertionError('handle method not implemented')
 
-    def get_lang(self, svid=None, channel=None):
+    def get_lang(self, guild=None, channel=None):
         """
         Creates a SingleLanguage instance for a specific server or server channel or default language.
-        :param svid: The discord.Server instance or server ID to get the language.
-        If it's None, the default language is used.
-        :param channel: The channel ID or instance to get channel-specific language.
-        If not set, the server language is used.
+        :param guild: The discord.Guild instance to get the language. If it's None, the default language is used.
+        :param channel: The channel instance to get channel-specific language. If not set, the server language is used.
         :return: The SingleLanguage instance with the determined language.
         """
         lang_code = self.bot.config['default_lang']
 
-        if svid is not None and isinstance(svid, (discord.Server, str)):
+        if isinstance(guild, discord.Guild):
+            lang_code = self.bot.sv_config.get(guild.id, 'lang', self.bot.config['default_lang'], create=False)
 
-            svid = svid if not isinstance(svid, discord.Server) else svid.id
-            lang_code = self.bot.sv_config.get(svid, 'lang', self.bot.config['default_lang'], create=False)
-
-            if channel is not None and isinstance(channel, (discord.Channel, str)):
-                chanid = channel if not isinstance(channel, discord.Channel) else channel.id
-                lang_code = self.bot.sv_config.get(svid, 'lang#'+chanid, lang_code, create=False)
+            # Use channel language if the argument has been passed
+            if isinstance(channel, discord.TextChannel):
+                chanid = channel if not isinstance(channel, discord.TextChannel) else channel.id
+                lang_code = self.bot.sv_config.get(guild.id, 'lang#' + chanid, lang_code, create=False)
 
         return SingleLanguage(self.bot.lang, lang_code)
+
+    @lazy_property
+    def http(self):
+        """
+        Creates a http session instance with its own cookie storage and user-agent.
+        :return: The http session instance.
+        """
+        headers = {'User-Agent': '{}/{} {}/{} (https://discord.cl/bot)'.format(
+            self.__class__.__name__, self.__class__.__version__,
+            self.bot.__class__.name, self.bot.__class__.__version__)}
+
+        return aiohttp.ClientSession(
+            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
+        )
+
+    @lazy_property
+    def log(self):
+        return new_logger(self.__class__.__name__)

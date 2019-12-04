@@ -6,7 +6,8 @@ import peewee
 from discord import Embed
 
 from bot import Command, BaseModel, categories
-from bot.utils import pat_channel, pat_subreddit, text_cut
+from bot.utils import text_cut
+from bot.regex import pat_channel, pat_subreddit
 
 
 class RedditFollow(Command):
@@ -53,7 +54,7 @@ class RedditFollow(Command):
                         await cmd.answer('$[format]: $[reddit-format-set]')
                         return
 
-                    channel = cmd.message.server.get_channel(cmd.args[2][2:-1])
+                    channel = cmd.message.guild.get_channel(cmd.args[2][2:-1])
                     if channel is None:
                         await cmd.answer('$[reddit-error-channel-not-found]')
                         return
@@ -62,7 +63,7 @@ class RedditFollow(Command):
 
             if cmd.args[0] == 'set':
                 chan, created = ChannelFollow.get_or_create(
-                    subreddit=cmd.args[1], serverid=cmd.message.server.id, channelid=channel.id)
+                    subreddit=cmd.args[1], serverid=cmd.message.guild.id, channelid=channel.id)
 
                 if created:
                     await cmd.answer('$[reddit-sub-added]', locales={'sub': cmd.args[1]})
@@ -77,12 +78,12 @@ class RedditFollow(Command):
             else:
                 try:
                     asd = ChannelFollow.get(ChannelFollow.subreddit == cmd.args[1],
-                                            ChannelFollow.serverid == cmd.message.server.id,
+                                            ChannelFollow.serverid == cmd.message.guild.id,
                                             ChannelFollow.channelid == channel.id)
                     asd.delete_instance()
 
                     if cmd.args[1] in self.chans:
-                        self.chans[cmd.args[1]].remove((cmd.message.server.id, channel.id))
+                        self.chans[cmd.args[1]].remove((cmd.message.guild.id, channel.id))
                         if len(self.chans[cmd.args[1]]) == 0:
                             del self.chans[cmd.args[1]]
 
@@ -92,10 +93,10 @@ class RedditFollow(Command):
                     await cmd.answer('$[reddit-error-not-followed]')
                     return
         elif cmd.args[0] == 'list':
-            res = ChannelFollow.select().where(ChannelFollow.serverid == cmd.message.server.id)
+            res = ChannelFollow.select().where(ChannelFollow.serverid == cmd.message.guild.id)
             resp = []
             for chan in res:
-                resp.append('- **{}** \➡ <#{}>'.format(chan.subreddit, chan.channelid))
+                resp.append('- **{}** ➡ <#{}>'.format(chan.subreddit, chan.channelid))
 
             if len(res) == 0:
                 await cmd.answer('$[reddit-no-following-subs]')
@@ -154,7 +155,7 @@ class RedditFollow(Command):
                                                         locales={'sub': subname})
                         except discord.Forbidden:
                             self.log.debug('Could not sent a r/%s post to %s (%s) due to missing permissions',
-                                           subname, chan.server.name, chan.server.id)
+                                           subname, chan.guild.name, chan.guild.id)
 
                 post_id = data['id']
                 if not exists:

@@ -1,0 +1,4 @@
+guildlist-help: Muestra la lista de servidores en los que está el bot.
+guildlist-none: No estoy en ningún servidor.
+guildlist-msg: 'Estoy en los siguientes {amount} servidores:'
+guildlist-answer: Te enviaré la información por MD.

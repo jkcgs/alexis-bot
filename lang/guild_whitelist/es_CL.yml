@@ -1,0 +1,9 @@
+guildwl-bye: >-
+  ¡Hola! Gracias por agregarme a este server, pero mi dueño no me tiene
+  permitido ingresar, aún.
+guildwl-bye-admin: >-
+  Para ello, puedes entrar a discord.gg/chile y consultar con un admin.
+  ¡Saludos!
+guildwl-bye-owner: >-
+  Para ello, puedes entrar a discord.gg/chile y hablar con <@{owner_id}>.
+  ¡Saludos!

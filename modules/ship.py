@@ -1,5 +1,4 @@
 from io import BytesIO
-from os import path
 from PIL import Image
 from bot import Command, categories
 from bot.utils import parse_tag

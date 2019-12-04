@@ -1,5 +1,5 @@
 from bot import Command
-from bot.utils import img_embed, no_tags
+from bot.utils import img_embed
 
 from urllib.parse import urlencode
 
@@ -32,10 +32,11 @@ class NekosLife(Command):
 
             # Look for image endpoints
             for ep in data:
-                start = 'OPTIONS,GET,HEAD     /api/v2/img/'
-                if ep.startswith(start):
-                    types = ep[len(start)+1:-2]
-                    self.img_types = [t[1:-1] for t in types.split(', ')]
+                if '/api/v2/img/' in ep:
+                    self.img_types = [
+                        t[2:-1] for t in ep.split('<')[1][:-1].split(',')
+                        if t[2:-1] not in ['v3', 'nekoapi_v3.1']
+                    ]
                     break
 
             # Check if types were retrieved
@@ -84,7 +85,7 @@ class OwOify(Command):
 
     async def handle(self, cmd):
         # filter text and check its length
-        text = no_tags(cmd.text)
+        text = cmd.no_tags()
         if cmd.argc == 0 or len(text) > 200:
             await cmd.answer('$[nekos-owoify-length-error]')
             return

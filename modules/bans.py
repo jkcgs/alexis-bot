@@ -4,7 +4,8 @@ from discord import Embed
 from datetime import datetime
 
 from bot import Command, BaseModel, categories
-from bot.utils import is_int, pat_usertag, pat_snowflake
+from bot.utils import is_int
+from bot.regex import pat_usertag, pat_snowflake
 
 
 class BanCmd(Command):
@@ -63,10 +64,10 @@ class BanCmd(Command):
                              locales={'author': cmd.author.display_name, 'other': mention_name})
             return
 
-        user, created = Ban.get_or_create(userid=member.id, server=cmd.message.server.id,
+        user, created = Ban.get_or_create(userid=member.id, server=cmd.message.guild.id,
                                           defaults={'user': str(member)})
         update = Ban.update(bans=Ban.bans + 1, lastban=datetime.now(), user=str(member))
-        update = update.where(Ban.userid == member.id, Ban.server == cmd.message.server.id)
+        update = update.where(Ban.userid == member.id, Ban.server == cmd.message.guild.id)
         update.execute()
 
         if created:
@@ -101,7 +102,7 @@ class Bans(Command):
             await cmd.answer('$[bans-owner-error]')
             return
 
-        userbans, created = Ban.get_or_create(userid=user.id, server=cmd.message.server.id,
+        userbans, created = Ban.get_or_create(userid=user.id, server=cmd.message.guild.id,
                                               defaults={'user': str(user)})
 
         locales = None
@@ -142,7 +143,7 @@ class SetBans(Command):
             return
 
         num_bans = int(cmd.args[-1])
-        user, _ = Ban.get_or_create(userid=mention.id, server=cmd.message.server.id,
+        user, _ = Ban.get_or_create(userid=mention.id, server=cmd.message.guild.id,
                                     defaults={'user': str(mention)})
         update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
         update = update.where(Ban.userid == mention.id, Ban.server == cmd.message.server.id)
@@ -167,7 +168,7 @@ class BanRank(Command):
         self.category = categories.FUN
 
     async def handle(self, cmd):
-        bans = Ban.select().where(Ban.server == cmd.message.channel.server.id).order_by(Ban.bans.desc())
+        bans = Ban.select().where(Ban.server == cmd.message.channel.guild.id).order_by(Ban.bans.desc())
         px = self.bot.config['command_prefix']
         banlist = []
         limit = 10 if cmd.cmdname == '{}{}'.format(px, self.name) else 5
