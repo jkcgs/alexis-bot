@@ -8,7 +8,7 @@ from bot.defaults import default_log_format, datetime_format, filename_format
 
 def create_logger(name, log_format=default_log_format, log_path=None, logtime=None):
     log = logging.getLogger(name)
-    if log.hasHandlers():
+    if len(log.handlers) > 1:
         return log
 
     formatter = logging.Formatter(log_format, datetime_format)

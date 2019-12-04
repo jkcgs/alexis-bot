@@ -4,6 +4,7 @@ from threading import Thread
 
 import discord
 import peewee
+from peewee import fn
 
 from bot import Command, BaseModel
 
@@ -43,7 +44,7 @@ class UpdateUsername(Command):
         c = self.all()
 
         if c is not None:
-            self.log.debug('Users updated: %i', c)
+            self.log.debug('Users\' names updated: %i', c)
         else:
             self.log.debug('No users were updated')
 
@@ -54,21 +55,30 @@ class UpdateUsername(Command):
         self.updating = True
 
         # Retrieve every last user name
-        # SELECT * FROM usernamereg t1 WHERE timestamp = (
-        #   SELECT MAX(timestamp) FROM t1 WHERE t1.timestamp = usernamereg.timestamp
-        # ) ORDER BY timestamp DESC
+        """
+        SELECT t1.* FROM usernamereg t1
+        JOIN (
+            SELECT userid, max(timestamp) max_timestamp
+            FROM usernamereg
+            GROUP BY userid
+        ) t2
+        ON t1.userid = t2.userid AND t1.timestamp = t2.max_timestamp
+        ORDER BY t1.timestamp DESC
+        """
         u_alias = UserNameReg.alias()
-        j = {u.userid: u.name for u in
-             UserNameReg.select().where(
-                 UserNameReg.timestamp == u_alias.select(peewee.fn.MAX(u_alias.timestamp)).where(
-                     u_alias.userid == UserNameReg.userid)
-             ).order_by(
-                 UserNameReg.timestamp.desc()
-             )}
+        subq = u_alias.select(
+            u_alias.userid, fn.MAX(u_alias.timestamp).alias('max_ts')
+        ).group_by(u_alias.userid)
+        prediq = ((UserNameReg.userid == subq.c.userid) & (UserNameReg.timestamp == subq.c.max_ts))
+        query = UserNameReg.select().join(subq, on=prediq).order_by(UserNameReg.timestamp.desc())
+        self.log.debug('Query created: %s', query)
+
+        j = {u.userid: u.name for u in query}
+        self.log.debug('Query result mapped: %i users', len(j.keys()))
 
         # Filter by unregistered users
         k = [{'userid': m.id, 'name': m.name}
-             for m in self.bot.get_all_members() if m.id not in j or j[m.id] != m.name]
+             for m in self.bot.get_all_members() if str(m.id) not in j or j[str(m.id)] != m.name]
         k = [i for n, i in enumerate(k) if i not in k[n + 1:]]  # https://stackoverflow.com/a/9428041
 
         # Register new users' names
@@ -85,7 +95,8 @@ class UpdateUsername(Command):
             raise RuntimeError('user argument can only be a discord.User or discord.Member')
 
         with self.bot.db.atomic():
-            r = UserNameReg.select().where(UserNameReg.userid == user.id).order_by(UserNameReg.timestamp.desc()).limit(1)
+            r = UserNameReg.select().where(UserNameReg.userid == user.id)\
+                .order_by(UserNameReg.timestamp.desc()).limit(1)
             u = r.get() if r.count() > 0 else None
 
             if r.count() == 0 or u.name != user.name:

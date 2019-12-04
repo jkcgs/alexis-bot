@@ -1,7 +1,13 @@
+import logging
+
 import peewee
 from playhouse.db_url import connect
 
 from bot.libs.configuration import BotConfiguration
+from bot.logger import new_logger
+
+peewee_log = new_logger('peewee')
+peewee_log.setLevel(logging.INFO)
 
 
 class BotDatabase:
