@@ -184,6 +184,9 @@ class ModLog(Command):
         except discord.Forbidden:
             self.log.debug('No permission to read audit logs for guild %s', guild.id)
             return None
+        except AttributeError:
+            self.log.warning('There was probably an unknown (for discord.py) Audit Log action and triggered this error')
+            return None
 
         if len(entries) == 0:
             return None
