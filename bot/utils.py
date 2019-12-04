@@ -28,6 +28,13 @@ def is_float(val):
         return False
 
 
+def auto_int(val):
+    try:
+        return int(val)
+    except ValueError:
+        return val
+
+
 def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
     """
     Creates an instance of a guild role
@@ -39,7 +46,7 @@ def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
 
     for role_ins in guild.roles:
         if (not case_sensitive and role_ins.name.lower() == role.lower()) \
-                or role_ins.name == role or role_ins.id == role:
+                or role_ins.name == role or role_ins.id == auto_int(role):
             return role_ins
 
     return None

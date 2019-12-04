@@ -39,7 +39,7 @@ class JoinCmd(Command):
             return
 
         try:
-            await self.bot.add_roles(cmd.author, role)
+            await cmd.author.add_roles(role)
             await cmd.answer('$[join-joined]')
         except (discord.Forbidden, discord.HTTPException):
             await cmd.answer('$[join-could-not-assign]')
