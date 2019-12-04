@@ -107,6 +107,9 @@ class MessageEvent:
         if isinstance(user, discord.Member) or isinstance(user, discord.User):
             return user
 
+        if isinstance(user, int):
+            return await self.bot.fetch_user(user)
+
         if user.startswith("@"):
             user = user[1:]
 
@@ -125,7 +128,7 @@ class MessageEvent:
         if member_only or not pat_snowflake.match(user):
             return None
 
-        return await self.bot.get_user_info(user)
+        return self.bot.get_user(user)
 
     def find_channel(self, channel):
         """

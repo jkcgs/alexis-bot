@@ -75,7 +75,7 @@ class CommandEvent(MessageEvent):
         if not isinstance(self.channel, discord.TextChannel):
             return False
 
-        return self.channel.guild.me.server_permissions.manage_roles
+        return self.channel.guild.me.guild_permissions.manage_roles
 
     @staticmethod
     def is_command(message, bot):

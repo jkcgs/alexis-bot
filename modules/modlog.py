@@ -1,14 +1,12 @@
-import asyncio
 import re
 from datetime import datetime
-from threading import Thread
 
 import discord
 import peewee
 from discord.http import Route
 
 from bot import Command, utils, categories, BaseModel
-from discord import Embed
+from discord import Embed, AuditLogAction
 
 from bot.utils import deltatime_to_str
 
@@ -51,15 +49,15 @@ class ModLog(Command):
         embed.set_footer(text=footer)
         if len(message.attachments) > 0:
             with_img = False
-            if 'width' in message.attachments[0] is not None:
-                fn_value = '[{}]({})'.format(message.attachments[0]['filename'], message.attachments[0]['url'])
-                embed.set_image(url=message.attachments[0]['url'])
+            if message.attachments.width:
+                fn_value = '[{}]({})'.format(message.attachments[0].filename, message.attachments[0].url)
+                embed.set_image(url=message.attachments[0].url)
                 embed.add_field(name='$[modlog-file-name]', value=fn_value)
                 with_img = True
 
             if with_img and len(message.attachments) > 1 or not with_img:
                 i = 1 if with_img else 0
-                x = ['[{}]({})'.format(f['filename'], f['url']) for f in message.attachments[i:]]
+                x = ['[{}]({})'.format(f.filename, f.url) for f in message.attachments[i:]]
                 t = [
                         ['$[modlog-attatched]', '$[modlog-attached-other]'],
                         ['$[modlog-attached-single]', '$[modlog-attached-other-single]']
@@ -80,17 +78,14 @@ class ModLog(Command):
                 msg = '$[modlog-bot-deleted-msg]'
         else:
             try:
-                last = await self.get_last_alog(message.guild.id)
-                if last is not None and last['action_type'] == 72 and \
-                        last['options']['channel_id'] == message.channel.id and last['target_id'] == message.author.id:
-                    who = last['user_id']
+                last = await self.get_last_alog(message.guild)
+                if last is not None and last.action == AuditLogAction.message_delete and \
+                        last.extra.channel.id == message.channel.id and last.target.id == message.author.id:
+                    who = last.user
                     if who == self.bot.user.id:
                         msg = '$[modlog-bot-deleted-msg]'
                     else:
-                        u = message.guild.get_member(who)
-                        u = '<@' + who + '>' if u is None else u.display_name
-
-                        locales['deleter_name'] = u
+                        locales['deleter_name'] = who.display_name
                         msg = '$[modlog-user-deleted-other]'
             except discord.Forbidden:
                 msg = '$[modlog-somehow-deleted-msg]'
@@ -150,16 +145,13 @@ class ModLog(Command):
 
         if (before.nick or after.nick) and before.nick != after.nick:
             try:
-                alog = await self.get_last_alog(after.guild.id)
+                alog = await self.get_last_alog(after.guild)
             except discord.Forbidden:
                 alog = None
 
-            if alog is not None and alog['action_type'] == 24 and len(alog['changes']) \
-                    and alog['changes'][0]['key'] == 'nick':
-                if alog['user_id'] == str(after.id):
-                    by = after
-                else:
-                    by = after.guild.get_member(alog['user_id'])
+            if alog is not None and alog.action == AuditLogAction.member_update \
+                    and len(alog.changes) and alog.extra.nick:
+                by = alog.user
             else:
                 by = None
 
@@ -186,17 +178,17 @@ class ModLog(Command):
                 else:
                     await self.bot.send_modlog(guild, '$[modlog-nick-by]', logtype='nick', locales=locales)
 
-    async def get_last_alog(self, guild_id):
+    async def get_last_alog(self, guild):
         try:
-            x = await self.bot.http.request(Route('GET', '/guilds/{guild_id}/audit-logs', guild_id=guild_id))
+            entries = await guild.audit_logs(limit=1).flatten()
         except discord.Forbidden:
-            self.log.debug('No permission to read audit logs for guild %s', guild_id)
+            self.log.debug('No permission to read audit logs for guild %s', guild.id)
             return None
 
-        if 'audit_log_entries' not in x or len(x['audit_log_entries']) == 0:
+        if len(entries) == 0:
             return None
 
-        return x['audit_log_entries'][0]
+        return entries[0]
 
     @staticmethod
     def get_note(member):

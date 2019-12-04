@@ -19,7 +19,7 @@ class JoinCmd(Command):
         self.user_delay = 5
 
     async def handle(self, cmd):
-        if not cmd.can_manage_roles(cmd.guild):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[join-error-cant]')
             return
 
@@ -60,7 +60,7 @@ class JoinRole(Command):
         self.user_delay = 5
 
     async def handle(self, cmd):
-        if not cmd.can_manage_roles(cmd.guild):
+        if not cmd.can_manage_roles():
             await cmd.answer('$[join-error-cant]')
             return
 

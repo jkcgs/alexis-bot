@@ -110,15 +110,15 @@ def parse_tag(text):
         return None
 
     if pat_channel.match(text):
-        return {'type': 'channel', 'id': text[2:-1]}
+        return {'type': 'channel', 'id': int(text[2:-1])}
 
     emoji = pat_emoji.match(text)
     if emoji is not None:
-        return {'type': 'emoji', 'name': emoji.group(2), 'animated': text.startswith('<a'), 'id': emoji.group(3)}
+        return {'type': 'emoji', 'name': emoji.group(2), 'animated': text.startswith('<a'), 'id': int(emoji.group(3))}
 
     user = pat_usertag.match(text)
     if user is not None:
-        return {'type': 'user', 'id': user.group(0), 'with_nick': text.startswith('<@!')}
+        return {'type': 'user', 'id': int(user.group(1)), 'with_nick': text.startswith('<@!')}
     
     return None
 

@@ -128,7 +128,7 @@ class Mute(Command):
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
         role = utils.get_guild_role(guild, sv_role)
         if role is None:
-            self.log.warning('Role"%s" does not exist (guild: %s)', sv_role, guild)
+            self.log.warning('Role "%s" does not exist (guild: %s)', sv_role, guild)
             return
 
         try:
