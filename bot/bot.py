@@ -10,6 +10,7 @@ from bot.guild_configuration import GuildConfiguration
 from bot.database import BotDatabase
 from bot.libs.configuration import BotConfiguration
 from bot.logger import new_logger
+from bot.utils import auto_int
 
 log = new_logger('Core')
 
@@ -129,7 +130,7 @@ class AlexisBot(discord.Client):
         if logtype and logtype in config.get_list('logtype_disabled'):
             return
 
-        chan = self.get_channel(chanid)
+        chan = self.get_channel(auto_int(chanid))
         if chan is None:
             log.debug('[modlog] Channel not found (svid %s chanid %s)', guild.id, chanid)
             return
@@ -175,7 +176,11 @@ class AlexisBot(discord.Client):
         log.debug(msg)
 
         # Send the actual message
-        del kwargs['locales'], kwargs['event']
+        if 'locales' in kwargs:
+            del kwargs['locales']
+        if 'event' in kwargs:
+            del kwargs['event']
+
         return await destination.send(**kwargs)
 
     async def delete_message(self, message, silent=False):
