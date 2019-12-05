@@ -16,13 +16,13 @@ class SetLanguage(Command):
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            if cmd.config.has('lang#'+cmd.channel.id):
+            if cmd.config.has('lang#'+str(cmd.channel.id)):
                 emb = Embed(title='$[lang-title]',
                             description='$[lang-current-guild] \n$[lang-current-chan] \n$[lang-available-list]')
                 await cmd.answer(emb, locales={
                     'lang': cmd.config.get('lang', self.bot.config['default_lang'], create=False),
                     'lang_list': ', '.join(self.bot.lang.lib.keys()),
-                    'chan_lang': cmd.config.get('lang#'+cmd.channel.id)
+                    'chan_lang': cmd.config.get('lang#'+str(cmd.channel.id))
                 })
             else:
                 emb = Embed(title='$[lang-title]',
@@ -48,16 +48,16 @@ class SetLanguage(Command):
 
         if chan is not None:
             if lang == 'unset':
-                if not cmd.config.has('lang#'+chan.id):
+                if not cmd.config.has('lang#'+str(chan.id)):
                     await cmd.answer('$[lang-chan-no-custom]')
                     return
 
-                cmd.config.unset('lang#'+chan.id)
+                cmd.config.unset('lang#'+str(chan.id))
                 self.log.debug('Set default language for channel %s in guild %s', cmd.config.get('lang'), cmd.guild)
                 sv_default = cmd.config.get('lang', self.bot.config['default_lang'], create=False)
                 await cmd.answer(self.bot.lang.get('lang-unset-chan', sv_default, lang=sv_default))
             else:
-                cmd.config.set('lang#'+chan.id, lang)
+                cmd.config.set('lang#'+str(chan.id), lang)
                 self.log.debug('Lang updated to %s for channel %s in guild %s',
                                lang, cmd.config.get('lang'), cmd.guild)
                 await cmd.answer(self.bot.lang.get('lang-set-chan', lang, lang=lang))

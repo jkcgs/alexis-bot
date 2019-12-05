@@ -59,7 +59,6 @@ class Sismos(Command):
         if first:
             self.log.debug('Loading earthquakes information...')
 
-        self.log.debug('Loading %s ...', Sismos.api_url)
         async with self.http.get(Sismos.api_url) as r:
             data = await r.json()
 

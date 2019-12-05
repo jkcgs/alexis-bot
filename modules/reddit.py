@@ -40,7 +40,7 @@ class RedditFollow(Command):
             await cmd.answer('$[format]: $[reddit-format]')
             return
 
-        if cmd.args[0] == 'set' or cmd.args[0] == 'remove':
+        if cmd.args[0] in ['set', 'follow', 'remove']:
             if cmd.argc < 2:
                 await cmd.answer('$[format]: $[reddit-format-set]')
                 return
@@ -63,7 +63,7 @@ class RedditFollow(Command):
                 else:
                     channel = cmd.message.channel
 
-            if cmd.args[0] == 'set':
+            if cmd.args[0] in ['set', 'follow']:
                 chan, created = ChannelFollow.get_or_create(
                     subreddit=cmd.args[1], serverid=cmd.message.guild.id, channelid=channel.id)
 
@@ -190,7 +190,6 @@ class RedditFollow(Command):
     async def get_posts(self, sub, since=0):
         url = 'https://www.reddit.com/r/{}/new.json'.format(sub)
         req = self.http.get(url)
-        self.log.debug('Loading %s ...', url)
         async with req as r:
             if not r.status == 200:
                 return []
