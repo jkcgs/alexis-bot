@@ -25,7 +25,7 @@ class Manager:
         self.cmd_instances = []
         self.mention_handlers = []
 
-        headers = {'User-Agent': '{}/{} +discord.cl/alexis'.format(bot.__class__.name, bot.__class__.__version__)}
+        headers = {'User-Agent': '{}/{} +discord.cl/bot'.format(bot.__class__.name, bot.__class__.__version__)}
         self.http = aiohttp.ClientSession(
             loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
         )
@@ -144,14 +144,20 @@ class Manager:
         """
         while 1:
             try:
+                # log.debug('Running task %s', repr(task))
                 await task()
             except Exception as e:
                 log.exception(e)
             finally:
-                if time == 0 or self.bot.is_closed:
+                if time == 0:
+                    log.debug('Run-once task finished: %s', repr(task))
+                    break
+                if self.bot.loop.is_closed():
+                    log.debug('Bot stopped before running, task not running anymore: %s', repr(task))
                     break
                 await asyncio.sleep(time)
-                if self.bot.is_closed:
+                if self.bot.loop.is_closed():
+                    log.debug('Bot stopped, task not running anymore: %s', repr(task))
                     break
 
     def schedule(self, task, time=0, force=False):

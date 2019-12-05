@@ -227,9 +227,9 @@ class AlexisBot(discord.Client):
         cfg = GuildConfiguration.get_instance(member.guild)
         owner_roles = cfg.get_list('owner_roles', '\n', [self.config['owner_role']])
         for role in member.roles:
-            if role.id in owner_roles \
+            if str(role.id) in owner_roles \
                     or role.name in owner_roles \
-                    or member.id in owner_roles:
+                    or str(member.id) in owner_roles:
                 return True
 
         return False

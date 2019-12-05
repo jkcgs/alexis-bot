@@ -6,7 +6,7 @@ import peewee
 from discord import Embed
 
 from bot import Command, BaseModel, categories
-from bot.utils import text_cut
+from bot.utils import text_cut, auto_int
 from bot.regex import pat_channel, pat_subreddit
 
 
@@ -54,7 +54,8 @@ class RedditFollow(Command):
                         await cmd.answer('$[format]: $[reddit-format-set]')
                         return
 
-                    channel = cmd.message.guild.get_channel(cmd.args[2][2:-1])
+                    chan_id = cmd.message.channel.id if cmd.args[2] == 'here' else auto_int(cmd.args[2][2:-1])
+                    channel = cmd.message.guild.get_channel(chan_id)
                     if channel is None:
                         await cmd.answer('$[reddit-error-channel-not-found]')
                         return
@@ -66,7 +67,8 @@ class RedditFollow(Command):
                     subreddit=cmd.args[1], serverid=cmd.message.guild.id, channelid=channel.id)
 
                 if created:
-                    await cmd.answer('$[reddit-sub-added]', locales={'sub': cmd.args[1]})
+                    msg = '$[reddit-sub-added-here]' if channel.id == cmd.channel.id else '$[reddit-sub-added]'
+                    await cmd.answer(msg, locales={'sub': cmd.args[1]})
                     if chan.subreddit not in self.chans:
                         self.chans[chan.subreddit] = []
 
@@ -110,6 +112,8 @@ class RedditFollow(Command):
             user = cmd.args[1]
             if user.startswith('/u/'):
                 user = user[3:]
+            if user.startswith('u/'):
+                user = user[2:]
 
             num_posts = self.get_user_posts(user)
 
@@ -148,7 +152,7 @@ class RedditFollow(Command):
                     break
 
                 for channel in subchannels:
-                    chan = self.bot.get_channel(channel)
+                    chan = self.bot.get_channel(auto_int(channel))
                     if chan is not None:
                         try:
                             await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
@@ -181,8 +185,9 @@ class RedditFollow(Command):
         return redditor.posts
 
     async def get_posts(self, sub, since=0):
-        url = 'https://www.reddit.com/r/{}/new/.json'.format(sub)
+        url = 'https://www.reddit.com/r/{}/new.json'.format(sub)
         req = self.http.get(url)
+        self.log.debug('Loading %s ...', url)
         async with req as r:
             if not r.status == 200:
                 return []

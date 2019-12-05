@@ -212,7 +212,7 @@ class GuildConfiguration:
         """
         :param guild: The discord.Server instance or server ID
         """
-        self.guild_id = guild.id if guild is not None else 'all'
+        self.guild_id = str(guild.id) if guild is not None else 'all'
         self.mgr = DynConfiguration.get_instance()
 
     def has(self, name):
@@ -307,7 +307,7 @@ class GuildConfiguration:
 
     @staticmethod
     def get_instance(guild: Guild = None):
-        guild_id = 'all' if guild is None else guild.id
+        guild_id = 'all' if guild is None else str(guild.id)
         if guild_id not in GuildConfiguration._instances:
             GuildConfiguration._instances[guild_id] = GuildConfiguration(guild)
 
