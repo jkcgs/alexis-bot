@@ -117,18 +117,11 @@ class MessageEvent:
         if u is not None:
             return u
 
-        if pat_usertag.match(user):
-            st = 3 if user[2] == '!' else 2
-            user = user[st:-1]
+        u_match = pat_usertag.match(user)
+        if u_match:
+            user = int(u_match.group(1))
 
-        u = self.message.guild.get_member(user)
-        if u is not None:
-            return u
-
-        if member_only or not pat_snowflake.match(user):
-            return None
-
-        return self.bot.get_user(user)
+        return self.message.guild.get_member(user) or self.bot.get_user(user)
 
     def find_channel(self, channel):
         """
@@ -197,7 +190,8 @@ class MessageEvent:
             if self.guild is None:
                 self._lang = SingleLanguage(self.bot.lang, self.bot.config['default_lang'])
             else:
-                lang_code = self.bot.sv_config.get(self.guild.id, 'lang', self.bot.config['default_lang'])
+                conf = GuildConfiguration.get_instance(self.guild)
+                lang_code = conf.get('lang', self.bot.config['default_lang'])
                 self._lang = SingleLanguage(self.bot.lang, lang_code)
 
         return self._lang

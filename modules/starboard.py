@@ -8,6 +8,7 @@ from discord import Emoji, Embed
 
 from bot import Command, categories, BaseModel
 from bot.guild_configuration import GuildConfiguration
+from bot.utils import auto_int
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
@@ -142,7 +143,7 @@ class StarboardHook(Command):
             count_trigger = int(ct_config)
 
         # Ignore messages on the starboard channel or from the bot itself
-        if starboard_chanid == message.channel.id or message.author.id == self.bot.user.id:
+        if starboard_chanid == str(message.channel.id) or message.author.id == self.bot.user.id:
             return
 
         # Ignore NSFW channels if they are ignored
@@ -150,7 +151,7 @@ class StarboardHook(Command):
             return
 
         try:
-            star_item = Starboard.get(Starboard.message_id == message.id)
+            star_item = Starboard.get(Starboard.message_id == str(message.id))
             is_update = True
         except peewee.DoesNotExist:
             star_item = None
@@ -163,7 +164,7 @@ class StarboardHook(Command):
                 if isinstance(emoji_react, str) and emoji_react not in reaction_triggers:
                     continue
 
-                if isinstance(emoji_react, Emoji) and emoji_react.id not in reaction_triggers:
+                if isinstance(emoji_react, Emoji) and str(emoji_react.id) not in reaction_triggers:
                     continue
 
             if reaction.count > max_count:
@@ -172,7 +173,7 @@ class StarboardHook(Command):
         if max_count < count_trigger:
             return
 
-        starboard_chan = self.bot.get_channel(starboard_chanid)
+        starboard_chan = self.bot.get_channel(auto_int(starboard_chanid))
         if starboard_chan is None:
             star_item.delete_instance()
             return
@@ -183,7 +184,7 @@ class StarboardHook(Command):
             if not star_item.starboard_id:
                 return
 
-            starboard_msg = await self.bot.get_message(starboard_chan, star_item.starboard_id)
+            starboard_msg = await self.bot.get_message(starboard_chan, auto_int(star_item.starboard_id))
             if starboard_msg is None:
                 return
 
@@ -193,7 +194,8 @@ class StarboardHook(Command):
             timestamp = datetime.now()
             embed = self.create_embed(message, timestamp, footer_text)
             starboard_msg = await self.bot.send_message(starboard_chan, embed=embed)
-            Starboard.insert(message_id=message.id, timestamp=timestamp, starboard_id=starboard_msg.id).execute()
+            Starboard.insert(
+                message_id=str(message.id), timestamp=timestamp, starboard_id=str(starboard_msg.id)).execute()
 
     def create_embed(self, msg, ts, footer_txt):
         embed = Embed()

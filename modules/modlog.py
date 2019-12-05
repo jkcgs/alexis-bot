@@ -49,7 +49,7 @@ class ModLog(Command):
         embed.set_footer(text=footer)
         if len(message.attachments) > 0:
             with_img = False
-            if message.attachments.width:
+            if message.attachments[0].width:
                 fn_value = '[{}]({})'.format(message.attachments[0].filename, message.attachments[0].url)
                 embed.set_image(url=message.attachments[0].url)
                 embed.add_field(name='$[modlog-file-name]', value=fn_value)

@@ -1,5 +1,7 @@
 from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
+from discord import File
+
 from bot import Command, categories
 from bot.regex import pat_usertag
 
@@ -66,11 +68,9 @@ class Meme(Command):
             upper = None
             lower = args[0].upper()
 
-        avatar_url = user.avatar_url or user.default_avatar_url
         await cmd.typing()
-        async with self.http.get(avatar_url) as resp:
-            self.log.debug('Downloading user avatar: %s', avatar_url)
-            avatar_data = await resp.read()
+        self.log.debug('Downloading user avatar: %s', str(user.avatar_url))
+        avatar_data = await user.avatar_url.read()
 
         avatar_data = Image.open(BytesIO(avatar_data)).resize((self.isize, self.isize), Image.ANTIALIAS)
         im = Image.new('RGBA', (self.isize, self.isize))
@@ -85,7 +85,7 @@ class Meme(Command):
         temp = BytesIO(temp.getvalue())  # eliminar bytes nulos
 
         self.log.debug('Meme generated!')
-        await self.bot.send_file(cmd.channel, temp, filename='meme.png', content=cmd.author_name)
+        await cmd.channel.send(cmd.author_name, file=File(temp, filename='meme.png'))
 
     def meme_draw(self, im, text, upper=True):
         draw = ImageDraw.Draw(im)

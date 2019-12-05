@@ -50,11 +50,12 @@ class RedditFollow(Command):
                     return
 
                 if cmd.argc > 2:
-                    if not pat_channel.match(cmd.args[2]):
+                    chan_match = pat_channel.match(cmd.args[2])
+                    if not chan_match:
                         await cmd.answer('$[format]: $[reddit-format-set]')
                         return
 
-                    chan_id = cmd.message.channel.id if cmd.args[2] == 'here' else auto_int(cmd.args[2][2:-1])
+                    chan_id = auto_int(chan_match.group(1))
                     channel = cmd.message.guild.get_channel(chan_id)
                     if channel is None:
                         await cmd.answer('$[reddit-error-channel-not-found]')
@@ -160,6 +161,8 @@ class RedditFollow(Command):
                         except discord.Forbidden:
                             self.log.debug('Could not sent a r/%s post to %s (%s) due to missing permissions',
                                            subname, chan.guild.name, chan.guild.id)
+                    else:
+                        self.log.warning('Channel %s not found for subreddit subscription r/%s', channel, subname)
 
                 post_id = data['id']
                 if not exists:
