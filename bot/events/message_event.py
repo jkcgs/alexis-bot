@@ -197,7 +197,7 @@ class MessageEvent:
             if self.guild is None:
                 self._lang = SingleLanguage(self.bot.lang, self.bot.config['default_lang'])
             else:
-                conf = GuildConfiguration.get_instance(self.guild.id)
+                conf = GuildConfiguration.get_instance(self.guild)
                 lang_code = conf.get('lang', self.bot.config['default_lang'])
                 self._lang = SingleLanguage(self.bot.lang, lang_code)
 
