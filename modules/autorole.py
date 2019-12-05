@@ -78,7 +78,7 @@ class AutoRole(Command):
                 if role.id not in [r.id for r in roles]:
                     await cmd.answer('$[autorole-not-assigned]')
                 else:
-                    cmd.config.remove(AutoRole.cfg_name, role.id)
+                    cmd.config.remove(AutoRole.cfg_name, str(role.id))
                     await cmd.answer('$[autorole-removed]')
         elif cmd.args[0] == 'give':
             if len(roles) == 0:

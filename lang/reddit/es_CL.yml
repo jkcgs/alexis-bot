@@ -1,6 +1,6 @@
 reddit-help: Te permite seguir los posts de un subreddit
-reddit-format: $CMD <follow|remove|list|posts>
-reddit-format-set: '$CMD <follow|remove> <subreddit> [#canal=actual]'
+reddit-format: $CMD <follow|unfollow|list|posts>
+reddit-format-set: '$CMD <follow|unfollow> <subreddit> [#canal=actual]'
 reddit-error-sub-name: Nombre de subreddit incorrecto
 reddit-error-channel-not-found: Canal no encontrado en este servidor
 reddit-sub-added: 'Los nuevos posts de {sub} ahora aparecerán en el canal'

@@ -40,7 +40,7 @@ class RedditFollow(Command):
             await cmd.answer('$[format]: $[reddit-format]')
             return
 
-        if cmd.args[0] in ['set', 'follow', 'remove']:
+        if cmd.args[0] in ['set', 'follow', 'remove', 'unfollow']:
             if cmd.argc < 2:
                 await cmd.answer('$[format]: $[reddit-format-set]')
                 return
@@ -86,7 +86,10 @@ class RedditFollow(Command):
                     asd.delete_instance()
 
                     if cmd.args[1] in self.chans:
-                        self.chans[cmd.args[1]].remove((cmd.message.guild.id, channel.id))
+                        for tup in self.chans[cmd.args[1]]:
+                            if tup == (cmd.message.guild.id, channel.id):
+                                self.chans[cmd.args[1]].remove(tup)
+                                break
                         if len(self.chans[cmd.args[1]]) == 0:
                             del self.chans[cmd.args[1]]
 
