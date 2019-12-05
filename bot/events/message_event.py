@@ -117,18 +117,11 @@ class MessageEvent:
         if u is not None:
             return u
 
-        if pat_usertag.match(user):
-            st = 3 if user[2] == '!' else 2
-            user = user[st:-1]
+        u_match = pat_usertag.match(user)
+        if u_match:
+            user = int(u_match.group(1))
 
-        u = self.message.guild.get_member(user)
-        if u is not None:
-            return u
-
-        if member_only or not pat_snowflake.match(user):
-            return None
-
-        return self.bot.get_user(user)
+        return self.message.guild.get_member(user) or self.bot.get_user(user)
 
     def find_channel(self, channel):
         """

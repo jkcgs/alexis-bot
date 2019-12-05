@@ -6,7 +6,7 @@ import peewee
 from discord import Embed
 
 from bot import Command, BaseModel, categories
-from bot.utils import text_cut
+from bot.utils import text_cut, auto_int
 from bot.regex import pat_channel, pat_subreddit
 
 
@@ -50,11 +50,13 @@ class RedditFollow(Command):
                     return
 
                 if cmd.argc > 2:
-                    if not pat_channel.match(cmd.args[2]):
+                    chan_match = pat_channel.match(cmd.args[2])
+                    if not chan_match:
                         await cmd.answer('$[format]: $[reddit-format-set]')
                         return
 
-                    channel = cmd.message.guild.get_channel(cmd.args[2][2:-1])
+                    chan_id = auto_int(chan_match.group(1))
+                    channel = cmd.message.guild.get_channel(chan_id)
                     if channel is None:
                         await cmd.answer('$[reddit-error-channel-not-found]')
                         return
@@ -148,7 +150,7 @@ class RedditFollow(Command):
                     break
 
                 for channel in subchannels:
-                    chan = self.bot.get_channel(channel)
+                    chan = self.bot.get_channel(auto_int(channel))
                     if chan is not None:
                         try:
                             await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
@@ -156,6 +158,8 @@ class RedditFollow(Command):
                         except discord.Forbidden:
                             self.log.debug('Could not sent a r/%s post to %s (%s) due to missing permissions',
                                            subname, chan.guild.name, chan.guild.id)
+                    else:
+                        self.log.warning('Channel %s not found for subreddit subscription r/%s', channel, subname)
 
                 post_id = data['id']
                 if not exists:
