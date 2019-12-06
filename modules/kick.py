@@ -56,4 +56,4 @@ class Kick(Command):
         else:
             await cmd.answer('$[kick-answer]', locales={'username': to_kick.display_name})
 
-        # await ModLog.send_modlog(cmd, message=msg_all)
+        # await self.bot.send_modlog(cmd.guild, message=msg_all)

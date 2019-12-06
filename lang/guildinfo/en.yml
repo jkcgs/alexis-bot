@@ -1,0 +1,21 @@
+guildinfo-format: $CMD <guild name or ID>
+guildinfo-not-found: Guild not found.
+guildinfo-title: Guild information
+guildinfo-name: '**Name**'
+guildinfo-owner: '**Owner**'
+guildinfo-created: '**Created**'
+guildinfo-members: >-
+  Has **{memberscount} members**, *{botcount} {botword}* and *{emojicount}
+  {emojiword}*.
+guildinfo-bot: bot
+guildinfo-bots: bots
+guildinfo-emoji: emoji
+guildinfo-emojis: emojis
+guildinfo-since: '*since {creationdiff}*'
+guildinfo-voice-region: '**Voice region**'
+guildinfo-feature-bigserver: big guild
+guildinfo-feature-vipregions: VIP voice server regions
+guildinfo-feature-vanity: vanity URL
+guildinfo-feature-splash: invite splash
+guildinfo-2fa: requires two factor authentication
+guildinfo-other: '**Other features**'

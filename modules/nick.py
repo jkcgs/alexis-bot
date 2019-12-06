@@ -20,16 +20,13 @@ class Nick(Command):
             await cmd.answer('I don\'t have permissions to manage nicks in this guild, so this command is disabled.')
             return
 
-        if cmd.argc == 0:
-            await cmd.answer('$[format]: $CMD <nick>')
-            return
-
+        new_nick = '' if cmd.argc == 0 else cmd.text
         if len(cmd.text) > 20:
             await cmd.answer('The nick can\'t have more than 20 characters')
             return
 
         try:
-            await self.bot.change_nickname(cmd.author, cmd.text)
+            await cmd.author.edit(nick=new_nick)
             await cmd.answer('There you go')
         except discord.Forbidden:
             await cmd.answer('I couldn\'t change your nick. You probably have a higher role than me.')

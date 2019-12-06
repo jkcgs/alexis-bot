@@ -24,7 +24,7 @@ class Rate(Command):
             if t_user is not None:
                 m = cmd.message.mentions[0]
                 hashi = hashlib.md5()
-                hashi.update(m.id.encode('utf-8'))
+                hashi.update(str(m.id).encode('utf-8'))
                 hid = hashi.hexdigest()
 
                 if hid in Rate.special1:

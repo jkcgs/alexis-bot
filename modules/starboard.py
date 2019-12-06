@@ -8,7 +8,7 @@ from discord import Emoji, Embed
 
 from bot import Command, categories, BaseModel
 from bot.guild_configuration import GuildConfiguration
-from bot.utils import auto_int
+from bot.utils import auto_int, compare_ids
 
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
@@ -143,7 +143,7 @@ class StarboardHook(Command):
             count_trigger = int(ct_config)
 
         # Ignore messages on the starboard channel or from the bot itself
-        if starboard_chanid == str(message.channel.id) or message.author.id == self.bot.user.id:
+        if compare_ids(starboard_chanid, message.channel.id) or message.author.id == self.bot.user.id:
             return
 
         # Ignore NSFW channels if they are ignored
@@ -195,7 +195,7 @@ class StarboardHook(Command):
             embed = self.create_embed(message, timestamp, footer_text)
             starboard_msg = await self.bot.send_message(starboard_chan, embed=embed)
             Starboard.insert(
-                message_id=str(message.id), timestamp=timestamp, starboard_id=str(starboard_msg.id)).execute()
+                message_id=message.id, timestamp=timestamp, starboard_id=starboard_msg.id).execute()
 
     def create_embed(self, msg, ts, footer_txt):
         embed = Embed()

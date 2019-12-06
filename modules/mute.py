@@ -99,7 +99,7 @@ class Mute(Command):
                 await cmd.answer('$[mute-err-noex-role]', locales={'muted_role': sv_role})
                 return
 
-            await self.bot.add_roles(member, mutedrole)
+            await member.add_roles(mutedrole)
 
         reason = ' '.join(cmd.args[2:]).strip()
         str_reason = (' ' + cmd.lang.format('$[mute-reason]', locales={'reason': reason})) if reason != '' else ''
@@ -134,7 +134,7 @@ class Mute(Command):
         try:
             MutedUser.get((MutedUser.until > dt.now()) | MutedUser.until.is_null(),
                           MutedUser.userid == member.id)
-            self.bot.add_roles(member, role)
+            member.add_roles(role)
             self.log.info('Muted role added to "%s", guild "%s"', member.display_name, guild)
             return
         except MutedUser.DoesNotExist:
@@ -163,7 +163,7 @@ class Mute(Command):
             elif member is None:
                 continue
             else:
-                await self.bot.remove_roles(member, role)
+                await member.remove_roles(role)
                 MutedUser.delete_instance(muteduser)
                 self.log.info('Muted role removed from "%s", guild "%s"', member.display_name, guild)
 
@@ -240,7 +240,7 @@ class Unmute(Command):
             return
 
         try:
-            await self.bot.remove_roles(member, mutedrole)
+            await member.remove_roles(mutedrole)
         except discord.errors.Forbidden:
             await cmd.answer('$[unmute-err-perms]')
             return

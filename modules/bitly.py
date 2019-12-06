@@ -46,7 +46,7 @@ class Bitly(Command):
             link = await self.create(self, long_url)
 
             emb = Embed(title='$[bitly-title]', description=link)
-            emb.set_footer(text='$[answer-for]', icon_url=cmd.author.avatar_url or cmd.author.default_avatar_url)
+            emb.set_footer(text='$[answer-for]', icon_url=str(cmd.author.avatar_url))
             await cmd.answer(emb, locales={'author': cmd.author.display_name})
         except RuntimeError as e:
             await cmd.answer('$[bitly-err-config]', locales={'error_text': str(e)})

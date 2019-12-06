@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot import Command, BaseModel, categories
 from peewee import DateTimeField, TextField, BooleanField
-from bot.utils import timediff_parse, no_tags, deltatime_to_str, format_date
+from bot.utils import timediff_parse, no_tags, deltatime_to_str, format_date, auto_int
 from bot.regex import pat_delta
 
 
@@ -78,7 +78,7 @@ class RemindMe(Command):
             (RemindMeEvent.sent == False)
         )
         for event in query:
-            user = await self.bot.get_user_info(event.userid)
+            user = await self.bot.get_user(auto_int(event.userid))
             if user is not None:
                 emb = Embed(title='RemindMe!', description=event.description)
                 emb.set_footer(text='$[remindme-footer]')

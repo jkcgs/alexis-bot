@@ -160,6 +160,10 @@ class DeleteWarn(Command):
         await cmd.answer('$[delw-deleted]')
 
 
+def auto_id(userid):
+    pass
+
+
 class WarnList(Command):
     def __init__(self, bot):
         super().__init__(bot)
@@ -179,7 +183,7 @@ class WarnList(Command):
             warnlist = []
             for warn in warns:
                 fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                u = cmd.message.guild.get_member(warn.userid)
+                u = await cmd.get_user(warn.userid, member_only=True)
                 if u is None:
                     u = '<@{}> ({})'.format(warn.userid, warn.userid)
                 else:
@@ -237,7 +241,7 @@ class WarnRank(Command):
 
         msg = []
         for result in query:
-            member = cmd.message.guild.get_member(result.userid)
+            member = await cmd.get_user(result.userid, member_only=True)
             timestr = result.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             if member is None:
                 member = 'ID {}'.format(result.userid, result.userid)

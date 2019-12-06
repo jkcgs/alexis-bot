@@ -21,7 +21,7 @@ class LockBot(Command):
         if event.is_pm or event.owner:
             return
 
-        if is_locked(message.guild.id, message.channel.id):
+        if is_locked(message.guild, message.channel):
             return False
 
     async def handle(self, cmd):
@@ -131,7 +131,7 @@ class LockedChans(Command):
         await cmd.answer(msg, embed=embed)
 
 
-def is_locked(serverid, channelid):
-    config, _ = ServerConfig.get_or_create(serverid=serverid, name=cfg_locked)
+def is_locked(server, channel):
+    config, _ = ServerConfig.get_or_create(serverid=server.id, name=cfg_locked)
     val = [] if config.value == '' else config.value.split(',')
-    return 'all' in val or channelid in val
+    return 'all' in val or str(channel.id) in val

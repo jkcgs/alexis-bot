@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot import Command, categories
 from bot.guild_configuration import GuildConfiguration
-from bot.utils import is_int, invite_filter
+from bot.utils import is_int, invite_filter, auto_int
 from bot.regex import pat_invite
 
 
@@ -159,7 +159,7 @@ class Greeting(Command):
         if chanid == '' or len(msgs) == 0:
             return
 
-        chan = member.guild.get_channel(chanid)
+        chan = member.guild.get_channel(auto_int(chanid))
         if chan is None:
             return
 

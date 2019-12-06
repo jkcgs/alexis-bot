@@ -52,7 +52,7 @@ class IAm(Command):
             return False
 
         try:
-            await member.add_roles([role])
+            await member.add_roles(role)
             await cmd.answer('$[iam-role-given]', locales={'role': role.name})
         except discord.Forbidden:
             await cmd.answer('$[iam-forbidden-exception]')
@@ -103,7 +103,7 @@ class IAmNot(Command):
             return
 
         try:
-            await member.remove_roles([role])
+            await member.remove_roles(role)
             await cmd.answer('$[iamnot-removed-role]', locales={'role': role.name})
         except discord.Forbidden:
             await cmd.answer('$[iamnot-forbidden-exception]')

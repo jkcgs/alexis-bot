@@ -16,9 +16,9 @@ log = new_logger('Core')
 
 
 class AlexisBot(discord.Client):
-    __author__ = 'makzk (github.com/jkcgs)'
+    __author__ = 'makzk (github.com/makzk)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev3'
+    __version__ = '1.0.0-dev3-1'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -32,6 +32,7 @@ class AlexisBot(discord.Client):
         self.last_author = None
         self.initialized = False
         self.start_time = datetime.now()
+        self.connect_delta = None
 
         self.lang = {}
         self.deleted_messages = []
@@ -264,8 +265,9 @@ class AlexisBot(discord.Client):
     async def on_ready(self):
         """ This is executed once the bot has successfully connected to Discord. """
 
+        self.connect_delta = (datetime.now() - self.start_time).total_seconds()
         log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
-        log.info('It took %.3f seconds to connect.', (datetime.now() - self.start_time).total_seconds())
+        log.info('It took %.3f seconds to connect.', self.connect_delta)
         log.info('------')
         await self.change_presence(activity=discord.Game(self.config['playing']))
 

@@ -3,6 +3,8 @@ from PIL import Image
 from bot import Command, categories
 from bot.utils import parse_tag
 
+heart_url = 'https://i.imgur.com/80c3IKZ.png'
+
 
 class ShipperUwU(Command):
     def __init__(self, bot):
@@ -15,10 +17,9 @@ class ShipperUwU(Command):
         self.heart_path = None
 
     async def on_ready(self):
-        hurl = 'https://i.imgur.com/80c3IKZ.png'
-        self.heart_path = await self.mgr.download('heart.png', hurl)
+        self.heart_path = await self.mgr.download('heart.png', heart_url)
         if self.heart_path is None:
-            self.log.warn('Could not retrieve the heart picture')
+            self.log.warning('Could not retrieve the heart picture')
             return
 
     async def handle(self, cmd):

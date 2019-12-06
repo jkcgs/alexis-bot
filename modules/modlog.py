@@ -224,11 +224,7 @@ class ModLog(Command):
         embed.add_field(name='$[modlog-e-user-join]', value=utils.format_date(member.joined_at))
         embed.add_field(name='$[modlog-e-stance]',
                         value=deltatime_to_str(datetime.now() - member.joined_at), inline=False)
-
-        if member.avatar_url != '':
-            embed.set_thumbnail(url=member.avatar_url)
-        else:
-            embed.set_thumbnail(url=member.default_avatar_url)
+        embed.set_thumbnail(url=str(member.avatar_url))
 
         if more and isinstance(member, discord.Member):
             n = ModLog.get_note(member)

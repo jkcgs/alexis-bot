@@ -2,7 +2,7 @@ import platform
 
 import discord
 
-from bot import Command
+from bot import AlexisBot, Command, categories
 from bot.utils import deltatime_to_time
 
 
@@ -30,3 +30,17 @@ class BotStats(Command):
             'Uptime: {uptime}'
             '```'.format(**data)
         )
+
+
+class InfoCmd(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'info'
+        self.aliases = ['version']
+        self.help = '$[info-help]'
+        self.category = categories.INFORMATION
+
+    async def handle(self, cmd):
+        info_msg = "```\n$[info-authors]: {}\n$[info-version]: {}```"
+        info_msg = info_msg.format(AlexisBot.__author__, AlexisBot.__version__)
+        await cmd.answer(info_msg)

@@ -3,10 +3,10 @@ from bot.libs.configuration import yaml
 
 from bot import Command
 from bot.regex import pat_channel, pat_snowflake
+from bot.utils import auto_int, compare_ids
 
 letters = {}
-reacts_url = 'https://gist.github.com/makzk/3757e899f80a6e45f6e5818dc358c51c/' \
-             'raw/bfa484303bdfdca1571015bac5eca5abb78edb8a/characters.yml'
+reacts_url = 'https://l.owo.cl/reaction_ids'
 
 
 class React(Command):
@@ -31,7 +31,7 @@ class React(Command):
                 return
 
             try:
-                chan = await cmd.guild.get_channel(cmd.args[0][2:-1])
+                chan = await cmd.guild.get_channel(auto_int(cmd.args[0][2:-1]))
             except discord.NotFound:
                 await cmd.answer('Channel not found')
                 return
@@ -74,7 +74,7 @@ class React(Command):
                 continue
 
             try:
-                await self.bot.add_reaction(msg, letters[c][char_index[c]])
+                await msg.add_reaction(letters[c][char_index[c]])
                 char_index[c] += 1
             except Exception as e:
                 self.log.warn('Could not add a reaction to the message (%s)', letters[c][char_index[c]])
@@ -98,7 +98,7 @@ class React(Command):
                     except SyntaxError:
                         pass
                 elif pat_snowflake.match(react):
-                    react_ins = next((x for x in all_reacts if x.id == react), None)
+                    react_ins = next((x for x in all_reacts if compare_ids(x.id, react)), None)
                     if react_ins is None:
                         reacts.remove(react)
                     else:
