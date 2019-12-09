@@ -151,22 +151,7 @@ class MessageEvent:
         return self.lang.get(name, **kwargs)
 
     def is_owner(self, member: discord.Member):
-        if member.guild.owner == member or member.guild_permissions.administrator:
-            return True
-
-        owner_roles = self.config.get('owner_roles', self.bot.config['owner_role'])
-        if owner_roles == '':
-            owner_roles = []
-        else:
-            owner_roles = owner_roles.split('\n')
-
-        for role in member.roles:
-            if role.id in owner_roles \
-                    or role.name in owner_roles \
-                    or member.id in owner_roles:
-                return True
-
-        return False
+        return not self.is_pm and self.bot.is_guild_owner(member)
 
     @property
     def prefix(self):
@@ -174,9 +159,7 @@ class MessageEvent:
 
     @property
     def owner(self):
-        if self.guild is None:
-            return False
-        return self.bot.is_guild_owner(self.guild.me)
+        return self.is_owner(self.author)
 
     @property
     def permissions(self):
