@@ -220,6 +220,9 @@ class AlexisBot(discord.Client):
         :param member: The discord.Guild member.
         :return: A boolean value depending if the member is an owner or not.
         """
+        if not isinstance(member, discord.Member):
+            return False
+
         # The server owner or a user with the Administrator permission is an owner to the bot.
         if member.guild.owner == member or member.guild_permissions.administrator:
             return True
