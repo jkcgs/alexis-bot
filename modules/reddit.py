@@ -165,7 +165,7 @@ class RedditFollow(Command):
                             self.log.debug('Could not sent a r/%s post to %s (%s) due to missing permissions',
                                            subname, chan.guild.name, chan.guild.id)
                     else:
-                        self.log.warning('Channel %s not found for subreddit subscription r/%s', channel, subname)
+                        self.log.warning('Channel ID %s not found for subreddit subscription r/%s', channel, subname)
 
                 post_id = data['id']
                 if not exists:
