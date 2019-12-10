@@ -108,7 +108,7 @@ class MacroUnset(Command):
             return
 
         name = cmd.args[0].replace('\\', '')
-        server_id = 'global' if cmd.is_pm else cmd.message.server.id
+        server_id = 'global' if cmd.is_pm else cmd.guild.id
         try:
             EmbedMacro.get(name=name, server=server_id)
             q = EmbedMacro.delete().where(EmbedMacro.name == name, EmbedMacro.server == server_id)
