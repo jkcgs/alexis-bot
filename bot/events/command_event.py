@@ -61,7 +61,7 @@ class CommandEvent(MessageEvent):
               and not self.owner):
             await self.answer(cmd.user_delay_error)
             return
-        elif not self.is_pm and cmd.nsfw_only and self.channel.is_nsfw():
+        elif not self.is_pm and cmd.nsfw_only and not self.channel.is_nsfw():
             await self.answer(cmd.nsfw_only_error)
             return
         else:
