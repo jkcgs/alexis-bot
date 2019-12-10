@@ -311,11 +311,11 @@ class AlexisBot(discord.Client):
     async def on_guild_remove(self, guild):
         await self.manager.dispatch('on_guild_remove', guild=guild)
 
-    async def on_member_ban(self, member):
-        await self.manager.dispatch('on_member_ban', member=member)
+    async def on_member_ban(self, guild, user):
+        await self.manager.dispatch('on_member_ban', guild=guild, user=user)
 
-    async def on_member_unban(self, member):
-        await self.manager.dispatch('on_member_unban', member=member)
+    async def on_member_unban(self, guild, user):
+        await self.manager.dispatch('on_member_unban', guild=guild, user=user)
 
     async def on_typing(self, channel, user, when):
         await self.manager.dispatch('on_typing', channel=channel, user=user, when=when)
