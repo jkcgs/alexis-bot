@@ -147,8 +147,7 @@ class ModLog(Command):
             except discord.Forbidden:
                 alog = None
 
-            if alog is not None and alog.action == AuditLogAction.member_update \
-                    and len(alog.changes) and alog.extra.nick:
+            if alog is not None and alog.action == AuditLogAction.member_update and alog.changes.after.nick:
                 by = alog.user
             else:
                 by = None
