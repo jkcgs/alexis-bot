@@ -8,6 +8,7 @@ from discord.http import Route
 from bot import Command, utils, categories, BaseModel
 from discord import Embed, AuditLogAction
 
+from bot.regex import pat_channel
 from bot.utils import deltatime_to_str
 
 modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']
@@ -16,7 +17,6 @@ modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick',
 class ModLog(Command):
     __author__ = 'makzk'
     __version__ = '1.0.2'
-    rx_channel = re.compile('^<#[0-9]+>$')
     chan_config_name = 'join_send_channel'
 
     def __init__(self, bot):
@@ -268,6 +268,7 @@ class ModLogChannel(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'logchannel'
+        self.aliases = ['modlogchannel', 'modlogchan', 'logchan']
         self.help = '$[modlog-channel-help]'
         self.format = '$[modlog-cmd-format'
         self.owner_only = True
@@ -280,13 +281,18 @@ class ModLogChannel(Command):
             return
 
         chan = cmd.args[0]
-        if chan != 'off' and not ModLog.rx_channel.match(chan):
+        if chan not in ['off', 'disable', 'here'] and not pat_channel.match(chan):
             await cmd.answer('$[modlog-channel-err-off]')
             return
 
-        value = '' if chan == 'off' else chan[2:-1]
-        cmd.config.set(ModLog.chan_config_name, value)
+        if chan == 'here':
+            value = cmd.channel.id
+        elif chan in ['off', 'disable']:
+            value = ''
+        else:
+            value = chan[2:-1]
 
+        cmd.config.set(ModLog.chan_config_name, value)
         if value == '':
             await cmd.answer('$[modlog-channel-off]')
         else:
