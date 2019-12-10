@@ -4,7 +4,7 @@ from discord import Embed
 
 from bot.guild_configuration import GuildConfiguration
 from bot.libs.language import SingleLanguage
-from bot.utils import no_tags
+from bot.utils import no_tags, auto_int
 from bot.regex import pat_usertag, pat_channel, pat_snowflake
 
 
@@ -121,6 +121,7 @@ class MessageEvent:
         if u_match:
             user = int(u_match.group(1))
 
+        user = auto_int(user)
         return self.message.guild.get_member(user) or self.bot.get_user(user)
 
     def find_channel(self, channel):
