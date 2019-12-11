@@ -128,7 +128,7 @@ class DynConfiguration:
         if not isinstance(elements, list):
             raise RuntimeError('elements argument only supports a list instance')
 
-        result = separator.join(elements)
+        result = separator.join([str(e) for e in elements])
         self.set(svid, name, result)
 
     def add(self, svid, name, value, separator=','):

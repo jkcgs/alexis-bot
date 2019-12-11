@@ -20,3 +20,5 @@ lockbot-list-all-locked: Todos los canales están bloqueados.
 lockbot-list-also: 'Además, los siguientes canales han sido marcados como bloqueados.'
 lockbot-list: Los siguientes canales están bloqueados
 lockbot-list-none: No hay canales bloqueados.
+lockbot-cleared: Todos los bloqueos han sido eliminados.
+

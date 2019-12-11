@@ -20,3 +20,4 @@ lockbot-list-all-locked: All channels are locked.
 lockbot-list-also: 'Also, the following channels are marked as locked.'
 lockbot-list: The following channels are locked
 lockbot-list-none: There are no locked channels.
+lockbot-cleared: All locks removed.

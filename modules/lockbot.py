@@ -1,95 +1,125 @@
-from discord import Embed
+from discord import Embed, TextChannel
 
 from bot import Command, categories
-from bot.database import ServerConfig
+from bot.regex import pat_channel
 
 cfg_locked = 'locked_bot_channels'
+cfg_all = 'all'
 
 
 class LockBot(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'lockbot'
-        self.aliases = ['unlockbot', 'islocked']
+        self.aliases = ['lock']
         self.help = '$[lockbot-help]'
         self.format = '$CMD [all]'
         self.owner_only = True
         self.allow_pm = False
         self.category = categories.STAFF
 
-    async def pre_on_message(self, message, event):
-        if event.is_pm or event.owner:
+    async def handle(self, cmd):
+        chans = cmd.config.get_list(cfg_locked)
+        chan = get_chan_cmd(cmd)
+
+        if cmd.argc > 2:
+            return await cmd.answer(self.format)
+
+        # 'all' lock
+        if chan == cfg_all:
+            if cfg_all in chans:
+                await cmd.answer('$[lockbot-all-already]')
+                return
+
+            cmd.config.add(cfg_locked, cfg_all)
+            await cmd.answer('$[lockbot-all-locked]')
             return
 
-        if is_locked(message.guild, message.channel):
-            return False
+        if not isinstance(chan, TextChannel):
+            return await cmd.answer(self.format)
+
+        # Channel unlock
+        if str(chan.id) in chans:
+            await cmd.answer('$[lockbot-already]')
+            return
+
+        cmd.config.add(cfg_locked, str(chan.id))
+        await cmd.answer('$[lockbot-unlocked]')
+
+
+class UnlockBot(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'unlockbot'
+        self.aliases = ['unlock']
+        self.help = '$[lockbot-help]'
+        self.format = '$CMD [all]'
+        self.owner_only = True
+        self.allow_pm = False
+        self.category = categories.STAFF
 
     async def handle(self, cmd):
-        channel = None
-        chall = False
-        if cmd.argc == 0:
-            channel = cmd.message.channel
-        elif cmd.argc >= 1:
-            if len(cmd.message.channel_mentions) > 0:
-                channel = cmd.message.channel_mentions[0]
-            elif cmd.args[0] != 'all':
-                channel = cmd.find_channel(cmd.args[0])
-            else:
-                chall = True
-
-        if not chall and channel is None:
-            await cmd.answer('$[lockbot-channel-not-found]')
-            return
-
         chans = cmd.config.get_list(cfg_locked)
-        chanid = 'all' if chall else channel.id
+        chan = get_chan_cmd(cmd)
 
-        if cmd.cmdname == 'islocked':
-            locked = is_locked(cmd.message.guild.id, chanid)
-            msg = ['$[lockbot-no]', '$[lockbot-yes]'][locked]
+        if cmd.argc > 2:
+            return await cmd.answer(self.format)
 
-            if 'all' in chans:
-                msg += '$[lockbot-also]'
-            await cmd.answer(msg)
+        # Clear all locks
+        if cmd.args[0] == 'clear':
+            cmd.config.unset(cfg_locked)
+            return await cmd.answer('$[lockbot-cleared]')
+
+        # Remove 'all' lock
+        if chan == cfg_all:
+            if cfg_all not in chans:
+                await cmd.answer('$[lockbot-all-not-locked]')
+                return
+
+            cmd.config.remove(cfg_locked, cfg_all)
+            return await cmd.answer('$[lockbot-all-removed]')
+
+        if not isinstance(chan, TextChannel):
+            return await cmd.answer(self.format)
+
+        # Channel unlock
+        if str(chan.id) in chans:
+            await cmd.answer('$[lockbot-not-locked]')
             return
 
-        if chanid == 'all':
-            if cmd.cmdname == 'lockbot':
-                if 'all' in chans:
-                    await cmd.answer('$[lockbot-all-already]')
-                    return
-                else:
-                    cmd.config.add(cfg_locked, 'all')
-                    await cmd.answer('$[lockbot-all-locked]')
-                    return
-            else:
-                if 'all' not in chans:
-                    await cmd.answer('$[lockbot-all-not-locked]')
-                    return
-                else:
-                    if cmd.argc > 1 and cmd.args[1] == 'keep':
-                        cmd.config.remove(cfg_locked, 'all')
-                        await cmd.answer('$[lockbot-all-removed-but]')
-                        return
-                    else:
-                        cmd.config.set(cfg_locked, '')
-                        await cmd.answer('$[lockbot-all-removed]')
-                        return
+        cmd.config.remove(cfg_locked, str(chan.id))
+        await cmd.answer('$[lockbot-unlocked]')
 
-        if chanid in chans:
-            if cmd.cmdname == 'lockbot':
-                await cmd.answer('$[lockbot-already]')
-                return
 
-            cmd.config.remove(cfg_locked, chanid)
-            await cmd.answer('$[lockbot-unlocked]')
-        else:
-            if cmd.cmdname != 'lockbot':
-                await cmd.answer('$[lockbot-not-locked]')
-                return
+class IsLockedBot(Command):
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.name = 'islocked'
+        self.help = '$[lockbot-help]'
+        self.format = '$CMD [all]'
+        self.owner_only = True
+        self.allow_pm = False
+        self.category = categories.STAFF
 
-            cmd.config.add(cfg_locked, chanid)
-            await cmd.answer('$[lockbot-locked]')
+    async def handle(self, cmd):
+        chans = cmd.config.get_list(cfg_locked)
+        chan = get_chan_cmd(cmd)
+        total_lock = cfg_all in chans
+
+        if chan == cfg_all:
+            msg = ['$[lockbot-all-not-locked]', '$[lockbot-list-all-locked]'][total_lock]
+            return await cmd.answer(msg)
+
+        if not isinstance(chan, TextChannel):
+            return await cmd.answer(self.format)
+
+        locked = cfg_all in chans or str(chan.id) in chans
+        msg = ['$[lockbot-no]', '$[lockbot-yes]'][locked]
+
+        if total_lock:
+            msg += '$[lockbot-also]'
+
+        await cmd.answer(msg)
 
 
 class LockedChans(Command):
@@ -103,8 +133,8 @@ class LockedChans(Command):
 
     async def handle(self, cmd):
         chans = cmd.config.get_list(cfg_locked)
-        is_all = 'all' in chans
-        others = [f for f in chans if f != 'all']
+        is_all = cfg_all in chans
+        others = [f for f in chans if f != cfg_all]
         chan_list = []
         for chanid in others:
             chan = cmd.message.guild.get_channel(chanid)
@@ -131,7 +161,13 @@ class LockedChans(Command):
         await cmd.answer(msg, embed=embed)
 
 
-def is_locked(server, channel):
-    config, _ = ServerConfig.get_or_create(serverid=server.id, name=cfg_locked)
-    val = [] if config.value == '' else config.value.split(',')
-    return 'all' in val or str(channel.id) in val
+def get_chan_cmd(cmd):
+    if cmd.argc == 1 and cmd.args[0] == cfg_all:
+        return cfg_all
+
+    if cmd.argc == 0:
+        return cmd.channel
+    elif pat_channel.match(cmd.args[0]):
+        return cmd.message.channel_mentions[0]
+    else:
+        return None
