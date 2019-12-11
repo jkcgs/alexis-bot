@@ -2,6 +2,7 @@ from discord import Embed, TextChannel
 
 from bot import Command, categories
 from bot.regex import pat_channel
+from bot.utils import auto_int
 
 cfg_locked = 'locked_bot_channels'
 cfg_all = 'all'
@@ -44,7 +45,7 @@ class LockBot(Command):
             return
 
         cmd.config.add(cfg_locked, str(chan.id))
-        await cmd.answer('$[lockbot-unlocked]')
+        await cmd.answer('$[lockbot-locked]')
 
 
 class UnlockBot(Command):
@@ -83,7 +84,7 @@ class UnlockBot(Command):
             return await cmd.answer(self.format)
 
         # Channel unlock
-        if str(chan.id) in chans:
+        if str(chan.id) not in chans:
             await cmd.answer('$[lockbot-not-locked]')
             return
 
@@ -126,6 +127,7 @@ class LockedChans(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'lockedlist'
+        self.aliases = ['locklist']
         self.help = '$[lockbot-list-help]'
         self.owner_only = True
         self.allow_pm = False
@@ -136,8 +138,9 @@ class LockedChans(Command):
         is_all = cfg_all in chans
         others = [f for f in chans if f != cfg_all]
         chan_list = []
+
         for chanid in others:
-            chan = cmd.message.guild.get_channel(chanid)
+            chan = cmd.message.guild.get_channel(auto_int(chanid))
             if chan is None:
                 chan_list.append('- {} ($[lockbot-not-found])'.format(chanid))
             else:
