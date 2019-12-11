@@ -51,8 +51,8 @@ class MacroSet(Command):
         else:
             if len(cmd.message.attachments) > 0:
                 for atata in cmd.message.attachments:
-                    if atata['url'].lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-                        subargs[0] = atata['url']
+                    if atata.url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                        subargs[0] = atata.url
                         break
 
             if subargs[0].strip() != '':
