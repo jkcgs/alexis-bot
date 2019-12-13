@@ -85,6 +85,7 @@ class Bans(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'bans'
+        self.aliases = ['funas']
         self.help = '$[bans-help]'
         self.allow_pm = False
         self.pm_error = '$[bans-pm-error]'
@@ -127,6 +128,7 @@ class SetBans(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'setbans'
+        self.aliases = ['setfunas']
         self.help = '$[setbans-help]'
         self.allow_pm = False
         self.pm_error = '$[setbans-pm-error]'
@@ -147,7 +149,7 @@ class SetBans(Command):
         user, _ = Ban.get_or_create(userid=mention.id, server=cmd.message.guild.id,
                                     defaults={'user': str(mention)})
         update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
-        update = update.where(Ban.userid == mention.id, Ban.server == cmd.message.server.id)
+        update = update.where(Ban.userid == mention.id, Ban.server == cmd.message.guild.id)
         update.execute()
 
         name = mention.display_name
@@ -162,7 +164,7 @@ class BanRank(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'banrank'
-        self.aliases = [self.bot.config['command_prefix'] + 'banrank']
+        self.aliases = ['$PXbanrank', 'funarank', '$PXfunarank']
         self.help = '$[banrank-help]'
         self.allow_pm = False
         self.pm_error = '$[setbans-pm-error]'
