@@ -15,6 +15,7 @@ class BanCmd(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ban'
+        self.aliases = ['funa']
         self.help = '$[ban-help]'
         self.allow_pm = False
         self.pm_error = '$[ban-pm-error]'
