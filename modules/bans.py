@@ -10,7 +10,7 @@ from bot.regex import pat_usertag, pat_snowflake
 
 class BanCmd(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.1'
+    __version__ = '1.0.2'
 
     def __init__(self, bot):
         super().__init__(bot)
