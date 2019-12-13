@@ -67,7 +67,7 @@ class UnlockBot(Command):
             return await cmd.answer(self.format)
 
         # Clear all locks
-        if cmd.args[0] == 'clear':
+        if cmd.argc > 0 and cmd.args[0] == 'clear':
             cmd.config.unset(cfg_locked)
             return await cmd.answer('$[lockbot-cleared]')
 
