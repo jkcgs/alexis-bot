@@ -193,7 +193,7 @@ class StarboardHook(Command):
         else:
             timestamp = datetime.now()
             embed = self.create_embed(message, timestamp, footer_text)
-            starboard_msg = await self.bot.send_message(starboard_chan, embed=embed)
+            starboard_msg = await starboard_chan.send(embed=embed)
             Starboard.insert(
                 message_id=message.id, timestamp=timestamp, starboard_id=starboard_msg.id).execute()
 
