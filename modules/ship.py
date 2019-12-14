@@ -1,5 +1,7 @@
 from io import BytesIO
 from PIL import Image
+from discord import File
+
 from bot import Command, categories
 from bot.utils import parse_tag
 
@@ -79,14 +81,14 @@ class ShipperUwU(Command):
         # Create ship name and send picture
         ship_name = item1_name[0:int(len(item1_name) / 2)] + item2_name[int(len(item2_name) / 2):]
         msg = cmd.lang.format('$[ship-msg]', locales={'ship_name': ship_name})
-        await self.bot.send_file(cmd.message.channel, temp, filename='ship.png', content=msg)
+        await cmd.channel.send(msg, file=File(temp, filename='ship.png'))
 
 
 async def get_details(cmd, text):
     item = parse_tag(text)
     if item is None or item['type'] == 'user':
         user = await (cmd.get_user(text) if item is None else cmd.get_user(item['id']))
-        return None if user is None else (user.display_name, (user.avatar_url or user.default_avatar_url))
+        return None if user is None else (user.display_name, str(user.avatar_url))
     elif item['type'] == 'emoji':
         url = 'https://discordapp.com/api/emojis/{}.{}'
         return item['name'], url.format(item['id'], 'gif' if item['animated'] else 'png')

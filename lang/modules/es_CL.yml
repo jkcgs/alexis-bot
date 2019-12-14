@@ -10,7 +10,9 @@ module-reloaded: Módulo recargado.
 module-not-reactivated: El módulo no pudo ser reactivado.
 module-none: (ninguno)
 module-e-title: Información de módulo
-module-e-description: '**{mod_name}** versión {mod_version} por {mod_author}\n*{mod_help}*'
+module-e-description: |
+  **{mod_name}** versión {mod_version} por {mod_author}
+  *{mod_help}*
 module-e-commands: Comando(s)
 module-e-swhandler: SW Handler
 module-e-mentionhandlers: Mention Handler

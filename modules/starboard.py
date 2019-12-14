@@ -174,7 +174,7 @@ class StarboardHook(Command):
             return
 
         starboard_chan = self.bot.get_channel(auto_int(starboard_chanid))
-        if starboard_chan is None:
+        if starboard_chan is None and star_item is not None:
             star_item.delete_instance()
             return
 

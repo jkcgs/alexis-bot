@@ -4,7 +4,7 @@ from discord import Embed
 import json
 
 
-class Ping(Command):
+class Poll(Command):
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'poll'
