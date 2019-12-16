@@ -47,6 +47,14 @@ class LockBot(Command):
         cmd.config.add(cfg_locked, str(chan.id))
         await cmd.answer('$[lockbot-locked]')
 
+    async def pre_on_message(self, message, event):
+        if event.is_pm or event.owner:
+            return
+
+        lockedlist = event.config.get_list(cfg_locked)
+        if cfg_all in lockedlist or str(event.channel.id) in lockedlist:
+            return False
+
 
 class UnlockBot(Command):
     def __init__(self, bot):
