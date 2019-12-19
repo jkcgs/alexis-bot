@@ -7,9 +7,13 @@ import peewee
 
 from bot import Command, utils, categories, BaseModel
 from bot.guild_configuration import GuildConfiguration
+from bot.utils import auto_int
 
 
 class Mute(Command):
+    __version__ = '1.0.1'
+    __author__ = 'makzk'
+
     default_muted_role = 'Muted'
     cfg_muted_role = 'muted_role'
     rx_timediff_all = re.compile('^([0-9]+[smhdSMDH]?)+$')
@@ -107,15 +111,16 @@ class Mute(Command):
                          author_name=str(cmd.author), author_id=cmd.author.id).execute()
 
         # Tell the user about the mute, via PM
-        try:
-            await self.bot.send_message(member, '$[mute-msg]{}{}.'.format(str_deltatime, str_reason),
-                                        locales={'server_name': guild.name})
-        except discord.errors.Forbidden as e:
-            self.log.exception(e)
+        if not member.bot:
+            try:
+                await self.bot.send_message(member, '$[mute-msg]{}{}.'.format(str_deltatime, str_reason),
+                                            locales={'server_name': guild.name})
+            except discord.errors.Forbidden as e:
+                self.log.exception(e)
 
-        # Answer to the mute command with information about the mute
-        await cmd.answer('$[mute-answer]{}{}!'.format(str_deltatime, str_reason),
-                         locales={'username': member.display_name})
+            # Answer to the mute command with information about the mute
+            await cmd.answer('$[mute-answer]{}{}!'.format(str_deltatime, str_reason),
+                             locales={'username': member.display_name})
 
     # Restore the mute role if user left and joined the guild again
     async def on_member_join(self, member):
@@ -144,23 +149,28 @@ class Mute(Command):
     async def mute_task(self):
         muted = MutedUser.select().where((MutedUser.until <= dt.now()) & MutedUser.until.is_null(False))
         for muteduser in muted:
-            guild = self.bot.get_guild(muteduser.serverid)
+            guildid = auto_int(muteduser.serverid)
+            mutedid = auto_int(muteduser.userid)
+
+            guild = self.bot.get_guild(guildid)
             if guild is None:
+                self.log.debug('Guild ID %s not found', guildid)
                 continue
 
-            if not guild.me.server_permissions.manage_roles:
+            if not guild.me.guild_permissions.manage_roles:
                 self.log.warning('I can\'t manage roles on guild: %s', guild)
                 continue
 
             config = GuildConfiguration.get_instance(guild)
             guild_role = config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-            member = guild.get_member(muteduser.userid)
+            member = guild.get_member(mutedid)
             role = utils.get_guild_role(guild, guild_role)
 
             if role is None:
                 self.log.warning('Role "%s" does not exist (guild: %s)', guild_role, guild)
                 continue
             elif member is None:
+                # self.log.warning('Member ID %s not found (guild: %s)', mutedid, guild)
                 continue
             else:
                 await member.remove_roles(role)
