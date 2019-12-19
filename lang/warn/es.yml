@@ -3,7 +3,7 @@ warn-format: '$CMD <id, mención> <razón>'
 warn-err-bot: ¡No puedes darme una advertencia!
 warn-err-self: ¡No puedes auto-advertirte!
 warn-msg: >-
-  ¡Hola! Se te ha dado una advertencia en el servidor **{server_name}** por
+  ¡Hola! Se te ha dado una advertencia en el servidor **{guild_name}** por
   *{reason}*.
 warn-now-single: 'Ahora tienes {count} advertencia.'
 warn-now: 'Ahora tienes {count} advertencias.'

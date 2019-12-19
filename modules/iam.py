@@ -39,7 +39,7 @@ class IAm(Command):
                 return False
 
         role = get_guild_role(cmd.guild, cmd.text, False)
-        if role is None or role.id not in roles:
+        if role is None or str(role.id) not in roles:
             await cmd.answer('$[iam-role-not-available]')
             return False
 
@@ -82,15 +82,14 @@ class IAmNot(Command):
         role = get_guild_role(cmd.guild, cmd.text, False)
 
         if role is None:
-            await cmd.answer('$[iam-role-not-available]')
+            await cmd.answer('$[iamroles-not-found]')
             return
 
-        if role.id not in roles:
+        if str(role.id) not in roles:
             if role in member.roles:
                 await cmd.answer('$[iam-not-self-managed]')
             else:
                 await cmd.answer('$[iam-role-not-available]')
-
             return
 
         if role >= cmd.guild.me.top_role:
@@ -98,7 +97,7 @@ class IAmNot(Command):
             return
 
         roles_locked = cmd.config.get_list(cfg_roles_locked)
-        if role.id in roles_locked:
+        if str(role.id) in roles_locked:
             await cmd.answer('$[iamnot-cant-remove]')
             return
 

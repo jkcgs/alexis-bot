@@ -2,7 +2,7 @@ warn-help: Warn a user
 warn-format: '$CMD <id, mention> <reason>'
 warn-err-bot: You can't warn me!
 warn-err-self: You can't warn yourself!
-warn-msg: 'Hello! You''re given a warning in the **{server_name}** guild for *{reason}*.'
+warn-msg: 'Hello! You''re given a warning in the **{guild_name}** guild for *{reason}*.'
 warn-now-single: 'Now you have {count} warning.'
 warn-now: 'Now you have {count} warnings.'
 warn-answer: '**{username}** was given a warning. Reason: **{reason}**.'

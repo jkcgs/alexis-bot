@@ -53,7 +53,8 @@ def get_guild_role(guild: discord.Guild, role, case_sensitive=True):
 
     for role_ins in guild.roles:
         if (not case_sensitive and role_ins.name.lower() == role.lower()) \
-                or role_ins.name == role or compare_ids(role_ins.id, role):
+                or role_ins.name == role \
+                or compare_ids(role_ins.id, role):
             return role_ins
 
     return None

@@ -25,7 +25,7 @@ class Warn(Command):
             return
 
         member = await cmd.get_user(cmd.args[0], member_only=True)
-        server = cmd.message.guild
+        guild = cmd.message.guild
         await cmd.typing()
 
         if member is None:
@@ -41,14 +41,14 @@ class Warn(Command):
             return
 
         reason = ' '.join(cmd.args[1:])
-        UserWarn.create(serverid=server.id, userid=member.id, reason=reason)
+        UserWarn.create(serverid=guild.id, userid=member.id, reason=reason)
         num = get_member_warns(member).count()
         adv = ['$[warn-now]', '$[warn-now-single]'][num == 1]
 
         # Tell user via PM about the warn
         try:
             await self.bot.send_message(member, '$[warn-msg] {}'.format(adv),
-                                        locales={'server_name': server.name, 'reason': reason, 'count': num})
+                                        locales={'guild_name': guild.name, 'reason': reason, 'count': num})
         except discord.errors.Forbidden as e:
             self.log.exception(e)
 
@@ -116,7 +116,7 @@ class ClearWarns(Command):
             await cmd.answer('$[clrw-hasnt]')
             return
 
-        UserWarn.delete().where(UserWarn.serverid == cmd.message.server.id, UserWarn.userid == member.id).execute()
+        UserWarn.delete().where(UserWarn.serverid == cmd.message.guild.id, UserWarn.userid == member.id).execute()
         await cmd.answer('$[clrw-cleared]', locales={'username': member.display_name})
 
 
@@ -258,7 +258,7 @@ def get_member_warns(member):
     if not isinstance(member, discord.Member):
         raise RuntimeError('The member argument value is not an instance of discord.Member')
 
-    return UserWarn.select().where(UserWarn.serverid == member.server.id, UserWarn.userid == member.id)
+    return UserWarn.select().where(UserWarn.serverid == member.guild.id, UserWarn.userid == member.id)
 
 
 class UserWarn(BaseModel):
