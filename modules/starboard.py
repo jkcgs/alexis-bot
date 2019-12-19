@@ -113,9 +113,9 @@ class StarboardHook(Command):
         else:
             await cmd.answer('$[starboard-format]', locales={'command_name': cmd.cmdname})
 
-    async def on_reaction_add(self, reaction, member: discord.Member):
+    async def on_reaction_add(self, reaction, user: discord.Member):
         message = reaction.message
-        config = GuildConfiguration.get_instance(member.guild)
+        config = GuildConfiguration.get_instance(user.guild)
 
         # Load allowed reactions
         emojis = config.get(cfg_starboard_emojis)
@@ -177,7 +177,7 @@ class StarboardHook(Command):
         if starboard_chan is None:
             if star_item is not None:
                 star_item.delete_instance()
-            self.log.debug('Channel ID %s not found for guild %s', starboard_chanid, member.guild)
+            self.log.debug('Channel ID %s not found for guild %s', starboard_chanid, user.guild)
             return
 
         footer_text = self.get_lang(message.guild, starboard_chan).get('starboard-reactions')
