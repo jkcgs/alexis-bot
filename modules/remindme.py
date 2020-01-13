@@ -78,7 +78,7 @@ class RemindMe(Command):
             (RemindMeEvent.sent == False)
         )
         for event in query:
-            user = await self.bot.get_user(auto_int(event.userid))
+            user = self.bot.get_user(auto_int(event.userid))
             if user is not None:
                 emb = Embed(title='RemindMe!', description=event.description)
                 emb.set_footer(text='$[remindme-footer]')

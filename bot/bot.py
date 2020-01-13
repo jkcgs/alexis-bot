@@ -148,7 +148,7 @@ class AlexisBot(discord.Client):
 
         return self.manager.schedule(task, time, force)
 
-    async def send_message(self, destination, content, **kwargs):
+    async def send_message(self, destination, content='', **kwargs):
         """
         Method that proxies all messages sent to Discord, to fire other calls
         like event handlers, message filters and bot logging. Allows original method's parameters.

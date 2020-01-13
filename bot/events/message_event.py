@@ -55,7 +55,7 @@ class MessageEvent:
     async def answer_embed(self, msg, title=None, *, delete_trigger=False, withname=True, **kwargs):
         if delete_trigger:
             try:
-                await self.bot.delete_message(msg)
+                await self.bot.delete_message(self.message, silent=True)
             except discord.Forbidden:
                 pass
 
