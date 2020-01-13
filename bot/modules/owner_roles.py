@@ -1,8 +1,11 @@
 from bot import Command, categories
-from bot.utils import get_guild_role
+from bot.utils import get_guild_role, auto_int
 
 
 class OwnerRoles(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.0'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'ownerrole'
@@ -26,7 +29,7 @@ class OwnerRoles(Command):
                 return
 
             cmd_role = ' '.join(cmd.args[1:])
-            role = get_guild_role(cmd.message.guild, cmd_role)
+            role = get_guild_role(cmd.message.guild, auto_int(cmd_role))
             if role is None and cmd_role not in owner_roles:
                 await cmd.answer('$[owr-role-not-found]')
                 return
@@ -39,18 +42,18 @@ class OwnerRoles(Command):
                 cmd.config.set('owner_roles', role.id)
                 await cmd.answer('$[owr-set]', locales={'role_name': role.name})
             elif cmd.args[0] == 'add':
-                if role.id in owner_roles:
+                if str(role.id) in owner_roles:
                     await cmd.answer('$[owr-already-owner]')
                     return
 
-                cmd.config.set('owner_roles', '\n'.join(owner_roles + [role.id]))
+                cmd.config.set('owner_roles', '\n'.join(owner_roles + [str(role.id)]))
                 await cmd.answer('$[owr-added]', locales={'role_name': role.name})
             elif cmd.args[0] == 'remove':
-                if role.id not in owner_roles:
+                if str(role.id) not in owner_roles:
                     await cmd.answer('$[owr-not-owner]')
                     return
 
-                owner_roles.remove(role.id)
+                owner_roles.remove(str(role.id))
                 cmd.config.set('owner_roles', '\n'.join(owner_roles))
                 await cmd.answer('$[owr-removed]', locales={'role_name': role.name})
         elif cmd.args[0] == 'list':
