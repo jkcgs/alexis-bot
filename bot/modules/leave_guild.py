@@ -1,4 +1,5 @@
 from bot import Command, categories
+from bot.utils import auto_int
 
 
 class LeaveGuild(Command):
@@ -21,7 +22,7 @@ class LeaveGuild(Command):
             await cmd.answer('$[format]: $[leaveguild-format]')
             return
 
-        guild = self.bot.get_guild(cmd.args[0])
+        guild = self.bot.get_guild(auto_int(cmd.args[0]))
         if guild is None:
             await cmd.answer('$[leaveguild-guild-not-found]')
             return
