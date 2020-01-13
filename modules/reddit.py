@@ -162,8 +162,8 @@ class RedditFollow(Command):
                             await self.bot.send_message(chan, content='$[reddit-message-title]', embed=embed,
                                                         locales={'sub': subname})
                         except discord.Forbidden:
-                            self.log.debug('Could not sent a r/%s post to %s (%s) due to missing permissions',
-                                           subname, chan.guild.name, chan.guild.id)
+                            self.log.debug('Could not sent a r/%s post to %s (%s) #%s (%s) due to missing permissions',
+                                           subname, chan.guild.name, chan.guild.id, chan.name, chan.id)
                     else:
                         self.log.warning('Channel ID %s not found for subreddit subscription r/%s', channel, subname)
 
