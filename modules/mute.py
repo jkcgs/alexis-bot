@@ -45,7 +45,7 @@ class Mute(Command):
             return
 
         sv_role = cmd.config.get(Mute.cfg_muted_role, Mute.default_muted_role)
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         guild = cmd.message.guild
         await cmd.typing()
 
@@ -118,9 +118,9 @@ class Mute(Command):
             except discord.errors.Forbidden as e:
                 self.log.exception(e)
 
-            # Answer to the mute command with information about the mute
-            await cmd.answer('$[mute-answer]{}{}!'.format(str_deltatime, str_reason),
-                             locales={'username': member.display_name})
+        # Answer to the mute command with information about the mute
+        await cmd.answer('$[mute-answer]{}{}!'.format(str_deltatime, str_reason),
+                         locales={'username': member.display_name})
 
     # Restore the mute role if user left and joined the guild again
     async def on_member_join(self, member):
@@ -237,7 +237,7 @@ class Unmute(Command):
             await cmd.answer('$[format]: $[unmute-format]')
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         if member is None:
             await cmd.answer('$[user-not-found]')
             return

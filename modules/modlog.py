@@ -284,7 +284,7 @@ class UserNoteCmd(Command):
         if cmd.argc < 1:
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         if member is None:
             await cmd.answer('$[user-not-found]')
             return

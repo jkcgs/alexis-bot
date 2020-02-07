@@ -22,7 +22,7 @@ class Pat(Command):
 
         mention = None
         if len(cmd.args) > 0:
-            mention = await cmd.get_user(cmd.text)
+            mention = cmd.get_member_or_author(cmd.text)
             if mention is None:
                 await cmd.answer('$[user-not-found]. $[format]: $[pat-format]')
                 return

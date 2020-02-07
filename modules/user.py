@@ -17,7 +17,7 @@ class UserCommand(Command):
         if cmd.argc == 0:
             user = cmd.author
         else:
-            user = await cmd.get_user(cmd.text, member_only=True)
+            user = cmd.get_member_or_author(cmd.text)
             if user is None:
                 await cmd.answer('$[user-not-found]')
                 return

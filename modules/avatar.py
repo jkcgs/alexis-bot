@@ -13,7 +13,7 @@ class Avatar(Command):
         self.category = categories.IMAGES
 
     async def handle(self, cmd):
-        user = cmd.author if cmd.argc == 0 else await cmd.get_user(cmd.text)
+        user = cmd.author if cmd.argc == 0 else cmd.get_member_or_author(cmd.text)
         if user is None:
             await cmd.answer('$[user-not-found]')
             return

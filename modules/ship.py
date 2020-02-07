@@ -87,7 +87,7 @@ class ShipperUwU(Command):
 async def get_details(cmd, text):
     item = parse_tag(text)
     if item is None or item['type'] == 'user':
-        user = await (cmd.get_user(text) if item is None else cmd.get_user(item['id']))
+        user = cmd.get_member(text) if item is None else cmd.get_member(item['id'])
         return None if user is None else (user.display_name, str(user.avatar_url))
     elif item['type'] == 'emoji':
         url = 'https://discordapp.com/api/emojis/{}.{}'

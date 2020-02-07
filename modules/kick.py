@@ -22,14 +22,14 @@ class Kick(Command):
             await cmd.answer('$[format]: $[kick-format]')
             return
 
-        to_kick = await cmd.get_user(cmd.args[0])
+        to_kick = cmd.get_member(cmd.args[0])
         if to_kick is None:
             await cmd.answer('$[user-not-found]')
             return
 
         # Kick the user
         try:
-            await self.bot.kick(to_kick)
+            await to_kick.kick()
         except discord.Forbidden:
             await cmd.answer('$[kick-err-perms]')
             return
@@ -44,9 +44,6 @@ class Kick(Command):
                         'reason': reason, 'server_name': str(cmd.guild)})
                 else:
                     await self.bot.send_message(to_kick, '$[kick-msg]', locales={'server_name': str(cmd.guild)})
-            else:
-                await cmd.answer('$[kick-err-bot]')
-                return
         except discord.Forbidden:
             pass
 

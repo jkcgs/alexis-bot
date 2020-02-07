@@ -93,36 +93,41 @@ class MessageEvent:
     def no_tags(self, users=True, channels=True, emojis=True):
         return no_tags(self.message, self.bot, users, channels, emojis)
 
-    async def get_user(self, user, member_only=False):
+    def get_member(self, named_or_id):
         """
-        Fetch a user given a name, mention, it's ID or the user#discriminator string.
-        :param user: The user referecence string.
-        :param member_only: Guild members only.
-        :return: If the event came from a guild, then a discord.Member is returned. Else, a discord.User is returned.
-        In any case, if the user could not be found, None is returned.
+        Fetch a user given a name, @name, <@user_id> mention, user#discriminator, or it's user [@]ID.
+        :param named_or_id: The user referecence string.
+        :return: A discord.Member instance or None.
         """
+        # There are no members on a private channel
         if self.is_pm:
             raise RuntimeError('You can\'t get users information on PMs')
 
-        if isinstance(user, discord.Member) or isinstance(user, discord.User):
-            return user
+        # If somehow a member object is passed, return it
+        if isinstance(named_or_id, discord.Member):
+            return named_or_id
 
-        if isinstance(user, int):
-            return await self.bot.fetch_user(user)
+        # Try to convert a tag into an ID, if not, it's probably a user name or nick
+        named_or_id = auto_int(str(named_or_id).lstrip('@'))
+        if not isinstance(named_or_id, int):
+            u_match = pat_usertag.match(named_or_id)
+            if u_match:
+                named_or_id = auto_int(u_match.group(1))
 
-        if user.startswith("@"):
-            user = user[1:]
+        # Use the methods according to the variable type
+        if isinstance(named_or_id, int):
+            return self.guild.get_member(named_or_id)
+        else:
+            return self.guild.get_member_named(named_or_id)
 
-        u = self.message.guild.get_member_named(user)
-        if u is not None:
-            return u
-
-        u_match = pat_usertag.match(user)
-        if u_match:
-            user = int(u_match.group(1))
-
-        user = auto_int(user)
-        return self.message.guild.get_member(user) or self.bot.get_user(user)
+    def get_member_or_author(self, named_or_id=None):
+        """
+        This is a shortcut for when a command is user via DM and want to return the author instead
+        of a member, because there are no members over PMs.
+        :param named_or_id: The user referecence string.
+        :return: The message author if it's a PM (parameter is ignored), or a discord.Member instance or None.
+        """
+        return self.author if self.is_pm else self.get_member(named_or_id)
 
     def find_channel(self, channel):
         """

@@ -18,7 +18,7 @@ class Rate(Command):
 
     async def handle(self, cmd):
         text = [cmd.text, cmd.author_name][int(cmd.text == '')]
-        t_user = await cmd.get_user(text)
+        t_user = cmd.get_member_or_author(cmd.text)
 
         if random.random() > .9:
             if t_user is not None:

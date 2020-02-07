@@ -24,7 +24,7 @@ class Ban(Command):
             return
 
         await cmd.typing()
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         server = cmd.message.guild
 
         if member is None:
@@ -55,7 +55,7 @@ class Ban(Command):
                 reason = ' '.join(cmd.args[1:])
 
         try:
-            await self.bot.ban(member, delete_days)
+            await member.ban(delete_days)
         except discord.Forbidden:
             await cmd.answer('$[realban-error-denied]')
             return

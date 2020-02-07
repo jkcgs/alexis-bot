@@ -7,7 +7,7 @@ mute-err-perms: I don't have permission to manage roles.
 mute-err-time: Invalid mute time.
 mute-err-unmute: 'If you want to unmute someone, use `$PXunmute <user>`'
 mute-err-noex-role: 'The role "{muted_role}" does not exist.'
-mute-time: 'by {delta_time}'
+mute-time: 'for {delta_time}'
 mute-reason: 'due to: "{reason}"'
 mute-msg: 'Hello! You''ve been muted in **{server_name}**'
 mute-answer: '**{username}** has been muted'

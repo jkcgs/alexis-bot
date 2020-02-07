@@ -24,7 +24,7 @@ class Warn(Command):
             await cmd.answer('$[format]: $[warn-format]')
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         guild = cmd.message.guild
         await cmd.typing()
 
@@ -73,7 +73,7 @@ class Warns(Command):
             await cmd.answer('$[format]: $[warns-format]')
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         await cmd.typing()
 
         if member is None:
@@ -105,7 +105,7 @@ class ClearWarns(Command):
             await cmd.answer('$[format]: $[clrw-format]')
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         await cmd.typing()
 
         if member is None:
@@ -139,7 +139,7 @@ class DeleteWarn(Command):
             await cmd.answer('$[delw-err-index]')
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         await cmd.typing()
 
         if member is None:
@@ -183,7 +183,7 @@ class WarnList(Command):
             warnlist = []
             for warn in warns:
                 fdate = warn.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                u = await cmd.get_user(warn.userid, member_only=True)
+                u = cmd.get_member(warn.userid)
                 if u is None:
                     u = '<@{}> ({})'.format(warn.userid, warn.userid)
                 else:
@@ -194,7 +194,7 @@ class WarnList(Command):
             await cmd.answer(Embed(title='$[warnlist-last]', description='\n'.join(warnlist)))
             return
 
-        member = await cmd.get_user(cmd.args[0], member_only=True)
+        member = cmd.get_member(cmd.args[0])
         await cmd.typing()
 
         if member is None:
@@ -241,7 +241,7 @@ class WarnRank(Command):
 
         msg = []
         for result in query:
-            member = await cmd.get_user(result.userid, member_only=True)
+            member = cmd.get_member(result.userid)
             timestr = result.timestamp.strftime('%Y-%m-%d %H:%M:%S')
             if member is None:
                 member = 'ID {}'.format(result.userid, result.userid)

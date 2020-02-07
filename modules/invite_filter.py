@@ -38,7 +38,7 @@ class InviteFilter(Command):
                 await cmd.answer('$[format]: $[ifilter-format]')
                 return
 
-            user = await cmd.get_user(' '.join(cmd.args[1:]), True)
+            user = cmd.get_member(' '.join(cmd.args[1:]))
             if user is None:
                 await cmd.answer('$[ifilter-user-not-found]')
                 return

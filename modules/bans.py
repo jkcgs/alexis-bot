@@ -30,7 +30,7 @@ class BanCmd(Command):
             return
 
         is_tag = pat_usertag.match(cmd.args[0]) or pat_snowflake.match(cmd.args[0])
-        member = await cmd.get_user(cmd.args[0] if is_tag else cmd.text, member_only=True)
+        member = cmd.get_member(cmd.args[0] if is_tag else cmd.text)
 
         if member is None:
             await cmd.answer('$[user-not-found]')
@@ -93,19 +93,19 @@ class Bans(Command):
 
     async def handle(self, cmd):
         if len(cmd.args) != 1:
-            user = cmd.author
+            member = cmd.author
         else:
-            user = await cmd.get_user(cmd.text)
-            if user is None:
+            member = cmd.get_member(cmd.text)
+            if member is None:
                 await cmd.answer('$[user-not-found]')
                 return
 
-        if cmd.is_owner(user) and not cmd.owner:
+        if cmd.is_owner(member) and not cmd.owner:
             await cmd.answer('$[bans-owner-error]')
             return
 
-        userbans, created = Ban.get_or_create(userid=user.id, server=cmd.message.guild.id,
-                                              defaults={'user': str(user)})
+        userbans, created = Ban.get_or_create(userid=member.id, server=cmd.message.guild.id,
+                                              defaults={'user': str(member)})
 
         locales = None
         if userbans.bans == 0:
@@ -115,11 +115,11 @@ class Bans(Command):
             word = cmd.lng('bans-singular') if userbans.bans == 1 else cmd.lng('bans-plural')
             locales = {'amount': userbans.bans, 'ban': word}
 
-            if user.id == cmd.author.id:
+            if member.id == cmd.author.id:
                 mesg = '$[bans-self]'
             else:
                 mesg = '$[bans-other]'
-                locales['other'] = user.display_name
+                locales['other'] = member.display_name
 
         await cmd.answer(mesg, withname=False, locales=locales)
 
@@ -140,19 +140,19 @@ class SetBans(Command):
             await cmd.answer('$[format]: $PX$NM $[setbans-format]')
             return
 
-        mention = await cmd.get_user(' '.join(cmd.args[0:-1]))
-        if mention is None:
+        member = cmd.get_member(' '.join(cmd.args[0:-1]))
+        if member is None:
             await cmd.answer('$[user-not-found]')
             return
 
         num_bans = int(cmd.args[-1])
-        user, _ = Ban.get_or_create(userid=mention.id, server=cmd.message.guild.id,
-                                    defaults={'user': str(mention)})
-        update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(mention))
-        update = update.where(Ban.userid == mention.id, Ban.server == cmd.message.guild.id)
+        user, _ = Ban.get_or_create(userid=member.id, server=cmd.message.guild.id,
+                                    defaults={'user': str(member)})
+        update = Ban.update(bans=num_bans, lastban=datetime.now(), user=str(member))
+        update = update.where(Ban.userid == member.id, Ban.server == cmd.message.guild.id)
         update.execute()
 
-        name = mention.display_name
+        name = member.display_name
         if num_bans == 0:
             await cmd.answer('$[setbans-reset]', locales={'other': name})
         else:
@@ -178,7 +178,7 @@ class BanRank(Command):
 
         i = 1
         for item in bans.iterator():
-            u = await cmd.get_user(item.userid) or item.user
+            u = cmd.get_member(item.userid) or item.user
             banlist.append('{}. {}: {}'.format(i, u, item.bans))
 
             i += 1

@@ -56,7 +56,7 @@ class Meme(Command):
             args = [f.strip() for f in cmd.no_tags().split('|')]
 
         if len(args) > 1:
-            user = await cmd.get_user(args[0].strip())
+            user = cmd.get_member_or_author(args[0].strip())
 
             if user is None:
                 await cmd.answer('$[user-not-found]')
