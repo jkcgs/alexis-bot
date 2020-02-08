@@ -17,8 +17,8 @@ class BotMentionEvent(MessageEvent):
         mentions = ['<@{}>'.format(bot.user.id), '<@!{}>'.format(bot.user.id)]
         self.starts_with = message.content.startswith(tuple(mentions))
 
-        self.args = None
-        self.argc = None
+        self.args = []
+        self.argc = 0
 
         if self.starts_with:
             # Parse the message like if it was a command

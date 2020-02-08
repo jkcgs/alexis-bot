@@ -1,46 +1,17 @@
-from urllib.parse import urlencode
-
-from bot import Command, categories
+from aiohttp import ClientSession
+from bot import Command, categories, BotMentionEvent
 
 
 class SimSimiException(Exception):
-    pass
-
-
-class SimSimi:
-    # Code stripped from:
-    # https://github.com/six519/python-simsimi/blob/8192957936da1cba8b184785954a43e92b9ac03f/python_simsimi/simsimi.py
-
-    def __init__(self, **kwargs):
-        self.conversation_key = kwargs.get('conversation_key', '')
-        self.conversation_language = kwargs.get('conversation_language', 'es')
-        self.conversation_filter = kwargs.get('conversation_filter', '0.0')
-        self.http = kwargs.get('http_session')
-
-        if kwargs.get('is_trial', True):
-            self.conversation_request_url = 'http://sandbox.api.simsimi.com/request.p'
-        else:
-            self.conversation_request_url = 'http://api.simsimi.com/request.p'
-
-    async def get_conversation(self, text):
-        request_param = {
-            'key': self.conversation_key,
-            'lc': self.conversation_language,
-            'ft': self.conversation_filter,
-            'text': text
-        }
-
-        request_url = "{}?{}".format(self.conversation_request_url, urlencode(request_param))
-        async with self.http.get(request_url) as r:
-            response_dict = await r.json()
-
-        if response_dict['result'] != 100:
-            raise SimSimiException(response_dict['msg'])
-
-        return response_dict
+    def __init__(self, msg=None, code=None):
+        super().__init__(msg)
+        self.code = code
 
 
 class SimSimiCmd(Command):
+    __version__ = '1.0.0'
+    __author__ = 'makzk'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'simsimi'
@@ -49,74 +20,88 @@ class SimSimiCmd(Command):
         self.category = categories.FUN
         self.user_delay = 5
         self.allow_pm = False
-        self.enabled = True
-        self.key_index = 0
+        self.mention_handler = True
+        self.enabled = False
         self.default_config = {
-            'simsimi_apikeys': [],
+            'simsimi_apikey': '',
             'simsimi_lang': 'es'
         }
 
     def on_loaded(self):
-        if len(self.bot.config['simsimi_apikeys']) == 0:
+        if not self.bot.config.get('simsimi_apikey', ''):
             self.log.warn('No API keys added for SimSimi, you can add them to the simsimi_apikeys value on the config.')
+        self.enabled = True
 
     async def handle(self, cmd):
-        if cmd.text == '':
+        first = cmd.args[0] if len(cmd.args) > 0 else ''
+        if not first:
             return
 
-        if len(self.bot.config['simsimi_apikeys']) == 0:
+        if isinstance(cmd, BotMentionEvent) and (not cmd.starts_with or first == 'prefix'):
+            return
+
+        if not self.enabled:
             await cmd.answer('$[simsimi-not-available]')
             return
 
         if cmd.text in ['off', 'on'] and cmd.owner:
-            self.enabled = cmd.text == 'on'
-            await cmd.answer('ok')
+            await self.handle_toggle(cmd)
             return
 
+        await self.handle_talk(cmd)
+
+    async def handle_toggle(self, cmd):
+        if not self.key:
+            await cmd.answer('$[simsimi-no-apikey]')
+            return
+
+        self.enabled = cmd.text == 'on'
+        await cmd.answer('ok')
+
+    async def handle_talk(self, cmd):
         await cmd.typing()
-        start_index = self.key_index
 
-        while True:
-            try:
-                sim = self.get_bot(lang=cmd.config.get('simsimi_lang', self.bot.config['simsimi_lang']))
-                if sim is None:
-                    await cmd.answer('$[simsimi-no-apikeys]')
-                    break
+        try:
+            lang = cmd.lng('simsimi-lang') or self.lang
+            country = cmd.lng('simsimi-country') or None
+            resp = await self.talk(cmd.channel, lang, country, cmd.no_tags())
+            await cmd.answer(resp or '$[simsimi-no-answer]', withname=False)
+        except SimSimiException as e:
+            if e.code == 228:
+                await cmd.answer(':speech_balloon: $[simsimi-do-not-understand]', withname=False)
+            else:
+                await cmd.answer('$[simsimi-error]', locales={'error': str(e)})
 
-                resp = await sim.get_conversation(cmd.no_tags())
-                await cmd.answer(resp.get('response', '$[simsimi-no-answer]'))
-                break
-            except SimSimiException as e:
-                if str(e) == 'Daily Request Query Limit Exceeded.'\
-                        or str(e) == 'Unauthorized'\
-                        or str(e) == 'Trial app is expired.':
-                    if self.key_index + 1 >= len(self.bot.config['simsimi_apikeys']):
-                        self.key_index = 0
-                    else:
-                        self.key_index += 1
+    @property
+    def key(self):
+        return self.bot.config['simsimi_apikey']
 
-                    if self.key_index == start_index:
-                        await cmd.answer('$[simsimi-no-apicalls]')
-                        break
-                else:
-                    await cmd.answer('$[simsimi-error]', locales={'error': str(e)})
-                    break
+    @property
+    def lang(self):
+        return self.bot.config['simsimi_lang']
 
-    def get_bot(self, lang):
-        keys = self.get_keys()
+    _sessions = {}
+    api_url = 'https://wsapi.simsimi.com/190410/talk'
 
-        if not self.enabled:
-            return None
+    def get_session(self, channel=None):
+        channelid = 'global' if not channel else channel.id
+        if channelid not in self._sessions:
+            self._sessions[channelid] = ClientSession(headers={'x-api-key': self.key})
+        return self._sessions[channelid]
 
-        key = keys[self.key_index].get('key', '')
-        is_trial = keys[self.key_index].get('is_trial', True)
-        if key == '':
-            return None
+    async def talk(self, channel, language, country, text):
+        session = self.get_session(channel)
+        data = {'lang': language, 'utext': text}
+        if country:
+            data['country'] = country if isinstance(country, list) else [country]
 
-        return SimSimi(conversation_key=key, http_session=self.http, is_trial=is_trial, conversation_language=lang)
+        async with session.post(self.api_url, json=data) as r:
+            resp = await r.json()
 
-    def get_keys(self):
-        return self.bot.config.get('simsimi_apikeys', [])
+        if resp['status'] != 200:
+            raise SimSimiException(resp['statusMessage'], resp['status'])
+
+        return ':speech_balloon: ' + resp['atext']
 
     def load_config(self):
         self.on_loaded()

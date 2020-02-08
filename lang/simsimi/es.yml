@@ -1,6 +1,9 @@
 simsimi-help: Hablar a SimSimi
 simsimi-not-available: 'No disponible :('
-simsimi-no-apikeys: No hay API keys disponibles.
+simsimi-no-apikey: No se configuró una API key.
 simsimi-no-answer: No sé.
 simsimi-no-apicalls: No quedan llamadas a API disponibles.
 simsimi-error: 'La cosa dio un error: {error}'
+simsimi-lang: es
+simsimi-country: ''
+simsimi-do-not-understand: No te he entendido.

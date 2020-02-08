@@ -1,7 +1,0 @@
-cleverbot-usage-answer: '*Si querías decirme algo, usa: @bot <texto>*'
-cleverbot-no-answer: ¿¡Qué pasa!? ¡AYUDA!
-cleverbot-error-answer: 'Lo siento, pero no puedo responderte ahora'
-cleverbot-toggle-help: Activa/desactiva la conversación con Cleverbot
-cleverbot-toggle-answer: 'Conversación {status}'
-cleverbot-enabled: activada
-cleverbot-disabled: desactivada
