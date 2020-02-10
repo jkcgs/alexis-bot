@@ -15,7 +15,7 @@ from bot.utils import auto_int
 log = new_logger('Core')
 
 
-class AlexisBot(discord.Client):
+class AlexisBot(discord.AutoShardedClient):
     __author__ = 'makzk (github.com/makzk)'
     __license__ = 'MIT'
     __version__ = '1.0.0-dev3-3'
