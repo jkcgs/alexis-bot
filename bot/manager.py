@@ -24,11 +24,10 @@ class Manager:
         self.swhandlers = {}
         self.cmd_instances = []
         self.mention_handlers = []
+        self.tasks_loop = asyncio.get_event_loop()
 
         headers = {'User-Agent': '{}/{} +discord.cl/bot'.format(bot.__class__.name, bot.__class__.__version__)}
-        self.http = aiohttp.ClientSession(
-            loop=asyncio.get_event_loop(), headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True)
-        )
+        self.http = aiohttp.ClientSession(headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True))
 
     def load_instances(self):
         """Loads instances for the command classes loaded"""
@@ -98,8 +97,9 @@ class Manager:
         """
 
         instance = cls(self.bot)
-        if len(instance.db_models) > 0:
-            self.bot.db.create_tables(instance.db_models, safe=True)
+        db_models = getattr(cls, 'db_models', [])
+        if len(db_models) > 0:
+            self.bot.db.create_tables(db_models, safe=True)
 
         if isinstance(instance.default_config, dict):
             self.bot.config.load_defaults(instance.default_config)
@@ -176,7 +176,7 @@ class Manager:
                 return
             self.tasks[task_name].cancel()
 
-        task_ins = self.bot.loop.create_task(self.run_task(task, time))
+        task_ins = self.tasks_loop.create_task(self.run_task(task, time))
         self.tasks[task_name] = task_ins
 
         if time > 0:
@@ -412,11 +412,13 @@ class Manager:
         # System modules
         mods_path = path.join(bot_root, 'bot', 'modules')
         _all = ['bot.modules.' + f for f in Manager.get_mod_files(mods_path)]
-        log.debug('Loaded %i internal modules', len(_all))
+        n_internal = len(_all)
+        log.debug('Loaded %i internal modules', n_internal)
 
         # Included modules
         mods_path = path.join(bot_root, 'modules')
         _all += ['modules.' + f for f in Manager.get_mod_files(mods_path)]
+        log.debug('Loaded %i included modules', (len(_all)-n_internal))
 
         # External (not from repo) modules
         local_ext = path.join(bot_root, 'external_modules')

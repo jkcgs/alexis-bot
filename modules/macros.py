@@ -8,13 +8,25 @@ from bot import Command, categories, BaseModel
 from bot.utils import is_int, get_colour, format_date, colour_list
 
 
+class EmbedMacro(BaseModel):
+    name = peewee.TextField()
+    server = peewee.TextField()
+    image_url = peewee.TextField(null=True)
+    title = peewee.TextField(null=True)
+    description = peewee.TextField(null=True)
+    embed_color = peewee.IntegerField(default=Colour.default().value)
+    created = peewee.DateTimeField(default=datetime.now)
+    used_count = peewee.IntegerField(default=0, null=False)
+
+
 class MacroSet(Command):
+    db_models = [EmbedMacro]
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'set'
         self.help = '$[macros-help]'
         self.category = categories.STAFF
-        self.db_models = [EmbedMacro]
 
     async def handle(self, cmd):
         if not cmd.is_pm and not cmd.owner:
@@ -380,14 +392,3 @@ def safe_format(strp, args):
 
     # Format the string with the new arguments list
     return strp.format(*args)
-
-
-class EmbedMacro(BaseModel):
-    name = peewee.TextField()
-    server = peewee.TextField()
-    image_url = peewee.TextField(null=True)
-    title = peewee.TextField(null=True)
-    description = peewee.TextField(null=True)
-    embed_color = peewee.IntegerField(default=Colour.default().value)
-    created = peewee.DateTimeField(default=datetime.now)
-    used_count = peewee.IntegerField(default=0, null=False)

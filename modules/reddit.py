@@ -1,5 +1,4 @@
 import html
-import re
 
 import discord
 import peewee
@@ -10,9 +9,22 @@ from bot.utils import text_cut, auto_int
 from bot.regex import pat_channel, pat_subreddit
 
 
+class Post(BaseModel):
+    id = peewee.CharField()
+    permalink = peewee.CharField(null=True)
+    over_18 = peewee.BooleanField(default=False)
+
+
+class ChannelFollow(BaseModel):
+    subreddit = peewee.TextField()
+    serverid = peewee.TextField()
+    channelid = peewee.TextField()
+
+
 class RedditFollow(Command):
     __author__ = 'makzk'
     __version__ = '1.1.5'
+    db_models = [Post, ChannelFollow]
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -20,7 +32,6 @@ class RedditFollow(Command):
         self.aliases = ['redditor']
         self.help = '$[reddit-help]'
         self.format = '$[reddit-format]'
-        self.db_models = [Redditor, Post, ChannelFollow]
         self.chans = {}
         self.allow_pm = False
         self.owner_only = True
@@ -31,11 +42,6 @@ class RedditFollow(Command):
         self.load_channels()
 
     async def handle(self, cmd):
-        if cmd.cmdname == 'redditor':
-            cmd.args = ['posts'] + cmd.args
-            cmd.argc = len(cmd.args)
-            cmd.cmdname = 'reddit'
-
         if cmd.argc < 1:
             await cmd.answer('$[format]: $[reddit-format]')
             return
@@ -108,31 +114,12 @@ class RedditFollow(Command):
                 await cmd.answer('$[reddit-no-following-subs]')
             else:
                 await cmd.answer('$[reddit-feeds-title]:\n{}'.format('\n'.join(resp)))
-        elif cmd.args[0] == 'posts':
-            if cmd.argc < 2:
-                await cmd.answer('$[format]: $[reddit-format-posts]')
-                return
-
-            user = cmd.args[1]
-            if user.startswith('/u/'):
-                user = user[3:]
-            if user.startswith('u/'):
-                user = user[2:]
-
-            num_posts = self.get_user_posts(user)
-
-            if num_posts > 0:
-                await cmd.answer('$[reddit-user-posts-count]', locales={
-                    'num': num_posts, 'redditor': user, 's': ['s', ''][bool(num_posts == 1)]})
-            else:
-                await cmd.answer('$[reddit-user-no-posts]', locales={'redditor': user})
         else:
             await cmd.answer('$[format]: $[reddit-format]')
 
     async def load_task(self):
         post_id = ''
-        for (subname, chans) in self.chans.items():
-            subchannels = [chanid for svid, chanid in chans]
+        for (subname, subchannels) in self.chans.items():
             posts = await self.get_posts(subname)
 
             if len(posts) == 0:
@@ -144,10 +131,6 @@ class RedditFollow(Command):
                 exists = Post.get(Post.id == data['id'])
             except Post.DoesNotExist:
                 exists = False
-
-            redditor = None
-            if 'author' in data:
-                redditor, _ = Redditor.get_or_create(name=data['author'].lower())
 
             while data['id'] != post_id and not exists:
                 subname = data.get('subreddit') or data.get('display_name')
@@ -165,35 +148,29 @@ class RedditFollow(Command):
                             self.log.debug('Could not sent a r/%s post to %s (%s) #%s (%s) due to missing permissions',
                                            subname, chan.guild.name, chan.guild.id, chan.name, chan.id)
                     else:
-                        self.log.warning('Channel ID %s not found for subreddit subscription r/%s', channel, subname)
+                        self.log.warning('Channel ID %s not found for subreddit subscription r/%s, removing',
+                                         channel, subname)
+                        to_del = ChannelFollow.get_or_none(
+                            ChannelFollow.subreddit == subname, ChannelFollow.channelid == channel)
+                        if to_del is not None:
+                            to_del.delete_instance()
+                            self.chans[subname].remove(channel)
 
                 post_id = data['id']
                 if not exists:
                     with self.bot.db.atomic():
                         Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
 
-                        if redditor is not None:
-                            Redditor.update(posts=Redditor.posts + 1).where(
-                                Redditor.name == data['author'].lower()).execute()
-
     def load_channels(self):
         for chan in ChannelFollow.select():
             if chan.subreddit not in self.chans:
                 self.chans[chan.subreddit] = []
 
-            self.chans[chan.subreddit].append((chan.serverid, chan.channelid))
-
-    def get_user_posts(self, user):
-        if not re.match('^[a-zA-Z0-9_-]*$', user):
-            return None
-
-        redditor, _ = Redditor.get_or_create(name=user.lower())
-        return redditor.posts
+            self.chans[chan.subreddit].append(chan.channelid)
 
     async def get_posts(self, sub, since=0):
         url = 'https://www.reddit.com/r/{}/new.json'.format(sub)
-        req = self.http.get(url)
-        async with req as r:
+        async with self.http.get(url) as r:
             if not r.status == 200:
                 return []
 
@@ -234,20 +211,3 @@ class RedditFollow(Command):
             embed.set_thumbnail(url=html.unescape(post['thumbnail']))
 
         return embed
-
-
-class Post(BaseModel):
-    id = peewee.CharField()
-    permalink = peewee.CharField(null=True)
-    over_18 = peewee.BooleanField(default=False)
-
-
-class Redditor(BaseModel):
-    name = peewee.TextField()
-    posts = peewee.IntegerField(default=0)
-
-
-class ChannelFollow(BaseModel):
-    subreddit = peewee.TextField()
-    serverid = peewee.TextField()
-    channelid = peewee.TextField()

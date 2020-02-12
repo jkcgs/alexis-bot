@@ -10,6 +10,13 @@ from bot import Command, categories, BaseModel
 from bot.guild_configuration import GuildConfiguration
 from bot.utils import auto_int, compare_ids
 
+
+class Starboard(BaseModel):
+    message_id = peewee.TextField()
+    starboard_id = peewee.TextField(default='')
+    timestamp = peewee.DateTimeField(null=False)
+
+
 default_count = 10
 cfg_starboard_emojis = 'starboard_emojis'
 cfg_starboard_channel = 'starboard_channel'
@@ -21,10 +28,10 @@ pat_emoji = re.compile(r'^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 class StarboardHook(Command):
     __author__ = 'makzk'
     __version__ = '1.1.1'
+    db_models = [Starboard]
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.db_models = [Starboard]
         self.allow_pm = False
         self.owner_only = True
         self.name = 'starboard'
@@ -214,9 +221,3 @@ class StarboardHook(Command):
 
         embed.add_field(name=footer_txt, value=reactions)
         return embed
-
-
-class Starboard(BaseModel):
-    message_id = peewee.TextField()
-    starboard_id = peewee.TextField(default='')
-    timestamp = peewee.DateTimeField(null=False)

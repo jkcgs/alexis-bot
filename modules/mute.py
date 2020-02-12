@@ -10,6 +10,15 @@ from bot.guild_configuration import GuildConfiguration
 from bot.utils import auto_int
 
 
+class MutedUser(BaseModel):
+    userid = peewee.TextField(null=False)
+    serverid = peewee.TextField(null=False)
+    until = peewee.DateTimeField(null=True)
+    reason = peewee.TextField(default='')
+    author_name = peewee.TextField(null=False)
+    author_id = peewee.TextField(null=False)
+
+
 class Mute(Command):
     __version__ = '1.0.1'
     __author__ = 'makzk'
@@ -18,13 +27,13 @@ class Mute(Command):
     cfg_muted_role = 'muted_role'
     rx_timediff_all = re.compile('^([0-9]+[smhdSMDH]?)+$')
     rx_timediff = re.compile('([0-9]+[smhdSMDH]?)')
+    db_models = [MutedUser]
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'mute'
         self.help = '$[mute-help]'
         self.owner_only = True
-        self.db_models = [MutedUser]
         self.allow_pm = False
         self.category = categories.MODERATION
         self.schedule = (self.mute_task, 5)
@@ -286,12 +295,3 @@ class SetMutedRole(Command):
 
         cmd.config.set(Mute.cfg_muted_role, cmd.args[0])
         await cmd.answer('$[mutedrole-set]', locales={'muted_role': cmd.args[0]})
-
-
-class MutedUser(BaseModel):
-    userid = peewee.TextField(null=False)
-    serverid = peewee.TextField(null=False)
-    until = peewee.DateTimeField(null=True)
-    reason = peewee.TextField(default='')
-    author_name = peewee.TextField(null=False)
-    author_id = peewee.TextField(null=False)

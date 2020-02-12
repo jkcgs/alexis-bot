@@ -12,6 +12,18 @@ from bot.utils import deltatime_to_str
 modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']
 
 
+class UserNote(BaseModel):
+    userid = peewee.TextField()
+    serverid = peewee.TextField()
+    note = peewee.TextField(default='')
+
+
+class UserNameReg(BaseModel):
+    userid = peewee.TextField()
+    name = peewee.TextField()
+    timestamp = peewee.DateTimeField(default=datetime.now)
+
+
 class ModLog(Command):
     __author__ = 'makzk'
     __version__ = '1.0.2'
@@ -271,11 +283,12 @@ class ModLogChannel(Command):
 
 
 class UserNoteCmd(Command):
+    db_models = [UserNote]
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'usernote'
         self.help = '$[modlog-note-help]'
-        self.db_models = [UserNote]
         self.owner_only = True
         self.allow_pm = False
         self.category = categories.STAFF
@@ -332,15 +345,3 @@ class LogToggle(Command):
         else:
             cmd.config.add('logtype_disabled', ltype)
             await cmd.answer('Log type disabled.')
-
-
-class UserNote(BaseModel):
-    userid = peewee.TextField()
-    serverid = peewee.TextField()
-    note = peewee.TextField(default='')
-
-
-class UserNameReg(BaseModel):
-    userid = peewee.TextField()
-    name = peewee.TextField()
-    timestamp = peewee.DateTimeField(default=datetime.now)

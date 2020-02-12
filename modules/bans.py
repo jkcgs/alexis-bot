@@ -8,9 +8,18 @@ from bot.utils import is_int
 from bot.regex import pat_usertag, pat_snowflake
 
 
+class Ban(BaseModel):
+    user = peewee.TextField()
+    userid = peewee.TextField(default="")
+    bans = peewee.IntegerField(default=0)
+    server = peewee.TextField()
+    lastban = peewee.DateTimeField(null=True)
+
+
 class BanCmd(Command):
     __author__ = 'makzk'
     __version__ = '1.0.2'
+    db_models = [Ban]
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -19,7 +28,6 @@ class BanCmd(Command):
         self.help = '$[ban-help]'
         self.allow_pm = False
         self.pm_error = '$[ban-pm-error]'
-        self.db_models = [Ban]
         self.category = categories.FUN
 
         self.user_delay = 10
@@ -190,11 +198,3 @@ class BanRank(Command):
         else:
             embed = Embed(title='$[banrank-title]', description='\n'.join(banlist))
             await cmd.answer(embed)
-
-
-class Ban(BaseModel):
-    user = peewee.TextField()
-    userid = peewee.TextField(default="")
-    bans = peewee.IntegerField(default=0)
-    server = peewee.TextField()
-    lastban = peewee.DateTimeField(null=True)

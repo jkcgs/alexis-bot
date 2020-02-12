@@ -9,10 +9,17 @@ from peewee import fn
 from bot import Command, BaseModel
 
 
+class UserNameReg(BaseModel):
+    userid = peewee.TextField()
+    name = peewee.TextField()
+    timestamp = peewee.DateTimeField(default=datetime.now)
+
+
 class UpdateUsername(Command):
+    db_models = [UserNameReg]
+
     def __init__(self, bot):
         super().__init__(bot)
-        self.db_models = [UserNameReg]
         self.updating = False
         self.updated = False
         self.ready = False
@@ -111,9 +118,3 @@ class UpdateUsername(Command):
 def get_names(userid):
     xd = UserNameReg.select().where(UserNameReg.userid == userid).order_by(UserNameReg.timestamp.desc()).limit(10)
     return [u.name for u in xd]
-
-
-class UserNameReg(BaseModel):
-    userid = peewee.TextField()
-    name = peewee.TextField()
-    timestamp = peewee.DateTimeField(default=datetime.now)

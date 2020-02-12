@@ -8,16 +8,24 @@ from bot.utils import timediff_parse, no_tags, deltatime_to_str, format_date, au
 from bot.regex import pat_delta
 
 
+class RemindMeEvent(BaseModel):
+    created = DateTimeField(default=datetime.now)
+    userid = TextField()
+    description = TextField()
+    alerttime = DateTimeField()
+    sent = BooleanField(default=False)
+
+
 class RemindMe(Command):
     __author__ = 'makzk'
     __version__ = '1.0.2'
+    db_models = [RemindMeEvent]
 
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'remindme'
         self.help = '$[remindme-help]'
         self.usage = '$[remindme-usage]'
-        self.db_models = [RemindMeEvent]
         self.category = categories.UTILITY
         self.schedule = (self.remind_task, 5)
         self.default_config = {
@@ -86,11 +94,3 @@ class RemindMe(Command):
 
             event.sent = True
             event.save()
-
-
-class RemindMeEvent(BaseModel):
-    created = DateTimeField(default=datetime.now)
-    userid = TextField()
-    description = TextField()
-    alerttime = DateTimeField()
-    sent = BooleanField(default=False)

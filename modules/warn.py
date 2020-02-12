@@ -8,7 +8,15 @@ from bot import Command, categories, BaseModel
 from bot.utils import is_int
 
 
+class UserWarn(BaseModel):
+    serverid = peewee.TextField()
+    userid = peewee.TextField()
+    reason = peewee.TextField()
+    timestamp = peewee.DateTimeField(default=datetime.now)
+
+
 class Warn(Command):
+    db_models = [UserWarn]
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'warn'
@@ -16,7 +24,6 @@ class Warn(Command):
         self.help = '$[warn-help]'
         self.allow_pm = False
         self.owner_only = True
-        self.db_models = [UserWarn]
         self.category = categories.MODERATION
 
     async def handle(self, cmd):
@@ -259,10 +266,3 @@ def get_member_warns(member):
         raise RuntimeError('The member argument value is not an instance of discord.Member')
 
     return UserWarn.select().where(UserWarn.serverid == member.guild.id, UserWarn.userid == member.id)
-
-
-class UserWarn(BaseModel):
-    serverid = peewee.TextField()
-    userid = peewee.TextField()
-    reason = peewee.TextField()
-    timestamp = peewee.DateTimeField(default=datetime.now)
