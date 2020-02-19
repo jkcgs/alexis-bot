@@ -2,7 +2,6 @@ import asyncio
 from datetime import datetime
 from threading import Thread
 
-import discord
 import peewee
 from peewee import fn
 
@@ -36,12 +35,18 @@ class UpdateUsername(Command):
         self.ready = True
 
     async def on_member_join(self, member):
-        if self.ready and not self.updating:
-            self.bot.loop.create_task(self.do_it(member))
+        if not self.ready or self.updating:
+            return
 
-    async def on_member_update(self, before, after):
-        if self.ready and not self.updating:
-            self.bot.loop.create_task(self.do_it(after))
+        last = self.get_last_name(member)
+        if last is not None and last.name != member.username:
+            UserNameReg.create(userid=member.id, name=member.username)
+
+    async def on_user_update(self, before, after):
+        if not self.ready or self.updating or not before or before.username == after.username:
+            return
+
+        UserNameReg.create(userid=after.id, name=after.username)
 
     async def run_all(self):
         if self.updating or self.updated:
@@ -97,22 +102,12 @@ class UpdateUsername(Command):
         self.updated = True
         return len(k)
 
-    async def do_it(self, user):
-        if not isinstance(user, discord.User) and not isinstance(user, discord.Member):
-            raise RuntimeError('user argument can only be a discord.User or discord.Member')
-
-        with self.bot.db.atomic():
-            r = UserNameReg.select().where(UserNameReg.userid == user.id)\
-                .order_by(UserNameReg.timestamp.desc()).limit(1)
-            u = r.get() if r.count() > 0 else None
-
-            if r.count() == 0 or u.name != user.name:
-                old = '(none)' if u is None else u.name
-                self.log.debug('Updating user name "%s" -> "%s" ID %s', old, user.name, user.id)
-                UserNameReg.create(userid=user.id, name=user.name)
-                return True
-
-        return False
+    @staticmethod
+    def get_last_name(user):
+        r = UserNameReg.select().where(UserNameReg.userid == user.id) \
+            .order_by(UserNameReg.timestamp.desc()).limit(1)
+        u = r.get() if r.count() > 0 else None
+        return u
 
 
 def get_names(userid):

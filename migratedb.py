@@ -19,44 +19,72 @@ def run():
             if model_name == 'meme':
                 continue
 
+            print('processing model', model_name)
+
             cur = db.cursor()
             cur.execute(f'SELECT * FROM {model_name}')
-
             rows = cur.fetchall()
-            rows_n = len(rows)
-            print(model, model_name, 'count:', rows_n)
 
+            if model_name == 'usernamereg':
+                rows = process_names(rows)
+
+            rows_n = len(rows)
             batch = []
             invalid_c = 0
+            inserted = 0
 
+            print(model_name, 'count:', rows_n)
             for i, row in enumerate(rows):
-                skip = False
-                if model_name not in ['post']:
+                if model_name != 'post':
                     del row['id']
 
+                skip = False
                 if model_name == 'ban':
                     if not row['userid']:
-                        # print('invalid row', row)
                         skip = True
                 elif model_name == 'starboard':
                     if not row['starboard_id']:
-                        # print('invalid row', row)
                         skip = True
                 elif model_name == 'usernote':
                     if not row['note']:
-                        # print('invalid row', row)
                         skip = True
 
                 if not skip:
-                    batch.append(model.create(**row))
+                    batch.append(row)
                 else:
                     invalid_c += 1
 
                 if len(batch) >= 10000 or (i == (rows_n - 1) and len(batch) > 0):
-                    print('batch in', i+1, rows_n)
-                    model.insert_many(batch)
+                    inserted += len(batch)
+                    print('batch in', inserted, (rows_n - invalid_c))
+                    # model.insert_many(batch).execute()
                     batch = []
             print('invalid rows:', invalid_c)
+
+
+def process_names(rows):
+    name_count = {}
+    for row in rows:
+        if row['userid'] not in name_count:
+            name_count[row['userid']] = 1
+        else:
+            name_count[row['userid']] += 1
+
+    rows = [row for row in rows if name_count[row['userid']] > 1]
+
+    names_list = {}
+    rows2 = []
+    for row in rows:
+        if row['userid'] not in names_list:
+            names_list[row['userid']] = []
+
+        if len(names_list[row['userid']]) == 0 or names_list[row['userid']][-1] != row['name']:
+            rows2.append(row)
+            names_list[row['userid']].append(row['name'])
+
+    rows = rows2
+    print('username rows total (filtered):', len(rows))
+    return rows
 
 
 if __name__ == '__main__':

@@ -299,6 +299,9 @@ class AlexisBot(discord.AutoShardedClient):
     async def on_member_update(self, before, after):
         await self.manager.dispatch('on_member_update', before=before, after=after)
 
+    async def on_user_update(self, before, after):
+        await self.manager.dispatch('on_user_update', before=before, after=after)
+
     async def on_message_delete(self, message):
         await self.manager.dispatch('on_message_delete', message=message)
 
