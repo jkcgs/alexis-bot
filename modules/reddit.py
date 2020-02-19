@@ -22,7 +22,7 @@ class ChannelFollow(BaseModel):
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.2.0'
+    __version__ = '1.2.1'
     db_models = [RedditLastPost, ChannelFollow]
 
     def __init__(self, bot):
@@ -43,6 +43,11 @@ class RedditFollow(Command):
     async def handle(self, cmd):
         if cmd.argc < 1:
             await cmd.answer('$[format]: $[reddit-format]')
+            return
+
+        if cmd.args[0] == 'reload' and cmd.bot_owner:
+            self.load_channels()
+            await cmd.answer('$[reddit-reloaded]')
             return
 
         if cmd.args[0] in ['set', 'follow', 'remove', 'unfollow']:
@@ -162,6 +167,8 @@ class RedditFollow(Command):
             return posts[0]['data'] if len(posts) > 0 else None
 
     def load_channels(self):
+        self.chans = {}
+
         for chan in ChannelFollow.select():
             if chan.subreddit not in self.chans:
                 self.chans[chan.subreddit] = []
