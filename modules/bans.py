@@ -11,7 +11,7 @@ from bot.regex import pat_usertag, pat_snowflake
 class Ban(BaseModel):
     user = peewee.TextField()
     userid = peewee.TextField(default="")
-    bans = peewee.IntegerField(default=0)
+    bans = peewee.BigIntegerField(default=0)
     server = peewee.TextField()
     lastban = peewee.DateTimeField(null=True)
 

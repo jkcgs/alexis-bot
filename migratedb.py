@@ -16,13 +16,18 @@ def run():
 
         for model in Manager.get_all_models():
             model_name = model.__name__.lower()
-            if model_name == 'meme':
+            if model_name in ['meme', 'post']:
                 continue
 
             print('processing model', model_name)
 
             cur = db.cursor()
-            cur.execute(f'SELECT * FROM {model_name}')
+            try:
+                cur.execute(f'SELECT * FROM {model_name}')
+            except sqlite3.OperationalError as e:
+                print('error fetching content (does table exist?)', e)
+                continue
+
             rows = cur.fetchall()
 
             if model_name == 'usernamereg':
@@ -57,7 +62,7 @@ def run():
                 if len(batch) >= 10000 or (i == (rows_n - 1) and len(batch) > 0):
                     inserted += len(batch)
                     print('batch in', inserted, (rows_n - invalid_c))
-                    # model.insert_many(batch).execute()
+                    model.insert_many(batch).execute()
                     batch = []
             print('invalid rows:', invalid_c)
 
