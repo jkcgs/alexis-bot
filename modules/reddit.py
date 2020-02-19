@@ -22,7 +22,7 @@ class ChannelFollow(BaseModel):
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.5'
+    __version__ = '1.2.0'
     db_models = [RedditLastPost, ChannelFollow]
 
     def __init__(self, bot):
@@ -134,7 +134,6 @@ class RedditFollow(Command):
                 embed = self.post_to_embed(post)
 
                 for channel in subchannels:
-                    self.log.debug(channel)
                     chan = self.bot.get_channel(auto_int(channel))
                     if chan is not None:
                         try:
