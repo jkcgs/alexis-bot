@@ -1,6 +1,7 @@
 import asyncio
 import glob
 import inspect
+import itertools
 import os
 import sys
 import traceback
@@ -8,9 +9,10 @@ from os import path
 
 import aiohttp
 
-from bot import CommandEvent, BotMentionEvent, MessageEvent
+from bot import CommandEvent, BotMentionEvent, MessageEvent, BaseModel
 from bot.logger import new_logger
 from .command import Command
+from .database import ServerConfig
 
 log = new_logger('Manager')
 
@@ -466,6 +468,14 @@ class Manager:
             result.append(mod_file.replace(fpath + path.sep, '')[:-3].replace(path.sep, '.'))
 
         return result
+
+    @classmethod
+    def get_all_models(cls):
+        """
+        Generates a list of models retrieved from all command modules.
+        :return: That thing I said above.
+        """
+        return [item for sublist in [kls.db_models for kls in cls.get_mods()] for item in sublist] + [ServerConfig]
 
     @staticmethod
     def get_bot_root():

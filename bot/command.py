@@ -12,13 +12,13 @@ from . import categories
 class Command:
     __author__ = 'makzk'
     __version__ = '0.0.0'
+    db_models = []
 
     def __init__(self, bot):
         self.bot = bot
         self.mgr = bot.manager
         self.name = ''  # Command name
         self.aliases = []  # Command aliases
-        self.db_models = []  # Command
         self.schedule = []
         self.swhandler = []
         self.swhandler_break = False
