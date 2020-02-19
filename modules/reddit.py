@@ -9,10 +9,9 @@ from bot.utils import text_cut, auto_int
 from bot.regex import pat_channel, pat_subreddit
 
 
-class Post(BaseModel):
-    id = peewee.CharField()
-    permalink = peewee.CharField(null=True)
-    over_18 = peewee.BooleanField(default=False)
+class RedditLastPost(BaseModel):
+    post_id = peewee.CharField()
+    subreddit = peewee.CharField()
 
 
 class ChannelFollow(BaseModel):
@@ -24,7 +23,7 @@ class ChannelFollow(BaseModel):
 class RedditFollow(Command):
     __author__ = 'makzk'
     __version__ = '1.1.5'
-    db_models = [Post, ChannelFollow]
+    db_models = [RedditLastPost, ChannelFollow]
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -79,7 +78,7 @@ class RedditFollow(Command):
                     if chan.subreddit not in self.chans:
                         self.chans[chan.subreddit] = []
 
-                    self.chans[chan.subreddit].append((chan.serverid, chan.channelid))
+                    self.chans[chan.subreddit].append(chan.channelid)
                     return
                 else:
                     await cmd.answer('$[reddit-error-sub-already-added]')
@@ -118,27 +117,24 @@ class RedditFollow(Command):
             await cmd.answer('$[format]: $[reddit-format]')
 
     async def load_task(self):
-        post_id = ''
         for (subname, subchannels) in self.chans.items():
-            posts = await self.get_posts(subname)
-
-            if len(posts) == 0:
+            post = await self.get_last_post(subname)
+            if not post:
+                self.log.warning('Error fetching post from r/%s', subname)
                 continue
 
-            data = posts[0]
+            ins, updated = RedditLastPost.get_or_create(subreddit=subname, defaults={'post_id': post['id']})
 
-            try:
-                exists = Post.get(Post.id == data['id'])
-            except Post.DoesNotExist:
-                exists = False
+            if not updated and ins.post_id != post['id']:
+                ins.post_id = post['id']
+                ins.save()
+                updated = True
 
-            while data['id'] != post_id and not exists:
-                subname = data.get('subreddit') or data.get('display_name')
-                embed = self.post_to_embed(data)
-                if embed is None:
-                    break
+            if updated:
+                embed = self.post_to_embed(post)
 
                 for channel in subchannels:
+                    self.log.debug(channel)
                     chan = self.bot.get_channel(auto_int(channel))
                     if chan is not None:
                         try:
@@ -156,10 +152,15 @@ class RedditFollow(Command):
                             to_del.delete_instance()
                             self.chans[subname].remove(channel)
 
-                post_id = data['id']
-                if not exists:
-                    with self.bot.db.atomic():
-                        Post.create(id=post_id, permalink=data['permalink'], over_18=data['over_18'])
+    async def get_last_post(self, sub):
+        url = 'https://www.reddit.com/r/{}/new.json?limit=1'.format(sub)
+        async with self.http.get(url) as r:
+            if not r.status == 200:
+                return None
+
+            data = await r.json()
+            posts = data['data']['children']
+            return posts[0]['data'] if len(posts) > 0 else None
 
     def load_channels(self):
         for chan in ChannelFollow.select():
@@ -182,7 +183,8 @@ class RedditFollow(Command):
 
             return posts
 
-    def post_to_embed(self, post):
+    @staticmethod
+    def post_to_embed(post):
         author = '($[])'
         author_url = 'https://www.reddit.com/'
         if 'author' in post:
