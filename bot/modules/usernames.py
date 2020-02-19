@@ -39,14 +39,14 @@ class UpdateUsername(Command):
             return
 
         last = self.get_last_name(member)
-        if last is not None and last.name != member.username:
-            UserNameReg.create(userid=member.id, name=member.username)
+        if last is not None and last.name != member.name:
+            UserNameReg.create(userid=member.id, name=member.name)
 
     async def on_user_update(self, before, after):
-        if not self.ready or self.updating or not before or before.username == after.username:
+        if not self.ready or self.updating or not before or before.name == after.name:
             return
 
-        UserNameReg.create(userid=after.id, name=after.username)
+        UserNameReg.create(userid=after.id, name=after.name)
 
     async def run_all(self):
         if self.updating or self.updated:
