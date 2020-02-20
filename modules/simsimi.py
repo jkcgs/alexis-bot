@@ -1,4 +1,3 @@
-import aiohttp
 from aiohttp import ClientSession, ContentTypeError
 from bot import Command, categories, BotMentionEvent
 
