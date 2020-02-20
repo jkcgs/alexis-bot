@@ -7,7 +7,7 @@ from bot import categories
 
 class Ban(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.1'
+    __version__ = '1.0.2'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -55,7 +55,7 @@ class Ban(Command):
                 reason = ' '.join(cmd.args[1:])
 
         try:
-            await member.ban(delete_days)
+            await member.ban(reason=reason, delete_message_days=delete_days)
         except discord.Forbidden:
             await cmd.answer('$[realban-error-denied]')
             return
