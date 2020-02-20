@@ -7,3 +7,4 @@ simsimi-error: 'The thing gave an error: {error}'
 simsimi-lang: en
 simsimi-country: ''
 simsimi-do-not-understand: I did not understand you.
+simsimi-cant-answer: I can't answer at this moment :c

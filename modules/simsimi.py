@@ -1,4 +1,5 @@
-from aiohttp import ClientSession
+import aiohttp
+from aiohttp import ClientSession, ContentTypeError
 from bot import Command, categories, BotMentionEvent
 
 
@@ -9,7 +10,7 @@ class SimSimiException(Exception):
 
 
 class SimSimiCmd(Command):
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     __author__ = 'makzk'
 
     def __init__(self, bot):
@@ -64,13 +65,18 @@ class SimSimiCmd(Command):
         try:
             lang = cmd.lng('simsimi-lang') or self.lang
             country = cmd.lng('simsimi-country') or None
-            resp = await self.talk(cmd.channel, lang, country, cmd.no_tags())
+            message = cmd.no_tags()
+            self.log.debug('Received message: "%s"', message)
+            resp = await self.talk(cmd.channel, lang, country, message)
             await cmd.answer(resp or '$[simsimi-no-answer]', withname=False)
         except SimSimiException as e:
             if e.code == 228:
                 await cmd.answer(':speech_balloon: $[simsimi-do-not-understand]', withname=False)
             else:
                 await cmd.answer('$[simsimi-error]', locales={'error': str(e)})
+        except ContentTypeError as e:
+            await cmd.answer('⚠️ $[simsimi-cant-answer]')
+            self.log.exception(e)
 
     @property
     def key(self):
