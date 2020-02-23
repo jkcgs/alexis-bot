@@ -1,0 +1,4 @@
+latex-format: $CMD <fórmula>
+latex-error-status: el servicio respondió con un código de estado incorrecto
+latex-error-server: 'el servicio respondió con un error: {error}'
+latex-error-image: no se pudo cargar la imagen de la fórmula.

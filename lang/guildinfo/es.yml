@@ -17,5 +17,5 @@ guildinfo-feature-bigserver: guild grande
 guildinfo-feature-vipregions: regiones de voz VIP
 guildinfo-feature-vanity: URL personalizada
 guildinfo-feature-splash: imagen de fondo en invite
-guildinfo-2fa: require autentificación en dos pasos
+guildinfo-2fa: requiere autentificación en dos pasos
 guildinfo-other: '**Otros**'

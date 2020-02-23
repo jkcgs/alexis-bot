@@ -1,0 +1,4 @@
+latex-format: $CMD <formula>
+latex-error-status: service returned wrong status code.
+latex-error-server: 'service returned an error: {error}'
+latex-error-image: could not fetch formula picture.
