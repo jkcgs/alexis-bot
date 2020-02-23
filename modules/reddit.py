@@ -12,6 +12,7 @@ from bot.regex import pat_channel, pat_subreddit
 class RedditLastPost(BaseModel):
     post_id = peewee.CharField()
     subreddit = peewee.CharField()
+    timestamp = peewee.IntegerField(default=0)
 
 
 class ChannelFollow(BaseModel):
@@ -22,7 +23,7 @@ class ChannelFollow(BaseModel):
 
 class RedditFollow(Command):
     __author__ = 'makzk'
-    __version__ = '1.2.1'
+    __version__ = '1.2.2'
     db_models = [RedditLastPost, ChannelFollow]
 
     def __init__(self, bot):
@@ -128,10 +129,12 @@ class RedditFollow(Command):
                 self.log.warning('Error fetching post from r/%s', subname)
                 continue
 
-            ins, updated = RedditLastPost.get_or_create(subreddit=subname, defaults={'post_id': post['id']})
+            ins, updated = RedditLastPost.get_or_create(subreddit=subname, defaults={
+                'post_id': post['id'], 'timestamp': post['created']})
 
-            if not updated and ins.post_id != post['id']:
+            if not updated and ins.post_id != post['id'] and ins.timestamp < post['created']:
                 ins.post_id = post['id']
+                ins.timestamp = post['created']
                 ins.save()
                 updated = True
 

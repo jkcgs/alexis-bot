@@ -3,8 +3,8 @@ reddit-format: $CMD <follow|unfollow|list|posts>
 reddit-format-set: '$CMD <follow|unfollow> <subreddit> [#canal=actual]'
 reddit-error-sub-name: Nombre de subreddit incorrecto
 reddit-error-channel-not-found: Canal no encontrado en este servidor
-reddit-sub-added: 'Los nuevos posts de {sub} ahora aparecerán en el canal'
-reddit-sub-added-here: 'Los nuevos posts de {sub} ahora aparecerán en este canal'
+reddit-sub-added: 'Los nuevos posts de r/{sub} ahora aparecerán en el canal'
+reddit-sub-added-here: 'Los nuevos posts de r/{sub} ahora aparecerán en este canal'
 reddit-error-sub-already-added: Ya se están siguiendo los nuevos posts de ese sub en el canal
 reddit-sub-removed: Ya no se seguirán los posts de ese sub en el canal
 reddit-no-following-subs: No hay subreddits seguidos en este servidor
