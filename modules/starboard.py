@@ -180,7 +180,8 @@ class StarboardHook(Command):
         if max_count < count_trigger:
             return
 
-        starboard_chan = self.bot.get_channel(auto_int(starboard_chanid))
+        guild = message.channel.guild
+        starboard_chan = guild.get_channel(auto_int(starboard_chanid))
         if starboard_chan is None:
             if star_item is not None:
                 star_item.delete_instance()
@@ -193,12 +194,12 @@ class StarboardHook(Command):
             if not star_item.starboard_id:
                 return
 
-            starboard_msg = await self.bot.get_message(starboard_chan, auto_int(star_item.starboard_id))
+            starboard_msg = await starboard_chan.fetch_message(auto_int(star_item.starboard_id))
             if starboard_msg is None:
                 return
 
             new_embed = self.create_embed(message, star_item.timestamp, footer_text)
-            await self.bot.edit_message(starboard_msg, embed=new_embed)
+            await starboard_msg.edit(embed=new_embed)
         else:
             timestamp = datetime.now()
             embed = self.create_embed(message, timestamp, footer_text)

@@ -14,7 +14,10 @@ class UserNameReg(BaseModel):
     timestamp = peewee.DateTimeField(default=datetime.now)
 
 
-class UpdateUsername(Command):
+class UsernamesRegistry(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.0'
+
     db_models = [UserNameReg]
 
     def __init__(self, bot):
@@ -109,7 +112,7 @@ class UpdateUsername(Command):
         u = r.get() if r.count() > 0 else None
         return u
 
-
-def get_names(userid):
-    xd = UserNameReg.select().where(UserNameReg.userid == userid).order_by(UserNameReg.timestamp.desc()).limit(10)
-    return [u.name for u in xd]
+    @staticmethod
+    def get_names(userid):
+        xd = UserNameReg.select().where(UserNameReg.userid == userid).order_by(UserNameReg.timestamp.desc()).limit(10)
+        return [u.name for u in xd]
