@@ -6,7 +6,7 @@ from discord import Embed
 from bot import Command, categories, utils
 from bot.modules.usernames import UsernamesRegistry
 from bot.utils import deltatime_to_str
-from modules.usernote import UserNote
+from modules.usernote import UserNoteCmd
 
 
 class UserInfo(Command):
@@ -48,7 +48,7 @@ class UserInfo(Command):
         embed.set_thumbnail(url=str(member.avatar_url))
 
         if more and isinstance(member, discord.Member):
-            n = UserNote.get_note(member)
+            n = UserNoteCmd.get_note(member)
             names = UsernamesRegistry.get_names(member.id)
             if len(names) == 0:
                 names = [member.name]
