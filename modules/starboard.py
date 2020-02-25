@@ -27,7 +27,7 @@ pat_emoji = re.compile(r'^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 
 class StarboardHook(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.1'
+    __version__ = '1.1.2'
     db_models = [Starboard]
 
     def __init__(self, bot):
@@ -214,7 +214,7 @@ class StarboardHook(Command):
         embed.set_footer(text=str(ts))
 
         if len(msg.attachments):
-            embed.set_image(url=msg.attachments[0]['url'])
+            embed.set_image(url=msg.attachments[0].url)
 
         reactions = ' | '.join(['{}: {}'.format(str(r.emoji), r.count) for r in msg.reactions])
         self.get_lang(msg.guild)
