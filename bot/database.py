@@ -22,7 +22,7 @@ class BotDatabase:
             dburl += 'charset=utf8mb4;'
 
         if BotDatabase._db is None:
-            BotDatabase._db = connect(dburl)
+            BotDatabase._db = connect(dburl, autorollback=True)
 
         return BotDatabase._db
 
