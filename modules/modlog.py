@@ -8,14 +8,9 @@ from discord import Embed, AuditLogAction
 
 from bot.regex import pat_channel
 from bot.utils import deltatime_to_str
+from modules.user import UserInfo
 
 modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']
-
-
-class UserNote(BaseModel):
-    userid = peewee.TextField()
-    serverid = peewee.TextField()
-    note = peewee.TextField(default='')
 
 
 class UserNameReg(BaseModel):
@@ -29,13 +24,10 @@ class ModLog(Command):
     __version__ = '1.0.2'
     chan_config_name = 'join_send_channel'
 
-    def __init__(self, bot):
-        super().__init__(bot)
-
     async def on_member_join(self, member):
         await self.bot.send_modlog(
             member.guild, '$[modlog-new-user]',
-            embed=ModLog.gen_embed(member, more=True), locales={'mid': member.id}, logtype='user_join')
+            embed=UserInfo.gen_embed(member, more=True), locales={'mid': member.id}, logtype='user_join')
 
     async def on_member_remove(self, member):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
@@ -201,51 +193,6 @@ class ModLog(Command):
 
         return entries[0]
 
-    @staticmethod
-    def get_note(member):
-        if not isinstance(member, discord.Member):
-            raise RuntimeError('member argument can only be a discord.Member')
-
-        xd, _ = UserNote.get_or_create(serverid=member.guild.id, userid=member.id)
-        return xd.note
-
-    @staticmethod
-    def set_note(member, note):
-        if not isinstance(member, discord.Member):
-            raise RuntimeError('member argument can only be a discord.Member')
-
-        xd, _ = UserNote.get_or_create(serverid=member.guild.id, userid=member.id)
-        xd.note = note
-        xd.save()
-
-    @staticmethod
-    def get_names(userid):
-        xd = UserNameReg.select().where(UserNameReg.userid == userid).order_by(UserNameReg.timestamp.desc()).limit(10)
-        return [u.name for u in xd]
-
-    @staticmethod
-    def gen_embed(member, more=False):
-        embed = Embed()
-        embed.add_field(name='$[modlog-e-name]', value=utils.md_filter(str(member)))
-        embed.add_field(name='$[modlog-e-nick]', value=utils.md_filter(member.nick) if member.nick is not None else '$[modlog-no-nick]')
-        embed.add_field(name='$[modlog-e-user-created]', value=utils.format_date(member.created_at))
-        embed.add_field(name='$[modlog-e-user-join]', value=utils.format_date(member.joined_at))
-        embed.add_field(name='$[modlog-e-stance]',
-                        value=deltatime_to_str(datetime.now() - member.joined_at), inline=False)
-        embed.set_thumbnail(url=str(member.avatar_url))
-
-        if more and isinstance(member, discord.Member):
-            n = ModLog.get_note(member)
-            names = ModLog.get_names(member.id)
-            if len(names) == 0:
-                names = [member.name]
-
-            embed.add_field(name='$[modlog-e-notes]', value=n if n != '' else '$[modlog-no-notes]')
-            embed.add_field(name='$[modlog-e-names]', value=', '.join(names))
-            embed.add_field(name='$[modlog-e-age]', value=deltatime_to_str(member.joined_at - member.created_at))
-
-        return embed
-
 
 class ModLogChannel(Command):
     def __init__(self, bot):
@@ -280,35 +227,6 @@ class ModLogChannel(Command):
             await cmd.answer('$[modlog-channel-off]')
         else:
             await cmd.answer('$[modlog-channel-set]', locales={'channel_id': value})
-
-
-class UserNoteCmd(Command):
-    db_models = [UserNote]
-
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.name = 'usernote'
-        self.help = '$[modlog-note-help]'
-        self.owner_only = True
-        self.allow_pm = False
-        self.category = categories.STAFF
-
-    async def handle(self, cmd):
-        if cmd.argc < 1:
-            return
-
-        member = cmd.get_member(cmd.args[0])
-        if member is None:
-            await cmd.answer('$[user-not-found]')
-            return
-
-        note = ' '.join(cmd.args[1:])
-        if len(note) > 1000:
-            await cmd.answer('$[modlog-note-err-length]')
-            return
-
-        ModLog.set_note(member, ' '.join(cmd.args[1:]))
-        await cmd.answer('$[modlog-note-set]')
 
 
 class LogToggle(Command):
