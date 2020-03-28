@@ -1,5 +1,5 @@
 urban-help: Displays an Urban Dictionary definition
-urban-format: '$CMD [word]'
+urban-format: '$CMD [term]'
 urban-error-fetch: Could not fetch the information from Urban Dictionary.
 urban-cont-by: by
 urban-cont-definition: '**Definition**'
