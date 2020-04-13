@@ -20,13 +20,14 @@ class BotStats(Command):
             'bot_version': self.bot.__version__,
             'num_users': len(self.bot.users),
             'num_bots': len([x for x in self.bot.users if x.bot]),
+            'num_guilds': len(self.bot.guilds),
             'uptime': deltatime_to_time(self.bot.uptime),
         }
 
         await cmd.answer(
             '```yml\n'
             'Version: Python {python_version}, discord.py {dpy_version}, {bot_class} {bot_version}\n'
-            'Users: {num_users} ({num_bots} bots)\n'
+            'Users: {num_users} ({num_bots} bots), {num_guilds} guilds\n'
             'Uptime: {uptime}'
             '```'.format(**data)
         )

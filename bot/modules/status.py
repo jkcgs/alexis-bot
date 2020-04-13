@@ -18,7 +18,7 @@ class BotStatus(Command):
 
         # Generated status list; they are lambdas to retrieve correct information
         self.status_list = [
-            lambda: 'discord.cl/bot',
+            lambda: 'https://alexisbot.mak.wtf/',
             lambda: 'version {}'.format(AlexisBot.__version__),
             lambda: 'add with !invite',
             lambda: '!help = commands',

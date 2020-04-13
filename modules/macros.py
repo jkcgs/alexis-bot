@@ -251,7 +251,7 @@ class MacroList(Command):
         for i, name in enumerate(namelist):
             to_add = (' ' if i == 0 else ', ') + name
 
-            if len(resp + to_add) > 2000:
+            if len(resp + to_add) > 1997:
                 await cmd.answer(resp, locales={'macros_count': n_items})
                 resp = name
             else:
