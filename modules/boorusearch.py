@@ -7,7 +7,7 @@ from bot.utils import img_embed
 
 search_types = {
     'e621': {
-        'url': 'https://e621.net/post/index.json?limit=30&tags={}',
+        'url': 'https://e621.net/posts.json?limit=30&tags={}',
         'name': 'e621.net'
     },
     'gelbooru': {
@@ -57,6 +57,9 @@ aliases = [*aliases_map] + [*search_types]
 
 
 class BooruSearch(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.1'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'booru'
@@ -100,13 +103,15 @@ class BooruSearch(Command):
                 posts = parsexml(await r.text()).findall('post')
             else:
                 posts = await r.json()
+                if search_type == 'e621':
+                    posts = filter(lambda x: x['file']['ext'] != 'webm', posts['posts'])
 
             if len(posts) == 0:
                 await cmd.answer('$[booru-no-results]')
                 return
 
             post = choice(posts)
-            image_url = post.get('file_url')
+            image_url = post['file']['url'] if search_type == 'e621' else post.get('file_url')
 
             if 'image_format' in search_types[search_type]:
                 image_url = search_types[search_type]['image_format'].format(post.get('file_url'))
