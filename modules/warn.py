@@ -17,6 +17,7 @@ class UserWarn(BaseModel):
 
 class Warn(Command):
     db_models = [UserWarn]
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'warn'
@@ -61,7 +62,7 @@ class Warn(Command):
 
         # Answer to the command with warn information
         adv = ['$[warn-answer-count]', '$[warn-answer-count-single]'][num == 1]
-        msg = '$[warn-answer] {}.'.format(adv)
+        msg = '$[warn-answer] {}'.format(adv)
         await cmd.answer(msg, locales={'username': member.display_name, 'reason': reason, 'count': num})
         # await ModLog.send_modlog(cmd, message=msg)
 
