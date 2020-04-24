@@ -182,6 +182,10 @@ class IAmRoles(Command):
                 await cmd.answer('$[iamroles-author-superior-role]')
                 return
 
+            if str(role.id) in cmd.config.get_list(cfg_roles):
+                await cmd.answer('$[iamroles-already-added]')
+                return
+
             cmd.config.add(cfg_roles, role.id)
             await cmd.answer('$[iamroles-added]')
             return

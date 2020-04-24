@@ -18,6 +18,7 @@ iamroles-not-found: Ese rol no existe.
 iamroles-bot-superior-role: No puedo asignar este rol debido a que es igual o superior a mi rol máximo.
 iamroles-author-superior-role: No puedes agregar este rol debido a que es igual o superior a tu rol máximo.
 iamroles-added: ¡Rol agregado!
+iamroles-already-added: El rol ya está agregado.
 iamroles-no-removable-roles: No hay roles para eliminar.
 iamroles-not-added: Este rol no ha sido agregado.
 iamroles-removed: 'Rol {role} eliminado de los roles auto-gestionables.'

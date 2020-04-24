@@ -18,6 +18,7 @@ iamroles-not-found: This role does not exist.
 iamroles-bot-superior-role: I can't assign this role because is equal or superior to my top role.
 iamroles-author-superior-role: You can't add this role because is equal or superior to your top role.
 iamroles-added: Role added!
+iamroles-already-added: Role is already added!
 iamroles-no-removable-roles: There are no removable roles.
 iamroles-not-added: This role has not been added.
 iamroles-removed: 'Role {role} removed from self-assignable roles.'
