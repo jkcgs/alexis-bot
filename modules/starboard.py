@@ -27,7 +27,7 @@ pat_emoji = re.compile(r'^<:[a-zA-Z0-9\-_]+:[0-9]+>$')
 
 class StarboardHook(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.2'
+    __version__ = '1.1.3'
     db_models = [Starboard]
 
     def __init__(self, bot):
@@ -185,7 +185,8 @@ class StarboardHook(Command):
         if starboard_chan is None:
             if star_item is not None:
                 star_item.delete_instance()
-            self.log.debug('Channel ID %s not found for guild %s', starboard_chanid, user.guild)
+            self.log.debug('Channel ID %s not found for guild %s, starboard disabled.', starboard_chanid, user.guild)
+            config.set(cfg_starboard_channel, '')
             return
 
         footer_text = self.get_lang(message.guild, starboard_chan).get('starboard-reactions')

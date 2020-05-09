@@ -8,10 +8,10 @@ from bot.database import ServerConfig
 
 
 class Sismos(Command):
-    __version__ = '1.0.2'
+    __version__ = '1.0.3'
     __author__ = 'makzk'
     cfg_channel_name = 'sismos_channel'
-    api_url = 'https://api.adderou.cl/sismo/'
+    api_url = 'https://api.xor.cl/sismo/'
 
     def __init__(self, bot):
         super().__init__(bot)
