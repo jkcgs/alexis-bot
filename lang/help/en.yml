@@ -29,3 +29,4 @@ help-footer-for: To $AU
 help-format-title: Command usage
 help-format-not-available: Usage format not available
 help-via-pm: I'll send you the information via PM!
+help-via-pm-failed: I couldn't send you the help information via PM! Check your privacy settings.

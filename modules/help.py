@@ -1,3 +1,4 @@
+import discord
 from discord import Embed
 
 from bot import Command
@@ -7,7 +8,7 @@ from bot import categories
 
 class Help(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -78,4 +79,7 @@ class Help(Command):
         if not cmd.is_pm:
             await cmd.answer('$[help-via-pm]')
 
-        await cmd.answer(embed, to_author=True)
+        try:
+            await cmd.answer(embed, to_author=True)
+        except discord.errors.Forbidden:
+            await cmd.answer('$[help-via-pm-failed]')
