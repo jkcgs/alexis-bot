@@ -264,7 +264,7 @@ class MacroList(Command):
 class MacroUse(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.swhandler = ['$PX ', '$PX', '¡']
+        self.swhandler = ['$PX', '¡']
         self.swhandler_break = True
 
     async def handle(self, cmd):
@@ -275,7 +275,7 @@ class MacroUse(Command):
         # Get macro arguments
         pfx = self.bot.config['command_prefix']
         if cmd.message.content.startswith(pfx + ' '):
-            macro_name = cmd.args[0]
+            macro_name = cmd.message.split(' ')[1]
             macro_args = (' '.join(cmd.args[1:])).split('|')
         else:
             args = cmd.message.content[1:].split(' ')

@@ -137,14 +137,14 @@ class Mute(Command):
         guild = member.guild
         if not guild.me.guild_permissions.manage_roles:
             self.log.warning('Can\'t manage roles on the guild %s (%s). Mute disabled.', str(guild), guild.id)
-            mgr.unset(Mute.cfg_muted_role)
+            mgr.set(Mute.cfg_muted_role, '')
             return
 
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
         role = utils.get_guild_role(guild, sv_role)
         if role is None:
             self.log.warning('Role "%s" does not exist (guild: %s). Mute disabled.', sv_role, guild)
-            mgr.unset(Mute.cfg_muted_role)
+            mgr.set(Mute.cfg_muted_role, '')
             return
 
         try:
@@ -172,7 +172,7 @@ class Mute(Command):
 
             if not guild.me.guild_permissions.manage_roles:
                 self.log.warning('I can\'t manage roles on guild: %s. Mute disabled on this guild.', guild)
-                config.unset(Mute.cfg_muted_role)
+                config.set(Mute.cfg_muted_role, '')
                 continue
 
             guild_role = config.get(Mute.cfg_muted_role, Mute.default_muted_role)
@@ -181,7 +181,7 @@ class Mute(Command):
 
             if role is None:
                 self.log.warning('Role "%s" does not exist (guild: %s). Mute disabled on this guild.', guild_role, guild)
-                config.unset(Mute.cfg_muted_role)
+                config.uet(Mute.cfg_muted_role, '')
                 continue
             elif member is None:
                 # self.log.warning('Member ID %s not found (guild: %s)', mutedid, guild)

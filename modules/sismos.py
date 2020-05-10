@@ -11,7 +11,7 @@ class Sismos(Command):
     __version__ = '1.0.3'
     __author__ = 'makzk'
     cfg_channel_name = 'sismos_channel'
-    api_url = 'https://api.xor.cl/sismo/'
+    api_url = 'https://api.mak.wtf/sismos'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -46,7 +46,7 @@ class Sismos(Command):
                     return
 
         sismos_list = ['- [{:.1f}º] [{}]({}) ({} km)'.format(
-            f['magnitudes'][0]['magnitud'], f['geoReferencia'], f['enlace'], f['profundidad']
+            f['magnitud'], f['referencia'], f['enlace'], f['profundidad']
         ) for f in self.last_events[:5]]
 
         embed = Embed(title='$[sismos-last-earthquakes]', description='\n'.join(sismos_list))
@@ -62,6 +62,11 @@ class Sismos(Command):
         async with self.http.get(Sismos.api_url) as r:
             data = await r.json()
 
+            if 'sismos' not in data:
+                self.log.error('Wrong data received')
+                return
+
+            data = data['sismos']
             if not isinstance(data, list) or len(data) == 0:
                 self.log.debug('No data retrieved')
                 return
@@ -73,9 +78,7 @@ class Sismos(Command):
                 self.last_events = data
                 self.last_update = datetime.now()
 
-                if not first and len(self.last_events) > 0 and len(self.last_events[0]['magnitudes']) > 0 \
-                        and self.last_events[0]['magnitudes'][0]['magnitud'] >= 5:
-
+                if not first and len(self.last_events) > 0 and self.last_events[0]['magnitud'] >= 5:
                     query = ServerConfig.select().where(
                         ServerConfig.name == Sismos.cfg_channel_name, ServerConfig.value != ''
                     )
@@ -98,13 +101,12 @@ class Sismos(Command):
 
     @staticmethod
     def make_embed(data):
-        mag = data['magnitudes'][0]
-        embed = Embed(title='$[sismos-grade] {} {}'.format(mag['magnitud'], mag['medida']))
-        embed.description = data['geoReferencia'] + '\n\n'
-        embed.description += '$[sismos-date]: {}\n'.format(data['fechaLocal'])
+        embed = Embed(title='$[sismos-grade] {} {}'.format(data['magnitud'], data['escala']), url=data['enlace'])
+        embed.description = data['referencia'] + '\n\n'
+        embed.description += '$[sismos-date]: {}\n'.format(data['fecha'])
         embed.description += '$[sismos-location]: lat {latitud}º, long {longitud}º\n'.format(**data)
         embed.description += '$[sismos-depth]: {} km'.format(data['profundidad'])
-        embed.url = data['enlace']
+        embed.set_thumbnail(url=data['mapa'])
 
         if data['preliminar']:
             embed.title += ' $[sismos-preliminary]'
