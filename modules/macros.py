@@ -238,7 +238,7 @@ class MacroList(Command):
                 name = item.name.replace('!', '')
                 member_id = name[2:-1]
                 member = cmd.member_by_id(member_id)
-                name = '*\\@{}*'.format(member.display_name)
+                name = '*\\@{}*'.format(member.display_name if member else member_id)
             else:
                 name = item.name
 
