@@ -103,10 +103,10 @@ class SimSimiCmd(Command):
         async with session.post(self.api_url, json=data) as r:
             resp = await r.json()
 
-        if resp['status'] != 200:
-            raise SimSimiException(resp['statusMessage'], resp['status'])
+            if r.status != 200:
+                raise SimSimiException(resp.get('statusMessage', resp.get('message', 'Unknown error')), r.status)
 
-        return ':speech_balloon: ' + resp['atext']
+            return ':speech_balloon: ' + resp['atext']
 
     def load_config(self):
         self.on_loaded()
