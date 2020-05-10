@@ -4,6 +4,7 @@ import discord
 
 from bot.utils import serialize_avail, no_tags
 from .message_event import MessageEvent
+from ..regex import pat_usertag
 
 
 class CommandEvent(MessageEvent):
@@ -39,7 +40,14 @@ class CommandEvent(MessageEvent):
         return enabled_db == '+'
 
     def no_tags(self, users=True, channels=True, emojis=True):
-        return no_tags(self.text, self.bot, users, channels, emojis)
+        text = self.text
+        if users:
+            for m in pat_usertag.finditer(text):
+                tag, uid = m.group(0), m.group(1)
+                user = self.guild.get_member(int(uid))
+                text = text.replace(m.group(0), user.display_name if user else '@unknown-user')
+
+        return no_tags(text, self.bot, False, channels, emojis)
 
     def __str__(self):
         return '[{} name="{}", channel="{}#{}", author="{}" text="{}"]'.format(

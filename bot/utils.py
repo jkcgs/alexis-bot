@@ -351,11 +351,12 @@ def no_tags(txt, bot=None, users=True, channels=True, emojis=True):
         txt = txt.content
 
     if users:
+        txt = discord.utils.escape_mentions(txt)
         for m in pat_usertag.finditer(txt):
             if bot is None:
                 txt = txt.replace(m.group(0), m.group(1))
             else:
-                user = bot.get_user_info(m.group(1))
+                user = bot.get_user(int(m.group(1)))
                 txt.replace(m.group(0), user.display_name if user is not None else m.group(1))
 
     if channels:
