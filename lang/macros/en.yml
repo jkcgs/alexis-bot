@@ -6,7 +6,8 @@ macros-format: >-
   command. To add an embed macro with just an URL, add a pipe (|) to the end.
   Example: `$CMD <name> <url> |`
 macros-err-cmd-name: Can't create a macro with a command's name.
-macros-err-name-length: The macro's name can't have more than 100 characters.
+macros-err-name: Invalid macro name. It can contain letters, numbers and some symbols (`-_.,$%&¿?¡!+`),
+  up to 50 characters of length.
 macros-invalid-colour: Invalid colour.
 macros-missing-fields: 'At least the image, title or description must be sent.'
 macros-created: 'Macro **{macro_name}** created.'

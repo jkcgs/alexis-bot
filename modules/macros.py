@@ -7,6 +7,8 @@ from discord import Embed, Colour
 from bot import Command, categories, BaseModel
 from bot.utils import is_int, get_colour, format_date, colour_list
 
+pat_macro_name = re.compile(r'^[\w\-.,$%&¿?¡!+]{3,50}')
+
 
 class EmbedMacro(BaseModel):
     name = peewee.TextField()
@@ -52,8 +54,8 @@ class MacroSet(Command):
             await cmd.answer('$[macros-err-cmd-name]')
             return
 
-        if len(name) > 100:
-            await cmd.answer('$[macros-err-name-length]')
+        if not pat_macro_name.match(name):
+            await cmd.answer('$[macros-err-name]')
             return
 
         if len(subargs) == 1 and subargs[0] != '':
