@@ -232,11 +232,13 @@ class MacroList(Command):
                 EmbedMacro.server << [cmd.message.guild.id, 'global'])
 
         for item in items:
-            if re.match(self.rx_mention, item.name):
+            if item.name == '@everyone' or item.name == '@here':
+                name = '@({})'.format(item.name[1:])
+            elif re.match(self.rx_mention, item.name):
                 name = item.name.replace('!', '')
                 member_id = name[2:-1]
                 member = cmd.member_by_id(member_id)
-                name = '*\\@{}*'.format('<@{}>'.format(member_id) if member is None else member.display_name)
+                name = '*\\@{}*'.format(member.display_name)
             else:
                 name = item.name
 
