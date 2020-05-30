@@ -7,7 +7,7 @@ from bot.utils import format_date, deltatime_to_str, auto_int
 
 
 class GuildInfo(Command):
-    __version__ = '1.1.2'
+    __version__ = '1.1.3'
     __author__ = 'makzk'
 
     def __init__(self, bot):
