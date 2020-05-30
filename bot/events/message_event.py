@@ -142,7 +142,7 @@ class MessageEvent:
         if pat_snowflake.match(channel):
             return guild.get_channel(channel)
         elif pat_channel.match(channel):
-            return guild.get_channel(channel[2:-1])
+            return guild.get_channel(int(channel[2:-1]))
         else:
             if channel.startswith('#'):
                 channel = channel[1:]

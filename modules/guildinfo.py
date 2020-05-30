@@ -26,7 +26,7 @@ class GuildInfo(Command):
 
         guild = self.bot.get_guild(auto_int(cmd.args[0]))
         if guild is None:
-            for s in self.bot.servers:
+            for s in self.bot.guilds:
                 if s.name == cmd.args[0]:
                     guild = s
                     break
