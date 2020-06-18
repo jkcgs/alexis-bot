@@ -17,7 +17,8 @@ def embed(data, data_diff):
     description = \
         f'Información del día **{data["fecha"]}** (hasta las 21:00 del día anterior)\n\n' \
         f'**Total confirmados:** {data_diff["confirmados"]}\n' \
-        f'*({nf(data["sintomaticos"])} sintomáticos, {nf(data["asintomaticos"])} asintomáticos)*\n' \
+        f'*({nf(data["sintomaticos"])} sintomáticos, {nf(data["asintomaticos"])} asintomáticos, ' \
+        f'{nf(data["sin_notificar"])} sin notificar)*\n' \
         f'**Total activos:** {data_diff["activos"]}\n' \
         f'**Recuperados:** {data_diff["recuperados"]}\n' \
         f'**Fallecidos:** {data_diff["fallecidos"]}\n\n' \
@@ -34,7 +35,7 @@ def embed(data, data_diff):
 
 class Covid19CL(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     url = 'https://api.mak.wtf/covid'
 
     def __init__(self, bot):
