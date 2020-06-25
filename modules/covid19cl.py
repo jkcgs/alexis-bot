@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from json import JSONDecodeError
 
-from discord import Embed
+from discord import Embed, Forbidden, HTTPException
 
 from bot import Command, categories
 from bot.guild_configuration import GuildConfiguration
@@ -95,12 +95,26 @@ class Covid19CL(Command):
 
         self.log.debug('Publishing Covid19 data to Discord...')
         chan = self.bot.get_channel(int(self.bot.config.get('covid19cl_discord_channel')))
-        await self.bot.send_message(chan, embed=the_embed)
+        try:
+            msg = await self.bot.send_message(chan, embed=the_embed)
+            if chan.is_news():
+                await msg.publish()
+                self.log.debug('Published to news channel {}'.format(chan.name))
+        except (Forbidden, HTTPException):
+            self.log.debug('Could not publish the message to the news channel {}'.format(chan.name))
 
         self.log.debug('Publishing Covid19 data to Telegram...')
         tg_message = message.replace('**', '#').replace('*', '_').replace('#', '*') + '\n\nSent by AlexisBot™'
         tg_data = {'chat_id': tg_chanid, 'text': tg_message, 'parse_mode': 'Markdown'}
-        await self.http.post(tg_api, json=tg_data)
+        tg_resp = await self.http.post(tg_api, json=tg_data)
+        tg_resp = await tg_resp.json()
+        if tg_resp.get('ok', False):
+            tg_chat = tg_resp['result']['chat']
+            tg_chat_name = tg_chat.get('title', tg_chat.get('username', 'a Telegram channel'))
+            self.log.debug('Message successfully sent to "{}"'.format(tg_chat_name))
+        else:
+            self.log.error('Could not send the data to Telegram')
+            self.log.error(tg_resp)
 
     async def task(self):
         now = datetime.now()
@@ -120,8 +134,10 @@ class Covid19CL(Command):
                         self.config.set('covid19cl_data', json.dumps(data))
                         self._last_day = now.day
                         if curr_data:
-                            self.log.debug('Publishing Covid19 data...')
+                            self.log.debug('New data found! Publishing Covid19 data...')
                             await self.publish(data)
+                        else:
+                            self.log.debug('New data found! Ignoring publishing because of fresh start.')
                     else:
                         self.log.debug('No new data found')
             except (JSONDecodeError, RuntimeError) as e:
