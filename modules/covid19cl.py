@@ -7,10 +7,6 @@ from discord import Embed, Forbidden, HTTPException
 from bot import Command, categories
 from bot.guild_configuration import GuildConfiguration
 
-cached_data = None
-cached_ts = datetime.now().timestamp()
-last_date = None
-
 
 def nf(val):
     return '.'.join([str(val)[::-1][i:i + 3] for i in range(0, len(str(val)), 3)])[::-1].replace('-.', '-')
@@ -53,9 +49,9 @@ def embed(data):
 
 class Covid19CL(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.1'
+    __version__ = '2.0.0'
     url = 'https://api.mak.wtf/covid'
-    _last_day = None
+    _last_day = datetime.now().day
 
     def __init__(self, bot):
         super().__init__(bot)
