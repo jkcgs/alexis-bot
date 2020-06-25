@@ -1,4 +1,3 @@
-import asyncio
 import json
 from datetime import datetime
 from json import JSONDecodeError
@@ -65,7 +64,7 @@ class Covid19CL(Command):
         self.category = categories.INFORMATION
         self.config = GuildConfiguration.get_instance()
 
-        self.schedule = (self.task, 60)
+        self.schedule = (self.task, 30)
 
         self.default_config = {
             'covid19cl_telegram_key': '',
@@ -119,9 +118,11 @@ class Covid19CL(Command):
 
                     if curr_data.get('fecha', '') != data['fecha'] and data['listo']:
                         self.config.set('covid19cl_data', json.dumps(data))
-                        _last_day = now.day
+                        self._last_day = now.day
                         if curr_data:
                             self.log.debug('Publishing Covid19 data...')
                             await self.publish(data)
+                    else:
+                        self.log.debug('No new data found')
             except (JSONDecodeError, RuntimeError) as e:
                 self.log.warning('No se pudo obtener la información ({}).'.format(e))
