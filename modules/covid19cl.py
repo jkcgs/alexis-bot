@@ -120,7 +120,7 @@ class Covid19CL(Command):
                     if curr_data.get('fecha', '') != data['fecha'] and data['listo']:
                         self.config.set('covid19cl_data', json.dumps(data))
                         _last_day = now.day
-                        if not curr_data:
+                        if curr_data:
                             self.log.debug('Publishing Covid19 data...')
                             await self.publish(data)
             except (JSONDecodeError, RuntimeError) as e:
