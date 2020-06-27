@@ -69,7 +69,7 @@ class Greeting(Command):
                     return
 
             cmd.config.set(cfg_channel, chan.id)
-            cmd.config.set_list(cfg_messages, msgs, Greeting.separator)
+            cmd.config.set_list(cfg_messages, msgs)
             await cmd.answer('$[greeting-settings-saved]')
 
         elif cmd.args[0] == 'message':
@@ -81,7 +81,7 @@ class Greeting(Command):
             if cmd.config.get(cfg_channel) == '':
                 await cmd.answer('$[greeting-disabled-alert]')
                 return
-            msgs = cmd.config.get_list(cfg_messages, Greeting.separator)
+            msgs = cmd.config.get_list(cfg_messages)
 
             if cmd.args[1] in ['list', 'show']:
                 if len(msgs) == 0:
@@ -105,7 +105,7 @@ class Greeting(Command):
                     await cmd.answer('$[greeting-character-alert]', locales={'separator': Greeting.separator})
                     return
 
-                cmd.config.add(cfg_messages, msg, Greeting.separator)
+                cmd.config.add(cfg_messages, msg)
                 await cmd.answer('$[greeting-message-added]')
 
             elif cmd.args[1] == 'remove':
@@ -122,7 +122,7 @@ class Greeting(Command):
                     await cmd.answer('$[greeting-number-out-of-bounds]')
                     return
 
-                cmd.config.remove_index(cfg_messages, idx, Greeting.separator)
+                cmd.config.remove_index(cfg_messages, idx)
 
                 await cmd.answer('$[greeting-message-deleted]')
             elif cmd.args[1] == 'set':
@@ -132,7 +132,7 @@ class Greeting(Command):
                         await cmd.answer('$[greeting-character-alert]', locales={'separator': Greeting.separator})
                         return
 
-                cmd.config.set_list(cfg_messages, msgs, Greeting.separator)
+                cmd.config.set_list(cfg_messages, msgs)
                 msg = ['$[greeting-messages-saved]', '$[greeting-message-saved]'][int(len(msgs) == 1)]
                 await cmd.answer(msg)
 
@@ -146,7 +146,7 @@ class Greeting(Command):
             await cmd.answer('$[channel-saved]')
 
         elif cmd.args[0] == 'disable':
-            cmd.config.set(cfg_channel, '')
+            cmd.config.unset(cfg_channel, '')
             await cmd.answer('$[greeting-messages-disabled]')
 
     async def send_greeting(self, member, is_welcome):

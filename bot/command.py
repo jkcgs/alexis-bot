@@ -56,12 +56,12 @@ class Command:
 
         if isinstance(guild, discord.Guild):
             guildcfg = GuildConfiguration.get_instance(guild)
-            lang_code = guildcfg.get('lang', self.bot.config['default_lang'], create=False)
+            lang_code = guildcfg.get('lang', self.bot.config['default_lang'])
 
             # Use channel language if the argument has been passed
             if isinstance(channel, discord.TextChannel):
                 chanid = channel if not isinstance(channel, discord.TextChannel) else str(channel.id)
-                lang_code = guildcfg.get('lang#' + chanid, lang_code, create=False)
+                lang_code = guildcfg.get('lang#' + chanid, lang_code)
 
         return SingleLanguage(self.bot.lang, lang_code)
 

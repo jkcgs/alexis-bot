@@ -1,219 +1,110 @@
-import discord
 from discord import Guild
 
 from bot.database import ServerConfig
 
 
-class DynConfiguration:
-    """
-    Manages per-server configuration on the database, cached on memory.
-    """
-    def __init__(self):
-        """
-        Initialize and fetch all the configuration from the database, then store it on memory.
-        """
-        self.q = ServerConfig.select().execute()
-        self.sv = {}
-
-        for conf in list(self.q):
-            if conf.serverid not in self.sv:
-                self.sv[conf.serverid] = {}
-            self.sv[conf.serverid][conf.name] = conf.value
-
-    def has(self, svid, name):
-        """
-        Checks if the server has a configuration value, without setting a default value.
-        :param svid: The server ID
-        :param name: The configuration value name
-        :return: A boolean value from the operation result.
-        """
-        try:
-            if svid not in self.sv:
-                self.sv[svid] = {}
-
-            if name in self.sv[svid]:
-                return True
-
-            ServerConfig.get(serverid=svid, name=name)
-            return True
-        except ServerConfig.DoesNotExist:
-            return False
-
-    def get(self, svid, name, default='', create=True):
-        """
-        Fetch a configuration value for a server. If the configuration does not exist, it will be initialized
-        with the default value, then, is stored on memory. If the default value is None and the value does not
-        exist, then the database will not be queried.
-        :param svid: The server ID
-        :param name: The value name to retrieve
-        :param default: The default value to use if the configuration does not exist
-        :param create: If the value does not exist, and the default value is passed, the value will be created
-        on the database and cached on memory. Else, the default value is returned and nothing else.
-        :return: The requested configuration value.
-        """
-        if svid not in self.sv:
-            self.sv[svid] = {}
-
-        if name not in self.sv[svid]:
-            if default is None and not self.has(svid, name):
-                return None
-
-            if create:
-                q, _ = ServerConfig.get_or_create(serverid=svid, name=name, defaults={'value': str(default)})
-                self.sv[svid][name] = q.value
-            else:
-                return default or None
-
-        return self.sv[svid][name]
-
-    def set(self, svid, name, value):
-        """
-        Stores a configuration in database and memory. If the value is the same as in memory, then the database is
-        not altered.
-        :param svid: The server ID
-        :param name: The configuration value to be set
-        :param value: The new configuration value
-        :return: The stored value
-        """
-        value = str(value)
-        if self.get(svid, name, value) == value:
-            return value
-
-        q, _ = ServerConfig.get_or_create(serverid=svid, name=name)
-        q.value = value
-        q.save()
-        self._local_save(svid, name, value)
-
-        return q.value
-
-    def unset(self, svid, name):
-        """
-        Deletes a configuration from the database. It does not raise any exceptions.
-        :param svid: The server ID
-        :param name: The configuration value name
-        :return: A boolean given if the value existed or not
-        """
-        if self.has(svid, name):
-            try:
-                ins = ServerConfig.get(serverid=svid, name=name)
-                ins.delete_instance()
-                del self.sv[svid][name]
-                return True
-            except ServerConfig.DoesNotExist:
-                return False
-        return False
-
-    def get_list(self, svid, name, separator=',', default=None):
-        """
-        Fetches a configuration value as a list
-        :param svid: The server ID
-        :param name: The configuration value name
-        :param separator: The separator that will split the values (as it's stored as a single string)
-        :param default: The default value to return if the config does not exist.
-        :return: The requested configuration as a list
-        """
-        if default is None:
-            default = []
-        val = self.get(svid, name, '')
-        return default if val == '' else val.split(separator)
-
-    def set_list(self, svid, name, elements, separator=','):
-        """
-        Stores a list in the configuration, overwriting current values.
-        :param svid: The server ID
-        :param name: The configuration value name
-        :param elements: The list to be stored
-        :param separator: The glue for the items list (as it's stored as a single string)
-        """
-        if not isinstance(elements, list):
-            raise RuntimeError('elements argument only supports a list instance')
-
-        result = separator.join([str(e) for e in elements])
-        self.set(svid, name, result)
-
-    def add(self, svid, name, value, separator=','):
-        """
-        Fetches a cofiguration value as a list, appends a value, then stores it.
-        :param svid: The server ID
-        :param name: The configuration value name
-        :param value: The value to be added. If it's already on the list, it won't be added.
-        :param separator: The splitter string
-        :return: The list with the new value added (if it wasn't on the list already)
-        """
-        values = self.get_list(svid, name, separator)
-        if value not in values:
-            values.append(value)
-            self.set_list(svid, name, values, separator)
-
-        return values
-
-    def remove(self, svid, name, value, separator=','):
-        """
-        Fetches a cofiguration value as a list, removes a value if it exists, then stores the list.
-        :param svid: The server ID
-        :param name: The configuration value name
-        :param value: The value to be removed from the list
-        :param separator: The splitter string (as the value is stored as a single string)
-        :return: The list with the value removed, or the same list if the item wasn't on the list.
-        """
-        values = self.get_list(svid, name, separator)
-        if value in values:
-            values.remove(value)
-            self.set_list(svid, name, values, separator)
-
-        return values
-
-    def remove_index(self, svid, name, idx, separator):
-        """
-        Fetches a cofiguration value as a list, removes a value by it's index, then stores the list.
-        :param svid: The server ID
-        :param name: The configuration value name
-        :param idx: The value index, starting from zero. If the index is invalid, the list won't be modified.
-        :param separator: The splitter string (as the value is stored as a single string)
-        :return: The list with the value removed, or the same list if the item wasn't on the list.
-        """
-        values = self.get_list(svid, name, separator)
-        if abs(values) >= len(values):
-            return values
-
-        del values[idx]
-        self.set_list(svid, name, values, separator)
-        return values
-
-    def _local_save(self, svid, name, value):
-        """
-        Guarda una configuración en memoria solamente
-        :param svid: El ID del servidor
-        :param name: El nombre de la configuración
-        :param value: El valor de la configuración
-        :return: El valor de la configuración guardada
-        """
-        if svid not in self.sv:
-            self.sv[svid] = {}
-
-        self.sv[svid][name] = str(value)
-        return self.sv[svid][name]
-
-    _instance = None
-
-    @staticmethod
-    def get_instance():
-        if not DynConfiguration._instance:
-            DynConfiguration._instance = DynConfiguration()
-
-        return DynConfiguration._instance
-
-
 class GuildConfiguration:
     """
-    Shortcut to manage a single server configuration from a Configuration instance.
+    Allows management of configuration for guilds, for example an anouncement channel for welcome messages.
+    It can handle "global" configurations by passing None as the Guild. The values are fetched from the
+    currently bot configured database. Default values and non-existant configurations are not automatically
+    stored on the database. Also, this is made assuming that the database will not be changed during runtime,
+    and the in-memory values are used. Values in memory are changed if the configurations are only changed
+    with this class and are not synced by using getters.
     """
-    def __init__(self, guild: discord.Guild = None):
+
+    _global_id = 'all'
+    _list_separator = ','
+    _instances = {}
+
+    @classmethod
+    def get_instance(cls, guild: Guild = None):
+        """
+        Singleton method to cache this class' instance for guilds.
+        :param guild: The Guild instance to use the instance for. It defaults to the global configurations.
+        """
+        guild_id = cls._global_id if guild is None else str(guild.id)
+        if guild_id not in GuildConfiguration._instances:
+            GuildConfiguration._instances[guild_id] = GuildConfiguration(guild)
+
+        return GuildConfiguration._instances[guild_id]
+
+    @staticmethod
+    def get_all(guild_id=None):
+        """
+        Gather all settings stored for a guild as a dict.
+        :param guild_id: The guild ID to use the instance for. It defaults to the global configurations.
+        """
+        if not guild_id:
+            guild_id = GuildConfiguration._global_id
+
+        try:
+            config = ServerConfig.get(ServerConfig.serverid == guild_id)
+            return {i.name: i.value for i in config}
+        except ServerConfig.DoesNotExist:
+            return {}
+
+    @staticmethod
+    def get_value(guild_id, name, default=None):
+        """
+        Retrieve a value for a guild by its ID. If the value does not exist for that guild,
+        the default value is returned. The default value is not stored on the database.
+        :param guild_id: The guild ID to use the instance for. It defaults to the global configurations.
+        :param name: The name of the value to fetch
+        :param default: The default value to use.
+        """
+        if not guild_id:
+            guild_id = GuildConfiguration._global_id
+
+        try:
+            config = ServerConfig.get(ServerConfig.serverid == guild_id and ServerConfig.name == name)
+            return config.value
+        except ServerConfig.DoesNotExist:
+            return default
+
+    @staticmethod
+    def set_value(guild_id, name, value):
+        """
+        Sets a value for a guild's configuration.
+        :param guild_id: The guild ID to set the configuration for.
+        :param name: The configuration name.
+        :param value: The value to be set for the configuration.
+        :return: The value set.
+        """
+        config, created = ServerConfig.get_or_create(
+            serverid=guild_id, name=name, defaults={'value': value}
+        )
+
+        if not created and config.value != value:
+            config.value = value
+            config.save()
+
+        return config.value
+
+    def __init__(self, guild: Guild = None, defaults=None):
         """
         :param guild: The discord.Server instance or server ID
+        :param defaults: A `dict` of default values that will be return for a configuration
+        name if the default value is not passed on the `get` method.
         """
-        self.guild_id = str(guild.id) if guild is not None else 'all'
-        self.mgr = DynConfiguration.get_instance()
+        self.guild_id = str(guild.id) if guild is not None else self._global_id
+        self._config = self.get_all(self.guild_id)
+        self._defaults = {}
+
+        if defaults:
+            self.set_defaults(defaults)
+
+    def set_defaults(self, defaults=None):
+        """
+        Sets the defaults values to be used if no default values are passed for this class' instance getters.
+        :param defaults: A dict with the default values.
+        """
+        if defaults is not None and not issubclass(defaults.__class__, dict):
+            raise ValueError('defaults param must be a dict or a subclass, instead, received {}'.format(
+                defaults.__class__.__name__
+            ))
+
+        self._defaults = {} if defaults is None else defaults
 
     def has(self, name):
         """
@@ -221,94 +112,124 @@ class GuildConfiguration:
         :param name: The configuration value name
         :return: A boolean value from the operation result.
         """
-        return self.mgr.has(self.guild_id, name)
+        return name in self._config
 
-    def get(self, name, default='', create=True):
+    def get(self, name, default=None):
         """
-        Fetch a configuration value for a server. If the configuration does not exist, it will be initialized
-        with the default value, then, is stored on memory. If the default value is None and the value does not
-        exist, then the database will not be queried.
+        Fetch a configuration value for a server. If the configuration does not exist, the default value from the
+        defaults list will be returned. If there's no default value in the defaults list, the default value from the
+        arguments is returned.
         :param name: The value name to retrieve
         :param default: The default value to use if the configuration does not exist
-        :param create: If the value does not exist, and the default value is passed, the value will be created
-        on the database and cached on memory. Else, the default value is returned and nothing else.
         :return: The requested configuration value.
         """
-        return self.mgr.get(self.guild_id, name, default, create)
+        return self._config.get(name, self.get_value(name, self._defaults.get(name, default)))
 
     def set(self, name, value):
         """
-        Stores a configuration in database and memory. If the value is the same as in memory, then the database is
-        not altered.
-        :param name: The configuration value to be set
-        :param value: The new configuration value
-        :return: The stored value
+        Sets the configuration value. If the configuration value is not changed, nothing is done on the database.
+        :param name: The configuration value to be set.
+        :param value: The new configuration value.
+        :return: The stored value.
         """
-        return self.mgr.set(self.guild_id, name, value)
+        self._config[name] = self.set_value(self.guild_id, name, value)
+        return self._config[name]
 
     def unset(self, name):
         """
-        Deletes a configuration value from the database. It does not raise any exceptions.
-        :param name: The configuration value name
-        :return: A boolean given if the value existed or not
+        Deletes a configuration value from the database.
+        :param name: The configuration value name.
+        :return: A boolean given if the value existed previously or not.
         """
-        return self.mgr.unset(self.guild_id, name)
+        if self.has(name):
+            return False
 
-    def get_list(self, name, separator=',', default=None):
+        try:
+            ins = ServerConfig.get(serverid=self.guild_id, name=name)
+            ins.delete_instance()
+            del self._config[name]
+            return True
+        except ServerConfig.DoesNotExist:
+            return False
+
+    def get_list(self, name, default=None):
         """
-        Fetches a configuration value as a list
-        :param name: The configuration value name
-        :param separator: The separator that will split the values (as it's stored as a single string)
+        Fetches a configuration value as a comma separated list. List elements that had commas in its values
+        are stored as '\0\0', but replaced back to commas when returned.
+        :param name: The configuration value name.
         :param default: The default value if it does not exist.
         :return: The requested configuration as a list
         """
-        return self.mgr.get_list(self.guild_id, name, separator, default)
+        if default is None:
+            default = []
+        if not issubclass(default.__class__, list):
+            raise ValueError('defaults param must be a list or a subclass, instead, received {}'.format(
+                self._defaults.__class__.__name__
+            ))
 
-    def set_list(self, name, elements, separator='.'):
-        """
-        Stores a list in the configuration, overwriting current values.
-        :param name: The configuration value name
-        :param elements: The list to be stored
-        :param separator: The glue for the items list (as it's stored as a single string)
-        """
-        self.mgr.set_list(self.guild_id, name, elements, separator)
+        if not self.has(name):
+            return default
 
-    def add(self, name, value, separator=','):
+        val = self.get(name, '')
+        val_list = default if val == '' else val.split(self._list_separator)
+        val_list = [i.replace('\0\0', ',') for i in val_list]
+        return val_list
+
+    def set_list(self, name, elements):
         """
-        Fetches a cofiguration value as a list, appends a value, then stores it.
+        Stores a comma separated list in the configuration, overwriting current values. Values containing commas
+        will have them replaced with '\0\0'.
+        :param name: The configuration value name.
+        :param elements: The list to be stored.
+        """
+        if not issubclass(elements.__class__, list):
+            raise ValueError('elements param must be a list or a subclass, instead, received {}'.format(
+                self._defaults.__class__.__name__
+            ))
+
+        value = self._list_separator.join([str(e).replace(',', '\0\0') for e in elements])
+        self.set(name, value)
+
+    def add(self, name, value, ignore_dupe=False):
+        """
+        Fetches a configuration value as a list, appends a value, then stores it.
         :param name: The configuration value name
         :param value: The value to be added. If it's already on the list, it won't be added.
-        :param separator: The splitter string
-        :return: The list with the new value added (if it wasn't on the list already)
+        :param ignore_dupe: If the value is already on the list, it's added anyways.
+        :return: The list with the new value added (if it wasn't on the list already).
         """
-        return self.mgr.add(self.guild_id, name, value, separator)
+        values = self.get_list(name)
+        if ignore_dupe or value not in values:
+            values.append(value)
+            self.set_list(name, values)
 
-    def remove(self, name, value, separator=','):
+        return values
+
+    def remove(self, name, value):
         """
-        Fetches a cofiguration value as a list, removes a value if it exists, then stores the list.
-        :param name: The configuration value name
-        :param value: The value to be removed from the list
-        :param separator: The splitter string (as the value is stored as a single string)
+        Fetches a configuration value as a list, removes a value if it exists, then stores the list.
+        :param name: The configuration value name.
+        :param value: The value to be removed from the list.
         :return: The list with the value removed, or the same list if the item wasn't on the list.
         """
-        return self.mgr.remove(self.guild_id, name, value, separator)
+        values = self.get_list(name)
+        if value in values:
+            values.remove(value)
+            self.set_list(name, values)
 
-    def remove_index(self, name, idx, separator=','):
+        return values
+
+    def remove_index(self, name, idx):
         """
-        Fetches a cofiguration value as a list, removes a value by it's index, then stores the list.
-        :param name: The configuration value name
+        Fetches a configuration value as a list, removes a value by it's index, then stores the list.
+        :param name: The configuration value name.
         :param idx: The value index, starting from zero. If the index is invalid, the list won't be modified.
-        :param separator: The splitter string (as the value is stored as a single string)
         :return: The list with the value removed, or the same list if the item wasn't on the list.
         """
-        return self.mgr.remove(self.guild_id, name, idx, separator)
+        values = self.get_list(name)
+        if abs(values) >= len(values):
+            return values
 
-    _instances = {}
-
-    @staticmethod
-    def get_instance(guild: Guild = None):
-        guild_id = 'all' if guild is None else str(guild.id)
-        if guild_id not in GuildConfiguration._instances:
-            GuildConfiguration._instances[guild_id] = GuildConfiguration(guild)
-
-        return GuildConfiguration._instances[guild_id]
+        del values[idx]
+        self.set_list(name, values)
+        return values
