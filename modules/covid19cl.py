@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from discord import Embed, Forbidden, HTTPException
 
 from bot import Command, categories
-from bot.libs.guild_configuration import GuildConfiguration
+from bot.lib.guild_configuration import GuildConfiguration
 
 
 def nf(val):
@@ -114,7 +114,8 @@ class Covid19CL(Command):
 
     async def task(self):
         now = datetime.now()
-        curr_data = json.loads(self.config.get('covid19cl_data', '{}'))
+        curr_data = self.config.get('covid19cl_data', '{}')
+        curr_data = json.loads(curr_data)
 
         if not curr_data or (self._last_day != now.day and now.hour >= 10):
             try:

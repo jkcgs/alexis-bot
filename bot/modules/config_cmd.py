@@ -1,5 +1,5 @@
-from bot import Command, StaticConfig, categories
-from bot.utils import is_float, is_int, split_list
+from bot import Command, Configuration, categories
+from bot.utils import split_list
 
 
 class ConfigCmd(Command):
@@ -18,10 +18,10 @@ class ConfigCmd(Command):
         if cmd.subcmd == '':
             cfg = self.bot.config
         else:
-            if not StaticConfig.exists(cmd.subcmd):
+            if not Configuration.exists(cmd.subcmd):
                 await cmd.answer('$[config-not-exists]')
                 return
-            cfg = StaticConfig.get_config(cmd.subcmd)
+            cfg = Configuration.get_config(cmd.subcmd)
 
         arg = cmd.args[0]
         name = cmd.args[1]
@@ -48,58 +48,5 @@ class ConfigCmd(Command):
                         await cmd.answer('```{}```'.format(cont))
             else:
                 await cmd.answer('$[config-value]', locales={'config_name': name, 'config_value': str(val)})
-        elif arg == 'set':
-            if isinstance(val, list):
-                await cmd.answer('$[config-err-list]', locales={'list_name': name})
-                return
-
-            argvalue = ' '.join(cmd.args[2:])
-            if isinstance(val, bool):
-                if argvalue.lower() in ['0', 'false', 'no', 'disabled', 'off']:
-                    argvalue = False
-                elif argvalue.lower() in ['1', 'true', 'yes', 'enabled', 'on']:
-                    argvalue = True
-                else:
-                    await cmd.answer('$[config-err-bool]', locales={'config_name': name})
-                    return
-            elif isinstance(val, float):
-                if not is_float(argvalue):
-                    await cmd.answer('$[config-err-float]', locales={'config_name': name})
-                    return
-                else:
-                    argvalue = float(argvalue)
-            elif isinstance(val, int):
-                if not is_int(argvalue):
-                    await cmd.answer('$[config-err-int]', locales={'config_name': name})
-                    return
-                else:
-                    argvalue = int(argvalue)
-
-            self.bot.config[name] = argvalue
-            await cmd.answer('$[config-value-changed]', locales={'config_name': name})
-        elif arg == 'add' or arg == 'remove':
-            if not isinstance(val, list):
-                await cmd.answer('$[config-err-not-list]', locales={'config_name': name})
-                return
-
-            argvalue = ' '.join(cmd.args[2:])
-            if arg == 'add':
-                if argvalue in val:
-                    await cmd.answer('$[config-err-list-already]')
-                    return
-
-                val.append(argvalue)
-                self.bot.config[name] = val
-                await cmd.answer('$[config-list-added]')
-                return
-            elif arg == 'remove':
-                if argvalue not in val:
-                    await cmd.answer('$[config-list-not-in]')
-                    return
-
-                val.remove(argvalue)
-                self.bot.config[name] = val
-                await cmd.answer('$[config-list-removed]')
-                return
         else:
             await cmd.answer('$[config-err-sub]')

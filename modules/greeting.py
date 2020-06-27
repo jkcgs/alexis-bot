@@ -3,7 +3,7 @@ import random
 from discord import Embed
 
 from bot import Command, categories
-from bot.libs.guild_configuration import GuildConfiguration
+from bot.lib.guild_configuration import GuildConfiguration
 from bot.utils import is_int, invite_filter, auto_int
 from bot.regex import pat_invite
 
@@ -155,7 +155,7 @@ class Greeting(Command):
 
         cfg = GuildConfiguration.get_instance(member.guild)
         chanid = cfg.get(cfg_channel)
-        msgs = cfg.get_list(cfg_messages, Greeting.separator)
+        msgs = cfg.get_list(cfg_messages)
         if chanid == '' or len(msgs) == 0:
             return
 

@@ -7,7 +7,7 @@ import emoji
 from discord import Emoji, Embed
 
 from bot import Command, categories, BaseModel
-from bot.libs.guild_configuration import GuildConfiguration
+from bot.lib.guild_configuration import GuildConfiguration
 from bot.utils import auto_int, compare_ids
 
 

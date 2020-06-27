@@ -1,6 +1,6 @@
 import random
-from bot.libs.configuration import yaml
-from bot import Command, StaticConfig, categories
+from bot.lib.configuration import yaml
+from bot import Command, Configuration, categories
 from bot.utils import img_embed
 
 default_pats = 'https://l.owo.cl/default_pats'
@@ -46,7 +46,7 @@ class Pat(Command):
 
     async def on_ready(self):
         self.log.debug('Loading pats...')
-        if not StaticConfig.exists('pats'):
+        if not Configuration.exists('pats'):
             self.log.debug('Loading remote default pats')
             async with self.http.get(default_pats) as r:
                 data = await r.text()
@@ -58,5 +58,5 @@ class Pat(Command):
                 'bot_pat': 'http://i.imgur.com/tVzapCY.gif'
             }
 
-        self.config = StaticConfig.get_config('pats', defaults)
+        self.config = Configuration.get_config('pats', defaults)
         self.log.debug('Pats loaded')

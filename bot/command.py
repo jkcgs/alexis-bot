@@ -4,7 +4,7 @@ import discord
 
 from bot.utils import lazy_property
 from . import SingleLanguage
-from bot.libs.guild_configuration import GuildConfiguration
+from bot.lib.guild_configuration import GuildConfiguration
 from .logger import new_logger
 from . import categories
 

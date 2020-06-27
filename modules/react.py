@@ -1,5 +1,5 @@
 import discord
-from bot.libs.configuration import yaml
+from bot.lib.configuration import yaml
 
 from bot import Command
 from bot.regex import pat_channel, pat_snowflake

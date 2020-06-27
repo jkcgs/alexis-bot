@@ -6,9 +6,9 @@ from datetime import datetime
 import discord
 
 from bot import Language, Manager
-from bot.libs.guild_configuration import GuildConfiguration
+from bot.lib.guild_configuration import GuildConfiguration
 from bot.database import BotDatabase
-from bot.libs.configuration import BotConfiguration
+from bot.lib.configuration import BotConfiguration
 from bot.logger import new_logger
 from bot.utils import auto_int
 
@@ -229,7 +229,7 @@ class AlexisBot(discord.Client):
 
         # Check if the user has the owner role
         cfg = GuildConfiguration.get_instance(member.guild)
-        owner_roles = cfg.get_list('owner_roles', '\n', [self.config['owner_role']])
+        owner_roles = cfg.get_list('owner_roles', [self.config['owner_role']])
         for role in member.roles:
             if str(role.id) in owner_roles \
                     or role.name in owner_roles \

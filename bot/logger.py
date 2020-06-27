@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from bot.libs.configuration import BotConfiguration
-from bot.libs.logger import create_logger
+from bot.lib.configuration import BotConfiguration
+from bot.lib.logger import create_logger
 
 start_time = datetime.now()
 
