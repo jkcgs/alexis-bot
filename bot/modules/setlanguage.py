@@ -20,7 +20,7 @@ class SetLanguage(Command):
                 emb = Embed(title='$[lang-title]',
                             description='$[lang-current-guild] \n$[lang-current-chan] \n$[lang-available-list]')
                 await cmd.answer(emb, locales={
-                    'lang': cmd.config.get('lang', self.bot.config['default_lang'], create=False),
+                    'lang': cmd.config.get('lang', self.bot.config['default_lang']),
                     'lang_list': ', '.join(self.bot.lang.lib.keys()),
                     'chan_lang': cmd.config.get('lang#'+str(cmd.channel.id))
                 })
@@ -54,7 +54,7 @@ class SetLanguage(Command):
 
                 cmd.config.unset('lang#'+str(chan.id))
                 self.log.debug('Set default language for channel %s in guild %s', cmd.config.get('lang'), cmd.guild)
-                sv_default = cmd.config.get('lang', self.bot.config['default_lang'], create=False)
+                sv_default = cmd.config.get('lang', self.bot.config['default_lang'])
                 await cmd.answer(self.bot.lang.get('lang-unset-chan', sv_default, lang=sv_default))
             else:
                 cmd.config.set('lang#'+str(chan.id), lang)

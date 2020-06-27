@@ -2,7 +2,7 @@ import discord
 
 from discord import Embed
 
-from bot.guild_configuration import GuildConfiguration
+from bot.libs.guild_configuration import GuildConfiguration
 from bot.libs.language import SingleLanguage
 from bot.utils import no_tags, auto_int
 from bot.regex import pat_usertag, pat_channel, pat_snowflake

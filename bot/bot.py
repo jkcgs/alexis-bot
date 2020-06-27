@@ -6,7 +6,7 @@ from datetime import datetime
 import discord
 
 from bot import Language, Manager
-from bot.guild_configuration import GuildConfiguration
+from bot.libs.guild_configuration import GuildConfiguration
 from bot.database import BotDatabase
 from bot.libs.configuration import BotConfiguration
 from bot.logger import new_logger

@@ -3,7 +3,7 @@ import random
 from discord import Embed
 
 from bot import Command, categories
-from bot.guild_configuration import GuildConfiguration
+from bot.libs.guild_configuration import GuildConfiguration
 from bot.utils import is_int, invite_filter, auto_int
 from bot.regex import pat_invite
 

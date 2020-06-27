@@ -38,11 +38,8 @@ class GuildConfiguration:
         if not guild_id:
             guild_id = GuildConfiguration._global_id
 
-        try:
-            config = ServerConfig.get(ServerConfig.serverid == guild_id)
-            return {i.name: i.value for i in config}
-        except ServerConfig.DoesNotExist:
-            return {}
+        config = ServerConfig.select(ServerConfig.serverid == guild_id)
+        return {i.name: i.value for i in config}
 
     @staticmethod
     def get_value(guild_id, name, default=None):

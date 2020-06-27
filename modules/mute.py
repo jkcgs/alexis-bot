@@ -6,7 +6,7 @@ import discord
 import peewee
 
 from bot import Command, utils, categories, BaseModel
-from bot.guild_configuration import GuildConfiguration
+from bot.libs.guild_configuration import GuildConfiguration
 from bot.utils import auto_int
 
 
