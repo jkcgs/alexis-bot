@@ -24,12 +24,12 @@ class Greeting(Command):
         self.category = categories.STAFF
         self.default_config = {
             'greeting_max_messages': 10,
-            'greeting_max_length': 100
+            'greeting_max_length': 1000
         }
 
     async def handle(self, cmd):
         max_msgs = self.bot.config.get('greeting_max_messages', 10)
-        max_length = self.bot.config.get('greeting_max_length', 100)
+        max_length = self.bot.config.get('greeting_max_length', 1000)
 
         is_welcome = cmd.cmdname == self.name
         cfg_channel = self.cfg_welcome_channel if is_welcome else self.cfg_goodbye_channel

@@ -18,8 +18,6 @@ class LangFilter(Command):
         await cmd.answer('$[config-resetlangs-done]')
 
     def pre_send_message(self, kwargs):
-        dest = kwargs.get('destination')
-
         lang = self.auto_lang(kwargs)
         if 'content' in kwargs:
             if kwargs['content'] is None:
@@ -48,7 +46,8 @@ class LangFilter(Command):
                 if kwargs.get('embed', None) is not None:
                     replace_everywhere(kwargs['embed'], '$NM', kwargs['event'].cmdname)
 
-        prefix = self.bot.get_prefix(getattr(dest, 'guild', None))
+        evt = kwargs.get('event')
+        prefix = self.bot.get_prefix(getattr(evt, 'guild', None))
 
         if 'content' in kwargs and kwargs['content']:
             kwargs['content'] = kwargs['content'].replace('$PX', prefix)

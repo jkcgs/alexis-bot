@@ -16,7 +16,7 @@ class IAm(Command):
         self.user_delay = 60
         self.category = categories.UTILITY
         self.default_config = {
-            'iam_roles_limit': 20
+            'iam_roles_limit': 50
         }
 
     async def handle(self, cmd):

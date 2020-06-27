@@ -1,35 +1,68 @@
 # Discord token
-token: ""
+token: ''
 
 # Default server prefix
-command_prefix: "!"
+#command_prefix: !
 
 # Database URL. MySQL, PostgreSQL and SQLite can be used.
-database_url: 'sqlite:///database.db'
+#database_url: sqlite:///database.db
 
 # Default "playing" status
-playing: "/r/chile"
+#playing: Use !invite to add me!
 
 # Role that determines a user is an owner. Alternatively, all server admins are "owners"
-owner_role: "AlexisMaster"
+#owner_role: AlexisMaster
 
 # Bot owners can do config stuff with commands. Server owners can't.
-bot_owners: ["130324995984326656"]
+#bot_owners: ["130324995984326656"]
 
 # Servers can change its language, but this is the default one.
-default_lang: "en"
+#default_lang: "es"
 
 # Advanced stuff
-log_path: logs      # Logs path
-log_to_files: false # Log to files can be disabled here (useful when using supervisord, or whatever)
-log_format: '%(asctime)s | %(levelname)-8s | %(message)s' # Logging format
-ext_modpath: ""     # External path to load modules
-debug: false        # Debug mode. Exception tracebacks will be fully logged into chat.
+#log_path: logs      # Logs path
+#log_to_files: false # Log to files can be disabled here (useful when using supervisord, or whatever)
+#log_format: '%(asctime)s | %(levelname)-8s | %(name)s || %(message)s' # Logging format
+#ext_modpath: ""     # External path to load modules
+#debug: false        # Debug mode. Exception tracebacks will be fully logged into chat.
 
 # Bot server invitations whitelist. If the bot is invited to a server, but it's not on the following whitelist,
 # it will say a message and will leave the server.
-whitelist_servers:
-- 198944348379938816
-whitelist: false             # This is normally disabled
-whitelist_autoleave: false   # Used when bot starts up, it leaves currently not-whitelisted servers.
-whitelist_contact: 130324995984326656
+#whitelist_servers: ["198944348379938816"]
+#whitelist: false             # This is normally disabled
+#whitelist_autoleave: false   # Used when bot starts up, it leaves currently not-whitelisted servers.
+#whitelist_contact: 130324995984326656
+#blacklist_servers: []
+
+# Unused
+#shutdown_channel: ''
+
+#### Module specifics settings
+
+# Bitly URL shortner: !bitly
+#bitly_domain: ''
+#bitly_key: ''
+#bitly_min_length: 25
+# Cleverbot API key
+#cleverbot_apikey: ''
+# Covid19CL informations: !covid
+#covid19cl_discord_channel: ''
+#covid19cl_telegram_channel: ''
+#covid19cl_telegram_key: ''
+# Currency conversion: !value
+#currency_apikey: ''
+#sbif_apikey: ''
+# Greeting module settings
+#greeting_max_length: 1000
+#greeting_max_messages: 10
+# Maximum roles allowed with !iam
+#iam_roles_limit: 50
+# Maximum amount of options when creating polls
+#polls_max_options: 6
+# Limit for creating reminders: !remindme
+#remindme_text_limit: 150
+# Simsimi configuration
+#simsimi_apikey: ''
+#simsimi_lang: es
+# Weather API configuration
+#weatherapi_key: ''
