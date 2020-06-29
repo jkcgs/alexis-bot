@@ -1,6 +1,7 @@
 import discord
 
 from bot import Command, CommandEvent
+from bot.lib.guild_configuration import GuildConfiguration
 from bot.utils import replace_everywhere
 
 
@@ -47,7 +48,8 @@ class LangFilter(Command):
                     replace_everywhere(kwargs['embed'], '$NM', kwargs['event'].cmdname)
 
         evt = kwargs.get('event')
-        prefix = self.bot.get_prefix(getattr(evt, 'guild', None))
+        guild = getattr(evt, 'guild', None)
+        prefix = GuildConfiguration.get_instance(guild).get('command_prefix')
 
         if 'content' in kwargs and kwargs['content']:
             kwargs['content'] = kwargs['content'].replace('$PX', prefix)

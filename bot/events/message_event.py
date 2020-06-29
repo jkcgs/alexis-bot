@@ -182,7 +182,11 @@ class MessageEvent:
 
     @property
     def prefix(self):
-        return self.bot.get_prefix(self.message.channel)
+        """Retrieve and return the prefix"""
+        if self.is_pm:
+            return self.bot.config['command_prefix']
+        else:
+            return self.config.get('command_prefix', self.bot.config['command_prefix'])
 
     @property
     def owner(self):

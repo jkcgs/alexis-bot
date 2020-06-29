@@ -1,7 +1,6 @@
 import asyncio
 import glob
 import inspect
-import itertools
 import os
 import sys
 import traceback
@@ -9,7 +8,7 @@ from os import path
 
 import aiohttp
 
-from bot import CommandEvent, BotMentionEvent, MessageEvent, BaseModel
+from bot import CommandEvent, BotMentionEvent, MessageEvent
 from bot.logger import new_logger
 from .command import Command
 from .database import ServerConfig

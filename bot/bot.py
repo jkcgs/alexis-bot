@@ -59,6 +59,9 @@ class AlexisBot(discord.Client):
         if self.config.get('token', '') == '':
             raise RuntimeError('Discord bot token not defined. It should be in config.yml file.')
 
+        # Load languages
+        self.load_language()
+
         # Load database
         log.info('Connecting to the database...')
         self.db = BotDatabase.initialize()
@@ -83,18 +86,40 @@ class AlexisBot(discord.Client):
         finally:
             self.loop.close()
 
+    async def on_ready(self):
+        """ This is executed once the bot has successfully connected to Discord. """
+        self.connect_delta = (datetime.now() - self.start_time).total_seconds()
+        log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
+        log.info('It took %.3f seconds to connect.', self.connect_delta)
+        log.info('------')
+
+        self.initialized = True
+        self.manager.create_tasks()
+        await self.manager.dispatch('on_ready')
+
     def load_config(self):
         """
-        Loads static and language configuration
+        Loads static configuration
         :return: A boolean depending on the operation's result.
         """
         try:
             log.info('Loading configuration...')
             self.config = BotConfiguration.get_instance()
+            log.info('Configuration loaded')
+            return True
+        except Exception as ex:
+            log.exception(ex)
+            return False
+
+    def load_language(self):
+        """
+        Loads language content
+        :return: A boolean depending on the operation's result.
+        """
+        try:
             log.info('Loading language stuff...')
             self.lang = Language('lang', default=self.config['default_lang'], autoload=True)
             log.info('Loaded languages: %s, default: %s', list(self.lang.lib.keys()), self.config['default_lang'])
-            log.info('Configuration loaded')
             return True
         except Exception as ex:
             log.exception(ex)
@@ -212,47 +237,9 @@ class AlexisBot(discord.Client):
         if len(self.deleted_messages_nolog) > 50:
             del self.deleted_messages_nolog[0]
 
-    # ------------------------
-    # | GUILD HELPER METHODS |
-    # ------------------------
-    def get_prefix(self, destination=None):
-        """
-        Gets the prefix for a channel of destination. It would normally return a prefix for a guild
-        TextChannel, and return the default one for all the other destinations.
-        :param destination: The Guild or TextChannel of destination. Any other of these will return
-        the default prefix.
-        :return: The prefix for the destination.
-        """
-        if isinstance(destination, discord.TextChannel):
-            # If the destination is a TextChannel, use its Guild
-            destination = destination.guild
-        elif not isinstance(destination, discord.Guild):
-            # Anything not a TextChannel or Guild, sets the destination to None to get the default prefix.
-            destination = None
-
-        # Retrieve and return the prefix
-        cfg = GuildConfiguration.get_instance(destination)
-        return cfg.get('command_prefix', self.config['command_prefix'])
-
     @property
     def uptime(self):
         return datetime.now() - self.start_time
-
-    # ------------------
-    # | EVENT HANDLERS |
-    # ------------------
-
-    async def on_ready(self):
-        """ This is executed once the bot has successfully connected to Discord. """
-
-        self.connect_delta = (datetime.now() - self.start_time).total_seconds()
-        log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
-        log.info('It took %.3f seconds to connect.', self.connect_delta)
-        log.info('------')
-
-        self.initialized = True
-        self.manager.create_tasks()
-        await self.manager.dispatch('on_ready')
 
     def event_override(self):
         """Dinamically creates the event handlers to this bot instance."""

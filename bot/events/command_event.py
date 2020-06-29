@@ -4,6 +4,7 @@ import discord
 
 from bot.utils import serialize_avail, no_tags
 from .message_event import MessageEvent
+from ..lib.guild_configuration import GuildConfiguration
 from ..regex import pat_usertag
 
 
@@ -87,7 +88,12 @@ class CommandEvent(MessageEvent):
 
     @staticmethod
     def is_command(message, bot):
-        prefix = bot.get_prefix(message.channel)
+        if isinstance(message.channel, discord.DMChannel):
+            prefix = bot.config['command_prefix']
+        else:
+            cfg = GuildConfiguration.get_instance(message.channel.guild)
+            prefix = cfg.get('command_prefix', bot.config['command_prefix'])
+
         if message.content.startswith(prefix):
             cmdname = message.content[len(prefix):].split(' ')[0].split(':')[0]
             return cmdname in bot.manager
