@@ -29,5 +29,5 @@ class ChangePrefix(Command):
         if len(prefix) > 3:
             return
 
-        cmd.config.set('command_prefix', prefix)
+        cmd.config.prefix = prefix
         await cmd.answer('$[prefix-set]', locales={'new_prefix': prefix})

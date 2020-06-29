@@ -89,10 +89,9 @@ class CommandEvent(MessageEvent):
     @staticmethod
     def is_command(message, bot):
         if isinstance(message.channel, discord.DMChannel):
-            prefix = bot.config['command_prefix']
+            prefix = bot.config.prefix
         else:
-            cfg = GuildConfiguration.get_instance(message.channel.guild)
-            prefix = cfg.get('command_prefix', bot.config['command_prefix'])
+            prefix = GuildConfiguration.get_instance(message.channel.guild).prefix
 
         if message.content.startswith(prefix):
             cmdname = message.content[len(prefix):].split(' ')[0].split(':')[0]

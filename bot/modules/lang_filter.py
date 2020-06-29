@@ -49,7 +49,7 @@ class LangFilter(Command):
 
         evt = kwargs.get('event')
         guild = getattr(evt, 'guild', None)
-        prefix = GuildConfiguration.get_instance(guild).get('command_prefix')
+        prefix = GuildConfiguration.get_instance(guild).prefix
 
         if 'content' in kwargs and kwargs['content']:
             kwargs['content'] = kwargs['content'].replace('$PX', prefix)
