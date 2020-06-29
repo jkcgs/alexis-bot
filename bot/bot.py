@@ -215,31 +215,6 @@ class AlexisBot(discord.Client):
     # ------------------------
     # | GUILD HELPER METHODS |
     # ------------------------
-
-    def is_guild_owner(self, member: discord.Member):
-        """
-        Check if a guild member is an "owner" for the bot
-        :param member: The discord.Guild member.
-        :return: A boolean value depending if the member is an owner or not.
-        """
-        if not isinstance(member, discord.Member):
-            return False
-
-        # The server owner or a user with the Administrator permission is an owner to the bot.
-        if member.guild.owner == member or member.guild_permissions.administrator:
-            return True
-
-        # Check if the user has the owner role
-        cfg = GuildConfiguration.get_instance(member.guild)
-        owner_roles = cfg.get_list('owner_roles', [self.config['owner_role']])
-        for role in member.roles:
-            if str(role.id) in owner_roles \
-                    or role.name in owner_roles \
-                    or str(member.id) in owner_roles:
-                return True
-
-        return False
-
     def get_prefix(self, destination=None):
         """
         Gets the prefix for a channel of destination. It would normally return a prefix for a guild

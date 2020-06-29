@@ -24,7 +24,7 @@ class MessageEvent:
         self.bot_owner = message.author.id in bot.config['bot_owners']
 
         self.guild = None if self.is_pm else message.guild
-        self.config = GuildConfiguration.get_instance(self.guild)
+        self._config = None
         self._lang = None
 
     async def answer(self, content='', to_author=False, withname=True, **kwargs):
@@ -157,7 +157,28 @@ class MessageEvent:
         return self.lang.get(name, **kwargs)
 
     def is_owner(self, member: discord.Member):
-        return not self.is_pm and self.bot.is_guild_owner(member)
+        """
+        Check if a guild member is an "owner" for the bot
+        :param member: The discord.Guild member.
+        :return: A boolean value depending if the member is an owner or not.
+        """
+        if not isinstance(member, discord.Member):
+            return False
+
+        # The server owner or a user with the Administrator permission is an owner to the bot.
+        if member.guild.owner == member or member.guild_permissions.administrator:
+            return True
+
+        # Check if the user has the owner role
+        cfg = GuildConfiguration.get_instance(member.guild)
+        owner_roles = cfg.get_list('owner_roles', [self.bot.config['owner_role']])
+        for role in member.roles:
+            if str(role.id) in owner_roles \
+                    or role.name in owner_roles \
+                    or str(member.id) in owner_roles:
+                return True
+
+        return False
 
     @property
     def prefix(self):
@@ -174,13 +195,18 @@ class MessageEvent:
         return self.guild.me.permissions_in(self.channel)
 
     @property
+    def config(self):
+        if self._config is None:
+            self._config = GuildConfiguration.get_instance(self.guild)
+        return self._config
+
+    @property
     def lang(self):
         if self._lang is None:
             if self.guild is None:
                 self._lang = SingleLanguage(self.bot.lang, self.bot.config['default_lang'])
             else:
-                conf = GuildConfiguration.get_instance(self.guild)
-                lang_code = conf.get('lang', self.bot.config['default_lang'])
+                lang_code = self.config.get('lang', self.bot.config['default_lang'])
                 self._lang = SingleLanguage(self.bot.lang, lang_code)
 
         return self._lang
