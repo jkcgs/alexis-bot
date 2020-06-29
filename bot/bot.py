@@ -42,6 +42,8 @@ class AlexisBot(discord.Client):
         self.config = None
         self.loop = asyncio.get_event_loop()
 
+        self.event_override()
+
     def init(self):
         """
         Loads configuration, connects to database, and then connects to Discord.
@@ -272,53 +274,19 @@ class AlexisBot(discord.Client):
         log.info('Connected as "%s" (%s)', self.user.name, self.user.id)
         log.info('It took %.3f seconds to connect.', self.connect_delta)
         log.info('------')
-        await self.change_presence(activity=discord.Game(self.config['playing']))
 
         self.initialized = True
         self.manager.create_tasks()
         await self.manager.dispatch('on_ready')
 
-    async def on_message(self, message):
-        await self.manager.dispatch('on_message', message=message)
-
-    async def on_reaction_add(self, reaction, user):
-        await self.manager.dispatch('on_reaction_add', reaction=reaction, user=user)
-
-    async def on_reaction_remove(self, reaction, user):
-        await self.manager.dispatch('on_reaction_remove', reaction=reaction, user=user)
-
-    async def on_reaction_clear(self, message, reactions):
-        await self.manager.dispatch('on_reaction_clear', message=message, reactions=reactions)
-
-    async def on_member_join(self, member):
-        await self.manager.dispatch('on_member_join', member=member)
-
-    async def on_member_remove(self, member):
-        await self.manager.dispatch('on_member_remove', member=member)
-
-    async def on_member_update(self, before, after):
-        await self.manager.dispatch('on_member_update', before=before, after=after)
-
-    async def on_user_update(self, before, after):
-        await self.manager.dispatch('on_user_update', before=before, after=after)
-
-    async def on_message_delete(self, message):
-        await self.manager.dispatch('on_message_delete', message=message)
-
-    async def on_message_edit(self, before, after):
-        await self.manager.dispatch('on_message_edit', before=before, after=after)
-
-    async def on_guild_join(self, guild):
-        await self.manager.dispatch('on_guild_join', guild=guild)
-
-    async def on_guild_remove(self, guild):
-        await self.manager.dispatch('on_guild_remove', guild=guild)
-
-    async def on_member_ban(self, guild, user):
-        await self.manager.dispatch('on_member_ban', guild=guild, user=user)
-
-    async def on_member_unban(self, guild, user):
-        await self.manager.dispatch('on_member_unban', guild=guild, user=user)
-
-    async def on_typing(self, channel, user, when):
-        await self.manager.dispatch('on_typing', channel=channel, user=user, when=when)
+    def event_override(self):
+        """Dinamically creates the event handlers to this bot instance."""
+        from bot.constants import EVENT_HANDLERS
+        for method, margs in EVENT_HANDLERS.items():
+            def make_handler(event_name, event_args):
+                async def dispatch(*args):
+                    kwargs = dict(zip(event_args, args))
+                    await self.manager.dispatch(event_name=event_name, **kwargs)
+                return dispatch
+            event = 'on_' + method
+            setattr(self, event, make_handler(event, margs.copy()))

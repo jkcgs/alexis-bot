@@ -7,7 +7,6 @@ config = {
     'database_url': 'sqlite:///db.sqlite3',
     'command_prefix': '!',
     'debug': False,
-    'playing': 'Use !invite to add me!',
     'bot_owners': ['130324995984326656'],
     'owner_role': 'AlexisMaster',
     'ext_modpath': '',

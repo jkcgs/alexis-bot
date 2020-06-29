@@ -7,9 +7,6 @@ token: ''
 # Database URL. MySQL, PostgreSQL and SQLite can be used.
 #database_url: sqlite:///database.db
 
-# Default "playing" status
-#playing: Use !invite to add me!
-
 # Role that determines a user is an owner. Alternatively, all server admins are "owners"
 #owner_role: AlexisMaster
 
