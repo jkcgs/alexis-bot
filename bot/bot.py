@@ -165,16 +165,6 @@ class AlexisBot(discord.Client):
 
         await self.send_message(chan, content=message, embed=embed, locales=locales)
 
-    def schedule(self, task, time=0, force=False):
-        """
-        Shorthand method: adds a task to the loop to be run every *time* seconds.
-        :param task: The task function
-        :param time: The time in seconds to repeat the task. If zero, the task will be called just once.
-        :param force: What to do if the task was already created. If True, the task is cancelled and created again.
-        """
-
-        return self.manager.schedule(task, time, force)
-
     async def send_message(self, destination, content='', **kwargs):
         """
         Method that proxies all messages sent to Discord, to fire other calls

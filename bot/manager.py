@@ -132,10 +132,10 @@ class Manager:
             # Scheduled (repetitive) tasks
             if isinstance(instance.schedule, list):
                 for (task, seconds) in instance.schedule:
-                    self.bot.schedule(task, seconds)
+                    self.schedule(task, seconds)
             elif isinstance(instance.schedule, tuple):
                 task, seconds = instance.schedule
-                self.bot.schedule(task, seconds)
+                self.schedule(task, seconds)
 
     async def run_task(self, task, time=0):
         """
