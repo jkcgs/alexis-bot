@@ -28,7 +28,7 @@ class JoinCmd(Command):
             await cmd.answer('$[join-disabled]')
             return
 
-        user_roles = [r.id for r in cmd.author.roles]
+        user_roles = [str(r.id) for r in cmd.author.roles]
         if roleid in user_roles:
             await cmd.answer('$[join-already]')
             return
