@@ -16,6 +16,7 @@ class GuildConfiguration:
 
     _global_id = 'all'
     _list_separator = ','
+    _comma_escape = '\1\1'
     _instances = {}
 
     @classmethod
@@ -174,7 +175,7 @@ class GuildConfiguration:
 
         val = self.get(name, '')
         val_list = default if val == '' else val.split(self._list_separator)
-        val_list = [i.replace('\0\0', ',') for i in val_list]
+        val_list = [i.replace(self._comma_escape, ',') for i in val_list]
         return val_list
 
     def set_list(self, name, elements):
@@ -189,7 +190,7 @@ class GuildConfiguration:
                 self._defaults.__class__.__name__
             ))
 
-        value = self._list_separator.join([str(e).replace(',', '\0\0') for e in elements])
+        value = self._list_separator.join([str(e).replace(',', self._comma_escape) for e in elements])
         self.set(name, value)
 
     def add(self, name, value, ignore_dupe=False):
