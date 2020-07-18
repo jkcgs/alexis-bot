@@ -26,7 +26,6 @@ def data_diff(data):
 
 def description(data):
     diff = data_diff(data)
-    positividad = 0 if data["total_examenes"] == 0 else (data['confirmados'] / data["total_examenes"]) * 100
     return f'Información del día **{data["fecha"]}** (hasta las 21:00 del día anterior)\n\n' \
         f'**Total confirmados:** {diff["confirmados"]}\n' \
         f'*({nf(data["sintomaticos"])} sintomáticos, {nf(data["asintomaticos"])} asintomáticos, ' \
@@ -35,7 +34,7 @@ def description(data):
         f'**Recuperados:** {diff["recuperados"]}\n' \
         f'**Fallecidos:** {diff["fallecidos"]}\n\n' \
         f'**Exámenes realizados:** {nf(data["total_examenes"])} (+{nf(data["examenes"])}, ' \
-           f'positividad: {positividad:.2f}%)\n' \
+        f'positividad: {data["examenes_positividad"]})\n' \
         f'**Pacientes conectados:** {diff["conectados"]}, críticos: {diff["criticos"]}\n' \
         f'**Ventiladores disponibles:** {diff["ventiladores_disp"]}\n\n' \
         f'**Residencias sanitarias**: {data["rs_residencias"]} ' \
