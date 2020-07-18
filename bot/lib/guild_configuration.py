@@ -126,7 +126,8 @@ class GuildConfiguration:
         :param default: The default value to use if the configuration does not exist
         :return: The requested configuration value.
         """
-        return self._config.get(name, self.get_value(name, self._defaults.get(name, default)))
+        default = default if default is not None else self.get_value(name, self._defaults.get(name, default))
+        return self._config.get(name, default)
 
     def set(self, name, value):
         """

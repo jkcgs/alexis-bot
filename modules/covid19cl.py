@@ -117,7 +117,10 @@ class Covid19CL(Command):
     async def task(self):
         now = datetime.now()
         curr_data = self.config.get('covid19cl_data', '{}')
-        curr_data = json.loads(curr_data)
+        try:
+            curr_data = json.loads(curr_data)
+        except JSONDecodeError:
+            self.log.debug('Se encontraron datos erróneos en la caché de datos.')
 
         if not curr_data or (self._last_day != now.day and now.hour >= 10):
             try:

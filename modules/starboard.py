@@ -17,7 +17,7 @@ class Starboard(BaseModel):
     timestamp = peewee.DateTimeField(null=False)
 
 
-default_count = 10
+default_count = '10'
 cfg_starboard_emojis = 'starboard_emojis'
 cfg_starboard_channel = 'starboard_channel'
 cfg_starboard_tcount = 'starboard_trigger_count'
@@ -127,7 +127,7 @@ class StarboardHook(Command):
         # Load allowed reactions
         emojis = config.get(cfg_starboard_emojis)
         reaction_triggers = []
-        if emojis != '':
+        if emojis:
             reaction_filtered = emojis.split(' ')
             for react in reaction_filtered:
                 if pat_emoji.match(react):

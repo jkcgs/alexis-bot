@@ -18,7 +18,7 @@ log = new_logger('Core')
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/makzk)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev5'
+    __version__ = '1.0.0-dev6'
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -160,7 +160,6 @@ class AlexisBot(discord.Client):
 
         chan = self.get_channel(auto_int(chanid))
         if chan is None:
-            log.debug('[modlog] Channel not found (svid %s chanid %s)', guild.id, chanid)
             return
 
         await self.send_message(chan, content=message, embed=embed, locales=locales)

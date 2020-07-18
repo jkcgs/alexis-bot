@@ -34,7 +34,7 @@ def auto_int(val):
 
     try:
         return int(val)
-    except ValueError:
+    except (ValueError, TypeError):
         return val
 
 
