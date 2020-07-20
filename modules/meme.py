@@ -4,6 +4,7 @@ from discord import File
 
 from bot import Command, categories
 from bot.regex import pat_usertag
+from bot.utils import download
 
 furl = 'https://github.com/sophilabs/macgifer/raw/master/static/font/impact.ttf'
 
@@ -25,7 +26,7 @@ class Meme(Command):
         self.font_smaller = None
 
     async def on_ready(self):
-        self.mpath = await self.mgr.download('impact.ttf', furl)
+        self.mpath = await download('impact.ttf', furl)
         if self.mpath is None:
             self.log.warn('Could not retrieve the font')
             return

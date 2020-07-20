@@ -3,7 +3,7 @@ from PIL import Image
 from discord import File
 
 from bot import Command, categories
-from bot.utils import parse_tag
+from bot.utils import parse_tag, download
 
 heart_url = 'https://i.imgur.com/80c3IKZ.png'
 
@@ -19,7 +19,7 @@ class ShipperUwU(Command):
         self.heart_path = None
 
     async def on_ready(self):
-        self.heart_path = await self.mgr.download('heart.png', heart_url)
+        self.heart_path = await download('heart.png', heart_url)
         if self.heart_path is None:
             self.log.warning('Could not retrieve the heart picture')
             return

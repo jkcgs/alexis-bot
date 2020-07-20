@@ -2,6 +2,7 @@ from datetime import datetime
 
 import discord
 from discord import Embed
+from discord.utils import escape_markdown
 
 from bot import Command, categories, utils
 from bot.modules.usernames import UsernamesRegistry
@@ -39,8 +40,8 @@ class UserInfo(Command):
     @staticmethod
     def gen_embed(member, more=False):
         embed = Embed()
-        embed.add_field(name='$[modlog-e-name]', value=utils.md_filter(str(member)))
-        embed.add_field(name='$[modlog-e-nick]', value=utils.md_filter(member.nick) if member.nick is not None else '$[modlog-no-nick]')
+        embed.add_field(name='$[modlog-e-name]', value=escape_markdown(str(member)))
+        embed.add_field(name='$[modlog-e-nick]', value=escape_markdown(member.nick) if member.nick is not None else '$[modlog-no-nick]')
         embed.add_field(name='$[modlog-e-user-created]', value=utils.format_date(member.created_at))
         embed.add_field(name='$[modlog-e-user-join]', value=utils.format_date(member.joined_at))
         embed.add_field(name='$[modlog-e-stance]',

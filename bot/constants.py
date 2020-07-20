@@ -1,3 +1,9 @@
+from os import path
+
+bot_root = path.abspath(path.join(path.dirname(__file__), '..'))
+
+DISCORD_BASE = 'https://discord.com'
+
 EVENT_HANDLERS = {
     'message': ['message'],
     'reaction_add': ['reaction', 'user'],

@@ -5,7 +5,7 @@ from datetime import datetime
 
 import discord
 
-from bot import Language, Manager
+from bot import Language, Manager, constants
 from bot.lib.guild_configuration import GuildConfiguration
 from bot.database import BotDatabase
 from bot.lib.configuration import BotConfiguration
@@ -42,7 +42,18 @@ class AlexisBot(discord.Client):
         self.config = None
         self.loop = asyncio.get_event_loop()
 
-        self.event_override()
+        # Dinamically create and override event handler methods
+        from bot.constants import EVENT_HANDLERS
+        for method, margs in EVENT_HANDLERS.items():
+            def make_handler(event_name, event_args):
+                async def dispatch(*args):
+                    kwargs = dict(zip(event_args, args))
+                    await self.manager.dispatch(event_name=event_name, **kwargs)
+
+                return dispatch
+
+            event = 'on_' + method
+            setattr(self, event, make_handler(event, margs.copy()))
 
     def init(self):
         """
@@ -50,8 +61,8 @@ class AlexisBot(discord.Client):
         """
         log.info('%s v%s, discord.py v%s', AlexisBot.name, AlexisBot.__version__, discord.__version__)
         log.info('Python %s in %s.', sys.version.replace('\n', ''), sys.platform)
-        log.info('Bot root path: %s', self.manager.get_bot_root())
         log.info(platform.uname())
+        log.info('Bot root path: %s', constants.bot_root)
         log.info('------')
 
         # Load configuration
@@ -229,15 +240,3 @@ class AlexisBot(discord.Client):
     @property
     def uptime(self):
         return datetime.now() - self.start_time
-
-    def event_override(self):
-        """Dinamically creates the event handlers to this bot instance."""
-        from bot.constants import EVENT_HANDLERS
-        for method, margs in EVENT_HANDLERS.items():
-            def make_handler(event_name, event_args):
-                async def dispatch(*args):
-                    kwargs = dict(zip(event_args, args))
-                    await self.manager.dispatch(event_name=event_name, **kwargs)
-                return dispatch
-            event = 'on_' + method
-            setattr(self, event, make_handler(event, margs.copy()))

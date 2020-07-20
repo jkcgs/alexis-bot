@@ -1,12 +1,17 @@
 import datetime
 import time
+from os import path, mkdir, stat
 
+import aiohttp
 import discord
 import re
 from discord import Embed, Colour
 
+from bot import constants
+from bot.logger import new_logger
 from bot.regex import pat_tag, pat_usertag, pat_channel, pat_emoji, pat_colour, pat_delta_each, pat_invite
 
+log = new_logger('Utils')
 colour_list = ['default', 'teal', 'dark_teal', 'green', 'dark_green', 'blue', 'dark_blue', 'purple',
                'dark_purple', 'gold', 'dark_gold', 'orange', 'dark_orange', 'red', 'dark_red',
                'lighter_grey', 'dark_grey', 'light_grey', 'darker_grey']
@@ -382,27 +387,58 @@ def invite_filter(text):
     return text
 
 
-def md_filter(text):
-    """
-    Filters Markown syntax with backslashes
-    :param text:
-    :return:
-    """
-    replacements = ['||', '*', '_']
-
-    if text is not None:
-        for o in replacements:
-            text = text.replace(o, '\\' + o)
-
-    return text
-
-
 def message_link(message):
-    return 'https://discordapp.com/channels/{}/{}/{}'.format(
+    return '{}/channels/{}/{}/{}'.format(
+        constants.DISCORD_BASE,
         message.guild.id if message.guild else '@me',
         message.channel.id,
         message.id
     )
+
+
+def get_session():
+    headers = {'User-Agent': 'AlexisBotClient/1.0.0 +https://alexisbot.mak.wtf'}
+    return aiohttp.ClientSession(headers=headers, timeout=aiohttp.ClientTimeout(total=15))
+
+
+async def download(filename, url, filesize=None):
+    basedir = path.abspath(path.join(path.dirname(path.realpath(__file__)), '..', 'cache'))
+    if not path.exists(basedir):
+        try:
+            mkdir(basedir)
+        except Exception as e:
+            log.error('Could not create cache directory')
+            log.exception(e)
+            return None
+
+    filepath = path.join(basedir, filename)
+    if path.exists(filepath):
+        if filesize is None:
+            return filepath
+
+        fs = stat(filepath)
+        if fs.st_size == filesize:
+            return filepath
+
+    try:
+        log.debug('Downloading %s from %s', filename, url)
+        async with get_session() as s:
+            async with s.get(url) as r:
+                log.info('File %s downloaded', filename)
+                data = await r.read()
+                try:
+                    with open(filepath, 'wb') as f:
+                        f.write(data)
+                        log.info('File %s stored to %s', filename, filepath)
+                        return filepath
+                except OSError as e:
+                    log.error('Could not store %s file', filename)
+                    log.exception(e)
+                    return None
+    except Exception as e:
+        log.error('Could not download the %s file', filename)
+        log.exception(e)
+        return None
 
 
 def lazy_property(fn):

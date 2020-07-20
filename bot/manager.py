@@ -1,17 +1,16 @@
 import asyncio
-import glob
+import importlib
 import inspect
-import os
-import sys
 import traceback
-from os import path
 
 import aiohttp
 
 from bot import CommandEvent, BotMentionEvent, MessageEvent
 from bot.logger import new_logger
 from .command import Command
-from .database import ServerConfig
+
+import modules
+from bot import modules as sys_modules
 
 log = new_logger('Manager')
 
@@ -33,7 +32,7 @@ class Manager:
     def load_instances(self):
         """Loads instances for the command classes loaded"""
         self.cmd_instances = []
-        for c in Manager.get_mods(self.bot.config.get('ext_modpath', '')):
+        for c in Manager.get_mods():
             self.cmd_instances.append(self.load_module(c))
         self.sort_instances()
 
@@ -319,7 +318,7 @@ class Manager:
         return None
 
     async def activate_mod(self, name):
-        classes = Manager.get_mods(self.bot.config.get('ext_modpath', ''))
+        classes = Manager.get_mods()
         for cls in classes:
             if cls.__name__ == name:
                 log.debug('Loading "%s" module...', name)
@@ -356,44 +355,6 @@ class Manager:
         await self.bot.http.close()
         log.debug('HTTP sessions closed.')
 
-    async def download(self, filename, url, filesize=None):
-        basedir = path.abspath(path.join(path.dirname(path.realpath(__file__)), '..', 'cache'))
-        if not path.exists(basedir):
-            try:
-                os.mkdir(basedir)
-            except Exception as e:
-                log.error('Could not create cache directory')
-                log.exception(e)
-                return None
-
-        filepath = path.join(basedir, filename)
-        if path.exists(filepath):
-            if filesize is None:
-                return filepath
-
-            fs = os.stat(filepath)
-            if fs.st_size == filesize:
-                return filepath
-
-        try:
-            log.debug('Downloading %s from %s', filename, url)
-            async with self.http.get(url) as r:
-                log.info('File %s downloaded', filename)
-                data = await r.read()
-                try:
-                    with open(filepath, 'wb') as f:
-                        f.write(data)
-                        log.info('File %s stored to %s', filename, filepath)
-                        return filepath
-                except OSError as e:
-                    log.error('Could not store %s file', filename)
-                    log.exception(e)
-                    return None
-        except Exception as e:
-            log.error('Could not download the %s file', filename)
-            log.exception(e)
-            return None
-
     def __getitem__(self, item):
         return self.get_cmd(item)
 
@@ -401,85 +362,22 @@ class Manager:
         return self.has_cmd(item)
 
     @staticmethod
-    def get_mods(ext_path=''):
-        """
-        Loads available modules
-        :param ext_path: An external modules folder
-        :return: An instances list of command modules
-        """
-        bot_root = Manager.get_bot_root()
+    def get_mods():
+        mods = ['modules.' + x for x in modules.__all__]
+        mods += ['bot.modules.' + x for x in sys_modules.__all__]
         classes = []
-
-        # System modules
-        mods_path = path.join(bot_root, 'bot', 'modules')
-        _all = ['bot.modules.' + f for f in Manager.get_mod_files(mods_path)]
-        n_internal = len(_all)
-        log.debug('Loaded %i internal modules', n_internal)
-
-        # Included modules
-        mods_path = path.join(bot_root, 'modules')
-        _all += ['modules.' + f for f in Manager.get_mod_files(mods_path)]
-        log.debug('Loaded %i included modules', (len(_all)-n_internal))
-
-        # External (not from repo) modules
-        local_ext = path.join(bot_root, 'external_modules')
-        if path.isdir(local_ext):
-            _all += ['external_modules.' + f for f in Manager.get_mod_files(local_ext)]
-
-        # List external modules
-        if ext_path != '' and path.isdir(ext_path):
-            ext_mods = Manager.get_mod_files(ext_path)
-            sys.path.append(ext_path)
-            _all += ext_mods
-
         # Load all modules
-        for imod in _all:
+        for imod in mods:
             try:
-                mod = __import__(imod, fromlist=[''])
+                mod = importlib.import_module(imod)
+                for name, obj in inspect.getmembers(mod):
+                    if obj in classes:
+                        continue
+                    if inspect.isclass(obj) and name != 'Command' and issubclass(obj, Command):
+                        classes.append(obj)
             except ImportError as e:
                 log.error('Could not load a module')
                 log.exception(e)
                 continue
 
-            # Instantiate loaded modules
-            for name, obj in inspect.getmembers(mod):
-                if obj in classes:
-                    continue
-
-                if inspect.isclass(obj) and name != 'Command' and issubclass(obj, Command):
-                    classes.append(obj)
-
         return classes
-
-    @staticmethod
-    def get_mod_files(fpath):
-        """
-        Loads a script files list
-        :param fpath: The directory to scan
-        :return: The list of script paths, as a module name
-        """
-        result = []
-        mod_files = glob.iglob(fpath + "/**/*.py", recursive=True)
-
-        for mod_file in mod_files:
-            if not path.isfile(mod_file) or not mod_file.endswith('.py') or mod_file.endswith('__init__.py'):
-                continue
-            result.append(mod_file.replace(fpath + path.sep, '')[:-3].replace(path.sep, '.'))
-
-        return result
-
-    @classmethod
-    def get_all_models(cls):
-        """
-        Generates a list of models retrieved from all command modules.
-        :return: That thing I said above.
-        """
-        return [item for sublist in [kls.db_models for kls in cls.get_mods()] for item in sublist] + [ServerConfig]
-
-    @staticmethod
-    def get_bot_root():
-        """
-        Generates the absolute bot path in the system.
-        :return: A string containing the absolute bot path in the system.
-        """
-        return path.abspath(path.join(path.dirname(__file__), '..'))

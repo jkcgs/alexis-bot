@@ -2,6 +2,7 @@ from datetime import datetime
 
 import discord
 import peewee
+from discord.utils import escape_markdown
 
 from bot import Command, utils, categories, BaseModel
 from discord import Embed, AuditLogAction
@@ -33,7 +34,7 @@ class ModLog(Command):
         dt = deltatime_to_str(datetime.now() - member.joined_at)
         locales = {
             'mid': member.id,
-            'username': utils.md_filter(str(member)),
+            'username': escape_markdown(str(member)),
             'dt': dt
         }
 
@@ -68,7 +69,7 @@ class ModLog(Command):
 
         msg = '$[modlog-user-deleted-msg]'
         locales = {
-            'username': utils.md_filter(message.author.display_name),
+            'username': escape_markdown(message.author.display_name),
             'channel_name': message.channel.mention
         }
 
@@ -112,7 +113,7 @@ class ModLog(Command):
         embed.set_footer(text=footer)
 
         locales = {
-            'username': utils.md_filter(after.author.display_name),
+            'username': escape_markdown(after.author.display_name),
             'channel': after.channel.mention,
             'link': utils.message_link(after)
         }
@@ -129,17 +130,17 @@ class ModLog(Command):
 
         if before.name != after.name:
             if after.display_name != after.name:
-                name_before = utils.md_filter(before.name)
-                name_after = utils.md_filter(after.name)
-                nick = utils.md_filter(after.display_name)
+                name_before = escape_markdown(before.name)
+                name_after = escape_markdown(after.name)
+                nick = escape_markdown(after.display_name)
 
                 await self.bot.send_modlog(
                     guild, '$[modlog-username-changed-nick]',
                     locales={'prev_name': name_before, 'new_name': name_after, 'nick': nick},
                     logtype='username')
             else:
-                name_before = utils.md_filter(before.name)
-                name_after = utils.md_filter(after.name)
+                name_before = escape_markdown(before.name)
+                name_after = escape_markdown(after.name)
 
                 await self.bot.send_modlog(
                     guild, '$[modlog-username-changed]',
@@ -156,9 +157,9 @@ class ModLog(Command):
             else:
                 by = None
 
-            prev_nick = utils.md_filter(before.nick) or '$[modlog-nick-none]'
-            after_nick = utils.md_filter(after.nick) or '$[modlog-nick-none]'
-            target = utils.md_filter(after.name)
+            prev_nick = escape_markdown(before.nick) or '$[modlog-nick-none]'
+            after_nick = escape_markdown(after.nick) or '$[modlog-nick-none]'
+            target = escape_markdown(after.name)
 
             locales = {'author': '' if by is None else by.name,
                        'target': target, 'previous': prev_nick, 'after': after_nick}
