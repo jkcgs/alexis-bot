@@ -9,9 +9,10 @@ from bot import CommandEvent, BotMentionEvent, MessageEvent
 from bot.logger import new_logger
 from .command import Command
 
-import modules
+import modules as bot_modules
 from bot import modules as sys_modules
 
+modules = ['modules.' + x for x in bot_modules.__all__] + ['bot.modules.' + x for x in sys_modules.__all__]
 log = new_logger('Manager')
 
 
@@ -363,21 +364,16 @@ class Manager:
 
     @staticmethod
     def get_mods():
-        mods = ['modules.' + x for x in modules.__all__]
-        mods += ['bot.modules.' + x for x in sys_modules.__all__]
         classes = []
-        # Load all modules
-        for imod in mods:
+        for imod in modules:
             try:
-                mod = importlib.import_module(imod)
-                for name, obj in inspect.getmembers(mod):
-                    if obj in classes:
-                        continue
-                    if inspect.isclass(obj) and name != 'Command' and issubclass(obj, Command):
-                        classes.append(obj)
+                members = inspect.getmembers(importlib.import_module(imod))
+                classes += [
+                    obj for name, obj in members
+                    if name != 'Command' and inspect.isclass(obj) and issubclass(obj, Command)
+                ]
             except ImportError as e:
                 log.error('Could not load a module')
                 log.exception(e)
                 continue
-
-        return classes
+        return set(classes)
