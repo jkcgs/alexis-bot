@@ -279,7 +279,7 @@ class MacroUse(Command):
         # Get macro arguments
         pfx = self.bot.config['command_prefix']
         if cmd.message.content.startswith(pfx + ' '):
-            macro_name = cmd.message.split(' ')[1]
+            macro_name = cmd.message.content.split(' ')[1]
             macro_args = (' '.join(cmd.args[1:])).split('|')
         else:
             args = cmd.message.content[1:].split(' ')
