@@ -75,6 +75,10 @@ class Covid19CL(Command):
                 await cmd.answer('La información aún no está disponible.')
                 return
 
+            if cmd.argc > 0 and cmd.bot_owner and cmd.args[0] == 'reload':
+                await cmd.answer('running task')
+                await self.task(True)
+
             the_embed = embed(data)
             await cmd.answer(embed=the_embed)
             return
@@ -113,7 +117,7 @@ class Covid19CL(Command):
             self.log.error('Could not send the data to Telegram')
             self.log.error(tg_resp)
 
-    async def task(self):
+    async def task(self, force=False):
         now = datetime.now()
         curr_data = self.config.get('covid19cl_data', '{}')
         try:
@@ -121,7 +125,7 @@ class Covid19CL(Command):
         except JSONDecodeError:
             self.log.debug('Se encontraron datos erróneos en la caché de datos.')
 
-        if not curr_data or (self._last_day != now.day and now.hour >= 10):
+        if force or not curr_data or (self._last_day != now.day and now.hour >= 10):
             try:
                 self.log.debug('Loading Covid19 data...')
                 async with self.http.get(self.url) as r:
