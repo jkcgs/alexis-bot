@@ -157,8 +157,8 @@ class ModLog(Command):
             else:
                 by = None
 
-            prev_nick = escape_markdown(before.nick) or '$[modlog-nick-none]'
-            after_nick = escape_markdown(after.nick) or '$[modlog-nick-none]'
+            prev_nick = escape_markdown(before.nick or '') or '$[modlog-nick-none]'
+            after_nick = escape_markdown(after.nick or '') or '$[modlog-nick-none]'
             target = escape_markdown(after.name)
 
             locales = {'author': '' if by is None else by.name,
