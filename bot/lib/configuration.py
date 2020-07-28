@@ -44,8 +44,7 @@ class Configuration:
 
             self._config = loaded_conf
         except (FileNotFoundError, PermissionError) as e:
-            log.error('Could not load the configuration file, due to an error')
-            log.exception(e)
+            log.error('Could not load the configuration file. %s: %s', e.__class__.__name__, str(e))
             pass
 
     def load_defaults(self, defaults):
