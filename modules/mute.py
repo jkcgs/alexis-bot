@@ -20,7 +20,7 @@ class MutedUser(BaseModel):
 
 
 class Mute(Command):
-    __version__ = '1.0.2'
+    __version__ = '1.0.3'
     __author__ = 'makzk'
 
     default_muted_role = 'Muted'
@@ -137,14 +137,17 @@ class Mute(Command):
         guild = member.guild
         if not guild.me.guild_permissions.manage_roles:
             self.log.warning('Can\'t manage roles on the guild %s (%s). Mute disabled.', str(guild), guild.id)
-            mgr.set(Mute.cfg_muted_role, '')
+            mgr.unset(Mute.cfg_muted_role)
             return
 
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
+        if sv_role == '':
+            return
+
         role = utils.get_guild_role(guild, sv_role)
         if role is None:
             self.log.warning('Role "%s" does not exist (guild: %s). Mute disabled.', sv_role, guild)
-            mgr.set(Mute.cfg_muted_role, '')
+            mgr.unset(Mute.cfg_muted_role)
             return
 
         try:
@@ -176,6 +179,9 @@ class Mute(Command):
                 continue
 
             guild_role = config.get(Mute.cfg_muted_role, Mute.default_muted_role)
+            if guild_role == '':
+                return
+
             member = guild.get_member(mutedid)
             role = utils.get_guild_role(guild, guild_role)
 
