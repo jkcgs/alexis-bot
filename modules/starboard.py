@@ -142,7 +142,7 @@ class StarboardHook(Command):
         if starboard_chanid == '':
             return
 
-        ct_config = config.get(cfg_starboard_tcount, default_count)
+        ct_config = str(config.get(cfg_starboard_tcount, default_count))
         if not ct_config.isdigit():
             config.set(cfg_starboard_tcount, default_count)
             count_trigger = default_count
