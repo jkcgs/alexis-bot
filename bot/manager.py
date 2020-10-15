@@ -1,18 +1,15 @@
 import asyncio
 import importlib
 import inspect
-import traceback
 
 import aiohttp
 
-from bot import CommandEvent, BotMentionEvent, MessageEvent
 from bot.logger import new_logger
 from .command import Command
 
 import modules as bot_modules
 from bot import modules as sys_modules
-from .lib.common import is_pm, is_owner, is_bot_owner
-from .lib.guild_configuration import GuildConfiguration
+from .lib.common import is_pm
 
 modules = ['modules.' + x for x in bot_modules.__all__] + ['bot.modules.' + x for x in sys_modules.__all__]
 log = new_logger('Manager')
@@ -201,22 +198,21 @@ class Manager:
         if not self.bot.initialized:
             return
 
-        event = None
-        if event_name == 'on_message':
-            message = kwargs.get('message')
-            if CommandEvent.is_command(message, self.bot):
-                event = CommandEvent(message, self.bot)
-            elif self.bot.user.mentioned_in(message) and message.author != self.bot.user:
-                event = BotMentionEvent(message, self.bot)
+        message = kwargs.get('message', None)
 
         for x in self.get_handlers('pre_' + event_name):
-            y = await x(event=event, **kwargs)
+            y = await x(**kwargs)
 
             if y is not None and isinstance(y, bool) and not y:
                 return
 
         if event_name == 'on_message':
-            await self.handle_message(kwargs.get('message'), event)
+            # Log PMs
+            if is_pm(message) and message.content != '':
+                if message.author.id == self.bot.user.id:
+                    log.info('[PM] (-> %s): %s', message.channel.recipient, message.content)
+                else:
+                    log.info('[PM] (<- %s): %s', message.author, message.content)
 
         for z in self.get_handlers(event_name):
             await z(**kwargs)
@@ -240,57 +236,6 @@ class Manager:
 
         for z in self.get_handlers(name):
             z(kwargs)
-
-    async def handle_message(self, message, event=None):
-        # Log PMs
-        if is_pm(message) and message.content != '':
-            if message.author.id == self.bot.user.id:
-                log.info('[PM] (-> %s): %s', message.channel.recipient, message.content)
-            else:
-                log.info('[PM] (<- %s): %s', message.author, message.content)
-
-        # Command handler
-        try:
-            # Valid command
-            if event:
-                if isinstance(event, (CommandEvent, BotMentionEvent)):
-                    if isinstance(event, CommandEvent):
-                        log.debug('[command] %s: %s', event.author, str(event))
-
-                    try:
-                        await event.handle()
-                    except Exception as e:
-                        if self.bot.config['debug']:
-                            await event.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
-                        else:
-                            await event.answer('$[error-msg]\n```{}```'.format(str(e)))
-                        log.exception(e)
-            else:
-                # 'startswith' handlers
-                swhandlers = []
-                config = GuildConfiguration.get_instance(message.guild)
-                for swtext in self.swhandlers.keys():
-                    swtextrep = swtext.replace('$PX', config.prefix)
-                    if message.content.startswith(swtextrep):
-                        swhandler = self.swhandlers[swtext]
-                        if swhandler.bot_owner_only and not is_bot_owner(message.author, self.bot):
-                            continue
-                        if swhandler.owner_only and not is_owner(self.bot, message):
-                            continue
-                        if not swhandler.allow_pm and is_pm(message):
-                            continue
-
-                        swhandlers.append(swhandler)
-                        if swhandler.swhandler_break:
-                            break
-
-                if len(swhandlers) > 0:
-                    event = MessageEvent(message, self.bot)
-                    for handler in swhandlers:
-                        await handler.handle(event)
-
-        except Exception as e:
-            log.exception(e)
 
     def has_cmd(self, name):
         return name in self.cmds

@@ -48,5 +48,3 @@ class CommandConfig(Command):
                 return
         else:
             await cmd.answer('$[format]: $[cmd-format]')
-
-

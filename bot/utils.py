@@ -397,7 +397,7 @@ def message_link(message):
 
 
 def get_session():
-    headers = {'User-Agent': 'AlexisBotClient/1.0.0 +https://alexisbot.mak.wtf'}
+    headers = {'User-Agent': f'AlexisBot/{constants.BOT_VERSION} +https://alexisbot.mak.wtf'}
     return aiohttp.ClientSession(headers=headers, timeout=aiohttp.ClientTimeout(total=15))
 
 

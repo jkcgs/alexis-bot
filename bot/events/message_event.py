@@ -186,7 +186,7 @@ class MessageEvent:
 
     @property
     def bot_owner(self):
-        return self.message.author.id in self.bot.config['bot_owners']
+        return any(x in self.bot.config['bot_owners'] for x in [str(self.message.author.id), self.message.author.id])
 
     @property
     def is_pm(self):
