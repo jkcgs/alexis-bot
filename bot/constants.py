@@ -1,6 +1,7 @@
 from os import path
 
 bot_root = path.abspath(path.join(path.dirname(__file__), '..'))
+BOT_VERSION = '1.0.0-dev7'
 
 DISCORD_BASE = 'https://discord.com'
 
@@ -19,5 +20,9 @@ EVENT_HANDLERS = {
     'guild_remove': ['guild'],
     'member_ban': ['guild', 'user'],
     'member_unban': ['guild', 'user'],
+    'raw_reaction_add': ['payload'],
+    'raw_reaction_remove': ['payload'],
+    'raw_reaction_clear': ['payload'],
+    'raw_reaction_clear_emoji': ['payload'],
     # 'typing': ['channel', 'user', 'when']
 }

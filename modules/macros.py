@@ -272,10 +272,6 @@ class MacroUse(Command):
         self.swhandler_break = True
 
     async def handle(self, cmd):
-        # Update the last user who used the macro
-        if self.bot.last_author is None or not cmd.self:
-            self.bot.last_author = cmd.author.id
-
         # Get macro arguments
         pfx = self.bot.config['command_prefix']
         if cmd.message.content.startswith(pfx + ' '):

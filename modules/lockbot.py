@@ -1,6 +1,8 @@
-from discord import Embed, TextChannel
+from discord import Embed, TextChannel, DMChannel, Message
 
 from bot import Command, categories
+from bot.lib.common import is_owner, is_pm
+from bot.lib.guild_configuration import GuildConfiguration
 from bot.regex import pat_channel
 from bot.utils import auto_int
 
@@ -47,12 +49,13 @@ class LockBot(Command):
         cmd.config.add(cfg_locked, str(chan.id))
         await cmd.answer('$[lockbot-locked]')
 
-    async def pre_on_message(self, message, event):
-        if event.is_pm or event.owner:
+    async def pre_on_message(self, message: Message, **_):
+        if is_pm(message.channel) or is_owner(self.bot, message.author):
             return
 
-        lockedlist = event.config.get_list(cfg_locked)
-        if cfg_all in lockedlist or str(event.channel.id) in lockedlist:
+        config = GuildConfiguration.get_instance(message.guild)
+        lockedlist = config.get_list(cfg_locked)
+        if cfg_all in lockedlist or str(message.channel.id) in lockedlist:
             return False
 
 

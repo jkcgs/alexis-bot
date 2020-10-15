@@ -86,7 +86,7 @@ class UsernamesRegistry(Command):
         ).group_by(u_alias.userid)
         prediq = ((UserNameReg.userid == subq.c.userid) & (UserNameReg.timestamp == subq.c.max_ts))
         query = UserNameReg.select().join(subq, on=prediq).order_by(UserNameReg.timestamp.desc())
-        self.log.debug('Query created: %s', query)
+        # self.log.debug('Query created: %s', query)
 
         j = {u.userid: u.name for u in query}
         self.log.debug('Query result mapped: %i users', len(j.keys()))

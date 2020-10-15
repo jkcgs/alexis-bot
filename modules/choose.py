@@ -24,4 +24,4 @@ class Choose(Command):
 
         # Choose an option and send it
         answer = random.choice(options).strip()
-        await cmd.answer_embed('$[random-choose-answer]', locales={'answer': answer})
+        await cmd.answer('$[random-choose-answer]', as_embed=True, locales={'answer': answer})

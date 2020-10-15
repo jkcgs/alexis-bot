@@ -51,4 +51,4 @@ class Correos(Command):
             last_entry = data['entries'][0]
             desc = '{} *({})*\n**$[correos-location]**: {}'.format(
                 last_entry['status'], last_entry['datetime'], last_entry['place'])
-            await evt.answer_embed(desc, '$[correos-title]')
+            await evt.answer(desc, '$[correos-title]', as_embed=True)

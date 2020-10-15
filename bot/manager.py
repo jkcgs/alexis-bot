@@ -11,6 +11,8 @@ from .command import Command
 
 import modules as bot_modules
 from bot import modules as sys_modules
+from .lib.common import is_pm, is_owner, is_bot_owner
+from .lib.guild_configuration import GuildConfiguration
 
 modules = ['modules.' + x for x in bot_modules.__all__] + ['bot.modules.' + x for x in sys_modules.__all__]
 log = new_logger('Manager')
@@ -206,8 +208,6 @@ class Manager:
                 event = CommandEvent(message, self.bot)
             elif self.bot.user.mentioned_in(message) and message.author != self.bot.user:
                 event = BotMentionEvent(message, self.bot)
-            else:
-                event = MessageEvent(message, self.bot)
 
         for x in self.get_handlers('pre_' + event_name):
             y = await x(event=event, **kwargs)
@@ -241,51 +241,53 @@ class Manager:
         for z in self.get_handlers(name):
             z(kwargs)
 
-    async def handle_message(self, message, event):
-        if not self.bot.initialized:
-            return
-
+    async def handle_message(self, message, event=None):
         # Log PMs
-        if event.is_pm and message.content != '':
-            if event.self:
-                log.info('[PM] (-> %s): %s', message.channel.recipient, event.text)
+        if is_pm(message) and message.content != '':
+            if message.author.id == self.bot.user.id:
+                log.info('[PM] (-> %s): %s', message.channel.recipient, message.content)
             else:
-                log.info('[PM] (<- %s): %s', event.author, event.text)
+                log.info('[PM] (<- %s): %s', message.author, message.content)
 
         # Command handler
         try:
             # Valid command
-            if isinstance(event, (CommandEvent, BotMentionEvent)):
-                if isinstance(event, CommandEvent):
-                    # Update ID of the last one who used a command (omitting the bot)
-                    if not event.self:
-                        self.bot.last_author = message.author.id
-                    log.debug('[command] %s: %s', event.author, str(event))
+            if event:
+                if isinstance(event, (CommandEvent, BotMentionEvent)):
+                    if isinstance(event, CommandEvent):
+                        log.debug('[command] %s: %s', event.author, str(event))
 
-                try:
-                    await event.handle()
-                except Exception as e:
-                    if self.bot.config['debug']:
-                        await event.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
-                    else:
-                        await event.answer('$[error-msg]\n```{}```'.format(str(e)))
-                    log.exception(e)
+                    try:
+                        await event.handle()
+                    except Exception as e:
+                        if self.bot.config['debug']:
+                            await event.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
+                        else:
+                            await event.answer('$[error-msg]\n```{}```'.format(str(e)))
+                        log.exception(e)
+            else:
+                # 'startswith' handlers
+                swhandlers = []
+                config = GuildConfiguration.get_instance(message.guild)
+                for swtext in self.swhandlers.keys():
+                    swtextrep = swtext.replace('$PX', config.prefix)
+                    if message.content.startswith(swtextrep):
+                        swhandler = self.swhandlers[swtext]
+                        if swhandler.bot_owner_only and not is_bot_owner(message.author, self.bot):
+                            continue
+                        if swhandler.owner_only and not is_owner(self.bot, message):
+                            continue
+                        if not swhandler.allow_pm and is_pm(message):
+                            continue
 
-            # 'startswith' handlers
-            for swtext in self.swhandlers.keys():
-                swtextrep = swtext.replace('$PX', event.prefix)
-                if message.content.startswith(swtextrep):
-                    swhandler = self.swhandlers[swtext]
-                    if swhandler.bot_owner_only and not event.bot_owner:
-                        continue
-                    if swhandler.owner_only and not (event.owner or event.bot_owner):
-                        continue
-                    if not swhandler.allow_pm and event.is_pm:
-                        continue
+                        swhandlers.append(swhandler)
+                        if swhandler.swhandler_break:
+                            break
 
-                    await swhandler.handle(event)
-                    if swhandler.swhandler_break:
-                        break
+                if len(swhandlers) > 0:
+                    event = MessageEvent(message, self.bot)
+                    for handler in swhandlers:
+                        await handler.handle(event)
 
         except Exception as e:
             log.exception(e)

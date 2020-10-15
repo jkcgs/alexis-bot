@@ -37,8 +37,10 @@ class BanCmd(Command):
             await cmd.answer('$[format]: $PX$NM $[ban-cmd-format]')
             return
 
-        is_tag = pat_usertag.match(cmd.args[0]) or pat_snowflake.match(cmd.args[0])
-        member = cmd.get_member(cmd.args[0] if is_tag else cmd.text)
+        if pat_usertag.match(cmd.args[0]) and len(cmd.message.mentions) > 0:
+            member = cmd.message.mentions[0]
+        else:
+            member = cmd.get_member(cmd.args[0] if pat_snowflake.match(cmd.args[0]) else cmd.text)
 
         if member is None:
             await cmd.answer('$[user-not-found]')
@@ -59,7 +61,7 @@ class BanCmd(Command):
             return
 
         # Avoid self-bans
-        if self.bot.last_author == member.id:
+        if cmd.author.id == member.id:
             await cmd.answer('$[ban-self]')
             return
 

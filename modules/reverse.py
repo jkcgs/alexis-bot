@@ -23,4 +23,4 @@ class Reverse(Command):
         text.reverse()
         text = ''.join(text)
 
-        await cmd.answer_embed(text)
+        await cmd.answer(text, as_embed=True)

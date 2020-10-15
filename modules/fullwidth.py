@@ -23,4 +23,4 @@ class Fullwidth(Command):
         converted = [chr(0xFEE0 + ord(i)) if i in Fullwidth.supported else i for i in list(text)]
 
         # Send the result and remove the author's message
-        await cmd.answer_embed(''.join(converted), delete_trigger=True)
+        await cmd.answer(''.join(converted), delete_trigger=True, as_embed=True)

@@ -18,7 +18,7 @@ log = new_logger('Core')
 class AlexisBot(discord.Client):
     __author__ = 'makzk (github.com/makzk)'
     __license__ = 'MIT'
-    __version__ = '1.0.0-dev6'
+    __version__ = constants.BOT_VERSION
     name = 'AlexisBot'
 
     def __init__(self, **options):
@@ -29,7 +29,6 @@ class AlexisBot(discord.Client):
         super().__init__(**options)
 
         self.db = None
-        self.last_author = None
         self.initialized = False
         self.start_time = datetime.now()
         self.connect_delta = None

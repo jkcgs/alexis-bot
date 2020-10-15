@@ -1,6 +1,8 @@
-from discord import Embed
+from discord import Embed, DMChannel
 
-from bot import Command, MessageEvent, categories
+from bot import Command, categories
+from bot.lib.common import is_owner
+from bot.lib.guild_configuration import GuildConfiguration
 from bot.regex import pat_invite
 
 
@@ -71,12 +73,14 @@ class InviteFilter(Command):
             await cmd.answer('$[format]: $[ifilter-format]')
 
     async def on_message(self, message):
-        evt = MessageEvent(message, self.bot)
-        if evt.owner or evt.self or evt.is_pm:
+        if is_owner(self.bot, message.author) \
+                or message.author.id == self.bot.user.id \
+                or isinstance(message.channel, DMChannel):
             return
 
-        filter_enabled = evt.config.get(self.cfg_filter_status, '0') == '1'
-        if not filter_enabled or evt.author.id in evt.config.get_list(self.cfg_filter_list):
+        config = GuildConfiguration.get_instance(message.guild)
+        filter_enabled = config.get(self.cfg_filter_status, '0') == '1'
+        if not filter_enabled or message.author.id in config.get_list(self.cfg_filter_list):
             return
 
         invite = pat_invite.search(message.content)
