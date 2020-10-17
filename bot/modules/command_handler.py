@@ -1,5 +1,7 @@
 import traceback
 
+from discord import Colour
+
 from bot import Command, CommandEvent, BotMentionEvent, MessageEvent
 from bot.lib.common import is_bot_owner, is_owner, is_pm
 from bot.lib.guild_configuration import GuildConfiguration
@@ -7,7 +9,7 @@ from bot.lib.guild_configuration import GuildConfiguration
 
 class CommandHandler(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
 
     async def on_message(self, message):
         if CommandEvent.is_command(message, self.bot):
@@ -24,9 +26,13 @@ class CommandHandler(Command):
             await event.handle()
         except Exception as e:
             if self.bot.config['debug']:
-                await event.answer('$[error-debug]\n```{}```'.format(traceback.format_exc()))
+                content = '```{}```'.format(traceback.format_exc())
+                title = '$[error-debug]'
             else:
-                await event.answer('$[error-msg]\n```{}```'.format(str(e)))
+                content = '```{}```'.format(str(e))
+                title = '$[error-msg]'
+
+            await event.answer(content, title=title, as_embed=True, colour=Colour.red())
             self.log.exception(e)
 
 

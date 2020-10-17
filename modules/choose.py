@@ -5,7 +5,7 @@ from bot import Command, categories
 
 class Choose(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.0'
+    __version__ = '1.1.0'
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -15,7 +15,8 @@ class Choose(Command):
 
     async def handle(self, cmd):
         # Parse options and filter empty options
-        options = [o.strip() for o in cmd.text.split("|") if o.strip() != '']
+        separator = '|' if '|' in cmd.text else ' '
+        options = [o.strip() for o in cmd.text.split(separator) if o.strip() != '']
 
         # At least 2 options are required
         if len(options) < 2:

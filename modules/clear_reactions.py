@@ -5,18 +5,21 @@ from bot.regex import pat_channel, pat_snowflake
 
 
 class ClearReactions(Command):
+    __author__ = 'makzk'
+    __version__ = '1.0.0'
+
     def __init__(self, bot):
         super().__init__(bot)
         self.name = 'clearreactions'
         self.aliases = ['clr']
         self.help = '$[clr-help]'
+        self.format = '$[clr-format]'
         self.owner_only = True
         self.category = categories.STAFF
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('$[format]: $[clr-format]')
-            return
+            return await cmd.send_usage()
 
         await cmd.typing()
 
@@ -35,8 +38,8 @@ class ClearReactions(Command):
         not_found = []
         for arg in cmd.args:
             try:
-                msg = await self.bot.get_message(channel, arg)
-                await self.bot.clear_reactions(msg)
+                msg = await channel.fetch_message(arg)
+                await msg.clear_reactions()
                 success_count += 1
             except discord.Forbidden:
                 pass

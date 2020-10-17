@@ -8,7 +8,7 @@ clr-err-ids: Please send compatible IDs.
 clr-err-any-singular: Could not clear message's reactions.
 clr-err-any: Could not clear any message's reactions.
 clr-err-not-found: Message could not be found.
-clr-err-some-not-found: Some messages could not be found
+clr-err-some-not-found: Some messages could not be found.
 clr-err-single-not-found: 'Message {message_id} could not be found.'
 clr-err-some-deleted: The reactions of some messages could be clear.
 clr-success: Reactions removed successfully.

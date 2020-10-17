@@ -2,17 +2,17 @@ info-help: Muestra la información del bot
 info-authors: Por
 info-version: versión
 info-invite: Puedes agregarme a tu servidor haciendo clic [aquí]({invitelink})!
-clr-help: Elimina las reacciones de uno o más mensajes
+clr-help: Elimina las reacciones de uno o más mensajes.
 clr-format: '$CMD [#canal=actual] <id_mensaje1> ... <id_mensajeN>'
 clr-err-ids: Por favor ingresa formatos de IDs compatibles.
-clr-err-any-singular: No se pudo limpiar las reacciones del mensaje
-clr-err-any: No se pudo limpiar las reacciones de ningún mensaje
-clr-err-not-found: El mensaje no pudo ser encontrado
-clr-err-some-not-found: Algunos mensajes no pudieron ser encontrados
+clr-err-any-singular: No se pudo limpiar las reacciones del mensaje.
+clr-err-any: No se pudo limpiar las reacciones de ningún mensaje.
+clr-err-not-found: El mensaje no pudo ser encontrado.
+clr-err-some-not-found: Algunos mensajes no pudieron ser encontrados.
 clr-err-single-not-found: 'El mensaje {message_id} no pudo ser encontrado.'
-clr-err-some-deleted: Se eliminaron las reacciones de algunos mensajes
-clr-success: Reacciones eliminadas correctamente
-prefix-help: 'Cambia el prefijo para los comandos (predeterminado: `!`)'
+clr-err-some-deleted: Se eliminaron las reacciones de algunos mensajes.
+clr-success: Reacciones eliminadas correctamente.
+prefix-help: 'Cambia el prefijo para los comandos (predeterminado: `!`).'
 prefix-current: >
   El prefijo actual es `$PX`.
 

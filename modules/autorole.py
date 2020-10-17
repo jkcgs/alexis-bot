@@ -32,8 +32,7 @@ class AutoRole(Command):
             cmd.args.append('list')
 
         if cmd.args[0] in ['add', 'set', 'remove'] and cmd.argc < 2:
-            await cmd.answer('$[format]: $[autorole-format]')
-            return
+            return await cmd.send_usage()
 
         if cmd.args[0] == 'list':
             roles_names = [r.name for r in roles]
