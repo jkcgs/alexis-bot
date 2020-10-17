@@ -23,10 +23,12 @@ class CommandEvent(MessageEvent):
         self.argc = len(self.args)
         self.text = ' '.join(self.args)
 
-    async def answer(self, content='', withname=False, **kwargs):
+    async def answer(self, content='', withname=None, **kwargs):
         # Set the event to this one
         kwargs['event'] = self
-        return await super().answer(content, withname, **kwargs)
+        if withname is None:
+            withname = isinstance(content, discord.Embed) or kwargs.get('as_embed', False)
+        return await super().answer(content, withname=withname, **kwargs)
 
     async def send_usage(self, usage=None):
         if usage is None:

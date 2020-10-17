@@ -12,7 +12,11 @@ class CommandConfig(Command):
         self.category = categories.STAFF
 
     async def handle(self, cmd):
-        if cmd.argc < 2:
+        if cmd.argc == 1 and any(cmd.args[0].startswith(i) for i in ['+', '-']):
+            cmd.args = [['enable', 'disable'][cmd.args[0][0] == '-'], cmd.args[0][1:], *cmd.args[1:]]
+            cmd.argc = len(cmd.args)
+
+        if cmd.argc < 2 or cmd.args[0] not in ['enable', 'disable']:
             return await cmd.send_usage()
 
         if cmd.args[1] not in self.bot.manager:
@@ -29,21 +33,19 @@ class CommandConfig(Command):
 
         if cmd.args[0] == 'enable':
             if current == '+':
-                await cmd.answer('$[cmd-already-enabled]')
-                return
+                return await cmd.answer('$[cmd-already-enabled]', locales={'command': cmd_ins.name})
+
             else:
                 avail[cmd_ins.name] = '+'
                 cmd.config.set('cmd_status', unserialize_avail(avail))
-                await cmd.answer('$[cmd-enabled]')
-                return
+                return await cmd.answer('$[cmd-enabled]', locales={'command': cmd_ins.name})
+
         elif cmd.args[0] == 'disable':
             if current == '-':
-                await cmd.answer('$[cmd-already-disabled]')
-                return
+                return await cmd.answer('$[cmd-already-disabled]', locales={'command': cmd_ins.name})
             else:
                 avail[cmd_ins.name] = '-'
                 cmd.config.set('cmd_status', unserialize_avail(avail))
-                await cmd.answer('$[cmd-disabled]')
-                return
+                return await cmd.answer('$[cmd-disabled]', locales={'command': cmd_ins.name})
         else:
-            await cmd.answer('$[format]: $[cmd-format]')
+            return await cmd.send_usage()

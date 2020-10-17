@@ -25,10 +25,10 @@ cmd-format: |
   Ejemplo: `$CMD -ping` o `$CMD disable ping` para desactivar el comando `$PXping`.
 cmd-not-found: El comando no existe.
 cmd-not-allowed: No puedes cambiar el ajuste para este comando.
-cmd-already-enabled: El comando ya está activado.
-cmd-enabled: Comando activado correctamente.
-cmd-already-disabled: El comando ya está desactivado.
-cmd-disabled: Comando desactivado correctamente.
+cmd-already-enabled: El comando `{command}` ya está activado.
+cmd-enabled: Comando `{command}` activado.
+cmd-already-disabled: El comando `{command}` ya está desactivado.
+cmd-disabled: Comando `{command}` desactivado.
 owr-help: Cambia la configuración de roles de propietario.
 owr-format: '$CMD <set/add/remove/list> [rol/roles...]'
 owr-role-not-found: Rol no encontrado.

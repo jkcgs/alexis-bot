@@ -20,7 +20,7 @@ class MessageEvent:
         self._config = None
         self._lang = None
 
-    async def answer(self, content='', to_author=False, withname=True, as_embed=False, title=None, colour=None,
+    async def answer(self, content='', *, to_author=False, withname=True, as_embed=False, title=None, colour=None,
                      delete_trigger=False, **kwargs):
         """
         Sends a message where the event was created
