@@ -53,7 +53,7 @@ class MessageEvent:
                     content = ', ' + content
                 content = self.author_name + content
 
-        kwargs['event'] = self
+        kwargs['event'] = kwargs.get('event', self)
         dest = self.message.author if to_author else self.message.channel
         return await self.bot.send_message(dest, content, **kwargs)
 

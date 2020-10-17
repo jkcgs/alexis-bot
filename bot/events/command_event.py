@@ -23,12 +23,10 @@ class CommandEvent(MessageEvent):
         self.argc = len(self.args)
         self.text = ' '.join(self.args)
 
-    async def answer(self, content='', to_author=False, withname=False, **kwargs):
-        if 'locales' not in kwargs:
-            kwargs['locales'] = {}
-
+    async def answer(self, content='', withname=False, **kwargs):
+        # Set the event to this one
         kwargs['event'] = self
-        return await super().answer(content, to_author, withname, **kwargs)
+        return await super().answer(content, withname, **kwargs)
 
     def is_enabled(self):
         if self.is_pm:
