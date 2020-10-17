@@ -24,7 +24,7 @@ class ClearReactions(Command):
         await cmd.typing()
 
         channel = cmd.message.channel
-        if pat_channel.match(cmd.args[0]):
+        if pat_channel.match(cmd.args[0]) and len(cmd.message.channel_mentions) > 0:
             channel = cmd.message.channel_mentions[0]
             cmd.args = cmd.args[1:]
             cmd.argc -= 1
