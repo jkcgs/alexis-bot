@@ -43,15 +43,19 @@ class MessageEvent:
                 content = Embed(description=content)
                 content.title = title
             if withname:
-                content.set_footer(text=self.lang.format('$[answer-for]', locales={'author': self.author_name}))
+                content.set_footer(
+                    text=self.lang.format('$[answer-for]', locales={'author': self.author_name}),
+                    icon_url=self.author.avatar_url_as(format='webp', size=32)
+                )
         else:
-            if isinstance(content, Embed):
-                kwargs['embed'] = content
-                content = ''
             if withname:
                 if content != '':
                     content = ', ' + content
                 content = self.author_name + content
+
+        if isinstance(content, Embed):
+            kwargs['embed'] = content
+            content = ''
 
         kwargs['event'] = kwargs.get('event', self)
         dest = self.message.author if to_author else self.message.channel

@@ -2,6 +2,7 @@ from os import path
 
 bot_root = path.abspath(path.join(path.dirname(__file__), '..'))
 BOT_VERSION = '1.0.0-dev7'
+REPOSITORY_URL = 'https://github.com/jkcgs/alexis-bot'
 
 DISCORD_BASE = 'https://discord.com'
 

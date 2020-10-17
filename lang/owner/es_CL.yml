@@ -1,6 +1,7 @@
 info-help: Muestra la información del bot
-info-authors: Autor(es)
-info-version: Versión
+info-authors: Por
+info-version: versión
+info-invite: Puedes agregarme a tu servidor haciendo clic [aquí]({invitelink})!
 clr-help: Elimina las reacciones de uno o más mensajes
 clr-format: '$CMD [#canal=actual] <id_mensaje1> ... <id_mensajeN>'
 clr-err-ids: Por favor ingresa formatos de IDs compatibles.

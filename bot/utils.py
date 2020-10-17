@@ -272,11 +272,11 @@ def replace_everywhere(content, search, replace=None):
     if isinstance(content, str):
         content = content.replace(search, replace)
     if isinstance(content, Embed):
-        if content.title != Embed.Empty:
+        if content.title and content.title != Embed.Empty:
             content.title = content.title.replace(search, replace)
-        if content.description != Embed.Empty:
+        if content.description and content.description != Embed.Empty:
             content.description = content.description.replace(search, replace)
-        if content.footer.text != Embed.Empty:
+        if content.footer and content.footer.text and content.footer.text != Embed.Empty:
             content.set_footer(text=content.footer.text.replace(search, replace), icon_url=content.footer.icon_url)
 
         for idx, field in enumerate(content.fields):

@@ -1,6 +1,7 @@
 info-help: Displays bot information
-info-authors: Author(s)
-info-version: Version
+info-authors: By
+info-version: version
+info-invite: Add me to your guild by clicking [here]({invitelink})!
 clr-help: Removes one or more messages' reactions.
 clr-format: '$CMD [#channel=current] <id_message1> ... <id_messageN>'
 clr-err-ids: Please send compatible IDs.

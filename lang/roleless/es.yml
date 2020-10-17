@@ -1,0 +1,3 @@
+roleless-help: Allows you to manage people who doesn't have a role on your server, like counting and kicking them.
+roleless-format: $CMD (count|kick)
+roleless-count: There are `{count}` members without any role.

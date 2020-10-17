@@ -2,7 +2,7 @@ import platform
 
 import discord
 
-from bot import AlexisBot, Command, categories
+from bot import AlexisBot, Command, categories, constants
 from bot.utils import deltatime_to_time
 
 
@@ -24,12 +24,16 @@ class BotStats(Command):
             'uptime': deltatime_to_time(self.bot.uptime),
         }
 
+        machine_info = '{system} {release} ({machine}) @ {node}'.format(**platform.uname()._asdict())
         await cmd.answer(
             '```yml\n'
+            f'Machine: {machine_info}\n'
             'Version: Python {python_version}, discord.py {dpy_version}, {bot_class} {bot_version}\n'
             'Users: {num_users} ({num_bots} bots), {num_guilds} guilds\n'
             'Uptime: {uptime}'
-            '```'.format(**data)
+            '```'.format(**data),
+            as_embed=True,
+            title=':desktop: Bot system information'
         )
 
 
@@ -42,6 +46,8 @@ class InfoCmd(Command):
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
-        info_msg = "```\n$[info-authors]: {}\n$[info-version]: {}```"
-        info_msg = info_msg.format(AlexisBot.__author__, AlexisBot.__version__)
-        await cmd.answer(info_msg)
+        info_msg = f'**{AlexisBot.name}** $[info-version]: {AlexisBot.__version__}\n' \
+                   f'{constants.REPOSITORY_URL}\n\n$[info-invite]'
+
+        invite_link = 'https://discord.com/oauth2/authorize?client_id={}&scope=bot'.format(self.bot.user.id)
+        await cmd.answer(info_msg, as_embed=True, locales={'invitelink': invite_link})

@@ -6,7 +6,10 @@ from os import path
 from ruamel import yaml
 from discord import Embed
 
+from bot.logger import new_logger
+
 pat_lang_placeholder = re.compile(r'\$\[([a-zA-Z0-9_\-]+)\]')
+log = new_logger('Language')
 
 
 class Language:
@@ -32,14 +35,17 @@ class Language:
                 yml = yaml.safe_load(f)
                 lang = fn[:-4]
 
-                for k, v in yml.items():
-                    if not isinstance(v, str) and not isinstance(v, int) and not isinstance(v, float):
-                        continue
+                if not isinstance(yml, dict):
+                    log.warning('The file "%s" contains an invalid YAML structure.', lang_file)
+                else:
+                    for k, v in yml.items():
+                        if not isinstance(v, str) and not isinstance(v, int) and not isinstance(v, float):
+                            continue
 
-                    if lang not in self.lib:
-                        self.lib[lang] = {}
+                        if lang not in self.lib:
+                            self.lib[lang] = {}
 
-                    self.lib[lang][k] = str(v)
+                        self.lib[lang][k] = str(v)
 
     def get(self, name, __lang=None, **kwargs):
         if __lang is None:
