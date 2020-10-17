@@ -18,8 +18,7 @@ class Emoji(Command):
 
     async def handle(self, cmd):
         if len(cmd.args) != 1:
-            await cmd.answer('$[format]: $[emoji-format]')
-            return
+            return await cmd.send_usage()
 
         # Check if it's a unicode emoji and send a proper error message back
         etext = cmd.args[0]
@@ -29,8 +28,7 @@ class Emoji(Command):
 
         # Validate if the argument it's a custom emoji
         if not re.match(pat_emoji, etext):
-            await cmd.answer('$[format]: $[emoji-format]')
-            return
+            return await cmd.send_usage()
 
         # Determine wether the emoji is animated or not, and determine it's url, to send it in an Embed
         emoji_ext = 'gif' if etext[1] == 'a' else 'png'

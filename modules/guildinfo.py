@@ -14,13 +14,13 @@ class GuildInfo(Command):
         super().__init__(bot)
         self.name = 'guildinfo'
         self.aliases = ['guild', 'server', 'serverinfo']
+        self.format = '$[guildinfo-format]'
         self.category = categories.INFORMATION
 
     async def handle(self, cmd):
         if cmd.argc == 0:
             if cmd.is_pm:
-                await cmd.answer('$[format]: $[guildinfo-format]')
-                return
+                return await cmd.send_usage()
             else:
                 cmd.args.append(cmd.guild.id)
 

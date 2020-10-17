@@ -24,7 +24,7 @@ class EightBall(Command):
             resp = random.choice(cmd.lng('8b-' + random.choice(EightBall.resp)).split('|'))
 
         embed = Embed()
-        embed.add_field(name='$[8b-title-question]:', value=':8ball: ' + text, inline=False)
-        embed.add_field(name='$[8b-title-answer]:', value=':speech_balloon: ' + resp, inline=False)
+        embed.add_field(name=':8ball: $[8b-title-question]:', value=text, inline=False)
+        embed.add_field(name=':speech_balloon: $[8b-title-answer]:', value=resp, inline=False)
 
-        await cmd.answer(embed=embed)
+        await cmd.answer(embed)
