@@ -30,3 +30,8 @@ error-msg: Could not execute this command
 invite-text: 'You can add me to your guild with the following link:'
 invite-filtered: '[redacted invite]'
 usage: Usage
+reload-help: Reloads the bot's configurations from files.
+reload-err: Something happened when reloading the configuration.
+reload-reloaded: Configuration reloaded, {rel_mods} file(s) read.
+shutdown-help: Kill the bot process.
+shutdown-goodbye: Buh-bye!

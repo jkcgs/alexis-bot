@@ -74,5 +74,3 @@ class SetLanguage(Command):
                 cmd.config.set('lang', cmd.text)
                 self.log.debug('Lang updated to %s for guild %s', cmd.config.get('lang'), cmd.guild)
                 await cmd.answer(self.bot.lang.get('lang-set-to', lang, lang=cmd.text))
-
-

@@ -1,3 +1,5 @@
+from discord import Colour
+
 from bot import Command, categories, BotMentionEvent
 from bot.events import is_bot_command
 
@@ -17,7 +19,7 @@ class ChangePrefix(Command):
             return
 
         if cmd.argc < 1 or (isinstance(cmd, BotMentionEvent) and cmd.argc == 1 and cmd.args[0] == self.name):
-            await cmd.answer('$[prefix-current]',
+            await cmd.answer('$[prefix-current]', as_embed=True, colour=Colour.blurple(),
                              locales={'command_name': self.name, 'self_mention': self.bot.user.mention})
             return
 

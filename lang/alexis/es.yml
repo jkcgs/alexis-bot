@@ -30,3 +30,8 @@ error-msg: 'Ocurrió un error al ejecutar el comando'
 invite-text: 'Puedes agregarme a tu servidor mediante el siguiente enlace:'
 invite-filtered: '[invite eliminado]'
 usage: Formato
+reload-help: Recarga la configuración del bot desde los archivos.
+reload-err: Algo pasó al intentar recargar la configuración.
+reload-reloaded: Configuración recargada, {rel_mods} archivo(s) leído(s).
+shutdown-help: Mata el proceso del bot.
+shutdown-goodbye: Chao!

@@ -16,16 +16,15 @@ class OwnerRoles(Command):
 
     async def handle(self, cmd):
         if cmd.argc < 1:
-            await cmd.answer('$[format]: $[owr-format]')
-            return
+            return await cmd.send_usage()
 
         await cmd.typing()
-        owner_roles = cmd.config.get_list('owner_roles', [self.bot.config['owner_role']])
+        default_role = self.bot.config['owner_role']
+        owner_roles = cmd.config.get_list('owner_roles', [default_role] if default_role else [])
 
         if cmd.args[0] in ['set', 'add', 'remove']:
             if cmd.argc < 2:
-                await cmd.answer('$[format]: $[owr-format]')
-                return
+                return await cmd.send_usage()
 
             cmd_role = ' '.join(cmd.args[1:])
             role = get_guild_role(cmd.message.guild, auto_int(cmd_role))
