@@ -13,8 +13,7 @@ class CommandConfig(Command):
 
     async def handle(self, cmd):
         if cmd.argc < 2:
-            await cmd.answer('$[format]: $[cmd-format]')
-            return
+            return await cmd.send_usage()
 
         if cmd.args[1] not in self.bot.manager:
             await cmd.answer('$[cmd-not-found]')

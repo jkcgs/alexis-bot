@@ -28,6 +28,13 @@ class CommandEvent(MessageEvent):
         kwargs['event'] = self
         return await super().answer(content, withname, **kwargs)
 
+    async def send_usage(self, usage=None):
+        if usage is None:
+            usage = self.command.format
+
+        title = ':information_source: $[cmd-usage]: `$CMD`'
+        return await self.answer(usage, title=title, as_embed=True, colour=discord.Colour.light_gray())
+
     def is_enabled(self):
         if self.is_pm:
             return True
@@ -83,6 +90,10 @@ class CommandEvent(MessageEvent):
             return False
 
         return self.channel.guild.me.guild_permissions.manage_roles
+
+    @property
+    def command(self):
+        return self.bot.manager[self.cmdname]
 
     @staticmethod
     def is_command(message, bot):

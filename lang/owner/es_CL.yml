@@ -19,9 +19,10 @@ prefix-current: >
   Puedes cambiarlo con $PX{command_name} <prefijo> o "{self_mention} prefix <prefijo>"
 prefix-set: 'Prefijo configurado como `{new_prefix}`.'
 cmd-help: Permite activar o desactivar algún comando.
-cmd-format: >-
-  $CMD <enable|disable> <comando> - $CMD (+/-)<comando> (ejemplo: `$CMD -ping`
-  para desactivar el comando *ping*).
+cmd-format: |
+  $CMD <enable|disable|+|-> <comando>
+
+  Ejemplo: `$CMD -ping` o `$CMD disable ping` para desactivar el comando `$PXping`.
 cmd-not-found: El comando no existe.
 cmd-not-allowed: No puedes cambiar el ajuste para este comando.
 cmd-already-enabled: El comando ya está activado.

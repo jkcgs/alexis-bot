@@ -20,7 +20,7 @@ class MessageEvent:
         self._config = None
         self._lang = None
 
-    async def answer(self, content='', to_author=False, withname=True, as_embed=False, title=None,
+    async def answer(self, content='', to_author=False, withname=True, as_embed=False, title=None, colour=None,
                      delete_trigger=False, **kwargs):
         """
         Sends a message where the event was created
@@ -28,7 +28,8 @@ class MessageEvent:
         :param to_author: If set to True, it's will be sent to the author instead of the event's channel.
         :param withname: Sets if the message will contain the author's name as prefix.
         :param as_embed: Send message as an embed. With this, if the content is an embed, it will be ignored.
-        :param title: If the answer is sent as an embed, set it's title.
+        :param title: If an embed is sent, set it's title.
+        :param colour: If an embed is sent, set it's colour.
         :param delete_trigger: Attempt to delete the message that generated the event.
         :param kwargs: Additional parameters to pass to send_message method.
         """
@@ -42,6 +43,8 @@ class MessageEvent:
             if not isinstance(content, Embed):
                 content = Embed(description=content)
                 content.title = title
+            if colour:
+                content.colour = colour
             if withname:
                 content.set_footer(
                     text=self.lang.format('$[answer-for]', locales={'author': self.author_name}),
