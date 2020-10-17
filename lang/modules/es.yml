@@ -1,5 +1,7 @@
 modules-help: Gestión de módulos
 modules-loaded: 'Módulos cargados:'
+modules-system: 'Módulos de sistema'
+modules-other: 'Otros módulos'
 modules-err-self: ¡No puedes controlar este módulo!
 modules-already-loaded: Módulo ya cargado.
 module-loaded: Módulo cargado.
@@ -7,6 +9,8 @@ module-not-found: Módulo no encontrado.
 module-not-loaded: Módulo no cargado.
 module-disabled: Módulo desactivado.
 module-reloaded: Módulo recargado.
+module-disable-system: No se puede desactivar un módulo de sistema.
+module-reload-system: No se puede recargar un módulo de sistema.
 module-not-reactivated: El módulo no pudo ser reactivado.
 module-none: (ninguno)
 module-e-title: Información de módulo

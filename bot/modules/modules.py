@@ -19,16 +19,28 @@ class Modules(Command):
     async def handle(self, cmd):
         mgr = self.bot.manager
         name = '' if cmd.argc == 0 else (cmd.args[0][1:] if cmd.args[0][0] in ['+', '-', '~', '!'] else cmd.args[0])
+
         if name == '':
-            await cmd.answer('$[modules-loaded]\n```{}```'.format(', '.join(mgr.get_mod_names())))
-            return
+            system_mods = [i.__class__.__name__ for i in mgr.cmd_instances if i.system]
+            other_mods = [i.__class__.__name__ for i in mgr.cmd_instances if not i.system]
+            system_mods.sort()
+            other_mods.sort()
+
+            embed = Embed(title='$[modules-loaded]')
+            system_names = '```{}```'.format(', '.join(system_mods))
+            other_names = '```{}```'.format(', '.join(other_mods))
+            embed.add_field(name='$[modules-system] ({})'.format(len(system_mods)), value=system_names, inline=False)
+            embed.add_field(name='$[modules-other] ({})'.format(len(other_mods)), value=other_names, inline=False)
+            return await cmd.answer(embed, withname=True)
+
+        mod = mgr.get_mod(name)
 
         if cmd.args[0][0] == '+':
             if name == self.__class__.__name__:
                 await cmd.answer('$[modules-err-self]')
                 return
 
-            if mgr.has_mod(name):
+            if mod:
                 await cmd.answer('$[modules-already-loaded]')
                 return
 
@@ -44,8 +56,12 @@ class Modules(Command):
                 await cmd.answer('$[modules-err-self]')
                 return
 
-            if not mgr.has_mod(name):
+            if not mod:
                 await cmd.answer('$[module-not-loaded]')
+                return
+
+            if mod.system:
+                await cmd.answer('$[module-disable-system]')
                 return
 
             mgr.unload_instance(name)
@@ -59,6 +75,10 @@ class Modules(Command):
 
             if not mgr.has_mod(name):
                 await cmd.answer('$[module-not-loaded]')
+                return
+
+            if mod.system:
+                await cmd.answer('$[module-reload-system]')
                 return
 
             mgr.unload_instance(name)

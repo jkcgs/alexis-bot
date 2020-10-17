@@ -243,11 +243,6 @@ class Manager:
     def get_cmd(self, name):
         return None if not self.has_cmd(name) else self.cmds[name]
 
-    def get_mod_names(self):
-        names = [i.__class__.__name__ for i in self.cmd_instances]
-        names.sort()
-        return names
-
     def get_mod(self, name):
         for i in self.cmd_instances:
             if i.__class__.__name__ == name:
@@ -315,10 +310,12 @@ class Manager:
         for imod in modules:
             try:
                 members = inspect.getmembers(importlib.import_module(imod))
-                classes += [
-                    obj for name, obj in members
-                    if name != 'Command' and inspect.isclass(obj) and issubclass(obj, Command)
-                ]
+                for name, clz in members:
+                    if name == 'Command' or not inspect.isclass(clz) or not issubclass(clz, Command):
+                        continue
+                    if imod.startswith('bot.'):
+                        clz.system = True
+                    classes.append(clz)
             except ImportError as e:
                 log.error('Could not load a module')
                 log.exception(e)

@@ -19,8 +19,7 @@ class LeaveGuild(Command):
 
     async def handle(self, cmd):
         if cmd.argc == 0:
-            await cmd.answer('$[format]: $[leaveguild-format]')
-            return
+            return await cmd.send_usage()
 
         guild = self.bot.get_guild(auto_int(cmd.args[0]))
         if guild is None:

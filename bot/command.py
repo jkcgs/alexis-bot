@@ -12,6 +12,7 @@ from . import categories
 class Command:
     __author__ = 'makzk'
     __version__ = '0.0.0'
+    system = False
     db_models = []
 
     def __init__(self, bot):

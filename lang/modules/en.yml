@@ -1,5 +1,7 @@
 modules-help: Modules management
 modules-loaded: 'Loaded modules:'
+modules-system: 'System modules'
+modules-other: 'Other modules'
 modules-err-self: You can't manage this module!
 modules-already-loaded: Module already loaded.
 module-loaded: Module loaded.
@@ -7,6 +9,8 @@ module-not-found: Module not found.
 module-not-loaded: Module not loaded.
 module-disabled: Module disabled.
 module-reloaded: Module reloaded.
+module-disable-system: Can't disable a system module.
+module-reload-system: Can't reload a system module.
 module-not-reactivated: The module could not be reactivated.
 module-none: (none)
 module-e-title: Module information

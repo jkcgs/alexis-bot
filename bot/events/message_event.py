@@ -39,10 +39,11 @@ class MessageEvent:
             except discord.Forbidden:
                 pass
 
-        if as_embed:
-            if not isinstance(content, Embed):
-                content = Embed(description=content)
-                content.title = title
+        if as_embed and not isinstance(content, Embed):
+            content = Embed(description=content)
+            content.title = title
+
+        if isinstance(content, Embed):
             if colour:
                 content.colour = colour
             if withname:
@@ -50,15 +51,13 @@ class MessageEvent:
                     text=self.lang.format('$[answer-for]', locales={'author': self.author_name}),
                     icon_url=self.author.avatar_url_as(format='webp', size=32)
                 )
+            kwargs['embed'] = content
+            content = ''
         else:
             if withname:
                 if content != '':
                     content = ', ' + content
                 content = self.author_name + content
-
-        if isinstance(content, Embed):
-            kwargs['embed'] = content
-            content = ''
 
         kwargs['event'] = kwargs.get('event', self)
         dest = self.message.author if to_author else self.message.channel
