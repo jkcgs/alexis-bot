@@ -30,12 +30,12 @@ class CommandEvent(MessageEvent):
             withname = isinstance(content, discord.Embed) or kwargs.get('as_embed', False)
         return await super().answer(content, withname=withname, **kwargs)
 
-    async def send_usage(self, usage=None):
+    async def send_usage(self, usage=None, **kwargs):
         if usage is None:
             usage = self.command.format
 
         title = ':information_source: $[cmd-usage]: `$CMD`'
-        return await self.answer(usage, title=title, as_embed=True, colour=discord.Colour.light_gray())
+        return await self.answer(usage, title=title, as_embed=True, colour=discord.Colour.light_gray(), **kwargs)
 
     def is_enabled(self):
         if self.is_pm:

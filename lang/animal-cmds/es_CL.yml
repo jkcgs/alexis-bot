@@ -1,3 +1,8 @@
+animal-usage: >-
+  $PXanimal [type|help]. Usa "help" para ver los tipos disponibles.
+animal-usage-help: >-
+  $PXanimal [type|help], donde "type" es uno de: `{types}`.
+  Si ningún "type" es pasado, se elige uno aleatoriamente.
 animal-cat-help: Muestra un gato aleatorio desde random.cat
 animal-cat-title: "Aquí está tu gatito \U0001F63A"
 animal-cat-error: 'No pude obtener un gatito :('
@@ -10,3 +15,12 @@ animal-shiba-error: 'No pude obtener un shibe :('
 animal-fox-help: Muestra un zorro aleatorio desde randomfox.ca
 animal-fox-title: "Aquí está tu zorro \U0001F98A"
 animal-fox-error: 'No pude obtener un zorro :('
+animal-duck-help: Muestra un pato aleatorio desde random-d.uk
+animal-duck-title: "Aquí está tu pato \U0001F986"
+animal-duck-error: 'No pude obtener un pato :('
+animal-bunny-help: Muestra un bunny aleatorio desde bunnies.io
+animal-bunny-title: "Aquí está tu conejo \U0001F407"
+animal-bunny-error: 'No pude obtener un conejo :('
+animal-owl-help: Muestra un zorro aleatorio desde pics.floofybot.moe
+animal-owl-title: "Aquí está tu búho \U0001F989"
+animal-owl-error: 'No pude obtener un búho :('

@@ -1,3 +1,8 @@
+animal-usage: >-
+  $PXanimal [type|help]. Use "help" to see which types are available.
+animal-usage-help: >-
+  $PXanimal [type|help], where "type" is one of: `{types}`.
+  If no type is passed, a random type is chosen.
 animal-cat-help: Retrieves a random cat from random.cat
 animal-cat-title: "Here's your kitten \U0001F63A"
 animal-cat-error: 'Could not fetch a cat :('
@@ -10,3 +15,12 @@ animal-shiba-error: 'Could not fetch a shibe :('
 animal-fox-help: Retrieves a random fox from randomfox.ca
 animal-fox-title: "Here's your fox \U0001F98A"
 animal-fox-error: 'Could not fetch a fox :('
+animal-duck-help: Retrieves a random duck from random-d.uk
+animal-duck-title: "Here's your duck \U0001F986"
+animal-duck-error: 'Could not fetch a duck :('
+animal-bunny-help: Retrieves a random bunny from bunnies.io
+animal-bunny-title: "Here's your bunny \U0001F407"
+animal-bunny-error: 'Could not fetch a bunny :('
+animal-owl-help: Retrieves a random owl from pics.floofybot.moe
+animal-owl-title: "Here's your owl \U0001F989"
+animal-owl-error: 'Could not fetch a owl :('
