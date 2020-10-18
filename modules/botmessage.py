@@ -20,8 +20,7 @@ class BotSendMessage(Command):
 
     async def handle(self, cmd):
         if cmd.argc < 2 or not pat_channel.match(cmd.args[0]):
-            await cmd.answer('$[format]: $[botmsg-format]')
-            return
+            return await cmd.send_usage()
 
         chan = self.bot.get_channel(auto_int(cmd.args[0][2:-1]))
         if chan is None or chan.guild.id != cmd.guild.id:
