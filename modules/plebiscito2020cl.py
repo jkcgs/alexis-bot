@@ -120,14 +120,14 @@ class Plebiscito2020CL(Command):
         embed = Embed(title='Resultados actuales Plebiscito 2020')
 
         embed.description = '**__Constitución política__**\n'
-        embed.description += 'Con {mesasEscrutadas} mesas excrutadas ({totalMesasPorcent})\n'.format(**data)
+        embed.description += 'Con {mesasEscrutadas} mesas escrutadas ({totalMesasPorcent})\n'.format(**data)
         for partido in (data['data']):
             embed.description += '**{nombre}**: {cant} ({porc})\n'.format(
                 nombre=partido['a'], cant=partido['d'], porc=partido['c']
             )
 
         embed.description += '\n**__Tipo de órgano__**\n'
-        embed.description += 'Con {mesasEscrutadas} mesas excrutadas ({totalMesasPorcent})\n'.format(**data2)
+        embed.description += 'Con {mesasEscrutadas} mesas escrutadas ({totalMesasPorcent})\n'.format(**data2)
         for partido in (data2['data']):
             embed.description += '**{nombre}**: {cant} ({porc})\n'.format(
                 nombre=partido['a'], cant=partido['d'], porc=partido['c']
