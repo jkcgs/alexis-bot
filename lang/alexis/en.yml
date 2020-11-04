@@ -35,3 +35,6 @@ reload-err: Something happened when reloading the configuration.
 reload-reloaded: Configuration reloaded, {rel_mods} file(s) read.
 shutdown-help: Kill the bot process.
 shutdown-goodbye: Buh-bye!
+config-status-help: "Sets a bot's custom status."
+config-status-set: Bot status updated.
+config-status-reset: Bot status reset.

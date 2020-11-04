@@ -194,6 +194,26 @@ class GuildConfiguration:
         value = self._list_separator.join([str(e).replace(',', self._comma_escape) for e in elements])
         self.set(name, value)
 
+    def get_bool(self, name, default=True):
+        """
+        Retrieve a boolean value for a guild by its ID. If the value does not exist,
+        the default value is returned, always as a boolean. The default value is not stored on the database.
+        :param name: The name of the value to fetch
+        :param default: The default value to use.
+        """
+        return self.get(name, default=str(int(bool(default)))) == '1'
+
+    def set_bool(self, name, value):
+        """
+        Sets a boolean value for a guild's configuration.
+        A true value is stored as '1' and a false value is stored as '0'.
+        :param name: The configuration name.
+        :param value: The value to be set for the configuration.
+        :return: The boolean value set.
+        """
+        value_conv = str(int(bool(value)))
+        return self.set(name, value_conv) == '1'
+
     def add(self, name, value, ignore_dupe=False):
         """
         Fetches a configuration value as a list, appends a value, then stores it.

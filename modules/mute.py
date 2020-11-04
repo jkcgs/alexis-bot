@@ -135,9 +135,12 @@ class Mute(Command):
     async def on_member_join(self, member):
         mgr = GuildConfiguration.get_instance(member.guild)
         guild = member.guild
+        sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)
+
         if not guild.me.guild_permissions.manage_roles:
-            self.log.warning('Can\'t manage roles on the guild %s (%s). Mute disabled.', str(guild), guild.id)
-            mgr.unset(Mute.cfg_muted_role)
+            if sv_role and sv_role != Mute.default_muted_role:
+                self.log.warning('Can\'t manage roles on the guild %s (%s). Mute disabled.', str(guild), guild.id)
+                mgr.unset(Mute.cfg_muted_role)
             return
 
         sv_role = mgr.get(Mute.cfg_muted_role, Mute.default_muted_role)

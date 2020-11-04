@@ -1,8 +1,9 @@
 greeting-character-alert: El mensaje no puede contener `{separator}`
 greeting-current-channel: Canal actual
+greeting-no-channel: No se ha definido un canal.
 greeting-disabled-alert: Esto mensajes están desactivados. Define el canal de envío
-  primero, o bien usa $PX$NM set <opciones...>
-greeting-format: 'Formato: $PX$NM <set|message|channel|disable> <opciones...> (si
+  primero, o bien usa `$CMD set <opciones...>`
+greeting-format: 'Formato: $CMD <set|message|channel|enable|disable> <opciones...> (si
   omites las opciones, verás la ayuda de cada sub-comando)'
 greeting-goodbye-messages: Mensajes de despedida
 greeting-help: Determina un canal para dar saludar a usuarios nuevos y retirados,
@@ -10,22 +11,22 @@ greeting-help: Determina un canal para dar saludar a usuarios nuevos y retirados
 greeting-limit-alert: No es posible agregar más mensajes, el límite es de {limit}.
 greeting-message-added: Mensaje agregado!
 greeting-message-deleted: Mensaje eliminado!
-greeting-message-format: 'Formato: $PX$NM message <list|add|remove|set> <options...>
-  (if you don''t add options, you''ll see sub-sub-command''s help)'
-greeting-message-saved: Message saved
+greeting-message-format: 'Formato: $CMD message <list|add|remove|set> <opciones...>
+  (si no agregas las opciones, verás la ayuda del sub-sub-comando)'
+greeting-message-saved: Mensaje guardado
 greeting-messages-disabled: Mensajes desactivados (los mensajes actuales no fueron
   eliminados).
 greeting-messages-saved: Mensajes guardados!
 greeting-no-list-number: Ingresa un número por favor. Puedes obtener los números con
   `$CMD message list`.
 greeting-no-messages: No hay mensajes
-greeting-number-out-of-bounds: Número fuera de rango! Puedes obtener lsos números
+greeting-number-out-of-bounds: Nnúmero fuera de rango! Puedes obtener lsos números
   con `$CMD message list`.
 greeting-set-limit: Los mensajes sólo pueden tener hasta {limit} carácteres. El mensaje
   número {number} tiene {length} carácteres.
 greeting-settings-saved: Configuración guardada!
 greeting-welcome-messages: Mensajes de bienvenida
-greeting-set-format:  "Formato: $CMD set <canal> <mensaje1>|<mensaje2>|...|<mensaje{limit}>\n
+greeting-set-format: "Formato: $CMD set <canal> <mensaje1>|<mensaje2>|...|<mensaje{limit}>\n
 Si se agrega más de un mensaje, uno de ellos será elegido de forma aleatoria para
 recibir a un usuario.
 Cada mensaje debe ser separado por `{separator}` y puede contener hasta ${max-length}
@@ -34,4 +35,11 @@ en tu mensaje: \n
   `$name`: nombre del usuario\n
   `$mention`: mención al nombre del usuario\n
   `$server`: nombre del servidor"
-
+greeting-enabled: 'Saludos de bienvenida activados (se debe configurar el mensaje de saludos para que funcione).'
+greeting-already-enabled: 'Saludos de bienvenida ya activos.'
+greeting-goodbye-enabled: 'Saludos de despedida activados (se debe configurar el mensaje de saludos para que funcione).'
+greeting-goodbye-already-enabled: 'Saludos de despedida ya activos.'
+greeting-disabled: 'Saludos de bienvenida desactivados.'
+greeting-already-disabled: 'Saludos de bienvenida ya desactivados.'
+greeting-goodbye-disabled: 'Saludos de despedida desactivados.'
+greeting-goodbye-already-disabled: 'Saludos de despedida ya desactivos.'

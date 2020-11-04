@@ -9,10 +9,15 @@ from bot.regex import pat_invite
 
 
 class Greeting(Command):
+    __author__ = 'makzk'
+    __version__ = '1.1.0'
+
     cfg_welcome_channel = 'welcome_channel'
     cfg_welcome_messages = 'welcome_messages'
     cfg_goodbye_channel = 'goodbye_channel'
     cfg_goodbye_messages = 'goodbye_messages'
+    cfg_welcome_enabled = 'welcome_enabled'
+    cfg_goodbye_enabled = 'goodbye_enabled'
     separator = '|'
 
     def __init__(self, bot):
@@ -20,6 +25,7 @@ class Greeting(Command):
         self.name = 'welcome'
         self.aliases = ['goodbye']
         self.help = '$[greeting-help]'
+        self.format = '$[greeting-format]'
         self.owner_only = True
         self.category = categories.STAFF
         self.default_config = {
@@ -34,17 +40,9 @@ class Greeting(Command):
         is_welcome = cmd.cmdname == self.name
         cfg_channel = self.cfg_welcome_channel if is_welcome else self.cfg_goodbye_channel
         cfg_messages = self.cfg_welcome_messages if is_welcome else self.cfg_goodbye_messages
+        subarg = None if cmd.argc == 0 else cmd.args[0]
 
-        if cmd.argc == 0 or cmd.args[0] not in ['set', 'message', 'channel', 'disable']:
-            if cmd.argc > 0 and cmd.find_channel(cmd.args[0]) is not None:
-                subcmd = 'channel' if cmd.argc == 1 else 'set'
-                cmd.args.insert(0, subcmd)
-                cmd.argc += 1
-            else:
-                await cmd.answer('$[greeting-format]')
-                return
-
-        if cmd.args[0] == 'set':
+        if subarg == 'set':
             if cmd.argc < 2:
                 await cmd.answer('$[greeting-set-format]', locales={
                     'limit': max_msgs,
@@ -72,7 +70,7 @@ class Greeting(Command):
             cmd.config.set_list(cfg_messages, msgs)
             await cmd.answer('$[greeting-settings-saved]')
 
-        elif cmd.args[0] == 'message':
+        elif subarg == 'message':
             if cmd.argc < 2 or (cmd.argc < 3 and cmd.args[1] != 'list') \
                     or cmd.args[1] not in ['list', 'show', 'add', 'remove', 'set']:
                 await cmd.answer('$[greeting-message-format]')
@@ -136,27 +134,67 @@ class Greeting(Command):
                 msg = ['$[greeting-messages-saved]', '$[greeting-message-saved]'][int(len(msgs) == 1)]
                 await cmd.answer(msg)
 
-        elif cmd.args[0] == 'channel':
-            chan = cmd.find_channel(cmd.args[1])
-            if chan is None:
-                await cmd.answer('$[channel-not-found]')
-                return
+        elif subarg == 'channel':
+            if cmd.argc == 1:
+                cfg_name = self.cfg_welcome_channel if is_welcome else self.cfg_goodbye_channel
+                curr_chan_id = cmd.config.get(cfg_name, '')
+                if not curr_chan_id:
+                    await cmd.answer('$[greeting-no-channel]')
+                else:
+                    await cmd.answer('**$[greeting-current-channel]**: <#{}>'.format(curr_chan_id))
+            else:
+                chan = cmd.find_channel(cmd.args[1])
+                if chan is None:
+                    await cmd.answer('$[channel-not-found]')
+                    return
 
-            cmd.config.set(cfg_channel, chan.id)
-            await cmd.answer('$[channel-saved]')
+                cmd.config.set(cfg_channel, chan.id)
+                await cmd.answer('$[channel-saved]')
 
-        elif cmd.args[0] == 'disable':
-            cmd.config.unset(cfg_channel, '')
-            await cmd.answer('$[greeting-messages-disabled]')
+        elif subarg == 'enable':
+            if cmd.cmdname == self.name:
+                cfg_name = self.cfg_welcome_enabled
+                cfg_msg_ok = '$[greeting-enabled]'
+                cfg_msg_err = '$[greeting-already-enabled]'
+            else:
+                cfg_name = self.cfg_goodbye_enabled
+                cfg_msg_ok = '$[greeting-goodbye-enabled]'
+                cfg_msg_err = '$[greeting-goodbye-already-enabled]'
+
+            if cmd.config.get_bool(cfg_name):
+                await cmd.answer(cfg_msg_err)
+            else:
+                cmd.config.set_bool(cfg_name, True)
+                await cmd.answer(cfg_msg_ok)
+
+        elif subarg == 'disable':
+            if is_welcome:
+                cfg_name = self.cfg_welcome_enabled
+                cfg_msg_ok = '$[greeting-disabled]'
+                cfg_msg_err = '$[greeting-already-disabled]'
+            else:
+                cfg_name = self.cfg_goodbye_enabled
+                cfg_msg_ok = '$[greeting-goodbye-disabled]'
+                cfg_msg_err = '$[greeting-goodbye-already-disabled]'
+
+            if not cmd.config.get_bool(cfg_name):
+                await cmd.answer(cfg_msg_err)
+            else:
+                cmd.config.set_bool(cfg_name, False)
+                await cmd.answer(cfg_msg_ok)
+
+        else:
+            await cmd.send_usage()
 
     async def send_greeting(self, member, is_welcome):
         cfg_channel = self.cfg_welcome_channel if is_welcome else self.cfg_goodbye_channel
         cfg_messages = self.cfg_welcome_messages if is_welcome else self.cfg_goodbye_messages
+        cfg_enabled = self.cfg_welcome_enabled if is_welcome else self.cfg_goodbye_enabled
 
         cfg = GuildConfiguration.get_instance(member.guild)
         chanid = cfg.get(cfg_channel)
         msgs = cfg.get_list(cfg_messages)
-        if chanid == '' or len(msgs) == 0:
+        if chanid == '' or len(msgs) == 0 or not cfg.get_bool(cfg_enabled, default=True):
             return
 
         chan = member.guild.get_channel(auto_int(chanid))

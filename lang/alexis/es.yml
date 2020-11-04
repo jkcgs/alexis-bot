@@ -35,3 +35,6 @@ reload-err: Algo pasó al intentar recargar la configuración.
 reload-reloaded: Configuración recargada, {rel_mods} archivo(s) leído(s).
 shutdown-help: Mata el proceso del bot.
 shutdown-goodbye: Chao!
+config-status-help: Define uno o más estados personalizados en el bot.
+config-status-set: Estado personalizado definido para el bot.
+config-status-reset: Estados personalizados del bot reiniciados.

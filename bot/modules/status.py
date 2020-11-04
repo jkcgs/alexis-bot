@@ -7,7 +7,7 @@ from bot.utils import deltatime_to_time
 class BotStatus(Command):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = 'status'
+        self.name = 'setstatus'
         self.help = '$[config-status-help]'
         self.bot_owner_only = True
         self.category = categories.SETTINGS
@@ -33,7 +33,9 @@ class BotStatus(Command):
         self.count = 0
 
         await self.update()
-        await cmd.answer('$[config-status-ok]')
+
+        msg = '$[config-status-reset]' if cmd.args == 0 else '$[config-status-set]'
+        await cmd.answer(msg)
 
     async def update(self):
         status = self.next()
@@ -42,7 +44,7 @@ class BotStatus(Command):
 
         self.last_status = status
         self.log.debug('Changing status to "%s"', status)
-        await self.bot.change_presence(activity=Game(status))
+        await self.bot.change_presence(activity=Game(status, created_at=self.bot.start_time))
 
     def next(self):
         curr_list = self.status_list if len(self.custom_list) == 0 else self.custom_list

@@ -1,8 +1,9 @@
 greeting-character-alert: Message cannot contain `{separator}`
-greeting-current-channel: Current channel
+greeting-current-channel: Current channel.
+greeting-no-channel: No channel defined.
 greeting-disabled-alert: This messages are disabled. Set a message for them first,
   or use `$CMD set <options...>`
-greeting-format: 'Format: $CMD <set|message|channel|disable> <options...> (if
+greeting-format: 'Format: $CMD <set|message|channel|enable|disable> <options...> (if
   you don''t pass options, you''ll see subcommand''s help)'
 greeting-goodbye-messages: Goodbye messages
 greeting-help: Manages the channel to greet new and retiring users, with custom messages.
@@ -30,3 +31,11 @@ You can use the following placeholders on your message: \n
   `$name`: user name\n
   `$mention`: user mention\n
   `$server`: server's name"
+greeting-enabled: 'Greetings enabled (greetings channel must be set to work).'
+greeting-already-enabled: 'Greetings are already enabled.'
+greeting-goodbye-enabled: 'Goodbye messages enabled (greetings channel must be set to work).'
+greeting-goodbye-already-enabled: 'Goodbye messages are already enabled.'
+greeting-disabled: 'Greetings disabled.'
+greeting-already-disabled: 'Greetings are already disabled.'
+greeting-goodbye-disabled: 'Goodbye messages disabled.'
+greeting-goodbye-already-disabled: 'Goodbye messages are already disabled.'

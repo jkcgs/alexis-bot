@@ -26,7 +26,9 @@ class AlexisBot(discord.Client):
         Initializes configuration, logging, an aiohttp session and class attributes.
         :param options: The discord.Client options
         """
-        super().__init__(**options)
+        intents = discord.Intents.default()
+        intents.members = True
+        super().__init__(**options, intents=intents)
 
         self.db = None
         self.initialized = False

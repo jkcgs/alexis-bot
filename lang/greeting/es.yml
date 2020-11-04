@@ -1,8 +1,9 @@
 greeting-character-alert: El mensaje no puede contener `{separator}`
 greeting-current-channel: Canal actual
+greeting-no-channel: No se ha definido un canal.
 greeting-disabled-alert: Esto mensajes están desactivados. Define el canal de envío
   primero, o bien usa `$CMD set <opciones...>`
-greeting-format: 'Formato: $CMD <set|message|channel|disable> <opciones...> (si
+greeting-format: 'Formato: $CMD <set|message|channel|enable|disable> <opciones...> (si
   omites las opciones, verás la ayuda de cada sub-comando)'
 greeting-goodbye-messages: Mensajes de despedida
 greeting-help: Determina un canal para dar saludar a usuarios nuevos y retirados,
@@ -34,3 +35,11 @@ en tu mensaje: \n
   `$name`: nombre del usuario\n
   `$mention`: mención al nombre del usuario\n
   `$server`: nombre del servidor"
+greeting-enabled: 'Saludos de bienvenida activados (se debe configurar el mensaje de saludos para que funcione).'
+greeting-already-enabled: 'Saludos de bienvenida ya activos.'
+greeting-goodbye-enabled: 'Saludos de despedida activados (se debe configurar el mensaje de saludos para que funcione).'
+greeting-goodbye-already-enabled: 'Saludos de despedida ya activos.'
+greeting-disabled: 'Saludos de bienvenida desactivados.'
+greeting-already-disabled: 'Saludos de bienvenida ya desactivados.'
+greeting-goodbye-disabled: 'Saludos de despedida desactivados.'
+greeting-goodbye-already-disabled: 'Saludos de despedida ya desactivos.'
