@@ -43,3 +43,10 @@ greeting-disabled: 'Saludos de bienvenida desactivados.'
 greeting-already-disabled: 'Saludos de bienvenida ya desactivados.'
 greeting-goodbye-disabled: 'Saludos de despedida desactivados.'
 greeting-goodbye-already-disabled: 'Saludos de despedida ya desactivos.'
+greeting-pm-already-enabled: Los mensajes de bienvenida por privado ya están activados
+greeting-pm-enabled: Mensajes de bienvenida por privado activados
+greeting-pm-already-disabled: Los mensajes de bienvenida por privado ya están desactivados
+greeting-pm-disabled: Mensajes de bienvenida por privado desactivados
+greeting-pm-not-set: No se ha definido un mensaje de bienvenida por privado, usando mensajes normales de bienvenida
+greeting-pm-current: Mensaje de bienvenida por privado actual
+greeting-pm-updated: Mensaje de bienvenida por privado actualizado

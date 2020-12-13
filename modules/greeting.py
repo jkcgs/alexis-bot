@@ -10,7 +10,7 @@ from bot.regex import pat_invite
 
 class Greeting(Command):
     __author__ = 'makzk'
-    __version__ = '1.1.0'
+    __version__ = '1.2.0'
 
     cfg_welcome_channel = 'welcome_channel'
     cfg_welcome_messages = 'welcome_messages'
@@ -18,6 +18,8 @@ class Greeting(Command):
     cfg_goodbye_messages = 'goodbye_messages'
     cfg_welcome_enabled = 'welcome_enabled'
     cfg_goodbye_enabled = 'goodbye_enabled'
+    cfg_pm_enabled = 'welcome_pm_enabled'
+    cfg_pm_message = 'welcome_pm_message'
     separator = '|'
 
     def __init__(self, bot):
@@ -183,6 +185,32 @@ class Greeting(Command):
                 cmd.config.set_bool(cfg_name, False)
                 await cmd.answer(cfg_msg_ok)
 
+        elif subarg == 'enablepm':
+            if cmd.config.get_bool(self.cfg_pm_enabled, default=False):
+                await cmd.answer('$[greeting-pm-already-enabled]')
+            else:
+                cmd.config.set_bool(self.cfg_pm_enabled, True)
+                await cmd.answer('$[greeting-pm-enabled]')
+
+        elif subarg == 'disablepm':
+            if not cmd.config.get_bool(self.cfg_pm_enabled, default=False):
+                await cmd.answer('$[greeting-pm-already-disabled]')
+            else:
+                cmd.config.unset(self.cfg_pm_enabled)
+                await cmd.answer('$[greeting-pm-disabled]')
+
+        elif subarg == 'pmmessage':
+            message = (' '.join(cmd.args[1:])).strip()
+            if cmd.argc < 2 or not message:
+                pm_message = cmd.config.get(self.cfg_pm_message)
+                if not pm_message:
+                    await cmd.answer('$[greeting-pm-not-set]')
+                else:
+                    await cmd.answer('$[greeting-pm-current]: ```{}```'.format(pm_message))
+            else:
+                cmd.config.set(self.cfg_pm_message, message)
+                await cmd.answer('$[greeting-pm-updated]')
+
         else:
             await cmd.send_usage()
 
@@ -194,7 +222,7 @@ class Greeting(Command):
         cfg = GuildConfiguration.get_instance(member.guild)
         chanid = cfg.get(cfg_channel)
         msgs = cfg.get_list(cfg_messages)
-        if chanid == '' or len(msgs) == 0 or not cfg.get_bool(cfg_enabled, default=True):
+        if chanid == '' or len(msgs) == 0:
             return
 
         chan = member.guild.get_channel(auto_int(chanid))
@@ -212,7 +240,18 @@ class Greeting(Command):
         msg = msg.replace('$mention', mention)
         msg = msg.replace('$server', member.guild.name)
 
-        await self.bot.send_message(chan, msg)
+        if cfg.get_bool(cfg_enabled, default=True) and msg:
+            await self.bot.send_message(chan, msg)
+
+        if is_welcome and cfg.get_bool(self.cfg_pm_enabled, default=False):
+            pm_message = cfg.get(self.cfg_pm_message)
+            pm_message = pm_message.replace('$name', name)
+            pm_message = pm_message.replace('$mention', mention)
+            pm_message = pm_message.replace('$server', member.guild.name)
+            pm_message = pm_message or msg
+
+            if pm_message:
+                await self.bot.send_message(member, pm_message or msg)
 
     async def on_member_join(self, member):
         await self.send_greeting(member, True)

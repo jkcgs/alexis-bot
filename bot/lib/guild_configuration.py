@@ -145,7 +145,7 @@ class GuildConfiguration:
         :param name: The configuration value name.
         :return: A boolean given if the value existed previously or not.
         """
-        if self.has(name):
+        if not self.has(name):
             return False
 
         try:

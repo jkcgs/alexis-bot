@@ -39,3 +39,10 @@ greeting-disabled: 'Greetings disabled.'
 greeting-already-disabled: 'Greetings are already disabled.'
 greeting-goodbye-disabled: 'Goodbye messages disabled.'
 greeting-goodbye-already-disabled: 'Goodbye messages are already disabled.'
+greeting-pm-already-enabled: Welcome PM messages are already enabled
+greeting-pm-enabled: Welcome PM messages enabled
+greeting-pm-already-disabled: Welcome PM messages are already disabled
+greeting-pm-disabled: Welcome PM messages disabled
+greeting-pm-not-set: No welcome PM message set, using normal welcome messages
+greeting-pm-current: Current welcome PM message
+greeting-pm-updated: Welcome PM message updated
