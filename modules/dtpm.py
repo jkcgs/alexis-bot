@@ -2,12 +2,43 @@ import re
 
 from bs4 import BeautifulSoup
 
+import json
+
+from lxml import etree
+
 from discord import Embed
 from bot import Command, categories
 
 pat_stop = re.compile('^[Pp][a-zA-Z][0-9]+$')
-pat_rec = re.compile('^[a-zA-Z]?[0-9]{2,3}$')
+pat_rec = re.compile('^[a-zA-Z]?[0-9]{2,3}[cenvxyCENVXY]{0,2}$')
 pat_rec_err = re.compile('error_solo_paradero">([A-Z]?[0-9]{2,3}[A-Z]?)</div>[\n\r\t ]+[<a-z "=_]+>([a-zA-Z .]+)<')
+
+red_emoji = "<:REDBus:787112489494118410>"
+
+
+# This XSLT object transforms the raw XML data received, removing it's namespaces.
+
+strip_namespaces = etree.XSLT(etree.XML("""<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method="xml" indent="no"/>
+
+<xsl:template match="/|comment()|processing-instruction()">
+    <xsl:copy>
+      <xsl:apply-templates/>
+    </xsl:copy>
+</xsl:template>
+
+<xsl:template match="*">
+    <xsl:element name="{local-name()}">
+      <xsl:apply-templates select="@*|node()"/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="@*">
+    <xsl:attribute name="{local-name()}">
+      <xsl:value-of select="."/>
+    </xsl:attribute>
+</xsl:template>
+</xsl:stylesheet>"""))
 
 
 # Hola Maxine
@@ -39,81 +70,154 @@ class DTPM(Command):
             if isinstance(data, str):
                 await cmd.answer('$[dtpm-error]', locales={'error': data})
                 return
-
-            if len(data) < 1:
-                await cmd.answer('$[dtpm-error-not-found]')
-                return
-
+                
             if cmd.argc >= 2:
-                for result in data:
-                    if result['route_id'] == cmd.args[1].upper():
-                        if result['bus_plate_number'] is None:
-                            await cmd.answer('"*{}*"'.format(result['arrival_estimation']))
-                        else:
-                            await cmd.answer('$[dtpm-estimated-time]', locales={
-                                'time': result['arrival_estimation'], 'plate': result['bus_plate_number']
-                            })
-                        return
-                await cmd.answer('$[dtpm-no-arrivals]')
-            else:
-                routes = []
-                for arrival in data[:18]:
-                    if arrival['bus_plate_number'] is None:
-                        routes.append('**{}**: *{}*'.format(arrival['route_id'], arrival['arrival_estimation']))
+                # Sends info for a single route
+                if cmd.args[1].upper() not in data[0]:
+                    await cmd.answer('$[dtpm-no-arrivals]')
+                
+                else:
+                    route = data[0].get(cmd.args[1].upper())
+                    if isinstance(route, dict):
+                        await cmd.answer('$[dtpm-estimated-time]', locales={
+                        'time': route[0]['time_prediction'],
+                        'plate': route[0]['license_plate']})
+                        
                     else:
+                        await cmd.answer(route)
+                
+                return
+                
+            else:
+                # Sends info for all the routes in the specified stop
+                routes = []
+                for route in list(data[0].keys())[:18]:
+                    if isinstance(data[0][route], str):
+                        routes.append('**{}**: {}'.format(route, data[0][route]))
+                    else:
+                        next_bus = data[0][route][0]
                         routes.append('**{}**: {} (patente *{}*)'.format(
-                            arrival['route_id'], arrival['arrival_estimation'], arrival['bus_plate_number']
+                            route, next_bus['time_prediction'], next_bus['license_plate']
                         ))
-
-                e = Embed(title='$[dtpm-next-arrivals]', description='\n'.join(routes))
+                
+                print(data[1])
+                
+                e = Embed(title='$[dtpm-next-arrivals]', description="{} **{}**\n".format(red_emoji, data[1])+'\n'.join(routes))
                 await cmd.answer(e, locales={'stop': cmd.args[0].upper()})
+
 
         except Exception as e:
             await cmd.answer('$[dtpm-error-raised]')
             self.log.exception(e)
 
     async def get_arrivals(self, bus_stop):
-        url = 'http://web.smsbus.cl/web/buscarAction.do'
+    
+        """
+        This will build an array with an "arrivals" dictionary
+        and the bus stop name.
+        The structure is as follows:
+            - Array item 0
+                - Route Number (with arrivals) (key)
+                    - Array of buses
+                        - Bus 1 (dict if it has arrival data, string if it only mentions arrival periods)
+                            - "distance" (key)
+                                - Distance from bus stop (string)
+                            - "time_prediction" (key)
+                                - Predicted time until arrival to bus stop (string)
+                            - "license_plate" (key)
+                                - License Plate of the bus (string)
+                        - Bus 2 (If present)
+                   
+                - Route Number (If no bus is coming) (key)
+                    - API's error message (string)
+            
+            - Array item 1
+                - Bus stop name (string)
+                
+        If the requests fails because of a typing error (invalid bus stop), it will
+        return a string with the error message provided by the API.
+        """
+        
+        url = 'http://ws13.smsbus.cl/wspatentedos/services/PredictorParaderoServicioWS'
+        body_data = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pred="http://predParaderoServicioWS.ws.simtws.wirelessiq.cl">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <pred:predictorParaderoServicio>
+         <pred:paradero>{}</pred:paradero>
+         <pred:servicio></pred:servicio>
+         <pred:cliente>0</pred:cliente>
+         <pred:resolucion></pred:resolucion>
+         <pred:ipUsuarioFinal></pred:ipUsuarioFinal>
+         <pred:webTransId></pred:webTransId>
+      </pred:predictorParaderoServicio>
+   </soapenv:Body>
+</soapenv:Envelope>""".format(bus_stop)
+
+        header_data = {
+            "Accept-Encoding": "gzip,deflate",
+            "Content-Type": "text/xml;charset=UTF-8",
+            "SOAPAction": "\"\"",
+            "Content-Length": str(len(body_data)),
+            "Host": "ws13.smsbus.cl",
+            "Connection": "Keep-Alive",
+            "User-Agent": "Apache-HttpClient/4.5.5 (Java/12.0.1)"
+        }
         self.log.debug('Loading %s', url)
 
-        await self.http.get(url + '?d=cargarServicios')
-        async with self.http.post(url, data={'d': 'busquedaParadero', 'ingresar_paradero': bus_stop}) as r:
-            txt = await r.text()
-            dom = BeautifulSoup(txt, 'html.parser')
-            error = dom.find(id='respuesta_error')
-            if error is not None:
-                return error.text
+        await self.http.get(url)
+        
+        async with self.http.post(url, data=body_data, headers=header_data) as r:
+            text = await r.text()
+            
+            # Here we get rid of the envelope tagz
+            data_root = etree.XML(text[38:])
+            root_tree = etree.ElementTree(data_root)
+            
+            usable_tree = strip_namespaces(root_tree)
 
-            num_stop = dom.find(id='numero_parada_respuesta')
-            if len(num_stop.find_all(class_='texto_h2')) > 1:
-                prox = [
-                    {
-                        'route_id': list(num_stop.find_all(class_='texto_h2'))[1].text,
-                        'bus_plate_number': p.find(id='proximo_bus_respuesta').text.strip(),
-                        'arrival_estimation': p.find(id='proximo_tiempo_respuesta').text.strip(),
-                        'distance': p.find(id='proximo_distancia_respuesta').text.strip()
-                    }
-                    for p in dom.find_all(id='proximo_respuesta')
-                ]
+            received_data = usable_tree.find("Body").find("predictorParaderoServicioResponse").find("predictorParaderoServicioReturn")
+
+            bus_stop_data = received_data.find("respuestaParadero").text
+            
+            if (bus_stop_data == "Paradero invalido.") :
+                return bus_stop_data
+                
             else:
-                prox = [
-                    {
-                        'route_id': p.find(id='servicio_respuesta_solo_paradero').text,
-                        'bus_plate_number': p.find(id='bus_respuesta_solo_paradero').text.strip(),
-                        'arrival_estimation': p.find(id='tiempo_respuesta_solo_paradero').text.strip(),
-                        'distance': p.find(id='distancia_respuesta_solo_paradero').text.strip()
-                    }
-                    for p in dom.find_all(id='proximo_solo_paradero')
-                ]
-
-            err = [
-                {
-                    'route_id': e.group(1),
-                    'bus_plate_number': None,
-                    'arrival_estimation': e.group(2),
-                    'distance': None
-                }
-                for e in pat_rec_err.finditer(txt)
-            ]
-
-            return prox + err
+            
+                results = {}
+                return_list = []
+                
+                for route in received_data.find("servicios").findall("item"):
+                    
+                    """ NOTE: one could use .get() instead of .find().text, but the
+                        first one isn't returning anything"""
+                    
+                    type = route.find("codigorespuesta").text
+                    service = route.find("servicio").text
+                    
+                    results[service] = []
+                    
+                    # Checks if the type is one of the two that carry actual bus data
+                    
+                    if type in ("00", "01"):
+                        results[service].append({
+                        "distance": route.find("distanciabus1").text,
+                        "time_prediction": route.find("horaprediccionbus1").text,
+                        "license_plate": route.find("ppubus1").text
+                        })
+                        
+                        if type == "00":
+                            results[service].append({
+                            "distance": route.find("distanciabus2").text,
+                            "time_prediction": route.find("horaprediccionbus2").text,
+                            "license_plate": route.find("ppubus2").text
+                            })
+                        
+                    else:
+                        results[service] = route.find("respuestaServicio").text
+                
+                return_list.append(results)
+                
+                # This is the name of the Bus Stop
+                return_list.append(received_data.find("nomett").text)
+                return return_list
