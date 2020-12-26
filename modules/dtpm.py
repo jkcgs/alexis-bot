@@ -97,8 +97,7 @@ class DTPM(Command):
                         routes.append('**{}**: {} (patente *{}*)'.format(
                             route, next_bus['time_prediction'], next_bus['license_plate']
                         ))
-                
-                print(data[1])
+
                 
                 e = Embed(title='$[dtpm-next-arrivals]', description="{} **{}**\n".format(red_emoji, data[1])+'\n'.join(routes))
                 await cmd.answer(e, locales={'stop': cmd.args[0].upper()})
