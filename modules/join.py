@@ -41,7 +41,8 @@ class JoinCmd(Command):
         try:
             attempts = 0
             while attempts < 5:
-                await cmd.author.add_roles([role], 'User join')
+                await cmd.typing()
+                await cmd.author.add_roles(role, reason='User join', atomic=False)
                 if role in cmd.author.roles:
                     break
                 attempts += 1
