@@ -5,7 +5,7 @@ from bot.utils import get_guild_role
 
 
 class JoinCmd(Command):
-    __version__ = '1.0.0'
+    __version__ = '1.0.1'
     __author__ = 'makzk'
     cfg_name = 'joinrole_id'
 
@@ -39,9 +39,19 @@ class JoinCmd(Command):
             return
 
         try:
-            await cmd.author.add_roles(role)
+            attempts = 0
+            while attempts < 5:
+                await cmd.author.add_roles([role], 'User join')
+                if role in cmd.author.roles:
+                    break
+                attempts += 1
+
+            if attempts == 3:
+                raise IOError()
+
             await cmd.answer('$[join-joined]')
-        except (discord.Forbidden, discord.HTTPException):
+        except (IOError, discord.Forbidden, discord.HTTPException) as err:
+            self.log.exception(err)
             await cmd.answer('$[join-could-not-assign]')
 
 
