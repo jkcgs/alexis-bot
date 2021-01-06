@@ -60,7 +60,11 @@ class NextSteamSale(Command):
             async with self.http.get(NextSteamSale.url) as s:
                 content = await s.text()
                 soup = BeautifulSoup(content, 'html.parser')
-                self.sale = json.loads(soup.find('input', {'id': 'hdnNextSale'}).attrs['value'])
+                elem = soup.find('input', {'id': 'hdnNextSale'})
+                if elem and 'value' in elem.attrs:
+                    self.sale = json.loads(elem.attrs['value'])
+                else:
+                    raise Exception('Next Steam sale data not available')
 
         except Exception as err:
             self.log.error(err)
