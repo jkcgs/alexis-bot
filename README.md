@@ -1,4 +1,4 @@
-## Alexis Bot
+## Alexis Boto
 
 This is a Discord bot that aims to deliver tools for all Discord users, with moderation
 and fun commands, including tools for automate tasks on servers. It is also easy to mantain,
