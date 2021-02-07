@@ -19,7 +19,8 @@ config = {
     'whitelist_contact': '130324995984326656',
     'whitelist_servers': ['198944348379938816'],
     'blacklist_servers': [],
-    'shutdown_channel': ''
+    'shutdown_channel': '',
+    'chunk_guilds': True
 }
 datetime_format = '%Y-%m-%d %H:%M:%S'
 filename_format = '%Y-%m-%d_%H-%M-%S'

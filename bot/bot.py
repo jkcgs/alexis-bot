@@ -13,6 +13,7 @@ from bot.logger import new_logger
 from bot.utils import auto_int
 
 log = new_logger('Core')
+config = BotConfiguration.get_instance()
 
 
 class AlexisBot(discord.Client):
@@ -26,7 +27,7 @@ class AlexisBot(discord.Client):
         Initializes configuration, logging, an aiohttp session and class attributes.
         :param options: The discord.Client options
         """
-        u_options = dict(chunk_guilds_at_startup=False, **options)
+        u_options = dict(chunk_guilds_at_startup=config.get('chunk_guilds'), **options)
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(**u_options, intents=intents)
@@ -41,7 +42,7 @@ class AlexisBot(discord.Client):
         self.deleted_messages_nolog = []
 
         self.manager = Manager(self)
-        self.config = None
+        self.config = config
         self.loop = asyncio.get_event_loop()
 
         # Dinamically create and override event handler methods
@@ -68,7 +69,6 @@ class AlexisBot(discord.Client):
         log.info('------')
 
         # Load configuration
-        self.load_config()
         if self.config.get('token', '') == '':
             raise RuntimeError('Discord bot token not defined. It should be in config.yml file.')
 
@@ -88,7 +88,8 @@ class AlexisBot(discord.Client):
         # Connect to Discord
         try:
             self.start_time = datetime.now()
-            log.info('Connecting to Discord...')
+            chunking_info = ' (load guild chunks enabled!)' if config.get('chunk_guilds') else ''
+            log.info('Connecting to Discord{}...'.format(chunking_info))
             self.loop.run_until_complete(self.start(self.config['token']))
         except discord.errors.LoginFailure:
             log.error('Invalid Discord token!')
