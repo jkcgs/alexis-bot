@@ -29,7 +29,7 @@ Check out [this guide](https://github.com/jkcgs/alexis-bot/wiki/Administration-a
 
 This bot has a lot of """funny""" and useful commands, for example, providing random cats, displaying
 the current weather, fetch a term definition on Urban Dictionary, and more. Check out [this page](https://discord.cl/commands) for more
-details about all the available commands.
+details about all the available commands
 
 ### Development
 
