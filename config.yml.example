@@ -44,8 +44,6 @@ token: ''
 #cleverbot_apikey: ''
 # Covid19CL informations: !covid
 #covid19cl_discord_channel: ''
-#covid19cl_telegram_channel: ''
-#covid19cl_telegram_key: ''
 # Currency conversion: !value
 #currency_apikey: ''
 #sbif_apikey: ''

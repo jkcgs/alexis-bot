@@ -14,7 +14,7 @@ def nf(val):
 
 def data_diff(data):
     diff = {}
-    fields = ['activos', 'conectados', 'confirmados', 'criticos', 'fallecidos',
+    fields = ['activos', 'conectados', 'criticos', 'fallecidos',
               'recuperados', 'ventiladores_disp']
     for field in fields:
         diff[field] = nf(data[field])
@@ -26,8 +26,13 @@ def data_diff(data):
 
 def description(data):
     diff = data_diff(data)
+
+    total_nuevos = nf(data["total_nuevos"])
+    if not total_nuevos.startswith('-'):
+        total_nuevos = '+' + total_nuevos
+
     return f'Información del día **{data["fecha"]}** (hasta las 21:00 del día anterior)\n\n' \
-        f'**Total confirmados:** {diff["confirmados"]}\n' \
+        f'**Total confirmados:** {nf(data["confirmados"])} ({total_nuevos})\n' \
         f'*({nf(data["sintomaticos"])} sintomáticos, {nf(data["asintomaticos"])} asintomáticos, ' \
         f'{nf(data["sin_notificar"])} sin notificar)*\n' \
         f'**Total activos:** {diff["activos"]}\n' \
@@ -50,7 +55,7 @@ def embed(data):
 
 class Covid19CL(Command):
     __author__ = 'makzk'
-    __version__ = '2.0.0'
+    __version__ = '3.0.0'
     url = 'https://api.mak.wtf/covid'
     _last_day = datetime.now().day
 
@@ -62,11 +67,6 @@ class Covid19CL(Command):
         self.config = GuildConfiguration.get_instance()
 
         self.schedule = (self.task, 30)
-
-        self.default_config = {
-            'covid19cl_telegram_key': '',
-            'covid19cl_telegram_channel': ''
-        }
 
     async def handle(self, cmd):
         try:
@@ -87,11 +87,6 @@ class Covid19CL(Command):
             await cmd.answer('No se pudo cargar la información: {}'.format(str(e)))
 
     async def publish(self, data):
-        tg_key = self.bot.config.get('covid19cl_telegram_key')
-        tg_api = 'https://api.telegram.org/bot{apikey}/sendMessage'.format(apikey=tg_key)
-        tg_chanid = self.bot.config.get('covid19cl_telegram_channel')
-
-        message = description(data)
         the_embed = embed(data)
 
         self.log.debug('Publishing Covid19 data to Discord...')
@@ -103,19 +98,6 @@ class Covid19CL(Command):
                 self.log.debug('Published to news channel {}'.format(chan.name))
         except (Forbidden, HTTPException):
             self.log.debug('Could not publish the message to the news channel {}'.format(chan.name))
-
-        self.log.debug('Publishing Covid19 data to Telegram...')
-        tg_message = message.replace('**', '#').replace('*', '_').replace('#', '*') + '\n\nSent by AlexisBot™'
-        tg_data = {'chat_id': tg_chanid, 'text': tg_message, 'parse_mode': 'Markdown'}
-        tg_resp = await self.http.post(tg_api, json=tg_data)
-        tg_resp = await tg_resp.json()
-        if tg_resp.get('ok', False):
-            tg_chat = tg_resp['result']['chat']
-            tg_chat_name = tg_chat.get('title', tg_chat.get('username', 'a Telegram channel'))
-            self.log.debug('Message successfully sent to "{}"'.format(tg_chat_name))
-        else:
-            self.log.error('Could not send the data to Telegram')
-            self.log.error(tg_resp)
 
     async def task(self, force=False):
         now = datetime.now()
