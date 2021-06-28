@@ -12,50 +12,15 @@ def nf(val):
     return '.'.join([str(val)[::-1][i:i + 3] for i in range(0, len(str(val)), 3)])[::-1].replace('-.', '-')
 
 
-def data_diff(data):
-    diff = {}
-    fields = ['activos', 'conectados', 'criticos', 'fallecidos',
-              'recuperados', 'ventiladores_disp']
-    for field in fields:
-        diff[field] = nf(data[field])
-        if data['ayer']:
-            val = data[field] - data['ayer'][field]
-            diff[field] += ' ({})'.format(['', '+'][int(val > 0)] + nf(val))
-    return diff
-
-
-def description(data):
-    diff = data_diff(data)
-
-    total_nuevos = nf(data["total_nuevos"])
-    if not total_nuevos.startswith('-'):
-        total_nuevos = '+' + total_nuevos
-
-    return f'Información del día **{data["fecha"]}** (hasta las 21:00 del día anterior)\n\n' \
-        f'**Total confirmados:** {nf(data["confirmados"])} ({total_nuevos})\n' \
-        f'*({nf(data["sintomaticos"])} sintomáticos, {nf(data["asintomaticos"])} asintomáticos, ' \
-        f'{nf(data["sin_notificar"])} sin notificar)*\n' \
-        f'**Total activos:** {diff["activos"]}\n' \
-        f'**Recuperados:** {diff["recuperados"]}\n' \
-        f'**Fallecidos:** {diff["fallecidos"]}\n\n' \
-        f'**Exámenes realizados:** {nf(data["total_examenes"])} (+{nf(data["examenes"])}, ' \
-        f'positividad: {data["examenes_positividad"]})\n' \
-        f'**Pacientes conectados:** {diff["conectados"]}, críticos: {diff["criticos"]}\n' \
-        f'**Ventiladores disponibles:** {diff["ventiladores_disp"]}\n\n' \
-        f'**Residencias sanitarias**: {data["rs_residencias"]} ' \
-        f'con {nf(data["rs_habitaciones"])} habitaciones'
-
-
 def embed(data):
-    desc = description(data)
-    the_embed = Embed(title='Estado del Coronavirus COVID-19 en Chile', description=desc)
+    the_embed = Embed(title='Estado del Coronavirus COVID-19 en Chile', description=data['message_md'])
     the_embed.set_footer(text='Información actualizada al: {}'.format(data['ts_capturado']))
     return the_embed
 
 
 class Covid19CL(Command):
     __author__ = 'makzk'
-    __version__ = '3.0.0'
+    __version__ = '3.0.1'
     url = 'https://api.mak.wtf/covid'
     _last_day = datetime.now().day
 
