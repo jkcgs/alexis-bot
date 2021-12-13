@@ -3,7 +3,7 @@ aiohttp~=3.7.3
 beautifulsoup4==4.9.3
 discord.py==1.6.0
 emoji==1.2.0
-lxml==4.6.3
+lxml==4.6.5
 peewee==3.14.4
 ruamel.yaml==0.17.10
 feedparser==6.0.8
