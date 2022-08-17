@@ -26,7 +26,7 @@ class Manager:
         self.mention_handlers = []
         self.tasks_loop = asyncio.get_event_loop()
 
-        headers = {'User-Agent': '{}/{} +discord.cl/bot'.format(bot.__class__.name, bot.__class__.__version__)}
+        headers = {'User-Agent': '{}/{} (https://alexisbot.mak.wtf/)'.format(bot.__class__.name, bot.__class__.__version__)}
         self.http = aiohttp.ClientSession(headers=headers, cookie_jar=aiohttp.CookieJar(unsafe=True))
 
     def load_instances(self):

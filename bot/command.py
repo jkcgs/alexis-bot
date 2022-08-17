@@ -2,11 +2,10 @@ import aiohttp
 import asyncio
 import discord
 
-from bot.utils import lazy_property
-from . import SingleLanguage
-from bot.lib.guild_configuration import GuildConfiguration
+from . import SingleLanguage, categories
+from .utils import lazy_property
+from .lib.guild_configuration import GuildConfiguration
 from .logger import new_logger
-from . import categories
 
 
 class Command:
@@ -65,6 +64,11 @@ class Command:
                 lang_code = guildcfg.get('lang#' + chanid, lang_code)
 
         return SingleLanguage(self.bot.lang, lang_code)
+    
+    @classmethod
+    def user_optout(cls, user):
+        from .modules.userlog_optout import UserLogOptOut
+        return UserLogOptOut.user_opted_out(user.id)
 
     @lazy_property
     def http(self):
@@ -72,7 +76,7 @@ class Command:
         Creates a http session instance with its own cookie storage and user-agent.
         :return: The http session instance.
         """
-        headers = {'User-Agent': '{}/{} {}/{} (https://discord.cl/bot)'.format(
+        headers = {'User-Agent': '{}/{} {}/{} (https://alexisbot.mak.wtf/)'.format(
             self.__class__.__name__, self.__class__.__version__,
             self.bot.__class__.name, self.bot.__class__.__version__)}
 

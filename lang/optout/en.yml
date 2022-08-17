@@ -1,0 +1,20 @@
+userlog-optout-help: Allows you to opt-out from your user data being logged.
+userlog-optout-format: $CMD [yes]
+userlog-optout-details: >
+  This command allows you to opt-out from your user data being logged. But what
+  data? That sounds scary.
+
+  Well, Discord needs some bots to follow this requirement, but this bot does not
+  actually store any of your personal data. When it says data, it means some
+  information we display to server staff. This information is normally logged to
+  a hidden channel for staff members. The information provided to them is:
+
+  ```
+    - When you change your username and we display a list of your previous usernames.
+
+    - When you edit or remove your messages on servers.
+  ```
+
+  You can opt-out from this information being logged by sending `$CMD yes`.
+userlog-optout-confirm: Please use "$CMD yes" to opt out.
+userlog-optout-done: You opted-out from being logged.

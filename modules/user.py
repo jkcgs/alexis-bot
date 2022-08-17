@@ -5,7 +5,6 @@ from discord import Embed
 from discord.utils import escape_markdown
 
 from bot import Command, categories, utils
-from bot.modules.usernames import UsernamesRegistry
 from bot.utils import deltatime_to_str
 from modules.usernote import UserNoteCmd
 
@@ -50,12 +49,7 @@ class UserInfo(Command):
 
         if more and isinstance(member, discord.Member):
             n = UserNoteCmd.get_note(member)
-            names = UsernamesRegistry.get_names(member.id)
-            if len(names) == 0:
-                names = [member.name]
-
             embed.add_field(name='$[modlog-e-notes]', value=n if n != '' else '$[modlog-no-notes]')
-            embed.add_field(name='$[modlog-e-names]', value=', '.join(names))
             embed.add_field(name='$[modlog-e-age]', value=deltatime_to_str(member.joined_at - member.created_at))
 
         return embed

@@ -1,0 +1,20 @@
+userlog-optout-help: Permite que tus datos no sean registrados por el bot.
+userlog-optout-format: $CMD [yes]
+userlog-optout-details: >
+  Este comando te permite desactivar que el bot registre tus datos. ¿Pero qué datos?
+  Eso suena de miedo.
+
+  Pues, Discord necesita que algunos bot tengan esta funcionalidad, pero esto no
+  significa que realmente se guarden tus datos personales. Estos datos se refieren a
+  que se muestra a staff de servidores. Ésta normalmente se muestra en un canal
+  solo para el staff. La información que se les muestra es:
+
+  ```
+    - Cuando cambias tu usuario se muestran tus nombres de usuario anteriores.
+
+    - Cuando eliminas o editas tus mensajes en servidores.
+  ```
+
+  Puedes desactivar que se muestre esta información enviando `$CMD yes`.
+userlog-optout-confirm: Por favor usa "$CMD yes" para desactivar registrar tu información.
+userlog-optout-done: Has desactivado que tu información sea registrada.

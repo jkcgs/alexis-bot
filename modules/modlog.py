@@ -14,15 +14,9 @@ from modules.user import UserInfo
 modlog_types = ['user_join', 'user_leave', 'message_delete', 'username', 'nick', 'invite_filter', 'message_edit']
 
 
-class UserNameReg(BaseModel):
-    userid = peewee.TextField()
-    name = peewee.TextField()
-    timestamp = peewee.DateTimeField(default=datetime.now)
-
-
 class ModLog(Command):
     __author__ = 'makzk'
-    __version__ = '1.0.2'
+    __version__ = '1.1.0'
     chan_config_name = 'join_send_channel'
 
     async def on_member_join(self, member):
@@ -42,6 +36,9 @@ class ModLog(Command):
 
     async def on_message_delete(self, message):
         if message.guild is None or message.author.id == self.bot.user.id:
+            return
+        
+        if self.user_optout(message.author):
             return
 
         footer = '$[modlog-msg-sent]: ' + utils.format_date(message.created_at)
@@ -103,6 +100,10 @@ class ModLog(Command):
         # Ignore if no content changes were made
         if before.content.strip() == after.content.strip():
             return
+        
+        # Ignore if user opted-out from being logged
+        if self.user_optout(before.author):
+            return
 
         footer = '$[modlog-msg-sent]: {}, $[modlog-msg-edited]: {}'.format(
             utils.format_date(before.created_at),
@@ -127,6 +128,10 @@ class ModLog(Command):
 
     async def on_member_update(self, before, after):
         guild = after.guild
+
+        # Ignore if user opted-out from being logged
+        if self.user_optout(before):
+            return
 
         if before.name != after.name:
             if after.display_name != after.name:
