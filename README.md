@@ -81,6 +81,15 @@ I want to thank all the people that has collaborated with this project, speciall
 (a.k.a. *ibk*) for creating this project. Sadly, the code has been so heavily modified and none of his code can be found
 in the current status.
 
+### Privacy policy
+
+When you use the bot it may log some information related to your use of Discord. 
+
+The bot does not store information about your account but it does log actions when you edit or delete your messages from a server
+to log those actions to the servers staff members if they enabled moderation log, and they may choose to log that information
+to a hidden channel.
+
+You can opt-out from this information being logged by using the following command: `!optout` (with the command prefix being `!`).
+
 ### License
 This project is licensed under the [MIT license](LICENSE).
-
