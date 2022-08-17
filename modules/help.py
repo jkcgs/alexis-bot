@@ -56,7 +56,7 @@ class Help(Command):
         embed.set_footer(text='$[help-footer-for]')
         embed.description = '$[help-description]'
         if cmd.owner:
-            embed.description += ' $[help-description-owner]'
+            embed.description += '\n$[help-description-owner]'
 
         cat_values = [getattr(categories, val) for val in dir(categories) if not val.startswith('__')]
         for k in cat_values:

@@ -4,14 +4,19 @@ help-title: Commands help
 help-not-available: Help information not available
 help-special: Commands with * are only available to staff members
 help-not-found: Command not found
-help-description: >-
+help-description: >
   Hi! I'm AlexisBot, made by some folks in Chile. 🇨🇱
+
 
   Use them with the prefix **`$PX` + "command"** in any chat I can answer. If
   the command starts with `$PX`, you must type the prefix twice. For more
   information about the command, use `$CMD <command>`.
 
+
   If you want to opt-out from your data being logged, use the `$PXoptout` command.
+
+
+  You can read about the bot's [privacy policy here](https://github.com/jkcgs/alexis-bot#privacy-policy).
 help-description-owner: Commands with an asterisk can only be used by staff members.
 help-category-other: Other
 help-category-other-description: General usage

@@ -6,14 +6,19 @@ help-title: Ayuda de comandos
 help-not-available: Ayuda no disponible
 help-special: Los comandos con * son sólo para staff
 help-not-found: Comando no encontrado
-help-description: >-
+help-description: >
   ¡Hola! Soy AlexisBot, creado por unos tipos de Chile. 🇨🇱
+
 
   Úsalos con el prefijo **`$PX` + "comando"** en cualquier chat en el que pueda
   responder. Si el comando comienza con `$PX`, debes ingresar el prefijo dos
   veces. Para ver más información sobre el comando, utiliza `$CMD <comando>`.
 
+
   Si quieres que tus datos no sean registrados por el bot, usa el comando `$PXoptout`.
+
+
+  Puedes leer [aquí la política de privacidad](https://github.com/jkcgs/alexis-bot#privacy-policy) del bot.
 help-description-owner: Los comandos con "*" sólo pueden ser utilizados por miembros del staff.
 help-category-other: Otros
 help-category-other-description: Uso general
