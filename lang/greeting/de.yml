@@ -1,0 +1,30 @@
+greeting-character-alert: Nachricht kann nicht `{separator}` beinhalten
+greeting-current-channel: "Derzeitiger channel"
+greeting-disabled-alert: Diese Nachrichten sind deaktiviert. Setze zuerst eine Nachricht oder verwende `$CMD set <options...>`
+greeting-format: 'format: $CMD <set|message|channel|disable> <options...> (Wenn du keine Parameter übergibst, siehst du subcommand''s Hilfe)'
+greeting-goodbye-messages: "Abschiedsnachrichten"
+greeting-help: "Grüßt neue und abgehende Benutzer, mit eigenen Nachrichten."
+greeting-limit-alert: "Kann keine nachrichten mehr hinzufügen, derzeitiges Limit ist {limit}"
+greeting-message-added: "Nachricht hinzugefügt!"
+greeting-message-deleted: "Nachricht gelöscht!"
+greeting-message-format: 'format: $CMD message <list|add|remove|set> <options...>
+  (if you don''t add options, you''ll see sub-sub-command''s help)'
+greeting-message-saved: "Nachricht gespeichert"
+greeting-messages-disabled: "Nachrichten deaktiviert! (keine Nachrichten wurden gelöscht)."
+greeting-messages-saved: "Nachricht gespeichert"
+greeting-no-list-number: Gib eine nummer ein. Verfügbare nummern siehst du mit `$CMD message
+  list`.
+greeting-no-messages: "Keine Nachrichten gefunden"
+greeting-number-out-of-bounds: Nummer außerhalb des erlaubten Bereicht! Du siehst die Nummern mit
+  `$CMD message list`.
+greeting-set-limit: "Nachrichten können maximal {limit} Zeichen haben. Nachricht Nummer
+  {number} hat {length} Zeichen."
+greeting-settings-saved: "Einstellungen gespeicert!"
+greeting-welcome-messages: "Willkommnsnachrichten"
+greeting-set-format: "format: $CMD set <channel> <message1>|<message2>|...|<message{limit}>\n
+Falls mehrere Nachrichte vorhanden sind, wird eine zufällig gewählt.
+Jede nachricht muss mit `{separator}` seperiert und kann bis zu {max-length} Zeichen lang sein.
+Du kannst die folgenden Platzhalter verwenden: \n
+  `$name`: Nutzername\n
+  `$mention`: Erwähnung\n
+  `$server`: Servername"

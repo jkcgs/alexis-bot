@@ -1,0 +1,27 @@
+help-help: Zeigt alle verfügbaren Befehle
+help-usage: '`$PXhelp [Befehl]`. Benutze Befehlnamen für mehr Information.'
+help-title: Befehlhilfe
+help-not-available: Hilfe nicht verfügbar
+help-special: Befehle mit * sind nur für Berechtigte verfügbar.
+help-not-found: Befehl nicht gefunden
+help-description: 'Benutze sie mit dem Prefix **`$PX` + "Befehl"** in irgendeinen Chat auf den ich Zugriff habe. Wenn der Befehl mit $PX` anfängt, musst du den Prefix zweimal schreiben.'
+help-description-owner: Befehle mit Sternchen können nur von Berechtigten benutzt werden.
+help-category-other: Anderes
+help-category-other-description: Allgemeine Benutzung
+help-category-fun: Lustiges
+help-category-fun-description: Lustige Befehle
+help-category-images: Bilder
+help-category-images-description: Bildersammlung und generierung
+help-category-information: Information
+help-category-information-description: ''
+help-category-moderation: Moderation
+help-category-moderation-description: ''
+help-category-staff: Staff
+help-category-staff-description: 'Interaktion mit Server konfigurieren'
+help-category-settings: Einstellungen
+help-category-settings-description: 'Magische Befehle'
+help-category-utility: Werkzeuge
+help-category-utility-description: ''
+help-footer-for: To $AU
+help-format-title: Befehlsverwendung
+help-format-not-available: Nicht verfügbar
